@@ -2,7 +2,8 @@
 
 [Live demo](https://yuchi-wang02.github.io/bizhallu/) |
 [Case demo](https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html) |
-[Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html)
+[Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html) |
+[Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
 
 BizHallu is a span-level hallucination detection project for LLM-generated
 business analysis. It evaluates whether generated business facts are grounded in
@@ -37,6 +38,7 @@ Start here:
 - Interactive case demo: <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html>
 - Long-form portfolio narrative: <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html>
 - Detector interpretation: <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html>
+- Interview presentation deck: <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx>
 
 The demo focuses on `q_0064` and `q_0069`, two cases where Qwen3-0.6B writes
 fluent retail analysis while binding evidence values to the wrong rank or

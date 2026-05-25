@@ -720,8 +720,8 @@ def main() -> None:
 
     if github_pages_ready:
         remaining_after_full100_generation = [
-            "Decide whether the first public GitHub upload should include slides now or add slides in a follow-up commit.",
-            "Use docs/index.html as the GitHub Pages entry point and reports/ as the experiment-native report archive.",
+            "Keep docs/index.html as the GitHub Pages entry point and reports/ as the experiment-native report archive.",
+            "Use the linked 10-slide interview deck for concise portfolio walkthroughs.",
             "Keep large raw data, model traces, model weights, and external baseline repositories out of the public commit.",
         ]
     elif portfolio_narrative_ready:

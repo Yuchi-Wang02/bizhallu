@@ -18,6 +18,7 @@ outputs/*.json
 outputs/*_report.json
 outputs/*_validation.json
 outputs/*.log
+outputs/*/
 
 # Keep these lightweight docs and metadata tracked if a repo is initialized.
 !outputs/README.md

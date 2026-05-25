@@ -33,6 +33,8 @@ Current report-ready drafts:
 - `bizhallu_portfolio_narrative.html`
 - `bizhallu_portfolio_narrative_summary.json`
 - `bizhallu_portfolio_narrative_validation.json`
+- `bizhallu_ai_reliability_deck.pptx`
+- `bizhallu_ai_reliability_deck_contact_sheet.png`
 
 GitHub Pages copies of the public-facing HTML reports are generated under
 `docs/` by `src/build_github_pages_bundle.py`. Keep `reports/` as the

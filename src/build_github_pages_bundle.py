@@ -59,7 +59,17 @@ ASSET_COPIES = [
         RESULTS_DIR / "full100_draft_detector_error_review_examples.csv",
         DOCS_ASSETS_DIR / "full100_draft_detector_error_review_examples.csv",
         "detector_error_examples_csv",
-    )
+    ),
+    (
+        REPORTS_DIR / "bizhallu_ai_reliability_deck.pptx",
+        DOCS_ASSETS_DIR / "bizhallu_ai_reliability_deck.pptx",
+        "presentation_deck_pptx",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_ai_reliability_deck_contact_sheet.png",
+        DOCS_ASSETS_DIR / "bizhallu_ai_reliability_deck_contact_sheet.png",
+        "presentation_deck_contact_sheet_png",
+    ),
 ]
 
 LINK_REWRITES = {
@@ -384,6 +394,7 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
           <div class="actions">
             <a class="button primary" href="./portfolio_demo.html">Open interactive demo</a>
             <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
+            <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
           </div>
         </div>
         <aside class="snapshot" aria-label="Project snapshot">
@@ -416,6 +427,11 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
             <h3>Detector interpretation</h3>
             <p>Read how AUPRC, F1, simple uncertainty signals, and energy-family baselines should be interpreted.</p>
             <p><a href="./detector_interpretation.html">Open interpretation</a></p>
+          </article>
+          <article class="card">
+            <h3>Interview deck</h3>
+            <p>Use the 10-slide PowerPoint deck for a concise walkthrough of motivation, pipeline, results, cases, and positioning.</p>
+            <p><a href="./assets/bizhallu_ai_reliability_deck.pptx">Download PPTX</a></p>
           </article>
         </div>
       </section>

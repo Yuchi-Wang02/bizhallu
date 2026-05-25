@@ -20,6 +20,7 @@ REQUIRED_INDEX_FRAGMENTS = [
     "BizHallu GitHub Pages",
     "Open interactive demo",
     "Read portfolio narrative",
+    "Download interview deck",
     "github_pages_ready",
     "q_0064",
     "q_0069",
@@ -39,6 +40,8 @@ REQUIRED_PAGE_FILES = [
     "label_lock_report.html",
     "label_confirmation_packet.html",
     "assets/full100_draft_detector_error_review_examples.csv",
+    "assets/bizhallu_ai_reliability_deck.pptx",
+    "assets/bizhallu_ai_reliability_deck_contact_sheet.png",
 ]
 
 FORBIDDEN_FRAGMENTS = [
