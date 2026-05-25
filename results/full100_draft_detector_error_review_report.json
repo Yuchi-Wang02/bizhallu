@@ -1,0 +1,278 @@
+{
+  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
+  "comparison_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
+  "annotations_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\annotations\\span_annotations_full100_draft.jsonl",
+  "generations_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_full100_generations.jsonl",
+  "review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_review.jsonl",
+  "error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review.csv",
+  "by_baseline_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_baseline.csv",
+  "by_fact_type_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_fact_type.csv",
+  "by_question_type_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_question_type.csv",
+  "examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv",
+  "review_scope": "heldout_test_split_only",
+  "selected_baselines": [
+    {
+      "family": "simple",
+      "baseline": "one_minus_min_top2_margin",
+      "score_field": "one_minus_min_top2_margin",
+      "score_group": "simple_uncertainty",
+      "threshold": "0.334333",
+      "dev_f1": "0.767857",
+      "dev_precision": "0.843137",
+      "dev_recall": "0.704918",
+      "dev_specificity": "0.804878",
+      "test_auprc": "0.835073",
+      "test_auroc": "0.756831",
+      "test_f1": "0.752294",
+      "test_precision": "0.854167",
+      "test_recall": "0.672131",
+      "test_specificity": "0.833333",
+      "test_accuracy": "0.737864",
+      "test_tp": "41",
+      "test_fp": "7",
+      "test_tn": "35",
+      "test_fn": "20",
+      "test_positive_count": "61",
+      "test_negative_count": "42",
+      "all_positive_like": "false",
+      "threshold_source_split": "dev",
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher value means at least one token has a low top-2 margin.",
+      "baseline_role": "simple_best_test_auprc"
+    },
+    {
+      "family": "energy",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "score_field": "mean_spilled_probability_mass_after_top2",
+      "score_group": "probability_mass_control",
+      "threshold": "0.000225",
+      "dev_f1": "0.775194",
+      "dev_precision": "0.735294",
+      "dev_recall": "0.819672",
+      "dev_specificity": "0.560976",
+      "test_auprc": "0.807697",
+      "test_auroc": "0.727557",
+      "test_f1": "0.772727",
+      "test_precision": "0.71831",
+      "test_recall": "0.836066",
+      "test_specificity": "0.52381",
+      "test_accuracy": "0.708738",
+      "test_tp": "51",
+      "test_fp": "20",
+      "test_tn": "22",
+      "test_fn": "10",
+      "test_positive_count": "61",
+      "test_negative_count": "42",
+      "all_positive_like": "false",
+      "threshold_source_split": "dev",
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher probability mass outside the top two choices indicates diffuse token uncertainty.",
+      "baseline_role": "energy_best_test_f1"
+    }
+  ],
+  "selected_baseline_count": 2,
+  "error_row_count": 57,
+  "by_baseline_row_count": 2,
+  "by_fact_type_row_count": 19,
+  "by_question_type_row_count": 19,
+  "example_row_count": 20,
+  "error_counts_by_baseline": {
+    "one_minus_min_top2_margin": {
+      "false_positive": 7,
+      "false_negative": 20,
+      "total": 27
+    },
+    "mean_spilled_probability_mass_after_top2": {
+      "false_positive": 20,
+      "false_negative": 10,
+      "total": 30
+    }
+  },
+  "confusion_counts_by_baseline": {
+    "one_minus_min_top2_margin": {
+      "positive->positive": 41,
+      "positive->negative": 20,
+      "negative->positive": 7,
+      "negative->negative": 35
+    },
+    "mean_spilled_probability_mass_after_top2": {
+      "positive->positive": 51,
+      "positive->negative": 10,
+      "negative->positive": 20,
+      "negative->negative": 22
+    }
+  },
+  "top_fact_type_error_counts": [
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "currency_amount",
+      "count": 9
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "currency_amount",
+      "count": 8
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_negative",
+      "group_value": "currency_amount",
+      "count": 6
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "group_value": "currency_amount",
+      "count": 5
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "month",
+      "count": 4
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "comparison_direction",
+      "count": 3
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "country",
+      "count": 3
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "ranking",
+      "count": 3
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_negative",
+      "group_value": "ranking",
+      "count": 3
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "comparison_direction",
+      "count": 2
+    }
+  ],
+  "top_question_type_error_counts": [
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "top3_products_month",
+      "count": 6
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_negative",
+      "group_value": "top3_products_month",
+      "count": 6
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "monthly_revenue_change",
+      "count": 6
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "country_comparison_month",
+      "count": 5
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "country_comparison_month",
+      "count": 5
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "top_product_month",
+      "count": 4
+    },
+    {
+      "family": "energy",
+      "baseline_role": "energy_best_test_f1",
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "error_type": "false_positive",
+      "group_value": "top3_products_month",
+      "count": 4
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "group_value": "product_revenue_share_month",
+      "count": 3
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "group_value": "country_comparison_month",
+      "count": 2
+    },
+    {
+      "family": "simple",
+      "baseline_role": "simple_best_test_auprc",
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "group_value": "return_impact_month",
+      "count": 2
+    }
+  ],
+  "interpretation_guardrails": [
+    "This review is held-out test only; dev rows are excluded because dev selected thresholds.",
+    "Rows are baseline-specific, so the same span can appear once per selected detector.",
+    "Use false-positive and false-negative patterns to qualify detector claims before public reporting.",
+    "Current labels remain draft until presentation-level label confirmation."
+  ],
+  "ready_for_error_pattern_review": true,
+  "num_failures": 0,
+  "failures": []
+}

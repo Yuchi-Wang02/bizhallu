@@ -1,0 +1,67 @@
+{
+  "name": "pilot20",
+  "version": "0.1",
+  "purpose": "Small, train-only pilot generation set used to verify answer quality and span-label feasibility before running the full 100-question generation.",
+  "selection_policy": {
+    "split": "train_only",
+    "record_count": 20,
+    "requirements": [
+      "cover all seven MVP question types",
+      "include the five qwen_batch5 smoke-test questions as anchors",
+      "include easy, medium, and hard examples",
+      "include product, country, arithmetic, ranking, share, and return/cancellation reasoning",
+      "avoid dev and test records so threshold tuning and final evaluation remain clean"
+    ]
+  },
+  "question_ids": [
+    "q_0001",
+    "q_0012",
+    "q_0016",
+    "q_0017",
+    "q_0022",
+    "q_0029",
+    "q_0030",
+    "q_0041",
+    "q_0047",
+    "q_0050",
+    "q_0052",
+    "q_0057",
+    "q_0060",
+    "q_0065",
+    "q_0072",
+    "q_0073",
+    "q_0084",
+    "q_0088",
+    "q_0089",
+    "q_0100"
+  ],
+  "included_smoke_test_question_ids": [
+    "q_0001",
+    "q_0017",
+    "q_0030",
+    "q_0050",
+    "q_0073"
+  ],
+  "expected_question_type_counts": {
+    "top_country_month": 3,
+    "top_product_month": 3,
+    "country_comparison_month": 3,
+    "monthly_revenue_change": 3,
+    "top3_products_month": 3,
+    "product_revenue_share_month": 3,
+    "return_impact_month": 2
+  },
+  "expected_difficulty_counts": {
+    "easy": 2,
+    "medium": 10,
+    "hard": 8
+  },
+  "planned_outputs": {
+    "selection_preview": "outputs/pilot20_selection_preview.csv",
+    "generations": "outputs/qwen_pilot20_generations.jsonl",
+    "token_traces": "outputs/qwen_pilot20_token_traces.jsonl",
+    "run_report": "outputs/qwen_pilot20_report.json",
+    "validation": "outputs/qwen_pilot20_validation.json",
+    "review_table": "outputs/pilot20_review.csv"
+  }
+}

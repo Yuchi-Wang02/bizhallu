@@ -1,0 +1,24 @@
+{
+  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_scores.csv",
+  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "questions_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
+  "baseline_family": "simple",
+  "dev_split": "dev",
+  "test_split": "test",
+  "row_count": 135,
+  "split_counts": {
+    "train": 135
+  },
+  "num_failures": 2,
+  "failures": [
+    {
+      "split": "dev",
+      "reason": "no dev rows available for threshold selection"
+    },
+    {
+      "split": "test",
+      "reason": "no test rows available for held-out evaluation"
+    }
+  ],
+  "ready_for_split_metrics": false
+}

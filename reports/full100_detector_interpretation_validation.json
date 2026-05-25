@@ -1,0 +1,10 @@
+{
+  "html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation.html",
+  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "source_family_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
+  "source_error_review_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
+  "ready_for_presentation_label_confirmation": true,
+  "ready_for_locked_presentation": true,
+  "num_failures": 0,
+  "failures": []
+}

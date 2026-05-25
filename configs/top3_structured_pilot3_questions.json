@@ -1,0 +1,27 @@
+{
+  "name": "top3_structured_pilot3",
+  "version": "0.1",
+  "purpose": "Small structured-prompt rerun set for the top-3 product ranking failure family before scaling to all top3 questions.",
+  "source_prompt_file": "outputs/qwen_top3_structured_prompts.jsonl",
+  "selection_policy": {
+    "record_count": 3,
+    "split": "train_only",
+    "requirements": [
+      "use top3_products_month questions that appeared in pilot20",
+      "target the confident_wrong_top3_ranked_item error family",
+      "keep the first structured prompt run small before testing all 13 top3 prompts"
+    ]
+  },
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "planned_command": "& C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe src/run_qwen_batch.py --prompts-path outputs/qwen_top3_structured_prompts.jsonl --question-config configs/top3_structured_pilot3_questions.json --output-prefix qwen_top3_structured_pilot3 --greedy --max-new-tokens 140",
+  "planned_outputs": {
+    "generations": "outputs/qwen_top3_structured_pilot3_generations.jsonl",
+    "token_traces": "outputs/qwen_top3_structured_pilot3_token_traces.jsonl",
+    "run_report": "outputs/qwen_top3_structured_pilot3_report.json",
+    "validation": "outputs/qwen_top3_structured_pilot3_validation.json"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "status": "github_pages_bundle_ready",
+  "index_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\index.html",
+  "index_sha256": "8b0eacf09a3e88ea8f00afddc596a4668a4566ab2c1ca3b905230d35d68c1fa3",
+  "source_demo_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
+  "source_narrative_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
+  "source_preflight_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_preflight_validation.json",
+  "source_preflight_stage": "github_pages_ready",
+  "current_stage": "github_pages_ready",
+  "primary_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "question_count": 100,
+  "annotated_span_count": 205,
+  "locked_primary_span_count": 7,
+  "best_test_auprc": 0.835073,
+  "best_test_f1": 0.779412,
+  "energy_best_f1": 0.772727,
+  "label_lock_basis": "assistant_full_review",
+  "pages": [
+    {
+      "role": "interactive_demo",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\portfolio_demo.html",
+      "source_sha256": "d58da03fd9c153d8af5c1b5204c0c67a0111370e2827fad74917e8ef50f190b7",
+      "dest_sha256": "ec75159be605d0527e348c3c3862607c6a207672e3088900b9e0fa5057fdfebf",
+      "dest_size_bytes": 25377
+    },
+    {
+      "role": "portfolio_narrative",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\portfolio_narrative.html",
+      "source_sha256": "e0e0fbb33ea89157ff0d8413b6959716a83300d81d81ea251cb3ad2ec191dcf2",
+      "dest_sha256": "b02450a066069b343d03f8198d1a6564ade4e63ee3decaf6525a993c1411c2f5",
+      "dest_size_bytes": 26686
+    },
+    {
+      "role": "detector_interpretation",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\detector_interpretation.html",
+      "source_sha256": "50c60113e53bad15b27b5f5bccf310e383538edcd7ebfa9fcdd324001a43322f",
+      "dest_sha256": "1cda0f3eb285175b0f06c327d0b211135b46e0183cced5bdd17c818dd605cb26",
+      "dest_size_bytes": 14911
+    },
+    {
+      "role": "label_lock_report",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_report.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\label_lock_report.html",
+      "source_sha256": "47ef51af4f71dfb975c215763df993b524d970837c241cea30ed658d95a34fdb",
+      "dest_sha256": "b4607db4c533e16621c989ea5ac373eacacbc6a0570ef91a2e08199b923441eb",
+      "dest_size_bytes": 23282
+    },
+    {
+      "role": "label_confirmation_packet",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\label_confirmation_packet.html",
+      "source_sha256": "606c689909b1685a9e94d8363872b5fbf041462f4850fba7d253c9d9056a46b1",
+      "dest_sha256": "e5953e234e0d4cd503a18eefe8c86521a4fcc5cb06755f3d59467172c02c90bb",
+      "dest_size_bytes": 39677
+    }
+  ],
+  "assets": [
+    {
+      "role": "detector_error_examples_csv",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\assets\\full100_draft_detector_error_review_examples.csv",
+      "source_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
+      "dest_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
+      "dest_size_bytes": 38433
+    }
+  ],
+  "num_failures": 0,
+  "failures": []
+}

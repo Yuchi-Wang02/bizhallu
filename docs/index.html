@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu GitHub Pages</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --ink: #1d1d1f;
+        --muted: #5f6368;
+        --line: rgba(29, 29, 31, 0.13);
+        --blue: #0066cc;
+        --green: #0f766e;
+        --red: #b3261e;
+        --amber: #9a6700;
+        --shadow: 0 18px 46px rgba(0, 0, 0, 0.08);
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #eef2f5 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.5;
+      }
+      a { color: inherit; text-decoration: none; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        padding: 0 40px;
+        background: rgba(246, 247, 249, 0.86);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(16px);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 800;
+      }
+      .brand span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: white;
+        font-size: 12px;
+      }
+      nav { display: flex; gap: 8px; }
+      nav a {
+        min-height: 36px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+      nav a:hover { background: rgba(0, 0, 0, 0.06); color: var(--ink); }
+      main {
+        width: min(1160px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+        gap: 32px;
+        align-items: center;
+        min-height: calc(100vh - 64px);
+        padding: 64px 0 56px;
+      }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { overflow-wrap: anywhere; }
+      h1 {
+        max-width: 800px;
+        margin: 0;
+        font-size: clamp(42px, 7vw, 78px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin: 0;
+        font-size: clamp(30px, 4vw, 46px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.25;
+        letter-spacing: 0;
+      }
+      .hero p {
+        max-width: 760px;
+        margin: 24px 0 0;
+        color: var(--muted);
+        font-size: 21px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        font-size: 15px;
+        font-weight: 800;
+      }
+      .button.primary { background: var(--blue); color: white; }
+      .button.secondary {
+        background: rgba(0, 102, 204, 0.08);
+        border-color: rgba(0, 102, 204, 0.18);
+        color: var(--blue);
+      }
+      .snapshot {
+        display: grid;
+        gap: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+      .snapshot-row {
+        display: grid;
+        gap: 6px;
+        padding: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+      .snapshot-row:last-child { border-bottom: 0; }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      .snapshot-row strong { font-size: 18px; }
+      .section {
+        padding: 72px 0;
+        border-top: 1px solid var(--line);
+      }
+      .lede {
+        max-width: 900px;
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 24px;
+        line-height: 1.3;
+      }
+      .metric-grid, .card-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 30px;
+      }
+      .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .metric, .card {
+        min-height: 160px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+      .metric strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 34px;
+        line-height: 1;
+      }
+      .metric p, .card p, li {
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .card p { margin: 10px 0 0; }
+      .card a {
+        color: var(--blue);
+        font-weight: 800;
+      }
+      .callout {
+        display: grid;
+        gap: 14px;
+        margin-top: 30px;
+        padding: 24px;
+        border: 1px solid rgba(15, 118, 110, 0.22);
+        border-radius: 8px;
+        background: rgba(15, 118, 110, 0.07);
+      }
+      .callout strong { color: var(--green); }
+      ul {
+        display: grid;
+        gap: 10px;
+        margin: 22px 0 0;
+        padding-left: 20px;
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.06);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.95em;
+      }
+      footer {
+        padding: 36px 0 56px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font-size: 14px;
+      }
+      @media (max-width: 900px) {
+        .topbar { padding: 0 20px; }
+        nav { display: none; }
+        main { width: min(100% - 28px, 720px); }
+        .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 46px; }
+        .metric-grid, .card-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top"><span>BH</span>BizHallu</a>
+      <nav aria-label="Page sections">
+        <a href="#demo">Demo</a>
+        <a href="#results">Results</a>
+        <a href="#repo">Repo</a>
+        <a href="#claims">Claims</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">GitHub Pages portfolio bundle</p>
+          <h1>Auditing hallucinated business facts in LLM retail analysis.</h1>
+          <p>I build business analytics systems that do not just generate answers, but audit whether the answer is grounded in the underlying transaction evidence.</p>
+          <div class="actions">
+            <a class="button primary" href="./portfolio_demo.html">Open interactive demo</a>
+            <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
+          </div>
+        </div>
+        <aside class="snapshot" aria-label="Project snapshot">
+          <div class="snapshot-row"><span class="label">Current stage</span><strong>github_pages_ready</strong></div>
+          <div class="snapshot-row"><span class="label">Model</span><strong>Qwen/Qwen3-0.6B</strong></div>
+          <div class="snapshot-row"><span class="label">Primary cases</span><strong>q_0064 / q_0069</strong></div>
+          <div class="snapshot-row"><span class="label">Label basis</span><strong>assistant_full_review</strong></div>
+        </aside>
+      </section>
+
+      <section id="demo" class="section">
+        <p class="eyebrow">What to click first</p>
+        <h2>The public demo shows evidence, Qwen answers, span labels, and detector scores.</h2>
+        <p class="lede">
+          This package is designed for a recruiter, classmate, or interviewer who needs
+          to understand the project without rerunning Qwen locally.
+        </p>
+        <div class="card-grid">
+          <article class="card">
+            <h3>Interactive case demo</h3>
+            <p>Inspect q_0064 and q_0069, including gold evidence, generated answer text, locked span labels, and detector outcomes.</p>
+            <p><a href="./portfolio_demo.html">Open demo</a></p>
+          </article>
+          <article class="card">
+            <h3>Portfolio narrative</h3>
+            <p>Use this as the source of truth for the project story, resume bullets, LinkedIn wording, and presentation outline.</p>
+            <p><a href="./portfolio_narrative.html">Open narrative</a></p>
+          </article>
+          <article class="card">
+            <h3>Detector interpretation</h3>
+            <p>Read how AUPRC, F1, simple uncertainty signals, and energy-family baselines should be interpreted.</p>
+            <p><a href="./detector_interpretation.html">Open interpretation</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="results" class="section">
+        <p class="eyebrow">Validated experiment summary</p>
+        <h2>Small enough to audit, complete enough to show real evaluation discipline.</h2>
+        <div class="metric-grid">
+          <article class="metric"><span class="label">Gold questions</span><strong>100</strong><p>Deterministic business questions generated from Online Retail evidence.</p></article>
+          <article class="metric"><span class="label">Annotated spans</span><strong>205</strong><p>Held-out high-priority business fact spans aligned to token traces.</p></article>
+          <article class="metric"><span class="label">Best test AUPRC</span><strong>0.835</strong><p>Best split-safe ranking metric from the simple detector family.</p></article>
+          <article class="metric"><span class="label">Best test F1</span><strong>0.779</strong><p>Best split-safe threshold metric; energy-family best F1 is 0.773.</p></article>
+        </div>
+        <div class="callout">
+          <strong>Central finding</strong>
+          <span>
+            Qwen can produce fluent business analysis while binding real transaction
+            values to the wrong product, rank, or conclusion. The detector results
+            should be discussed at span level, not as whole-answer correctness.
+          </span>
+        </div>
+      </section>
+
+      <section id="repo" class="section">
+        <p class="eyebrow">Repository map</p>
+        <h2>What belongs in GitHub and what stays local.</h2>
+        <div class="card-grid">
+          <article class="card">
+            <h3>Track</h3>
+            <p><code>src/</code>, <code>configs/</code>, <code>docs/</code>, <code>reports/</code>, <code>results/</code>, README files, and lightweight validation summaries.</p>
+          </article>
+          <article class="card">
+            <h3>Keep local</h3>
+            <p>Raw Online Retail files, full model traces, Hugging Face cache, model weights, and unmodified external baseline repositories.</p>
+          </article>
+          <article class="card">
+            <h3>Reproduce</h3>
+            <p>Use <code>README.md</code> and <code>docs/project_blueprint.md</code> for the pipeline. The public pages are generated from validated reports.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="claims" class="section">
+        <p class="eyebrow">Presentation guardrails</p>
+        <h2>The strongest public version is honest about scope.</h2>
+        <ul>
+          <li>Say the project evaluates span-level business facts, not full report truthfulness.</li>
+          <li>Say labels are locked for presentation with <code>assistant_full_review</code>; do not claim a large human-labeled benchmark.</li>
+          <li>Say the data source is UCI Online Retail and the model run is local <code>Qwen/Qwen3-0.6B</code>.</li>
+          <li>Use q_0064 and q_0069 as the main case studies because they show realistic business-risk errors.</li>
+          <li>Frame the project as business analytics and AI reliability, not as a generic sales dashboard.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <main>
+        GitHub Pages bundle generated from validated BizHallu artifacts. Public demo spans: 7.
+      </main>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "review_notes_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.csv",
+  "review_notes_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.jsonl",
+  "review_notes_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.html",
+  "review_notes_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_summary.json",
+  "selected_annotation_count": 15,
+  "selected_question_count": 9,
+  "assistant_review_complete": true,
+  "human_confirmation_required": true,
+  "labels_locked": false,
+  "num_failures": 0,
+  "failures": []
+}

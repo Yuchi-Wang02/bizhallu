@@ -1,0 +1,3 @@
+﻿family,baseline_role,baseline,score_field,score_group,threshold,test_precision,test_recall,test_specificity,test_f1,test_auprc,test_tp,test_fp,test_tn,test_fn,false_positive_count,false_negative_count,error_count
+simple,simple_best_test_auprc,one_minus_min_top2_margin,one_minus_min_top2_margin,simple_uncertainty,0.334333,0.854167,0.672131,0.833333,0.752294,0.835073,41,7,35,20,7,20,27
+energy,energy_best_test_f1,mean_spilled_probability_mass_after_top2,mean_spilled_probability_mass_after_top2,probability_mass_control,0.000225,0.71831,0.836066,0.52381,0.772727,0.807697,51,20,22,10,20,10,30

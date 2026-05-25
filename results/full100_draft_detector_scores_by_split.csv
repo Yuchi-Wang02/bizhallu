@@ -1,0 +1,3 @@
+﻿split,question_count,span_count,positive_count,negative_count,label_counts,fact_type_counts
+dev,17,102,61,41,"{""correct_key_fact"": 41, ""hallucinated_key_fact"": 61}","{""comparison_direction"": 3, ""country"": 7, ""currency_amount"": 40, ""malformed_number"": 1, ""month"": 19, ""percentage"": 6, ""product_name"": 10, ""product_stock_code"": 5, ""ranking"": 10, ""unsupported_business_claim"": 1}"
+test,18,103,61,42,"{""correct_key_fact"": 42, ""hallucinated_key_fact"": 60, ""unsupported_claim"": 1}","{""comparison_direction"": 6, ""country"": 8, ""currency_amount"": 42, ""malformed_number"": 1, ""month"": 18, ""percentage"": 9, ""product_name"": 10, ""product_stock_code"": 1, ""ranking"": 7, ""unsupported_business_claim"": 1}"

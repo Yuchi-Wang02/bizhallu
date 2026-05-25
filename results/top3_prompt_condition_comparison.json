@@ -1,0 +1,62 @@
+{
+  "comparison_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.csv",
+  "conditions": [
+    {
+      "condition_id": "structured_shuffled",
+      "condition_name": "structured top3",
+      "evidence_order_policy": "deterministic_hash_by_question_and_product",
+      "record_count": 3,
+      "format_valid_count": 3,
+      "exact_order_match_count": 0,
+      "exact_order_match_rate": 0.0,
+      "correct_rank_rows": 0,
+      "total_gold_rank_rows": 9,
+      "correct_rank_row_rate": 0.0,
+      "gold_presence_rows": 1,
+      "evidence_membership_rows": 9,
+      "copied_evidence_amount_rows": 9,
+      "sorted_output_count": 0,
+      "evidence_prefix_rows": 7
+    },
+    {
+      "condition_id": "sorted_control",
+      "condition_name": "sorted-evidence top3 control",
+      "evidence_order_policy": "sorted_by_net_revenue_desc_control",
+      "record_count": 3,
+      "format_valid_count": 3,
+      "exact_order_match_count": 2,
+      "exact_order_match_rate": 0.666667,
+      "correct_rank_rows": 6,
+      "total_gold_rank_rows": 9,
+      "correct_rank_row_rate": 0.666667,
+      "gold_presence_rows": 8,
+      "evidence_membership_rows": 9,
+      "copied_evidence_amount_rows": 9,
+      "sorted_output_count": 3,
+      "evidence_prefix_rows": 6
+    }
+  ],
+  "same_question_ids": true,
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "structured_failed_questions": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "sorted_control_failed_questions": [
+    "q_0065"
+  ],
+  "exact_order_match_gain": 2,
+  "correct_rank_row_gain": 6,
+  "main_findings": [
+    "Both prompt conditions produced valid 3-row tables for all three pilot questions.",
+    "Sorted evidence improved exact top3 accuracy from 0/3 to 2/3.",
+    "Sorted evidence improved rank-position stock-code accuracy from 0/9 to 6/9.",
+    "The remaining sorted-control failure is q_0065, where the model skipped the highest-revenue row."
+  ],
+  "interpretation": "The shuffled structured failure is largely a row-selection/sorting problem, but the sorted-control failure shows Qwen3-0.6B can still miss a salient first row even when the answer order is visible."
+}

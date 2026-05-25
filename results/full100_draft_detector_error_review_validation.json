@@ -1,0 +1,26 @@
+{
+  "error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review.csv",
+  "by_baseline_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_baseline.csv",
+  "by_fact_type_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_fact_type.csv",
+  "by_question_type_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_by_question_type.csv",
+  "examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv",
+  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
+  "error_row_count": 57,
+  "by_baseline_counts": {
+    "one_minus_min_top2_margin": {
+      "false_positive": 7,
+      "false_negative": 20
+    },
+    "mean_spilled_probability_mass_after_top2": {
+      "false_positive": 20,
+      "false_negative": 10
+    }
+  },
+  "fact_type_group_row_count": 19,
+  "question_type_group_row_count": 19,
+  "example_row_count": 20,
+  "selected_baseline_count": 2,
+  "ready_for_error_pattern_review": true,
+  "num_failures": 0,
+  "failures": []
+}

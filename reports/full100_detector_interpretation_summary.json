@@ -1,0 +1,266 @@
+{
+  "status": "report_ready_draft",
+  "scope": {
+    "dataset": "UCI Online Retail",
+    "model": "Qwen3-0.6B",
+    "evaluation_scope": "35 high-priority held-out dev/test questions; metrics reported on 103 held-out test spans",
+    "threshold_policy": "Thresholds selected on dev spans and reused unchanged on test spans.",
+    "label_status": "Presentation labels locked after assistant full review."
+  },
+  "best_overall_by_test_auprc": {
+    "family": "simple",
+    "baseline": "one_minus_min_top2_margin",
+    "score_field": "one_minus_min_top2_margin",
+    "threshold": 0.334333,
+    "test_auprc": 0.835073,
+    "test_auroc": 0.756831,
+    "test_f1": 0.752294,
+    "test_precision": 0.854167,
+    "test_recall": 0.672131,
+    "test_specificity": 0.833333,
+    "test_accuracy": 0.737864,
+    "test_tp": 41,
+    "test_fp": 7,
+    "test_tn": 35,
+    "test_fn": 20,
+    "description": "Higher value means at least one token has a low top-2 margin."
+  },
+  "best_overall_by_test_f1": {
+    "family": "simple",
+    "baseline": "mean_token_entropy",
+    "score_field": "mean_token_entropy",
+    "threshold": 0.004817,
+    "test_auprc": 0.809474,
+    "test_auroc": 0.736144,
+    "test_f1": 0.779412,
+    "test_precision": 0.706667,
+    "test_recall": 0.868852,
+    "test_specificity": 0.47619,
+    "test_accuracy": 0.708738,
+    "test_tp": 53,
+    "test_fp": 22,
+    "test_tn": 20,
+    "test_fn": 8,
+    "description": "Higher mean token entropy indicates more uncertainty."
+  },
+  "simple_best_auprc_error_counts": {
+    "false_positive": 7,
+    "false_negative": 20,
+    "total": 27
+  },
+  "energy_best_f1_error_counts": {
+    "false_positive": 20,
+    "false_negative": 10,
+    "total": 30
+  },
+  "energy_minus_simple_best_auprc_delta": -0.004679,
+  "energy_minus_simple_best_f1_delta": -0.006685,
+  "all_positive_like_energy_count": 4,
+  "error_row_count": 57,
+  "selected_baseline_count": 2,
+  "grouped_error_patterns": {
+    "simple_false_negative_fact_types": [
+      {
+        "group_value": "currency_amount",
+        "count": 9,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "comparison_direction",
+        "count": 3,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "country",
+        "count": 3,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "ranking",
+        "count": 3,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      }
+    ],
+    "simple_false_positive_fact_types": [
+      {
+        "group_value": "currency_amount",
+        "count": 5,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "percentage",
+        "count": 1,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "product_name",
+        "count": 1,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_positive"
+      }
+    ],
+    "energy_false_negative_fact_types": [
+      {
+        "group_value": "currency_amount",
+        "count": 6,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "ranking",
+        "count": 3,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "product_stock_code",
+        "count": 1,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_negative"
+      }
+    ],
+    "energy_false_positive_fact_types": [
+      {
+        "group_value": "currency_amount",
+        "count": 8,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "month",
+        "count": 4,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "comparison_direction",
+        "count": 2,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "percentage",
+        "count": 2,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      }
+    ],
+    "simple_false_negative_question_types": [
+      {
+        "group_value": "top3_products_month",
+        "count": 6,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "country_comparison_month",
+        "count": 5,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "top_product_month",
+        "count": 4,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      },
+      {
+        "group_value": "product_revenue_share_month",
+        "count": 3,
+        "family": "simple",
+        "baseline": "one_minus_min_top2_margin",
+        "baseline_role": "simple_best_test_auprc",
+        "error_type": "false_negative"
+      }
+    ],
+    "energy_false_positive_question_types": [
+      {
+        "group_value": "monthly_revenue_change",
+        "count": 6,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "country_comparison_month",
+        "count": 5,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "top3_products_month",
+        "count": 4,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      },
+      {
+        "group_value": "product_revenue_share_month",
+        "count": 2,
+        "family": "energy",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "baseline_role": "energy_best_test_f1",
+        "error_type": "false_positive"
+      }
+    ]
+  },
+  "takeaways": [
+    "Simple uncertainty is the strongest current held-out signal: it leads both overall AUPRC and overall F1.",
+    "The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.",
+    "AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.",
+    "Top-3 product questions remain the clearest confident-error failure mode.",
+    "Correct numeric and context facts are still over-flagged, so detector claims must stay qualified."
+  ],
+  "source_files": {
+    "family_comparison_report": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
+    "error_review_report": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
+    "error_review_validation": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_validation.json",
+    "error_review_examples": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv"
+  },
+  "num_failures": 0,
+  "source_validation_num_failures": 0
+}

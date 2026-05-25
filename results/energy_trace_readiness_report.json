@@ -1,0 +1,56 @@
+{
+  "generation_prefix": "qwen_top3_sorted_control_pilot3_energy",
+  "generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_energy_generations.jsonl",
+  "trace_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_energy_token_traces.jsonl",
+  "record_count": 3,
+  "trace_count": 3,
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "total_generated_tokens": 359,
+  "tokens_with_all_energy_fields": 359,
+  "energy_fields": [
+    "token_logit",
+    "step_logsumexp_logits",
+    "negative_step_logsumexp_energy",
+    "selected_step_energy_gap",
+    "top1_logit",
+    "top2_logit",
+    "spilled_probability_mass_after_top1",
+    "spilled_probability_mass_after_top2",
+    "next_state_logsumexp_logits",
+    "token_energy",
+    "marginal_energy",
+    "spilled_energy_delta",
+    "spilled_energy_abs_delta"
+  ],
+  "max_formula_diffs": {
+    "selected_step_energy_gap_vs_negative_logprob": 1.8857390386983752e-06,
+    "negative_step_logsumexp_energy_vs_step_logsumexp": 0.0,
+    "token_energy_vs_token_logit": 0.0,
+    "marginal_energy_vs_next_state_logsumexp": 0.0,
+    "spilled_energy_delta_formula": 0.0,
+    "spilled_energy_abs_delta_formula": 0.0
+  },
+  "score_ranges": {
+    "spilled_energy_abs_delta": {
+      "min": 0.0,
+      "mean": 3.2367830834348887,
+      "max": 14.25
+    },
+    "selected_step_energy_gap": {
+      "min": 0.0,
+      "mean": 0.013879542231227695,
+      "max": 0.6959800720214844
+    },
+    "token_entropy": {
+      "min": 2.7548361813956035e-08,
+      "mean": 0.028808761573864344,
+      "max": 1.105592966079712
+    }
+  },
+  "readiness_passed": true,
+  "full100_preparation_note": "Qwen traces now save raw-logit fields needed for entropy/NLL/top-2 baselines and adjacent-step fields needed for a Spilled Energy adapter."
+}

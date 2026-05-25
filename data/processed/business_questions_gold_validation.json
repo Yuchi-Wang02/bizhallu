@@ -1,0 +1,24 @@
+{
+  "question_count": 100,
+  "num_failures": 0,
+  "failures": [],
+  "question_type_counts": {
+    "country_comparison_month": 20,
+    "monthly_revenue_change": 10,
+    "product_revenue_share_month": 16,
+    "return_impact_month": 12,
+    "top3_products_month": 13,
+    "top_country_month": 16,
+    "top_product_month": 13
+  },
+  "difficulty_counts": {
+    "easy": 5,
+    "hard": 38,
+    "medium": 57
+  },
+  "split_counts": {
+    "dev": 18,
+    "test": 18,
+    "train": 64
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative.html",
+  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
+  "source_portfolio_demo_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
+  "status": "portfolio_narrative_ready",
+  "primary_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "resume_bullet_count": 5,
+  "slide_count": 7,
+  "ready_for_portfolio_narrative": true,
+  "num_failures": 0,
+  "failures": []
+}

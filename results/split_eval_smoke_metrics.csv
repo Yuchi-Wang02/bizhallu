@@ -1,0 +1,5 @@
+﻿baseline,score_field,evaluated_split,threshold_source_split,threshold,threshold_rule,precision,recall,specificity,f1,accuracy,auroc,auprc,tp,fp,tn,fn,positive_count,negative_count,selection_policy,description
+score_good,score_good,dev,dev,0.8,predict_positive_if_score_gte_threshold,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2,0,2,0,2,2,threshold_selected_on_dev_split_max_f1,Synthetic score that should select a useful dev threshold.
+score_good,score_good,test,dev,0.8,predict_positive_if_score_gte_threshold,1.0,0.5,1.0,0.666667,0.75,1.0,1.0,1,0,2,1,2,2,threshold_selected_on_dev_split_max_f1,Synthetic score that should select a useful dev threshold.
+score_bad,score_bad,dev,dev,0.2,predict_positive_if_score_gte_threshold,0.5,1.0,0.0,0.666667,0.5,0.0,0.416667,2,2,0,0,2,2,threshold_selected_on_dev_split_max_f1,Synthetic weak score used to validate comparison logic.
+score_bad,score_bad,test,dev,0.2,predict_positive_if_score_gte_threshold,0.5,1.0,0.0,0.666667,0.5,0.0,0.416667,2,2,0,0,2,2,threshold_selected_on_dev_split_max_f1,Synthetic weak score used to validate comparison logic.

@@ -1,0 +1,9 @@
+{
+  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_preflight_report.json",
+  "current_stage": "github_pages_ready",
+  "ready_for_current_stage": true,
+  "num_failures": 0,
+  "failures": [],
+  "legacy_ready_to_run_full100_generation": true,
+  "ready_to_run_full100_generation": true
+}

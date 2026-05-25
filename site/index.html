@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Project Overview</title>
+    <link rel="stylesheet" href="assets/style.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="BizHallu home">
+        <span class="brand-mark">BH</span>
+        <span>BizHallu</span>
+      </a>
+      <nav class="nav" aria-label="Page sections">
+        <a href="#pipeline">Pipeline</a>
+        <a href="#status">Status</a>
+        <a href="#pilot">Pilot</a>
+        <a href="#analysis">Analysis</a>
+        <a href="#structure">Structure</a>
+        <a href="#next">Next</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">AI reliability for business analytics</p>
+          <h1>Detecting unsupported facts in LLM-generated retail analysis.</h1>
+          <p class="hero-text">
+            BizHallu turns transaction data into deterministic business questions,
+            asks Qwen3-0.6B to write short analysis answers, and evaluates whether
+            detector signals can flag incorrect numbers, entities, rankings, and
+            conclusions.
+          </p>
+          <div class="hero-actions" aria-label="Primary document links">
+            <a class="button primary" href="../docs/project_blueprint.md">Project Blueprint</a>
+            <a class="button secondary" href="../docs/experiment_design.md">Experiment Design</a>
+          </div>
+        </div>
+
+        <aside class="snapshot" aria-label="Project snapshot">
+          <div class="snapshot-row">
+            <span class="label">Current phase</span>
+            <strong>GitHub Pages ready</strong>
+          </div>
+          <div class="snapshot-row">
+            <span class="label">Data source</span>
+            <strong>UCI Online Retail</strong>
+          </div>
+          <div class="snapshot-row">
+            <span class="label">Model</span>
+            <strong>Qwen3-0.6B on local CUDA</strong>
+          </div>
+          <div class="snapshot-row">
+            <span class="label">Gold set</span>
+            <strong>100 deterministic questions</strong>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section compact">
+        <div class="section-heading">
+          <p class="eyebrow">Research question</p>
+          <h2>Can simple internal signals detect confident business hallucinations?</h2>
+        </div>
+        <p class="lede">
+          The key unit is not the full answer. It is the business fact span:
+          a number, percentage, country, product, month, ranking, comparison, or
+          unsupported conclusion that a business user might rely on.
+        </p>
+      </section>
+
+      <section id="pipeline" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Pipeline</p>
+          <h2>Auditable from raw transactions to detector metrics.</h2>
+        </div>
+        <ol class="pipeline" aria-label="BizHallu pipeline">
+          <li>
+            <span class="step-number">1</span>
+            <h3>Clean data</h3>
+            <p>Normalize Online Retail rows and build net revenue summaries.</p>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <h3>Build gold questions</h3>
+            <p>Create deterministic questions with recomputable gold answers.</p>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <h3>Prompt Qwen</h3>
+            <p>Use compact evidence tables without leaking ranking answers.</p>
+          </li>
+          <li>
+            <span class="step-number">4</span>
+            <h3>Trace tokens</h3>
+            <p>Save generated text plus raw-logit uncertainty and energy fields.</p>
+          </li>
+          <li>
+            <span class="step-number">5</span>
+            <h3>Label spans</h3>
+            <p>Mark correct, hallucinated, unsupported, and ignored spans.</p>
+          </li>
+          <li>
+            <span class="step-number">6</span>
+            <h3>Score baselines</h3>
+            <p>Compare uncertainty, Spilled Energy, and lightweight probes.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="status" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Current status</p>
+          <h2>The base data chain is validated and reproducible.</h2>
+        </div>
+        <div class="status-grid">
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Processed data</h3>
+            <p>21 validation checks, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Gold questions</h3>
+            <p>100 records across 7 question types, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Prompt inputs</h3>
+            <p>100 Qwen prompts with checked row ordering, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Qwen batch smoke test</h3>
+            <p>5 generations and 5 token traces, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Qwen pilot20 generation</h3>
+            <p>20 generations and 20 token traces, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Pilot20 review table</h3>
+            <p>20 review rows with preliminary error types, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Annotation guidelines</h3>
+            <p>Draft rules, schema, and pilot examples validated.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Pilot span labels</h3>
+            <p>135 spans across 20 pilot answers, 0 failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Pilot coverage review</h3>
+            <p>66 negative spans and 69 positive spans.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Span-token alignment</h3>
+            <p>135 annotated spans mapped to token traces.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Pilot</span>
+            <h3>Simple logit baselines</h3>
+            <p>Best AUPRC 0.703; best F1 0.691.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Baseline error review</h3>
+            <p>101 false-positive and false-negative rows for manual inspection.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Error-family analysis</h3>
+            <p>7 families across 52 unique annotated span errors.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Top3 structured prompts</h3>
+            <p>13 prompt variants plus a 3-question pilot config.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Pilot</span>
+            <h3>Structured top3 pilot</h3>
+            <p>3/3 valid tables, but 0/3 exact top3 matches.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Control</span>
+            <h3>Sorted-evidence top3</h3>
+            <p>Improved to 2/3 exact matches and 6/9 correct rank rows.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Diagnostic</span>
+            <h3>Token signal review</h3>
+            <p>Wrong stock codes were flagged, but correct stock codes were too.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Diagnostic</span>
+            <h3>Stock-code distribution</h3>
+            <p>Entropy AUC 0.889 on 9 spans, with overlapping score ranges.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Energy trace fields</h3>
+            <p>359/359 token traces include Spilled Energy-ready fields.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Full100 config</h3>
+            <p>100 question ids validated with 64 train, 18 dev, and 18 test.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Pilot</span>
+            <h3>Energy baselines</h3>
+            <p>135 pilot spans scored; pure Spilled Energy AUPRC 0.560.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Full100 generation</h3>
+            <p>100 answers and 100 energy-ready traces, 0 validation failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Full100 review</h3>
+            <p>100 review rows with gold facts and evidence, 0 validation failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Annotation queue</h3>
+            <p>35 high-priority held-out rows prepared for first-pass labeling.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Draft</span>
+            <h3>Annotation seed</h3>
+            <p>18 spans across 5 held-out rows, 0 validation failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Draft</span>
+            <h3>Annotation draft</h3>
+            <p>205 spans across 35 held-out rows, 0 validation failures.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Passed</span>
+            <h3>Draft consistency audit</h3>
+            <p>0 hard failures; audit-note review resolved 4 policy notes.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Reviewed</span>
+            <h3>Audit notes</h3>
+            <p>1 label changed; 3 remaining notes confirmed without label changes.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Full100 span-token alignment</h3>
+            <p>205/205 spans aligned; simple and energy score fields present.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Ready</span>
+            <h3>Full100 score files</h3>
+            <p>205 score rows, 12 detector fields, and dev/test coverage validated.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Metric</span>
+            <h3>Simple split-safe metrics</h3>
+            <p>5 baselines validated; best test AUPRC 0.835 and best test F1 0.779.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Metric</span>
+            <h3>Energy split-safe metrics</h3>
+            <p>7 baselines validated; best test AUPRC 0.830 and best test F1 0.773.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Review</span>
+            <h3>Detector family comparison</h3>
+            <p>12 baseline rows compared; 4 all-positive-like energy rows flagged.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Review</span>
+            <h3>Detector error review</h3>
+            <p>57 held-out FP/FN rows grouped by baseline, fact type, and question type.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Report</span>
+            <h3>Detector interpretation</h3>
+            <p>Portfolio-ready HTML draft generated and validated against source results.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Review</span>
+            <h3>Label confirmation packet</h3>
+            <p>15 high-impact spans across 9 questions prepared the lock set.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Review</span>
+            <h3>Label review notes</h3>
+            <p>15/15 labels supported in assistant review; 0 source fixes recommended.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Locked</span>
+            <h3>Label lock package</h3>
+            <p>15 selected spans locked for portfolio use with q_0064 and q_0069 as primary examples.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Demo</span>
+            <h3>Portfolio demo page</h3>
+            <p>q_0064 and q_0069 packaged with 7 locked primary spans and source-backed detector readouts.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Narrative</span>
+            <h3>Portfolio narrative page</h3>
+            <p>Project story, results, demo cases, resume bullets, pitch, and slide outline packaged for presentation.</p>
+          </article>
+          <article class="status-card done">
+            <span class="status-label">Public</span>
+            <h3>GitHub Pages bundle</h3>
+            <p>docs/index.html, public demo, narrative, interpretation, and label-lock pages are generated and validated.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="pilot" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Pilot sanity check</p>
+          <h2>Simple uncertainty signals show limited but real signal.</h2>
+        </div>
+        <div class="metric-grid" aria-label="Pilot baseline metrics">
+          <article class="metric-card">
+            <span class="metric-label">Span labels</span>
+            <strong class="metric-value">69 / 66</strong>
+            <p>Positive hallucinated or unsupported spans vs correct spans.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Best AUPRC</span>
+            <strong class="metric-value">0.703</strong>
+            <p>Max token entropy ranks wrong spans best in the pilot.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Best F1</span>
+            <strong class="metric-value">0.691</strong>
+            <p>One-minus minimum top-2 margin gives the best pilot F1.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">F1 reference</span>
+            <strong class="metric-value">0.676</strong>
+            <p>An all-positive classifier is already high on this balanced pilot.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Error review</span>
+            <strong class="metric-value">101</strong>
+            <p>Rows across the best-AUPRC and best-F1 simple baselines.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Unique errors</span>
+            <strong class="metric-value">52</strong>
+            <p>Distinct annotated spans after merging repeated baseline misses.</p>
+          </article>
+        </div>
+        <p class="caveat">
+          These are pilot-only optimistic numbers because thresholds were selected
+          and evaluated on the same 20 answers. The result is useful for deciding
+          what to inspect next, not for final performance claims.
+        </p>
+      </section>
+
+      <section id="analysis" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Error analysis</p>
+          <h2>The simple baselines miss context, not just hard tokens.</h2>
+        </div>
+        <div class="baseline-grid">
+          <article>
+            <span class="tag">32 rows</span>
+            <h3>Correct numeric facts flagged</h3>
+            <p>Currency and percentage spans often look uncertain because one token in a number has low margin.</p>
+          </article>
+          <article>
+            <span class="tag">28 rows</span>
+            <h3>Correct context facts flagged</h3>
+            <p>Supported countries, months, date ranges, and comparison directions can still trigger false alarms.</p>
+          </article>
+          <article>
+            <span class="tag">20 rows</span>
+            <h3>Confident wrong top-3 ranking</h3>
+            <p>Wrong products, ranks, and amounts in list answers can be generated with high token confidence.</p>
+          </article>
+          <article>
+            <span class="tag">12 rows</span>
+            <h3>Correct definitions flagged</h3>
+            <p>Gross, net, and return-revenue wording is business-correct but can be over-flagged by simple signals.</p>
+          </article>
+          <article>
+            <span class="tag">0/9 ranks</span>
+            <h3>Structured format did not fix sorting</h3>
+            <p>The model copied evidence rows and amounts, but still failed to select the top revenue rows.</p>
+          </article>
+          <article>
+            <span class="tag">2/3 exact</span>
+            <h3>Sorted evidence helped but did not solve it</h3>
+            <p>The control condition fixed two answers, while May 2011 still skipped the highest-revenue row.</p>
+          </article>
+          <article>
+            <span class="tag">3/3 vs 6/6</span>
+            <h3>Stock-code uncertainty is not specific</h3>
+            <p>All wrong stock-code spans were flagged, but all correct stock-code spans in the control were also flagged.</p>
+          </article>
+          <article>
+            <span class="tag">AUC 0.889</span>
+            <h3>Entropy ranks stock-code errors best</h3>
+            <p>The local signal is real, but correct and incorrect stock-code score ranges still overlap.</p>
+          </article>
+          <article>
+            <span class="tag">359 tokens</span>
+            <h3>Energy traces are ready</h3>
+            <p>The 3-question rerun saved token logit, logsumexp, marginal energy, and spilled-energy delta fields.</p>
+          </article>
+          <article>
+            <span class="tag">AUPRC 0.560</span>
+            <h3>Pure Spilled Energy lagged</h3>
+            <p>The adapter runs, but adjacent-step energy features did not beat max token entropy on pilot20.</p>
+          </article>
+          <article>
+            <span class="tag">35 rows</span>
+            <h3>Held-out batch is ready</h3>
+            <p>The first annotation batch covers 17 dev and 18 test rows across all question types.</p>
+          </article>
+          <article>
+            <span class="tag">18 spans</span>
+            <h3>Seed labels validate cleanly</h3>
+            <p>The first 5 held-out rows now have draft span labels with exact character offsets.</p>
+          </article>
+          <article>
+            <span class="tag">205 spans</span>
+            <h3>Held-out draft is complete</h3>
+            <p>The current draft spans all 35 high-priority held-out rows across top product, comparison, monthly change, top 3, share, and return-impact questions.</p>
+          </article>
+          <article>
+            <span class="tag">0 failures</span>
+            <h3>Draft audit is alignment-ready</h3>
+            <p>The consistency audit checks dev/test balance, source batches, per-question label mix, and review-note resolution.</p>
+          </article>
+          <article>
+            <span class="tag">205 aligned</span>
+            <h3>Full100 token coverage passed</h3>
+            <p>Every draft span maps to saved Qwen token traces, with metrics still withheld until label review.</p>
+          </article>
+          <article>
+            <span class="tag">12 fields</span>
+            <h3>Score files are metric-ready</h3>
+            <p>The full100 score table covers simple uncertainty and energy-suite fields, with positives and negatives in both dev and test.</p>
+          </article>
+          <article>
+            <span class="tag">AUPRC 0.835</span>
+            <h3>Simple held-out signal is real</h3>
+            <p>One-minus minimum top-2 margin leads test AUPRC, while mean token entropy gives the best test F1.</p>
+          </article>
+          <article>
+            <span class="tag">F1 0.773</span>
+            <h3>Energy result needs nuance</h3>
+            <p>The best energy-family F1 comes from probability mass outside top two choices, not pure adjacent-step energy.</p>
+          </article>
+          <article>
+            <span class="tag">4 flagged</span>
+            <h3>Pure energy can collapse</h3>
+            <p>Several adjacent-step energy thresholds behave like almost-all-positive detectors, so specificity must be inspected.</p>
+          </article>
+          <article>
+            <span class="tag">57 errors</span>
+            <h3>Error review is ready</h3>
+            <p>Simple misses more positives; energy catches more positives but over-flags more correct spans.</p>
+          </article>
+          <article>
+            <span class="tag">3 offsets fixed</span>
+            <h3>Annotation QA caught real defects</h3>
+            <p>Three rank-3 marker spans were moved from currency decimals to the actual list markers, then all downstream results were rerun.</p>
+          </article>
+          <article>
+            <span class="tag">Report draft</span>
+            <h3>Interpretation is packaged</h3>
+            <p>The detector page connects AUPRC, F1, energy controls, and FP/FN patterns without adding new metrics.</p>
+          </article>
+          <article>
+            <span class="tag">15 spans</span>
+            <h3>Confirmation packet is focused</h3>
+            <p>The packet deduplicates 20 detector-error example rows and adds the rank-marker offset regression checks.</p>
+          </article>
+          <article>
+            <span class="tag">7 high priority</span>
+            <h3>Review notes shape the demo</h3>
+            <p>q_0064 and q_0069 are the strongest examples; 6 other spans require span-level caveats.</p>
+          </article>
+          <article>
+            <span class="tag">Labels locked</span>
+            <h3>Portfolio examples are selected</h3>
+            <p>The lock package records 7 primary demo spans, 6 caveat rows, and 2 QA regression checks.</p>
+          </article>
+          <article>
+            <span class="tag">Demo ready</span>
+            <h3>The portfolio page is packaged</h3>
+            <p>The static demo connects evidence, Qwen answers, locked spans, detector outcomes, and caveats.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split">
+        <div>
+          <p class="eyebrow">Observed behavior</p>
+          <h2>Qwen3-0.6B makes useful, labelable business errors.</h2>
+          <p>
+            In the smoke test, Qwen selected wrong countries, products, rankings,
+            and month-over-month values while still producing fluent business
+            prose. Sampling and greedy decoding showed similar failure patterns,
+            so the issue is not just random sampling noise.
+          </p>
+        </div>
+        <div class="finding-list">
+          <div class="finding">
+            <span>Wrong entity</span>
+            <strong>Spain instead of Netherlands</strong>
+          </div>
+          <div class="finding">
+            <span>Wrong ranking</span>
+            <strong>Structured table still selected wrong rows</strong>
+          </div>
+          <div class="finding">
+            <span>Wrong comparison</span>
+            <strong>Direction contradicted the table</strong>
+          </div>
+          <div class="finding">
+            <span>Wrong arithmetic</span>
+            <strong>Month change sign and percent drifted</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="structure" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Repository structure</p>
+          <h2>Separate source data, intermediate outputs, final results, and external assets.</h2>
+        </div>
+        <div class="directory-table" role="table" aria-label="Directory policy">
+          <div class="directory-row head" role="row">
+            <span role="columnheader">Location</span>
+            <span role="columnheader">Purpose</span>
+            <span role="columnheader">Policy</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">data/raw</span>
+            <span role="cell">Immutable source files</span>
+            <span role="cell">Keep unchanged</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">data/processed</span>
+            <span role="cell">Clean tables and gold questions</span>
+            <span role="cell">Deterministic outputs</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">outputs</span>
+            <span role="cell">Prompts, generations, token traces</span>
+            <span role="cell">Intermediate artifacts</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">results</span>
+            <span role="cell">Scores, metrics, confusion matrices</span>
+            <span role="cell">Report-ready outputs</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">reports</span>
+            <span role="cell">Portfolio report drafts</span>
+            <span role="cell">Human-facing summaries</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">docs</span>
+            <span role="cell">Design docs and GitHub Pages bundle</span>
+            <span role="cell">Public-facing documentation</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">site</span>
+            <span role="cell">Static HTML project overview</span>
+            <span role="cell">Human-facing summary</span>
+          </div>
+          <div class="directory-row" role="row">
+            <span role="cell">../baselines</span>
+            <span role="cell">External baseline repositories</span>
+            <span role="cell">Keep outside project</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Baseline plan</p>
+          <h2>Start simple, then add paper-style detectors.</h2>
+        </div>
+        <div class="baseline-grid">
+          <article>
+            <span class="tag">MVP first</span>
+            <h3>Simple logit baselines</h3>
+            <p>Token NLL, entropy, top-2 margin, and span-level aggregates.</p>
+          </article>
+          <article>
+            <span class="tag">Training-free</span>
+            <h3>Spilled Energy</h3>
+            <p>The pilot adapter runs; full100 scoring will reuse the same span-level fields.</p>
+          </article>
+          <article>
+            <span class="tag">Need labels</span>
+            <h3>Hidden-state probe</h3>
+            <p>Train a lightweight classifier only after span labels exist.</p>
+          </article>
+          <article>
+            <span class="tag">Comparison</span>
+            <h3>Semantic entropy</h3>
+            <p>Use as answer-level or claim-level disagreement signal.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="next" class="section next-step">
+        <div>
+          <p class="eyebrow">Immediate next step</p>
+          <h2>Prepare the first public GitHub upload.</h2>
+          <p>
+            The queue, seed, round-4 held-out draft, consistency audit, and
+            span-token alignment are validated, and the audit notes are
+            reviewed. The score rows, simple metrics, energy metrics, and
+            detector-family comparison are validated. The false-positive and
+            false-negative review and detector interpretation are also complete.
+            The confirmation packet, review notes, and label lock package are
+            complete. The portfolio demo page is also complete and packages
+            q_0064 and q_0069 while keeping claims span-level. The portfolio
+            narrative page now adds project story, pitch, resume bullets, and
+            slide outline. The GitHub Pages bundle is now generated under
+            docs/, so the next step is upload hygiene: choose what to commit,
+            keep large local artifacts out, and then decide whether slides
+            should be included in the first public version or a follow-up.
+          </p>
+        </div>
+        <a class="button primary" href="../docs/index.html">Open GitHub Pages bundle</a>
+      </section>
+    </main>
+  </body>
+</html>

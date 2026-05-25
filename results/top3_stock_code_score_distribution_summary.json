@@ -1,0 +1,196 @@
+{
+  "source_signal_spans_csv": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_spans.csv",
+  "distribution_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_stock_code_score_distribution.csv",
+  "stock_code_span_count": 9,
+  "label_counts": {
+    "correct": 6,
+    "incorrect_rank_binding": 3
+  },
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "metric_summaries": [
+    {
+      "score_field": "max_token_entropy",
+      "pairwise_auc_on_9_stock_code_spans": 0.888889,
+      "correct": {
+        "min": 0.083597,
+        "mean": 0.481456,
+        "median": 0.600043,
+        "max": 0.736682
+      },
+      "incorrect_rank_binding": {
+        "min": 0.663322,
+        "mean": 0.836535,
+        "median": 0.740689,
+        "max": 1.105593
+      },
+      "best_threshold_on_9_spans_optimistic": {
+        "threshold": 0.740689,
+        "tp": 2,
+        "fp": 0,
+        "tn": 6,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.666667,
+        "specificity": 1.0,
+        "f1": 0.8
+      },
+      "top3_by_score": [
+        {
+          "rank_by_score": 1,
+          "question_id": "q_0065",
+          "answer_rank": 1,
+          "stock_code": "22423",
+          "label": "incorrect_rank_binding",
+          "score": 1.105593
+        },
+        {
+          "rank_by_score": 2,
+          "question_id": "q_0065",
+          "answer_rank": 2,
+          "stock_code": "85123A",
+          "label": "incorrect_rank_binding",
+          "score": 0.740689
+        },
+        {
+          "rank_by_score": 3,
+          "question_id": "q_0060",
+          "answer_rank": 3,
+          "stock_code": "22086",
+          "label": "correct",
+          "score": 0.736682
+        }
+      ],
+      "overlap_check": {
+        "incorrect_min": 0.663322,
+        "correct_max": 0.736682,
+        "has_overlap": true
+      }
+    },
+    {
+      "score_field": "one_minus_min_top2_margin",
+      "pairwise_auc_on_9_stock_code_spans": 0.777778,
+      "correct": {
+        "min": 0.022022,
+        "mean": 0.419767,
+        "median": 0.48714,
+        "max": 0.757162
+      },
+      "incorrect_rank_binding": {
+        "min": 0.446481,
+        "mean": 0.697095,
+        "median": 0.755091,
+        "max": 0.889713
+      },
+      "best_threshold_on_9_spans_optimistic": {
+        "threshold": 0.446481,
+        "tp": 3,
+        "fp": 3,
+        "tn": 3,
+        "fn": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "specificity": 0.5,
+        "f1": 0.666667
+      },
+      "top3_by_score": [
+        {
+          "rank_by_score": 1,
+          "question_id": "q_0065",
+          "answer_rank": 1,
+          "stock_code": "22423",
+          "label": "incorrect_rank_binding",
+          "score": 0.889713
+        },
+        {
+          "rank_by_score": 2,
+          "question_id": "q_0072",
+          "answer_rank": 2,
+          "stock_code": "22086",
+          "label": "correct",
+          "score": 0.757162
+        },
+        {
+          "rank_by_score": 3,
+          "question_id": "q_0065",
+          "answer_rank": 3,
+          "stock_code": "22501",
+          "label": "incorrect_rank_binding",
+          "score": 0.755091
+        }
+      ],
+      "overlap_check": {
+        "incorrect_min": 0.446481,
+        "correct_max": 0.757162,
+        "has_overlap": true
+      }
+    },
+    {
+      "score_field": "mean_token_nll",
+      "pairwise_auc_on_9_stock_code_spans": 0.833333,
+      "correct": {
+        "min": 0.00373,
+        "mean": 0.067078,
+        "median": 0.069456,
+        "max": 0.145057
+      },
+      "incorrect_rank_binding": {
+        "min": 0.071334,
+        "mean": 0.185651,
+        "median": 0.181448,
+        "max": 0.304171
+      },
+      "best_threshold_on_9_spans_optimistic": {
+        "threshold": 0.181448,
+        "tp": 2,
+        "fp": 0,
+        "tn": 6,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.666667,
+        "specificity": 1.0,
+        "f1": 0.8
+      },
+      "top3_by_score": [
+        {
+          "rank_by_score": 1,
+          "question_id": "q_0065",
+          "answer_rank": 1,
+          "stock_code": "22423",
+          "label": "incorrect_rank_binding",
+          "score": 0.304171
+        },
+        {
+          "rank_by_score": 2,
+          "question_id": "q_0065",
+          "answer_rank": 3,
+          "stock_code": "22501",
+          "label": "incorrect_rank_binding",
+          "score": 0.181448
+        },
+        {
+          "rank_by_score": 3,
+          "question_id": "q_0060",
+          "answer_rank": 3,
+          "stock_code": "22086",
+          "label": "correct",
+          "score": 0.145057
+        }
+      ],
+      "overlap_check": {
+        "incorrect_min": 0.071334,
+        "correct_max": 0.145057,
+        "has_overlap": true
+      }
+    }
+  ],
+  "main_findings": [
+    "Stock-code entropy has the best local ranking signal among the three simple scores, but the sample is only 9 spans.",
+    "No simple score perfectly separates correct and incorrect stock-code rank bindings because the score ranges overlap.",
+    "The pilot20 global thresholds were too low for stock-code specificity; they flagged every stock-code span in this control.",
+    "This supports testing a stronger or more context-aware detector before scaling to full100."
+  ]
+}

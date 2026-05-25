@@ -1,0 +1,10 @@
+{
+  "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_metrics.csv",
+  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_report.json",
+  "metric_row_count": 10,
+  "baseline_count": 5,
+  "dev_split": "dev",
+  "test_split": "test",
+  "num_failures": 0,
+  "failures": []
+}

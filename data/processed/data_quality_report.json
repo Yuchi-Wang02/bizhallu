@@ -1,0 +1,51 @@
+{
+  "source_file": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\raw\\Online Retail.xlsx",
+  "raw_shape": [
+    541909,
+    8
+  ],
+  "columns": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "date_min": "2010-12-01 08:26:00",
+  "date_max": "2011-12-09 12:50:00",
+  "missing_values": {
+    "InvoiceNo": 0,
+    "StockCode": 0,
+    "Description": 1454,
+    "Quantity": 0,
+    "InvoiceDate": 0,
+    "UnitPrice": 0,
+    "CustomerID": 135080,
+    "Country": 0
+  },
+  "duplicate_rows": 5268,
+  "invoice_count": 25900,
+  "stock_code_count": 4070,
+  "description_count": 4223,
+  "country_count": 38,
+  "customer_count": 4372,
+  "cancel_invoice_rows": 9288,
+  "negative_quantity_rows": 10624,
+  "zero_quantity_rows": 0,
+  "negative_unit_price_rows": 2,
+  "zero_unit_price_rows": 2515,
+  "non_merchandise_rows": 2940,
+  "positive_sales_rows": 524878,
+  "merchandise_sales_rows": 522544,
+  "valid_net_revenue_rows": 534129,
+  "merchandise_net_revenue_rows": 531212,
+  "cancellation_or_return_rows": 10587,
+  "excluded_rows": 17031,
+  "positive_sales_revenue": 10642110.8,
+  "merchandise_sales_revenue": 10247610.15,
+  "net_revenue": 9748131.07,
+  "merchandise_net_revenue": 9771708.99
+}

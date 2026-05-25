@@ -1,0 +1,56 @@
+{
+  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
+  "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
+  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_report.json",
+  "alignment_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment.jsonl",
+  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "row_count": 205,
+  "question_count": 35,
+  "split_counts": {
+    "dev": 102,
+    "test": 103
+  },
+  "label_counts": {
+    "correct_key_fact": 83,
+    "hallucinated_key_fact": 121,
+    "unsupported_claim": 1
+  },
+  "binary_counts": {
+    "0": 83,
+    "1": 122
+  },
+  "binary_counts_by_split": {
+    "dev": {
+      "0": 41,
+      "1": 61
+    },
+    "test": {
+      "0": 42,
+      "1": 61
+    }
+  },
+  "baseline_families": [
+    "simple",
+    "energy"
+  ],
+  "baseline_score_fields": [
+    "mean_token_nll",
+    "mean_token_entropy",
+    "max_token_entropy",
+    "one_minus_mean_top2_margin",
+    "one_minus_min_top2_margin",
+    "mean_spilled_energy_abs_delta",
+    "max_spilled_energy_abs_delta",
+    "mean_spilled_energy_delta",
+    "negative_mean_spilled_energy_delta",
+    "mean_spilled_probability_mass_after_top1",
+    "mean_spilled_probability_mass_after_top2",
+    "max_selected_step_energy_gap"
+  ],
+  "baseline_score_field_count": 12,
+  "metrics_reported": false,
+  "ready_for_split_safe_metrics": true,
+  "allowed_next_step": "run split-safe detector evaluation with dev-selected thresholds and held-out test reporting",
+  "num_failures": 0,
+  "failures": []
+}

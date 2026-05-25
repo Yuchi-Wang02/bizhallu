@@ -1,0 +1,13 @@
+{
+  "label_lock_decisions_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_decisions.csv",
+  "label_lock_decisions_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_decisions.jsonl",
+  "label_lock_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
+  "label_lock_report_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_report.html",
+  "selected_annotation_count": 15,
+  "selected_question_count": 9,
+  "labels_locked": true,
+  "lock_basis": "assistant_full_review",
+  "ready_for_portfolio_packaging": true,
+  "num_failures": 0,
+  "failures": []
+}

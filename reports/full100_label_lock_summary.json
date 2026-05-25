@@ -1,0 +1,70 @@
+{
+  "status": "presentation_labels_locked",
+  "review_status": "locked_after_assistant_full_review",
+  "lock_basis": "assistant_full_review",
+  "lock_scope": "15 presentation-selected held-out spans",
+  "locked_on": "2026-05-25",
+  "labels_locked": true,
+  "human_confirmation_required": false,
+  "source_review_notes_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_summary.json",
+  "source_detector_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "label_lock_decisions_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_decisions.csv",
+  "label_lock_decisions_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_decisions.jsonl",
+  "label_lock_report_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_report.html",
+  "selected_annotation_count": 15,
+  "selected_question_count": 9,
+  "locked_label_count": 15,
+  "source_fix_required_count": 0,
+  "assistant_supported_count": 15,
+  "by_label": {
+    "correct_key_fact": 8,
+    "hallucinated_key_fact": 7
+  },
+  "by_publish_use": {
+    "caveat_demo": 6,
+    "primary_demo": 7,
+    "qa_regression_only": 2
+  },
+  "by_presentation_use": {
+    "offset_check_only": 2,
+    "paired_contrast_example": 4,
+    "span_level_caveat": 6,
+    "strong_false_negative_example": 3
+  },
+  "by_demo_priority": {
+    "high": 7,
+    "low": 2,
+    "medium": 6
+  },
+  "high_priority_confirmation_item_ids": [
+    "confirm_006",
+    "confirm_007",
+    "confirm_008",
+    "confirm_009",
+    "confirm_011",
+    "confirm_012",
+    "confirm_013"
+  ],
+  "primary_demo_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "span_level_caveat_count": 6,
+  "qa_regression_only_count": 2,
+  "detector_claims_locked_for_use": {
+    "best_test_auprc_baseline": "one_minus_min_top2_margin",
+    "best_test_auprc": 0.835073,
+    "best_test_f1_baseline": "mean_token_entropy",
+    "best_test_f1": 0.779412,
+    "error_row_count": 57
+  },
+  "presentation_guardrails": [
+    "Report detector results as span-level hallucination detection, not whole-answer correctness.",
+    "Use q_0064 and q_0069 as primary portfolio examples.",
+    "Use span_level_caveat rows only with explicit surrounding-answer caveats.",
+    "Keep offset_check_only rows as QA/regression evidence rather than headline detector examples."
+  ],
+  "source_review_status": "assistant_review_complete_not_human_locked",
+  "num_failures": 0,
+  "failures": []
+}

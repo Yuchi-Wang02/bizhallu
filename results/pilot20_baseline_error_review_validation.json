@@ -1,0 +1,18 @@
+{
+  "error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_review.csv",
+  "error_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_summary.json",
+  "error_row_count": 101,
+  "baseline_count": 2,
+  "error_counts_by_baseline": {
+    "max_token_entropy": {
+      "false_positive": 39,
+      "false_negative": 12
+    },
+    "one_minus_min_top2_margin": {
+      "false_positive": 37,
+      "false_negative": 13
+    }
+  },
+  "num_failures": 0,
+  "failures": []
+}

@@ -1,0 +1,124 @@
+{
+  "alignment_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment.jsonl",
+  "alignment_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_validation.json",
+  "audit_note_review_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_validation.json",
+  "questions_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
+  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
+  "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
+  "row_count": 205,
+  "question_count": 35,
+  "split_counts": {
+    "dev": 102,
+    "test": 103
+  },
+  "span_counts_by_split": {
+    "dev": 102,
+    "test": 103
+  },
+  "label_counts": {
+    "correct_key_fact": 83,
+    "hallucinated_key_fact": 121,
+    "unsupported_claim": 1
+  },
+  "binary_counts": {
+    "0": 83,
+    "1": 122
+  },
+  "binary_counts_by_split": {
+    "dev": {
+      "0": 41,
+      "1": 61
+    },
+    "test": {
+      "0": 42,
+      "1": 61
+    }
+  },
+  "baseline_families": [
+    "simple",
+    "energy"
+  ],
+  "baseline_score_fields": [
+    "mean_token_nll",
+    "mean_token_entropy",
+    "max_token_entropy",
+    "one_minus_mean_top2_margin",
+    "one_minus_min_top2_margin",
+    "mean_spilled_energy_abs_delta",
+    "max_spilled_energy_abs_delta",
+    "mean_spilled_energy_delta",
+    "negative_mean_spilled_energy_delta",
+    "mean_spilled_probability_mass_after_top1",
+    "mean_spilled_probability_mass_after_top2",
+    "max_selected_step_energy_gap"
+  ],
+  "baseline_score_field_count": 12,
+  "score_field_summary": {
+    "mean_token_nll": {
+      "min": 2e-06,
+      "max": 2.37568,
+      "mean": 0.179456
+    },
+    "mean_token_entropy": {
+      "min": 3.1e-05,
+      "max": 1.905551,
+      "mean": 0.27545
+    },
+    "max_token_entropy": {
+      "min": 4.3e-05,
+      "max": 2.646394,
+      "mean": 0.737775
+    },
+    "one_minus_mean_top2_margin": {
+      "min": 2e-06,
+      "max": 1.0,
+      "mean": 0.136641
+    },
+    "one_minus_min_top2_margin": {
+      "min": 4e-06,
+      "max": 1.0,
+      "mean": 0.400991
+    },
+    "mean_spilled_energy_abs_delta": {
+      "min": 0.180164,
+      "max": 7.134569,
+      "mean": 3.084607
+    },
+    "max_spilled_energy_abs_delta": {
+      "min": 0.180164,
+      "max": 12.421659,
+      "mean": 6.661386
+    },
+    "mean_spilled_energy_delta": {
+      "min": -2.396714,
+      "max": 5.590794,
+      "mean": -0.034425
+    },
+    "negative_mean_spilled_energy_delta": {
+      "min": -5.590794,
+      "max": 2.396714,
+      "mean": 0.034425
+    },
+    "mean_spilled_probability_mass_after_top1": {
+      "min": 2e-06,
+      "max": 0.663973,
+      "mean": 0.090779
+    },
+    "mean_spilled_probability_mass_after_top2": {
+      "min": 0.0,
+      "max": 0.504523,
+      "mean": 0.044916
+    },
+    "max_selected_step_energy_gap": {
+      "min": 4e-06,
+      "max": 2.828259,
+      "mean": 0.525554
+    }
+  },
+  "ready_for_score_validation": true,
+  "allowed_next_step": "validate full100 draft detector score files; do not run split-safe metrics yet",
+  "metrics_reported": false,
+  "num_failures": 0,
+  "failures": []
+}

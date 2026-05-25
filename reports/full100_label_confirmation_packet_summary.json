@@ -1,0 +1,61 @@
+{
+  "status": "confirmation_packet_ready_not_locked",
+  "packet_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.csv",
+  "packet_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.jsonl",
+  "packet_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.html",
+  "source_error_examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv",
+  "source_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "source_error_example_row_count": 20,
+  "source_unique_error_example_annotation_count": 13,
+  "offset_regression_annotation_ids": [
+    "ann_full100_draft_q_0063_010",
+    "ann_full100_draft_q_0068_008",
+    "ann_full100_draft_q_0064_008"
+  ],
+  "selected_annotation_count": 15,
+  "selected_question_count": 9,
+  "selected_question_ids": [
+    "q_0039",
+    "q_0054",
+    "q_0059",
+    "q_0063",
+    "q_0064",
+    "q_0068",
+    "q_0069",
+    "q_0093",
+    "q_0098"
+  ],
+  "by_fact_type": {
+    "comparison_direction": 2,
+    "currency_amount": 6,
+    "percentage": 1,
+    "product_name": 1,
+    "ranking": 5
+  },
+  "by_label": {
+    "correct_key_fact": 8,
+    "hallucinated_key_fact": 7
+  },
+  "by_question_type": {
+    "country_comparison_month": 1,
+    "monthly_revenue_change": 3,
+    "return_impact_month": 2,
+    "top3_products_month": 9
+  },
+  "by_focus_tag": {
+    "currency_amount_pattern": 6,
+    "detector_error_example": 13,
+    "offset_regression_check": 3,
+    "top3_confident_miss_pattern": 7
+  },
+  "interpretation_claims_checked": {
+    "best_auprc_baseline": "one_minus_min_top2_margin",
+    "best_f1_baseline": "mean_token_entropy",
+    "error_row_count": 57,
+    "all_positive_like_energy_count": 4
+  },
+  "human_confirmation_required": true,
+  "all_items_confirmation_status": "pending_human_review",
+  "num_failures": 0,
+  "failures": []
+}

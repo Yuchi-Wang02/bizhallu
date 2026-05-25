@@ -1,0 +1,8 @@
+{
+  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_detector_readiness_summary.json",
+  "num_failures": 0,
+  "failures": [],
+  "simple_best_auprc": 0.70288,
+  "energy_best_auprc": 0.673768,
+  "pure_spilled_best_auprc": 0.560333
+}

@@ -1,0 +1,29 @@
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local runtime and notebook noise
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Large or generated artifacts kept outside a future GitHub repo by default
+data/raw/
+data/processed/retail_*.csv
+data/processed/*_summary.csv
+outputs/*.jsonl
+outputs/*.csv
+outputs/*.json
+outputs/*_report.json
+outputs/*_validation.json
+outputs/*.log
+
+# Keep these lightweight docs and metadata tracked if a repo is initialized.
+!outputs/README.md
+!data/annotations/README.md
+!data/annotations/annotation_guidelines.md
+
+# Model weights live outside the project in ../hf_cache.
+models/*
+!models/README.md

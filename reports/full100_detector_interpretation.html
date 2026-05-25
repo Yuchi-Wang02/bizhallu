@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Detector Interpretation</title>
+    <style>
+      :root {
+        --bg: #f5f5f7;
+        --surface: rgba(255, 255, 255, 0.86);
+        --strong: #ffffff;
+        --text: #1d1d1f;
+        --muted: #5f6368;
+        --line: rgba(29, 29, 31, 0.12);
+        --blue: #0066cc;
+        --green: #0a7f42;
+        --amber: #9a6700;
+        --red: #b3261e;
+        --shadow: 0 18px 42px rgba(0, 0, 0, 0.08);
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 38%, #edf2f7 100%);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.5;
+      }
+      a { color: inherit; text-decoration: none; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 62px;
+        padding: 0 36px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(245, 245, 247, 0.84);
+        backdrop-filter: blur(18px);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+      .brand span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--text);
+        color: #fff;
+        font-size: 12px;
+      }
+      main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+        gap: 30px;
+        align-items: center;
+        min-height: calc(100vh - 78px);
+        padding: 56px 0 42px;
+      }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { overflow-wrap: anywhere; }
+      h1 { max-width: 760px; margin: 0; font-size: 64px; line-height: 0.99; letter-spacing: 0; }
+      h2 { margin: 0; font-size: 38px; line-height: 1.08; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 18px; line-height: 1.25; letter-spacing: 0; }
+      .lede { max-width: 760px; margin: 22px 0 0; color: var(--muted); font-size: 21px; }
+      .snapshot, .metric-card, .panel, .claim-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+      .snapshot { display: grid; overflow: hidden; }
+      .snapshot div { padding: 20px; border-bottom: 1px solid var(--line); }
+      .snapshot div:last-child { border-bottom: 0; }
+      .label, .metric-card span, .tag {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      .snapshot strong { display: block; margin-top: 4px; font-size: 22px; }
+      section { padding: 64px 0; border-top: 1px solid var(--line); }
+      .section-heading { max-width: 780px; margin-bottom: 26px; }
+      .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .metric-card { min-height: 178px; padding: 22px; box-shadow: none; background: var(--strong); }
+      .metric-card strong { display: block; margin: 10px 0 8px; font-size: 42px; line-height: 1; }
+      .metric-card p, .panel p, .claim-card p { margin: 0; color: var(--muted); }
+      .claim-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+      .claim-card { padding: 22px; box-shadow: none; background: var(--strong); }
+      .claim-card h3 { margin-bottom: 10px; }
+      .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+      .panel { padding: 24px; box-shadow: none; background: var(--strong); }
+      .panel h3 { margin-bottom: 12px; }
+      .error-list { display: grid; gap: 10px; padding: 0; margin: 16px 0 0; list-style: none; }
+      .error-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+      }
+      .error-list strong { font-size: 22px; }
+      .callout {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid rgba(154, 103, 0, 0.24);
+        border-radius: 8px;
+        background: rgba(154, 103, 0, 0.08);
+      }
+      .callout strong { display: block; margin-bottom: 6px; }
+      .table {
+        display: grid;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--strong);
+      }
+      .row { display: grid; grid-template-columns: 1.5fr repeat(4, 0.8fr); gap: 12px; padding: 14px 16px; border-top: 1px solid var(--line); }
+      .row:first-child { border-top: 0; }
+      .row.head { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+      .next { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 18px; border-radius: 8px; background: var(--blue); color: #fff; font-weight: 800; }
+      @media (max-width: 900px) {
+        .topbar { padding: 0 20px; }
+        .hero, .two-col, .claim-grid { grid-template-columns: 1fr; }
+        .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        h1 { font-size: 48px; }
+        h2 { font-size: 32px; }
+        .row { grid-template-columns: 1fr 1fr; }
+        .row.head { display: none; }
+        .next { align-items: flex-start; flex-direction: column; }
+      }
+      @media (max-width: 560px) {
+        main { width: min(100% - 28px, 1120px); }
+        .metric-grid { grid-template-columns: 1fr; }
+        h1 { font-size: 40px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../site/index.html"><span>BH</span>BizHallu</a>
+      <a href="../results/full100_draft_detector_error_review_examples.csv">Error examples</a>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Full100 held-out interpretation</p>
+          <h1>Internal uncertainty helps, but it is not a business fact checker.</h1>
+          <p class="lede">
+            On the draft held-out span set, simple token uncertainty gives the strongest current signal.
+            The best energy-family result is a probability-mass control, while pure adjacent-step Spilled
+            Energy rows can collapse into almost-all-positive behavior.
+          </p>
+        </div>
+        <aside class="snapshot" aria-label="Report snapshot">
+          <div><span class="label">Scope</span><strong>35 held-out questions</strong></div>
+          <div><span class="label">Test spans</span><strong>61 positive / 42 negative</strong></div>
+          <div><span class="label">Threshold policy</span><strong>Dev selected, test reported</strong></div>
+          <div><span class="label">Claim status</span><strong>Labels locked after assistant full review</strong></div>
+        </aside>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <p class="eyebrow">Headline metrics</p>
+          <h2>The best rows are useful, but they optimize different behavior.</h2>
+        </div>
+        <div class="metric-grid">
+
+          <article class="metric-card">
+            <span>Best AUPRC</span>
+            <strong>0.835</strong>
+            <p>one_minus_min_top2_margin ranks wrong spans best on held-out test.</p>
+          </article>
+
+          <article class="metric-card">
+            <span>Best F1</span>
+            <strong>0.779</strong>
+            <p>mean_token_entropy gives the best dev-thresholded test F1.</p>
+          </article>
+
+          <article class="metric-card">
+            <span>Best energy F1</span>
+            <strong>0.773</strong>
+            <p>Probability mass outside the top two choices is the strongest energy-family row.</p>
+          </article>
+
+          <article class="metric-card">
+            <span>Error rows</span>
+            <strong>57</strong>
+            <p>Held-out test false positives and false negatives across two selected baselines.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <p class="eyebrow">How to read it</p>
+          <h2>AUPRC is ranking quality; F1 is a threshold tradeoff.</h2>
+        </div>
+        <div class="claim-grid">
+          <article class="claim-card">
+            <h3>AUPRC story</h3>
+            <p>
+              one_minus_min_top2_margin reaches AUPRC 0.835.
+              It is precise at the selected threshold, but misses 20 positive spans.
+            </p>
+          </article>
+          <article class="claim-card">
+            <h3>F1 story</h3>
+            <p>
+              mean_token_entropy reaches F1 0.779.
+              It catches more positives, but specificity drops to 0.476.
+            </p>
+          </article>
+          <article class="claim-card">
+            <h3>Energy story</h3>
+            <p>
+              The best energy-family F1 is 0.773, but it comes from
+              probability mass outside top two choices, not pure Spilled Energy.
+            </p>
+          </article>
+        </div>
+        <div class="callout">
+          <strong>Report wording</strong>
+          <p>
+            The fair claim is not that internal-state detectors solve hallucination. The fair claim is that
+            uncertainty features expose a measurable signal, while many business errors remain confident or
+            context-dependent.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <p class="eyebrow">Error review</p>
+          <h2>The two selected baselines fail in different ways.</h2>
+        </div>
+        <div class="two-col">
+          <article class="panel">
+            <h3>Simple best-AUPRC: one_minus_min_top2_margin</h3>
+            <p>
+              This row is more selective: 7 false positives and
+              20 false negatives on held-out test spans.
+            </p>
+            <ul class="error-list">
+              <li><span>Top false-negative fact type</span><strong>currency_amount: 9</strong></li>
+              <li><span>Top false-negative question type</span><strong>top3_products_month: 6</strong></li>
+              <li><span>Precision / recall</span><strong>0.854 / 0.672</strong></li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>Energy best-F1: mean_spilled_probability_mass_after_top2</h3>
+            <p>
+              This row catches more positives: 20 false positives and
+              10 false negatives on held-out test spans.
+            </p>
+            <ul class="error-list">
+              <li><span>Top false-positive fact type</span><strong>currency_amount: 8</strong></li>
+              <li><span>Top false-positive question type</span><strong>monthly_revenue_change: 6</strong></li>
+              <li><span>Precision / recall</span><strong>0.718 / 0.836</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <p class="eyebrow">Grouped misses</p>
+          <h2>Where the detectors need stronger business context.</h2>
+        </div>
+        <div class="two-col">
+          <article class="panel">
+            <h3>Simple false negatives by fact type</h3>
+            <ul class="error-list">
+              <li><span>currency_amount</span><strong>9</strong></li>
+<li><span>comparison_direction</span><strong>3</strong></li>
+<li><span>country</span><strong>3</strong></li>
+<li><span>ranking</span><strong>3</strong></li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>Energy false positives by fact type</h3>
+            <ul class="error-list">
+              <li><span>currency_amount</span><strong>8</strong></li>
+<li><span>month</span><strong>4</strong></li>
+<li><span>comparison_direction</span><strong>2</strong></li>
+<li><span>percentage</span><strong>2</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <p class="eyebrow">Main takeaway</p>
+          <h2>This is a credible negative-plus-positive result.</h2>
+        </div>
+        <div class="table" role="table" aria-label="Detector interpretation table">
+          <div class="row head" role="row">
+            <span>Claim</span><span>Evidence</span><span>Risk</span><span>Use in report</span><span>Status</span>
+          </div>
+          <div class="row" role="row">
+            <span>Simple uncertainty has real signal.</span>
+            <span>AUPRC 0.835; F1 0.779</span>
+            <span>Not causal or semantic.</span>
+            <span>Lead result.</span>
+            <span>Draft</span>
+          </div>
+          <div class="row" role="row">
+            <span>Pure Spilled Energy is not the winner.</span>
+            <span>4 all-positive-like rows flagged.</span>
+            <span>Can overstate specificity.</span>
+            <span>Guardrail result.</span>
+            <span>Draft</span>
+          </div>
+          <div class="row" role="row">
+            <span>Business context is still missing.</span>
+            <span>Top-3 and currency misses dominate error review.</span>
+            <span>Token confidence can be high for wrong evidence binding.</span>
+            <span>Motivation for next method.</span>
+            <span>Draft</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="next">
+        <div>
+          <p class="eyebrow">Next step</p>
+          <h2>Review the confirmation packet before locking claims.</h2>
+          <p class="lede">
+            Before public claims, review the 15 selected confirmation items and fix any source annotation issues.
+            Then use this page as the detector-results section of the portfolio story.
+          </p>
+        </div>
+        <a class="button" href="./full100_label_confirmation_packet.html">Open packet</a>
+      </section>
+    </main>
+  </body>
+</html>

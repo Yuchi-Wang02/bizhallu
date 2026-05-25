@@ -1,0 +1,862 @@
+{
+  "current_stage": "github_pages_ready",
+  "ready_for_current_stage": true,
+  "checks": [
+    {
+      "name": "gold_questions_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "prompts_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_input_prompts_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "full100_config_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_config_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "energy_trace_readiness_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\energy_trace_readiness_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "pilot20_energy_trace_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_pilot20_energy_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "pilot20_energy_baselines_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "detector_readiness_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_detector_readiness_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    },
+    {
+      "name": "split_eval_smoke_validated",
+      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\split_eval_smoke_validation.json",
+      "passed": true,
+      "num_failures": 0,
+      "expected_num_failures": 0
+    }
+  ],
+  "detector_baseline_suite_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "detector_families": {
+    "energy": 7,
+    "simple": 5,
+    "smoke": 2
+  },
+  "full100_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\full100_questions.json",
+  "full100_question_count": 100,
+  "full100_split_counts": {
+    "train": 64,
+    "dev": 18,
+    "test": 18
+  },
+  "full100_generation_command": {
+    "python": "C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe",
+    "script": "src\\run_qwen_batch.py",
+    "arguments": [
+      "--question-config",
+      "configs\\full100_questions.json",
+      "--output-prefix",
+      "qwen_full100",
+      "--max-new-tokens",
+      "160",
+      "--seed",
+      "42"
+    ],
+    "required_environment": {
+      "HF_HOME": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache",
+      "HUGGINGFACE_HUB_CACHE": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache\\hub"
+    }
+  },
+  "split_eval_smoke": {
+    "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\split_eval_smoke_report.json",
+    "ready_for_split_metrics": true,
+    "dev_row_count": 4,
+    "test_row_count": 4
+  },
+  "full100_generation": {
+    "run": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_full100_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_full100_validation.json",
+    "validation_num_failures": 0,
+    "record_count": 100,
+    "trace_count": 100,
+    "total_generated_tokens": 7575,
+    "total_elapsed_seconds": 218.258
+  },
+  "full100_review": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_review_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_review_validation.json",
+    "validation_num_failures": 0,
+    "record_count": 100,
+    "jsonl_record_count": 100,
+    "sample_record_count": 20,
+    "auto_status_counts": {
+      "likely_correct": 9,
+      "partially_correct": 91
+    },
+    "annotation_priority_counts": {
+      "high": 39,
+      "low": 8,
+      "medium": 53
+    }
+  },
+  "full100_annotation_queue": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_queue_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_queue_validation.json",
+    "validation_num_failures": 0,
+    "record_count": 100,
+    "initial_batch_count": 35,
+    "phase_counts": {
+      "phase_1_heldout_high": 35,
+      "phase_2_heldout_remaining": 1,
+      "phase_3_train_high": 4,
+      "phase_4_train_remaining": 60
+    },
+    "initial_batch_split_counts": {
+      "dev": 17,
+      "test": 18
+    },
+    "target_annotation_file": "data/annotations/span_annotations_full100.jsonl"
+  },
+  "full100_annotation_seed": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_seed_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_seed_validation.json",
+    "validation_num_failures": 0,
+    "annotated_question_count": 5,
+    "span_count": 18,
+    "label_counts": {
+      "correct_key_fact": 5,
+      "hallucinated_key_fact": 13
+    },
+    "fact_type_counts": {
+      "country": 6,
+      "currency_amount": 3,
+      "malformed_number": 2,
+      "month": 5,
+      "ranking": 2
+    },
+    "status": "policy-reviewed draft seed annotations; human review is still required before final evaluation"
+  },
+  "full100_annotation_draft": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_draft_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_draft_validation.json",
+    "validation_num_failures": 0,
+    "annotated_question_count": 35,
+    "span_count": 205,
+    "label_counts": {
+      "correct_key_fact": 83,
+      "hallucinated_key_fact": 121,
+      "unsupported_claim": 1
+    },
+    "fact_type_counts": {
+      "comparison_direction": 9,
+      "country": 15,
+      "currency_amount": 82,
+      "malformed_number": 2,
+      "month": 37,
+      "percentage": 15,
+      "product_name": 20,
+      "product_stock_code": 6,
+      "ranking": 17,
+      "unsupported_business_claim": 2
+    },
+    "split_counts": {
+      "dev": 17,
+      "test": 18
+    },
+    "question_type_counts": {
+      "country_comparison_month": 7,
+      "monthly_revenue_change": 4,
+      "product_revenue_share_month": 6,
+      "return_impact_month": 4,
+      "top3_products_month": 4,
+      "top_country_month": 6,
+      "top_product_month": 4
+    },
+    "status": "draft annotation file; requires review before final full100 scoring"
+  },
+  "full100_annotation_consistency_audit": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_consistency_audit_report.json",
+    "status": "pass_with_review_notes",
+    "ready_for_alignment": true,
+    "num_failures": 0,
+    "num_warnings": 3,
+    "next_allowed_step": "build full100 span-token alignment"
+  },
+  "full100_span_token_alignment": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_validation.json",
+    "validation_num_failures": 0,
+    "span_count": 205,
+    "question_count": 35,
+    "split_counts": {
+      "dev": 17,
+      "test": 18
+    },
+    "ready_for_scoring_prep": true,
+    "metrics_reported": false,
+    "token_count_summary": {
+      "min": 1,
+      "max": 14,
+      "mean": 7.0537
+    },
+    "boundary_slop_summary": {
+      "max_left": 1,
+      "max_right": 1,
+      "spans_with_left_slop": 91,
+      "spans_with_right_slop": 3
+    }
+  },
+  "full100_audit_note_review": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_validation.json",
+    "validation_num_failures": 0,
+    "reviewed_question_count": 4,
+    "reviewed_question_ids": [
+      "q_0021",
+      "q_0049",
+      "q_0058",
+      "q_0097"
+    ],
+    "label_change_count": 1,
+    "remaining_warning_qids_after_review": [
+      "q_0021",
+      "q_0058",
+      "q_0097"
+    ],
+    "human_confirmation_recommended_before_public_metrics": true,
+    "metrics_reported": false
+  },
+  "full100_detector_scores": {
+    "ready": true,
+    "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
+    "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_validation.json",
+    "validation_num_failures": 0,
+    "row_count": 205,
+    "question_count": 35,
+    "split_counts": {
+      "dev": 102,
+      "test": 103
+    },
+    "binary_counts_by_split": {
+      "dev": {
+        "0": 41,
+        "1": 61
+      },
+      "test": {
+        "0": 42,
+        "1": 61
+      }
+    },
+    "baseline_score_field_count": 12,
+    "ready_for_split_safe_metrics": true,
+    "metrics_reported": false
+  },
+  "full100_simple_split_metrics": {
+    "ready": true,
+    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_metrics.csv",
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_validation.json",
+    "validation_num_failures": 0,
+    "baseline_family": "simple",
+    "baseline_count": 5,
+    "metric_row_count": 10,
+    "row_count": 205,
+    "dev_row_count": 102,
+    "test_row_count": 103,
+    "best_test_by_auprc": {
+      "baseline": "one_minus_min_top2_margin",
+      "score_field": "one_minus_min_top2_margin",
+      "evaluated_split": "test",
+      "threshold_source_split": "dev",
+      "threshold": 0.334333,
+      "threshold_rule": "predict_positive_if_score_gte_threshold",
+      "precision": 0.854167,
+      "recall": 0.672131,
+      "specificity": 0.833333,
+      "f1": 0.752294,
+      "accuracy": 0.737864,
+      "auroc": 0.756831,
+      "auprc": 0.835073,
+      "tp": 41,
+      "fp": 7,
+      "tn": 35,
+      "fn": 20,
+      "positive_count": 61,
+      "negative_count": 42,
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher value means at least one token has a low top-2 margin."
+    },
+    "best_test_by_f1": {
+      "baseline": "mean_token_entropy",
+      "score_field": "mean_token_entropy",
+      "evaluated_split": "test",
+      "threshold_source_split": "dev",
+      "threshold": 0.004817,
+      "threshold_rule": "predict_positive_if_score_gte_threshold",
+      "precision": 0.706667,
+      "recall": 0.868852,
+      "specificity": 0.47619,
+      "f1": 0.779412,
+      "accuracy": 0.708738,
+      "auroc": 0.736144,
+      "auprc": 0.809474,
+      "tp": 53,
+      "fp": 22,
+      "tn": 20,
+      "fn": 8,
+      "positive_count": 61,
+      "negative_count": 42,
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher mean token entropy indicates more uncertainty."
+    }
+  },
+  "full100_energy_split_metrics": {
+    "ready": true,
+    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_metrics.csv",
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_validation.json",
+    "validation_num_failures": 0,
+    "baseline_family": "energy",
+    "baseline_count": 7,
+    "metric_row_count": 14,
+    "row_count": 205,
+    "dev_row_count": 102,
+    "test_row_count": 103,
+    "best_test_by_auprc": {
+      "baseline": "max_selected_step_energy_gap",
+      "score_field": "max_selected_step_energy_gap",
+      "evaluated_split": "test",
+      "threshold_source_split": "dev",
+      "threshold": 0.195013,
+      "threshold_rule": "predict_positive_if_score_gte_threshold",
+      "precision": 0.82,
+      "recall": 0.672131,
+      "specificity": 0.785714,
+      "f1": 0.738739,
+      "accuracy": 0.718447,
+      "auroc": 0.759173,
+      "auprc": 0.830394,
+      "tp": 41,
+      "fp": 9,
+      "tn": 33,
+      "fn": 20,
+      "positive_count": 61,
+      "negative_count": 42,
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Maximum same-step selected-token energy gap; equivalent to a max token NLL control."
+    },
+    "best_test_by_f1": {
+      "baseline": "mean_spilled_probability_mass_after_top2",
+      "score_field": "mean_spilled_probability_mass_after_top2",
+      "evaluated_split": "test",
+      "threshold_source_split": "dev",
+      "threshold": 0.000225,
+      "threshold_rule": "predict_positive_if_score_gte_threshold",
+      "precision": 0.71831,
+      "recall": 0.836066,
+      "specificity": 0.52381,
+      "f1": 0.772727,
+      "accuracy": 0.708738,
+      "auroc": 0.727557,
+      "auprc": 0.807697,
+      "tp": 51,
+      "fp": 20,
+      "tn": 22,
+      "fn": 10,
+      "positive_count": 61,
+      "negative_count": 42,
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher probability mass outside the top two choices indicates diffuse token uncertainty."
+    }
+  },
+  "full100_detector_family_comparison": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_validation.json",
+    "validation_num_failures": 0,
+    "comparison_row_count": 12,
+    "summary_row_count": 2,
+    "family_counts": {
+      "energy": 7,
+      "simple": 5
+    },
+    "all_positive_like_count": 4,
+    "best_overall_by_test_auprc": {
+      "family": "simple",
+      "baseline": "one_minus_min_top2_margin",
+      "score_field": "one_minus_min_top2_margin",
+      "score_group": "simple_uncertainty",
+      "threshold": "0.334333",
+      "dev_f1": "0.767857",
+      "dev_precision": "0.843137",
+      "dev_recall": "0.704918",
+      "dev_specificity": "0.804878",
+      "test_auprc": "0.835073",
+      "test_auroc": "0.756831",
+      "test_f1": "0.752294",
+      "test_precision": "0.854167",
+      "test_recall": "0.672131",
+      "test_specificity": "0.833333",
+      "test_accuracy": "0.737864",
+      "test_tp": "41",
+      "test_fp": "7",
+      "test_tn": "35",
+      "test_fn": "20",
+      "test_positive_count": "61",
+      "test_negative_count": "42",
+      "all_positive_like": "false",
+      "threshold_source_split": "dev",
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher value means at least one token has a low top-2 margin."
+    },
+    "best_overall_by_test_f1": {
+      "family": "simple",
+      "baseline": "mean_token_entropy",
+      "score_field": "mean_token_entropy",
+      "score_group": "simple_uncertainty",
+      "threshold": "0.004817",
+      "dev_f1": "0.763359",
+      "dev_precision": "0.714286",
+      "dev_recall": "0.819672",
+      "dev_specificity": "0.512195",
+      "test_auprc": "0.809474",
+      "test_auroc": "0.736144",
+      "test_f1": "0.779412",
+      "test_precision": "0.706667",
+      "test_recall": "0.868852",
+      "test_specificity": "0.47619",
+      "test_accuracy": "0.708738",
+      "test_tp": "53",
+      "test_fp": "22",
+      "test_tn": "20",
+      "test_fn": "8",
+      "test_positive_count": "61",
+      "test_negative_count": "42",
+      "all_positive_like": "false",
+      "threshold_source_split": "dev",
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Higher mean token entropy indicates more uncertainty."
+    },
+    "energy_minus_simple_best_auprc_delta": -0.004679,
+    "energy_minus_simple_best_f1_delta": -0.006685,
+    "pure_adjacent_step_energy_best_by_test_auprc": {
+      "family": "energy",
+      "baseline": "mean_spilled_energy_delta",
+      "score_field": "mean_spilled_energy_delta",
+      "score_group": "pure_adjacent_step_signed_energy",
+      "threshold": "-2.396714",
+      "dev_f1": "0.748466",
+      "dev_precision": "0.598039",
+      "dev_recall": "1.0",
+      "dev_specificity": "0.0",
+      "test_auprc": "0.718953",
+      "test_auroc": "0.598751",
+      "test_f1": "0.743902",
+      "test_precision": "0.592233",
+      "test_recall": "1.0",
+      "test_specificity": "0.0",
+      "test_accuracy": "0.592233",
+      "test_tp": "61",
+      "test_fp": "42",
+      "test_tn": "0",
+      "test_fn": "0",
+      "test_positive_count": "61",
+      "test_negative_count": "42",
+      "all_positive_like": "true",
+      "threshold_source_split": "dev",
+      "selection_policy": "threshold_selected_on_dev_split_max_f1",
+      "description": "Signed Spilled Energy delta averaged over the span."
+    }
+  },
+  "full100_detector_error_review": {
+    "ready": true,
+    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_validation.json",
+    "validation_num_failures": 0,
+    "review_scope": "heldout_test_split_only",
+    "selected_baseline_count": 2,
+    "error_row_count": 57,
+    "by_baseline_counts": {
+      "one_minus_min_top2_margin": {
+        "false_positive": 7,
+        "false_negative": 20
+      },
+      "mean_spilled_probability_mass_after_top2": {
+        "false_positive": 20,
+        "false_negative": 10
+      }
+    },
+    "top_fact_type_error_counts": [
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "currency_amount",
+        "count": 9
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "currency_amount",
+        "count": 8
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_negative",
+        "group_value": "currency_amount",
+        "count": 6
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_positive",
+        "group_value": "currency_amount",
+        "count": 5
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "month",
+        "count": 4
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "comparison_direction",
+        "count": 3
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "country",
+        "count": 3
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "ranking",
+        "count": 3
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_negative",
+        "group_value": "ranking",
+        "count": 3
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "comparison_direction",
+        "count": 2
+      }
+    ],
+    "top_question_type_error_counts": [
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "top3_products_month",
+        "count": 6
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_negative",
+        "group_value": "top3_products_month",
+        "count": 6
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "monthly_revenue_change",
+        "count": 6
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "country_comparison_month",
+        "count": 5
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "country_comparison_month",
+        "count": 5
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "top_product_month",
+        "count": 4
+      },
+      {
+        "family": "energy",
+        "baseline_role": "energy_best_test_f1",
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "error_type": "false_positive",
+        "group_value": "top3_products_month",
+        "count": 4
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_negative",
+        "group_value": "product_revenue_share_month",
+        "count": 3
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_positive",
+        "group_value": "country_comparison_month",
+        "count": 2
+      },
+      {
+        "family": "simple",
+        "baseline_role": "simple_best_test_auprc",
+        "baseline": "one_minus_min_top2_margin",
+        "error_type": "false_positive",
+        "group_value": "return_impact_month",
+        "count": 2
+      }
+    ],
+    "ready_for_error_pattern_review": true
+  },
+  "full100_detector_interpretation": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_validation.json",
+    "validation_num_failures": 0,
+    "status": "report_ready_draft",
+    "best_overall_by_test_auprc": {
+      "family": "simple",
+      "baseline": "one_minus_min_top2_margin",
+      "score_field": "one_minus_min_top2_margin",
+      "threshold": 0.334333,
+      "test_auprc": 0.835073,
+      "test_auroc": 0.756831,
+      "test_f1": 0.752294,
+      "test_precision": 0.854167,
+      "test_recall": 0.672131,
+      "test_specificity": 0.833333,
+      "test_accuracy": 0.737864,
+      "test_tp": 41,
+      "test_fp": 7,
+      "test_tn": 35,
+      "test_fn": 20,
+      "description": "Higher value means at least one token has a low top-2 margin."
+    },
+    "best_overall_by_test_f1": {
+      "family": "simple",
+      "baseline": "mean_token_entropy",
+      "score_field": "mean_token_entropy",
+      "threshold": 0.004817,
+      "test_auprc": 0.809474,
+      "test_auroc": 0.736144,
+      "test_f1": 0.779412,
+      "test_precision": 0.706667,
+      "test_recall": 0.868852,
+      "test_specificity": 0.47619,
+      "test_accuracy": 0.708738,
+      "test_tp": 53,
+      "test_fp": 22,
+      "test_tn": 20,
+      "test_fn": 8,
+      "description": "Higher mean token entropy indicates more uncertainty."
+    },
+    "error_row_count": 57,
+    "ready_for_presentation_label_confirmation": true
+  },
+  "full100_label_confirmation_packet": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_validation.json",
+    "validation_num_failures": 0,
+    "status": "confirmation_packet_ready_not_locked",
+    "selected_annotation_count": 15,
+    "selected_question_count": 9,
+    "source_error_example_row_count": 20,
+    "ready_for_human_confirmation": true,
+    "labels_locked": false
+  },
+  "full100_label_confirmation_review_notes": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_validation.json",
+    "validation_num_failures": 0,
+    "status": "assistant_review_complete_not_human_locked",
+    "selected_annotation_count": 15,
+    "selected_question_count": 9,
+    "source_fix_required_count": 0,
+    "presentation_use_counts": {
+      "offset_check_only": 2,
+      "paired_contrast_example": 4,
+      "span_level_caveat": 6,
+      "strong_false_negative_example": 3
+    },
+    "demo_priority_counts": {
+      "high": 7,
+      "low": 2,
+      "medium": 6
+    },
+    "assistant_review_complete": true,
+    "human_confirmation_required": true,
+    "labels_locked": false
+  },
+  "full100_label_lock": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_validation.json",
+    "validation_num_failures": 0,
+    "status": "presentation_labels_locked",
+    "review_status": "locked_after_assistant_full_review",
+    "lock_basis": "assistant_full_review",
+    "selected_annotation_count": 15,
+    "selected_question_count": 9,
+    "locked_label_count": 15,
+    "source_fix_required_count": 0,
+    "by_publish_use": {
+      "caveat_demo": 6,
+      "primary_demo": 7,
+      "qa_regression_only": 2
+    },
+    "primary_demo_question_ids": [
+      "q_0064",
+      "q_0069"
+    ],
+    "labels_locked": true,
+    "ready_for_portfolio_packaging": true
+  },
+  "portfolio_demo": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_validation.json",
+    "validation_num_failures": 0,
+    "status": "portfolio_demo_ready",
+    "case_count": 2,
+    "primary_question_ids": [
+      "q_0064",
+      "q_0069"
+    ],
+    "locked_primary_span_count": 7,
+    "best_test_auprc": 0.835073,
+    "best_test_f1": 0.779412,
+    "label_lock_basis": "assistant_full_review",
+    "ready_for_portfolio_demo": true
+  },
+  "portfolio_narrative": {
+    "ready": true,
+    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_validation.json",
+    "validation_num_failures": 0,
+    "status": "portfolio_narrative_ready",
+    "primary_question_ids": [
+      "q_0064",
+      "q_0069"
+    ],
+    "question_count": 100,
+    "annotated_span_count": 205,
+    "best_test_auprc": 0.835073,
+    "best_test_f1": 0.779412,
+    "resume_bullet_count": 5,
+    "slide_count": 7,
+    "ready_for_portfolio_narrative": true
+  },
+  "github_pages_bundle": {
+    "ready": true,
+    "manifest_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\github_pages_manifest.json",
+    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\github_pages_validation.json",
+    "validation_num_failures": 0,
+    "status": "github_pages_bundle_ready",
+    "ready_for_github_pages": true,
+    "primary_question_ids": [
+      "q_0064",
+      "q_0069"
+    ],
+    "question_count": 100,
+    "annotated_span_count": 205,
+    "best_test_auprc": 0.835073,
+    "best_test_f1": 0.779412
+  },
+  "train_only_split_guard": {
+    "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_train_only_split_guard_report.json",
+    "ready_for_split_metrics": false,
+    "split_counts": {
+      "train": 135
+    },
+    "expected_rejection": true
+  },
+  "legacy_ready_to_run_full100_generation": true,
+  "ready_to_run_full100_generation": true,
+  "full100_generation_run": true,
+  "remaining_after_full100_generation": [
+    "Decide whether the first public GitHub upload should include slides now or add slides in a follow-up commit.",
+    "Use docs/index.html as the GitHub Pages entry point and reports/ as the experiment-native report archive.",
+    "Keep large raw data, model traces, model weights, and external baseline repositories out of the public commit."
+  ],
+  "num_failures": 0,
+  "failures": []
+}

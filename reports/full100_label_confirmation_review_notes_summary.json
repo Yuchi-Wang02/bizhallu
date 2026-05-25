@@ -1,0 +1,45 @@
+{
+  "status": "assistant_review_complete_not_human_locked",
+  "source_packet_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_summary.json",
+  "review_notes_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.csv",
+  "review_notes_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.jsonl",
+  "review_notes_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.html",
+  "selected_annotation_count": 15,
+  "selected_question_count": 9,
+  "assistant_label_verdict_counts": {
+    "label_supported": 15
+  },
+  "presentation_use_counts": {
+    "offset_check_only": 2,
+    "paired_contrast_example": 4,
+    "span_level_caveat": 6,
+    "strong_false_negative_example": 3
+  },
+  "demo_priority_counts": {
+    "high": 7,
+    "low": 2,
+    "medium": 6
+  },
+  "risk_level_counts": {
+    "low": 9,
+    "medium": 6
+  },
+  "source_action_counts": {
+    "none": 15
+  },
+  "high_priority_confirmation_item_ids": [
+    "confirm_006",
+    "confirm_007",
+    "confirm_008",
+    "confirm_009",
+    "confirm_011",
+    "confirm_012",
+    "confirm_013"
+  ],
+  "source_fix_required_count": 0,
+  "human_confirmation_required": true,
+  "labels_locked": false,
+  "packet_status": "confirmation_packet_ready_not_locked",
+  "num_failures": 0,
+  "failures": []
+}

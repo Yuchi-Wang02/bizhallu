@@ -1,0 +1,86 @@
+{
+  "name": "detector_baseline_suite",
+  "version": "0.1",
+  "purpose": "Baseline score fields used for split-safe detector evaluation. Thresholds must be selected on dev spans and reported on held-out test spans.",
+  "default_dev_split": "dev",
+  "default_test_split": "test",
+  "selection_metric": "f1",
+  "families": {
+    "simple": [
+      {
+        "baseline": "mean_token_nll",
+        "score_field": "mean_token_nll",
+        "description": "Higher mean token negative log probability indicates more uncertainty."
+      },
+      {
+        "baseline": "mean_token_entropy",
+        "score_field": "mean_token_entropy",
+        "description": "Higher mean token entropy indicates more uncertainty."
+      },
+      {
+        "baseline": "max_token_entropy",
+        "score_field": "max_token_entropy",
+        "description": "Higher maximum token entropy catches one uncertain token inside a span."
+      },
+      {
+        "baseline": "one_minus_mean_top2_margin",
+        "score_field": "one_minus_mean_top2_margin",
+        "description": "Higher value means lower average top-2 margin across the span."
+      },
+      {
+        "baseline": "one_minus_min_top2_margin",
+        "score_field": "one_minus_min_top2_margin",
+        "description": "Higher value means at least one token has a low top-2 margin."
+      }
+    ],
+    "energy": [
+      {
+        "baseline": "mean_spilled_energy_abs_delta",
+        "score_field": "mean_spilled_energy_abs_delta",
+        "description": "Higher mean adjacent-step energy mismatch indicates more inconsistency."
+      },
+      {
+        "baseline": "max_spilled_energy_abs_delta",
+        "score_field": "max_spilled_energy_abs_delta",
+        "description": "Higher maximum adjacent-step energy mismatch catches one inconsistent token inside a span."
+      },
+      {
+        "baseline": "mean_spilled_energy_delta",
+        "score_field": "mean_spilled_energy_delta",
+        "description": "Signed Spilled Energy delta averaged over the span."
+      },
+      {
+        "baseline": "negative_mean_spilled_energy_delta",
+        "score_field": "negative_mean_spilled_energy_delta",
+        "description": "Opposite direction of signed Spilled Energy delta for direction-sensitivity checks."
+      },
+      {
+        "baseline": "mean_spilled_probability_mass_after_top1",
+        "score_field": "mean_spilled_probability_mass_after_top1",
+        "description": "Higher non-top1 probability mass indicates a less concentrated token distribution."
+      },
+      {
+        "baseline": "mean_spilled_probability_mass_after_top2",
+        "score_field": "mean_spilled_probability_mass_after_top2",
+        "description": "Higher probability mass outside the top two choices indicates diffuse token uncertainty."
+      },
+      {
+        "baseline": "max_selected_step_energy_gap",
+        "score_field": "max_selected_step_energy_gap",
+        "description": "Maximum same-step selected-token energy gap; equivalent to a max token NLL control."
+      }
+    ],
+    "smoke": [
+      {
+        "baseline": "score_good",
+        "score_field": "score_good",
+        "description": "Synthetic score that should select a useful dev threshold."
+      },
+      {
+        "baseline": "score_bad",
+        "score_field": "score_bad",
+        "description": "Synthetic weak score used to validate comparison logic."
+      }
+    ]
+  }
+}

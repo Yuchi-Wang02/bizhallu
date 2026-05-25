@@ -1,0 +1,9 @@
+{
+  "signal_spans_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_spans.csv",
+  "signal_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_summary.json",
+  "span_count": 36,
+  "focus_question_id": "q_0065",
+  "focus_span_count": 12,
+  "num_failures": 0,
+  "failures": []
+}

@@ -1,0 +1,343 @@
+{
+  "input_scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_scores.csv",
+  "input_baseline_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_report.json",
+  "error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_review.csv",
+  "selected_baselines": [
+    {
+      "baseline": "max_token_entropy",
+      "baseline_role": "best_by_auprc",
+      "score_field": "max_token_entropy",
+      "threshold": 0.032788,
+      "precision": 0.59375,
+      "recall": 0.826087,
+      "specificity": 0.409091,
+      "f1": 0.690909,
+      "auprc": 0.70288,
+      "tp": 57,
+      "fp": 39,
+      "tn": 27,
+      "fn": 12
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "baseline_role": "best_by_f1",
+      "score_field": "one_minus_min_top2_margin",
+      "threshold": 0.013059,
+      "precision": 0.602151,
+      "recall": 0.811594,
+      "specificity": 0.439394,
+      "f1": 0.691358,
+      "auprc": 0.6789,
+      "tp": 56,
+      "fp": 37,
+      "tn": 29,
+      "fn": 13
+    }
+  ],
+  "error_row_count": 101,
+  "error_counts_by_baseline": {
+    "max_token_entropy": {
+      "false_positive": 39,
+      "false_negative": 12
+    },
+    "one_minus_min_top2_margin": {
+      "false_positive": 37,
+      "false_negative": 13
+    }
+  },
+  "confusion_counts_by_baseline": {
+    "max_token_entropy": {
+      "positive->positive": 57,
+      "positive->negative": 12,
+      "negative->positive": 39,
+      "negative->negative": 27
+    },
+    "one_minus_min_top2_margin": {
+      "positive->positive": 56,
+      "positive->negative": 13,
+      "negative->positive": 37,
+      "negative->negative": 29
+    }
+  },
+  "error_counts_by_fact_type": [
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "fact_type": "currency_amount",
+      "count": 5
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "fact_type": "product_name",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "fact_type": "product_stock_code",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "fact_type": "ranking",
+      "count": 5
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "business_definition",
+      "count": 6
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "comparison_direction",
+      "count": 4
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "country",
+      "count": 4
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "currency_amount",
+      "count": 15
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "date_range",
+      "count": 2
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "month",
+      "count": 4
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "percentage",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "product_name",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "fact_type": "ranking",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "fact_type": "currency_amount",
+      "count": 6
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "fact_type": "product_name",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "fact_type": "product_stock_code",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "fact_type": "ranking",
+      "count": 5
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "business_definition",
+      "count": 6
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "comparison_direction",
+      "count": 4
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "country",
+      "count": 4
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "currency_amount",
+      "count": 15
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "date_range",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "month",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "percentage",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "product_name",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "fact_type": "ranking",
+      "count": 2
+    }
+  ],
+  "error_counts_by_question_type": [
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "question_type": "product_revenue_share_month",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "question_type": "top3_products_month",
+      "count": 10
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_negative",
+      "question_type": "top_product_month",
+      "count": 1
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "country_comparison_month",
+      "count": 7
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "monthly_revenue_change",
+      "count": 10
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "product_revenue_share_month",
+      "count": 2
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "return_impact_month",
+      "count": 9
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "top3_products_month",
+      "count": 2
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "top_country_month",
+      "count": 8
+    },
+    {
+      "baseline": "max_token_entropy",
+      "error_type": "false_positive",
+      "question_type": "top_product_month",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "question_type": "product_revenue_share_month",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "question_type": "top3_products_month",
+      "count": 10
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_negative",
+      "question_type": "top_product_month",
+      "count": 1
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "country_comparison_month",
+      "count": 7
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "monthly_revenue_change",
+      "count": 8
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "product_revenue_share_month",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "return_impact_month",
+      "count": 9
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "top3_products_month",
+      "count": 2
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "top_country_month",
+      "count": 8
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "error_type": "false_positive",
+      "question_type": "top_product_month",
+      "count": 1
+    }
+  ],
+  "interpretation": "This file lists pilot-only false positives and false negatives for the best-F1 and best-AUPRC simple baselines. Use it to inspect failure patterns before running larger generation or adding paper-style baselines."
+}

@@ -1,0 +1,3 @@
+﻿family,baseline_count,best_test_auprc_baseline,best_test_auprc,best_test_auprc_f1,best_test_f1_baseline,best_test_f1,best_test_f1_auprc,all_positive_like_count
+energy,7,max_selected_step_energy_gap,0.830394,0.738739,mean_spilled_probability_mass_after_top2,0.772727,0.807697,4
+simple,5,one_minus_min_top2_margin,0.835073,0.752294,mean_token_entropy,0.779412,0.809474,0

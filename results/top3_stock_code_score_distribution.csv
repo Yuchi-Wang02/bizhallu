@@ -1,0 +1,10 @@
+﻿question_id,rank,stock_code,label,binary_label,generated_evidence_position,expected_stock_code_at_rank,max_token_entropy,max_token_entropy_rank_desc,one_minus_min_top2_margin,one_minus_min_top2_margin_rank_desc,mean_token_nll,mean_token_nll_rank_desc,reason
+q_0060,1,22423,correct,0,1,22423,0.540226,7,0.372686,7,0.050117,7,rank-bound row matches gold
+q_0060,2,84029E,correct,0,2,84029E,0.083597,9,0.022022,9,0.00373,9,rank-bound row matches gold
+q_0060,3,22086,correct,0,3,22086,0.736682,3,0.601594,5,0.145057,3,rank-bound row matches gold
+q_0065,1,22423,incorrect_rank_binding,1,2,47566,1.105593,1,0.889713,1,0.304171,1,"rank 1 should be 47566, generated 22423 from evidence position 2"
+q_0065,2,85123A,incorrect_rank_binding,1,3,22423,0.740689,2,0.446481,6,0.071334,6,"rank 2 should be 22423, generated 85123A from evidence position 3"
+q_0065,3,22501,incorrect_rank_binding,1,7,85123A,0.663322,5,0.755091,3,0.181448,2,"rank 3 should be 85123A, generated 22501 from evidence position 7"
+q_0072,1,23084,correct,0,1,23084,0.65986,6,0.697872,4,0.088795,5,rank-bound row matches gold
+q_0072,2,22086,correct,0,2,22086,0.713926,4,0.757162,2,0.098696,4,rank-bound row matches gold
+q_0072,3,22423,correct,0,3,22423,0.154446,8,0.067264,8,0.016072,8,rank-bound row matches gold

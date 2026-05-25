@@ -1,0 +1,28 @@
+{
+  "generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_structured_pilot3_generations.jsonl",
+  "prompt_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_structured_prompts.jsonl",
+  "evaluation_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_structured_pilot3_evaluation.csv",
+  "condition_name": "structured top3",
+  "record_count": 3,
+  "total_gold_rank_rows": 9,
+  "total_generated_rows_parsed": 9,
+  "format_valid_count": 3,
+  "exact_order_match_count": 0,
+  "set_match_count": 0,
+  "correct_rank_rows": 0,
+  "gold_presence_rows": 1,
+  "evidence_membership_rows": 9,
+  "all_generated_from_evidence_count": 3,
+  "copied_evidence_amount_rows": 9,
+  "correct_rank_amount_rows": 0,
+  "sorted_output_count": 0,
+  "evidence_prefix_rows": 7,
+  "main_findings": [
+    "The structured top3 condition produced parseable 3-row tables for 3/3 pilot questions.",
+    "It achieved 0/3 exact top-3 lists and 0/9 rank-position stock codes.",
+    "The model copied evidence rows rather than inventing products: 9/9 generated rows are from the evidence table.",
+    "It also copied amounts for selected products: 9/9 generated amounts match the selected evidence row.",
+    "Compare evidence-prefix rows with exact accuracy to separate copying behavior from sorting behavior."
+  ],
+  "recommended_next_step": "This condition still failed despite the structured table contract. Next inspect generated examples before scaling, then decide whether to continue prompt controls or return to detector work."
+}

@@ -1,0 +1,41 @@
+{
+  "status": "portfolio_demo_ready",
+  "portfolio_demo_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo.html",
+  "source_label_lock_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
+  "source_detector_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "primary_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "case_count": 2,
+  "locked_primary_span_count": 7,
+  "by_label": {
+    "correct_key_fact": 2,
+    "hallucinated_key_fact": 5
+  },
+  "simple_threshold": 0.334333,
+  "entropy_threshold": 0.004817,
+  "energy_threshold": 0.000225,
+  "simple_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  },
+  "entropy_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  },
+  "energy_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  },
+  "best_test_auprc": 0.835073,
+  "best_test_auprc_baseline": "one_minus_min_top2_margin",
+  "best_test_f1": 0.779412,
+  "best_test_f1_baseline": "mean_token_entropy",
+  "label_lock_status": "presentation_labels_locked",
+  "label_lock_basis": "assistant_full_review",
+  "labels_locked": true,
+  "human_confirmation_required": false,
+  "num_failures": 0,
+  "failures": []
+}

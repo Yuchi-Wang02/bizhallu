@@ -1,0 +1,14 @@
+{
+  "comparison_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.csv",
+  "comparison_json_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.json",
+  "condition_count": 2,
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "exact_order_match_gain": 2,
+  "correct_rank_row_gain": 6,
+  "num_failures": 0,
+  "failures": []
+}

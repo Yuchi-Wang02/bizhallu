@@ -1,0 +1,201 @@
+{
+  "signal_spans_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_spans.csv",
+  "source_generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_generations.jsonl",
+  "source_trace_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_token_traces.jsonl",
+  "question_ids": [
+    "q_0060",
+    "q_0065",
+    "q_0072"
+  ],
+  "focus_question_id": "q_0065",
+  "thresholds_from_pilot20": {
+    "max_token_entropy": 0.032788,
+    "one_minus_min_top2_margin": 0.013059
+  },
+  "span_count": 36,
+  "label_counts": {
+    "correct": 24,
+    "incorrect_rank_binding": 12
+  },
+  "focus_q0065_summary": {
+    "span_count": 12,
+    "flagged_by_max_token_entropy": 6,
+    "flagged_by_one_minus_min_top2_margin": 6,
+    "flagged_by_any_selected_baseline": 6,
+    "any_selected_baseline_flag_rate": 0.5
+  },
+  "correct_reference_summary": {
+    "span_count": 24,
+    "flagged_by_max_token_entropy": 13,
+    "flagged_by_one_minus_min_top2_margin": 13,
+    "flagged_by_any_selected_baseline": 13,
+    "any_selected_baseline_flag_rate": 0.541667
+  },
+  "incorrect_rank_binding_summary": {
+    "span_count": 12,
+    "flagged_by_max_token_entropy": 6,
+    "flagged_by_one_minus_min_top2_margin": 6,
+    "flagged_by_any_selected_baseline": 6,
+    "any_selected_baseline_flag_rate": 0.5
+  },
+  "focus_q0065_by_scope": {
+    "net_revenue_gbp": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 0,
+      "flagged_by_one_minus_min_top2_margin": 0,
+      "flagged_by_any_selected_baseline": 0,
+      "any_selected_baseline_flag_rate": 0.0
+    },
+    "product_name": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 0,
+      "flagged_by_one_minus_min_top2_margin": 0,
+      "flagged_by_any_selected_baseline": 0,
+      "any_selected_baseline_flag_rate": 0.0
+    },
+    "row_full": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 3,
+      "flagged_by_one_minus_min_top2_margin": 3,
+      "flagged_by_any_selected_baseline": 3,
+      "any_selected_baseline_flag_rate": 1.0
+    },
+    "stock_code": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 3,
+      "flagged_by_one_minus_min_top2_margin": 3,
+      "flagged_by_any_selected_baseline": 3,
+      "any_selected_baseline_flag_rate": 1.0
+    }
+  },
+  "by_scope_and_label": {
+    "net_revenue_gbp__correct": {
+      "span_count": 6,
+      "flagged_by_max_token_entropy": 0,
+      "flagged_by_one_minus_min_top2_margin": 0,
+      "flagged_by_any_selected_baseline": 0,
+      "any_selected_baseline_flag_rate": 0.0
+    },
+    "net_revenue_gbp__incorrect_rank_binding": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 0,
+      "flagged_by_one_minus_min_top2_margin": 0,
+      "flagged_by_any_selected_baseline": 0,
+      "any_selected_baseline_flag_rate": 0.0
+    },
+    "product_name__correct": {
+      "span_count": 6,
+      "flagged_by_max_token_entropy": 1,
+      "flagged_by_one_minus_min_top2_margin": 1,
+      "flagged_by_any_selected_baseline": 1,
+      "any_selected_baseline_flag_rate": 0.166667
+    },
+    "product_name__incorrect_rank_binding": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 0,
+      "flagged_by_one_minus_min_top2_margin": 0,
+      "flagged_by_any_selected_baseline": 0,
+      "any_selected_baseline_flag_rate": 0.0
+    },
+    "row_full__correct": {
+      "span_count": 6,
+      "flagged_by_max_token_entropy": 6,
+      "flagged_by_one_minus_min_top2_margin": 6,
+      "flagged_by_any_selected_baseline": 6,
+      "any_selected_baseline_flag_rate": 1.0
+    },
+    "row_full__incorrect_rank_binding": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 3,
+      "flagged_by_one_minus_min_top2_margin": 3,
+      "flagged_by_any_selected_baseline": 3,
+      "any_selected_baseline_flag_rate": 1.0
+    },
+    "stock_code__correct": {
+      "span_count": 6,
+      "flagged_by_max_token_entropy": 6,
+      "flagged_by_one_minus_min_top2_margin": 6,
+      "flagged_by_any_selected_baseline": 6,
+      "any_selected_baseline_flag_rate": 1.0
+    },
+    "stock_code__incorrect_rank_binding": {
+      "span_count": 3,
+      "flagged_by_max_token_entropy": 3,
+      "flagged_by_one_minus_min_top2_margin": 3,
+      "flagged_by_any_selected_baseline": 3,
+      "any_selected_baseline_flag_rate": 1.0
+    }
+  },
+  "omitted_gold_rows": [
+    {
+      "question_id": "q_0065",
+      "expected_rank": 1,
+      "stock_code": "47566",
+      "product_name": "PARTY BUNTING",
+      "net_revenue_gbp": 19093.3,
+      "reason": "gold top3 row was omitted from generated text; token-level detectors cannot flag an absent span directly"
+    }
+  ],
+  "selected_flagged_focus_spans": [
+    {
+      "rank": 1,
+      "span_scope": "row_full",
+      "span_text": "1 | 22423 | REGENCY CAKESTAND 3 TIER | 12217.27",
+      "max_token_entropy": 1.105593,
+      "one_minus_min_top2_margin": 0.889713,
+      "flagged_any": true,
+      "reason": "rank 1 should be 47566, generated 22423 from evidence position 2"
+    },
+    {
+      "rank": 1,
+      "span_scope": "stock_code",
+      "span_text": "22423",
+      "max_token_entropy": 1.105593,
+      "one_minus_min_top2_margin": 0.889713,
+      "flagged_any": true,
+      "reason": "rank 1 should be 47566, generated 22423 from evidence position 2"
+    },
+    {
+      "rank": 2,
+      "span_scope": "row_full",
+      "span_text": "2 | 85123A | WHITE HANGING HEART T-LIGHT HOLDER | 11172.17",
+      "max_token_entropy": 0.740689,
+      "one_minus_min_top2_margin": 0.446481,
+      "flagged_any": true,
+      "reason": "rank 2 should be 22423, generated 85123A from evidence position 3"
+    },
+    {
+      "rank": 2,
+      "span_scope": "stock_code",
+      "span_text": "85123A",
+      "max_token_entropy": 0.740689,
+      "one_minus_min_top2_margin": 0.446481,
+      "flagged_any": true,
+      "reason": "rank 2 should be 22423, generated 85123A from evidence position 3"
+    },
+    {
+      "rank": 3,
+      "span_scope": "row_full",
+      "span_text": "3 | 22501 | PICNIC BASKET WICKER LARGE | 5268.14",
+      "max_token_entropy": 0.663322,
+      "one_minus_min_top2_margin": 0.755091,
+      "flagged_any": true,
+      "reason": "rank 3 should be 85123A, generated 22501 from evidence position 7"
+    },
+    {
+      "rank": 3,
+      "span_scope": "stock_code",
+      "span_text": "22501",
+      "max_token_entropy": 0.663322,
+      "one_minus_min_top2_margin": 0.755091,
+      "flagged_any": true,
+      "reason": "rank 3 should be 85123A, generated 22501 from evidence position 7"
+    }
+  ],
+  "main_findings": [
+    "The remaining sorted-control failure is represented by generated spans only; the omitted top product has no generated tokens for token-level detectors to score.",
+    "The review compares q_0065 incorrect rank-bound spans against the correct q_0060 and q_0072 sorted-control spans using the same token metrics.",
+    "Stock-code and row-level spans carry the strongest uncertainty signal, but the same signal also flags correct stock-code and row-level spans in this small control.",
+    "Selected pilot20 thresholds are reused only as a diagnostic reference, not as held-out performance claims."
+  ]
+}

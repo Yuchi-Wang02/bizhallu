@@ -1,0 +1,75 @@
+{
+  "source_error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_review.csv",
+  "source_error_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_summary.json",
+  "analysis_by_family_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_by_family.csv",
+  "analysis_examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_examples.csv",
+  "baseline_error_rows": 101,
+  "unique_annotation_errors": 52,
+  "false_positive_rows": 76,
+  "false_negative_rows": 25,
+  "family_count": 7,
+  "top_families": [
+    {
+      "error_family": "correct_numeric_flagged_uncertain",
+      "short_name": "Correct numeric fact flagged",
+      "baseline_error_rows": 32,
+      "unique_annotation_errors": 16
+    },
+    {
+      "error_family": "correct_context_fact_flagged_uncertain",
+      "short_name": "Correct context fact flagged",
+      "baseline_error_rows": 28,
+      "unique_annotation_errors": 15
+    },
+    {
+      "error_family": "confident_wrong_top3_ranked_item",
+      "short_name": "Confident wrong top-3 ranking",
+      "baseline_error_rows": 20,
+      "unique_annotation_errors": 10
+    },
+    {
+      "error_family": "correct_business_definition_flagged_uncertain",
+      "short_name": "Correct business definition flagged",
+      "baseline_error_rows": 12,
+      "unique_annotation_errors": 6
+    }
+  ],
+  "source_selected_baselines": [
+    {
+      "baseline": "max_token_entropy",
+      "baseline_role": "best_by_auprc",
+      "score_field": "max_token_entropy",
+      "threshold": 0.032788,
+      "precision": 0.59375,
+      "recall": 0.826087,
+      "specificity": 0.409091,
+      "f1": 0.690909,
+      "auprc": 0.70288,
+      "tp": 57,
+      "fp": 39,
+      "tn": 27,
+      "fn": 12
+    },
+    {
+      "baseline": "one_minus_min_top2_margin",
+      "baseline_role": "best_by_f1",
+      "score_field": "one_minus_min_top2_margin",
+      "threshold": 0.013059,
+      "precision": 0.602151,
+      "recall": 0.811594,
+      "specificity": 0.439394,
+      "f1": 0.691358,
+      "auprc": 0.6789,
+      "tp": 56,
+      "fp": 37,
+      "tn": 29,
+      "fn": 13
+    }
+  ],
+  "main_findings": [
+    "False negatives are concentrated in confident wrong top-3 product ranking spans.",
+    "False positives are dominated by correct numeric spans that look uncertain to simple token metrics.",
+    "The pilot supports the project thesis: internal uncertainty is useful but not reliable enough by itself for business fact verification."
+  ],
+  "recommended_next_step": "Run the 3-question top3 structured prompt pilot before full100, then decide whether to test all 13 top3 structured prompts or proceed to a stronger detector such as Spilled Energy."
+}

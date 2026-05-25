@@ -1,0 +1,128 @@
+{
+  "record_count": 100,
+  "question_type_counts": {
+    "country_comparison_month": 20,
+    "monthly_revenue_change": 10,
+    "product_revenue_share_month": 16,
+    "return_impact_month": 12,
+    "top3_products_month": 13,
+    "top_country_month": 16,
+    "top_product_month": 13
+  },
+  "difficulty_counts": {
+    "easy": 5,
+    "hard": 38,
+    "medium": 57
+  },
+  "split_counts": [
+    {
+      "question_type": "country_comparison_month",
+      "split": "dev",
+      "size": 4
+    },
+    {
+      "question_type": "country_comparison_month",
+      "split": "test",
+      "size": 4
+    },
+    {
+      "question_type": "country_comparison_month",
+      "split": "train",
+      "size": 12
+    },
+    {
+      "question_type": "monthly_revenue_change",
+      "split": "dev",
+      "size": 2
+    },
+    {
+      "question_type": "monthly_revenue_change",
+      "split": "test",
+      "size": 2
+    },
+    {
+      "question_type": "monthly_revenue_change",
+      "split": "train",
+      "size": 6
+    },
+    {
+      "question_type": "product_revenue_share_month",
+      "split": "dev",
+      "size": 3
+    },
+    {
+      "question_type": "product_revenue_share_month",
+      "split": "test",
+      "size": 3
+    },
+    {
+      "question_type": "product_revenue_share_month",
+      "split": "train",
+      "size": 10
+    },
+    {
+      "question_type": "return_impact_month",
+      "split": "dev",
+      "size": 2
+    },
+    {
+      "question_type": "return_impact_month",
+      "split": "test",
+      "size": 2
+    },
+    {
+      "question_type": "return_impact_month",
+      "split": "train",
+      "size": 8
+    },
+    {
+      "question_type": "top3_products_month",
+      "split": "dev",
+      "size": 2
+    },
+    {
+      "question_type": "top3_products_month",
+      "split": "test",
+      "size": 2
+    },
+    {
+      "question_type": "top3_products_month",
+      "split": "train",
+      "size": 9
+    },
+    {
+      "question_type": "top_country_month",
+      "split": "dev",
+      "size": 3
+    },
+    {
+      "question_type": "top_country_month",
+      "split": "test",
+      "size": 3
+    },
+    {
+      "question_type": "top_country_month",
+      "split": "train",
+      "size": 10
+    },
+    {
+      "question_type": "top_product_month",
+      "split": "dev",
+      "size": 2
+    },
+    {
+      "question_type": "top_product_month",
+      "split": "test",
+      "size": 2
+    },
+    {
+      "question_type": "top_product_month",
+      "split": "train",
+      "size": 9
+    }
+  ],
+  "outputs": {
+    "jsonl": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
+    "sample_csv": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold_sample.csv"
+  }
+}
