@@ -1,5 +1,9 @@
 # BizHallu
 
+[Live demo](https://yuchi-wang02.github.io/bizhallu/) |
+[Case demo](https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html) |
+[Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html)
+
 BizHallu is a span-level hallucination detection project for LLM-generated
 business analysis. It evaluates whether generated business facts are grounded in
 transaction-level evidence, using UCI Online Retail data, local Qwen3-0.6B
@@ -11,19 +15,103 @@ piece: it shows how fluent retail analysis can contain wrong products, ranks,
 amounts, months, and conclusions, and how those failures can be converted into
 auditable evaluation artifacts.
 
-Public demo entry point:
+## Why This Project Matters
 
-- `docs/index.html`
+Business users often do not need a model to write more fluent analysis. They
+need to know whether a generated business claim is grounded in the underlying
+transaction evidence. BizHallu turns that problem into an auditable workflow:
 
-Current validated summary:
+```text
+transaction evidence -> LLM answer -> business-fact spans -> detector scores -> public demo
+```
 
-- 100 deterministic business questions across 7 question types
-- 100 local Qwen3-0.6B generations with token traces
-- 35 held-out high-priority dev/test questions annotated
-- 205 aligned business-fact spans
-- best held-out test AUPRC: 0.835 from `one_minus_min_top2_margin`
-- best held-out test F1: 0.779 from `mean_token_entropy`
-- GitHub Pages bundle status: `github_pages_ready`
+The unit of evaluation is a fact span, not the whole answer. A span can be a
+number, month, product, country, ranking, comparison, percentage, or business
+conclusion that a user might rely on.
+
+## Public Demo
+
+Start here:
+
+- Live GitHub Pages entry: <https://yuchi-wang02.github.io/bizhallu/>
+- Interactive case demo: <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html>
+- Long-form portfolio narrative: <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html>
+- Detector interpretation: <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html>
+
+The demo focuses on `q_0064` and `q_0069`, two cases where Qwen3-0.6B writes
+fluent retail analysis while binding evidence values to the wrong rank or
+product. These are the strongest examples for explaining the project in an
+interview or portfolio review.
+
+## Key Results
+
+| Item | Value |
+| --- | ---: |
+| Deterministic business questions | 100 |
+| Question types | 7 |
+| Local Qwen3-0.6B generations | 100 |
+| Held-out high-priority annotated questions | 35 |
+| Aligned business-fact spans | 205 |
+| Best held-out test AUPRC | 0.835 |
+| Best held-out test F1 | 0.779 |
+| GitHub Pages bundle status | `github_pages_ready` |
+
+Best held-out test AUPRC comes from `one_minus_min_top2_margin`. Best held-out
+test F1 comes from `mean_token_entropy`. In this run, the strongest
+energy-family F1 is close but slightly lower at 0.773 from
+`mean_spilled_probability_mass_after_top2`.
+
+## What This Shows
+
+- Business analytics framing: deterministic retail questions and gold answers
+  are derived from transaction evidence, not synthetic facts.
+- AI evaluation discipline: generated answers are reviewed at span level, with
+  labels, offsets, token alignment, and split-safe metrics.
+- Portfolio relevance: the final pages explain the work as an AI reliability
+  project for business analysis rather than a generic sales dashboard.
+
+## Scope and Limitations
+
+- The labels are locked for presentation with `lock_basis=assistant_full_review`;
+  this is not a large independently human-labeled benchmark.
+- Results should be interpreted at span level, not as whole-answer correctness.
+- Raw Online Retail data, large cleaned tables, model traces, and model weights
+  are intentionally excluded from the repository.
+- The detector baselines are useful diagnostics, not production-ready
+  hallucination detection systems.
+
+## Repository Map
+
+| Path | Purpose |
+| --- | --- |
+| `docs/` | GitHub Pages bundle and project documentation |
+| `reports/` | Experiment-native HTML reports and validation summaries |
+| `results/` | Detector scores, split metrics, error reviews, and report-ready tables |
+| `src/` | Data, generation, annotation, validation, and packaging scripts |
+| `configs/` | Question and detector run configurations |
+| `data/annotations/` | Annotation guidelines and span-label files |
+| `data/processed/` | Lightweight gold-question metadata kept for reproducibility |
+| `outputs/` | README only in git; large model outputs are ignored |
+
+## Reproduce the Public Pages
+
+```powershell
+python src\build_github_pages_bundle.py
+python src\validate_github_pages_bundle.py
+python src\build_full100_preflight_report.py
+```
+
+Expected state:
+
+- `docs/github_pages_validation.json`: `ready_for_github_pages=true`
+- `results/full100_preflight_validation.json`: `current_stage=github_pages_ready`
+- both validation files report `num_failures=0`
+
+## License and Data Note
+
+Project code is released under the MIT License. The raw Online Retail dataset
+is not committed; the project documents how to rebuild derived artifacts from a
+local copy of the source data.
 
 ## Workspace Layout
 
