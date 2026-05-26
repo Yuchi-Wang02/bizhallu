@@ -431,7 +431,7 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
           <article class="card">
             <h3>Interview deck</h3>
             <p>Use the 10-slide PowerPoint deck for a concise walkthrough of motivation, pipeline, results, cases, and positioning.</p>
-            <p><a href="./assets/bizhallu_ai_reliability_deck.pptx">Download PPTX</a></p>
+            <p><a href="./assets/bizhallu_ai_reliability_deck.pptx">Download PPTX</a> / <a href="./assets/bizhallu_ai_reliability_deck_contact_sheet.png">Preview slides</a></p>
           </article>
         </div>
       </section>

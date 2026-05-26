@@ -36,6 +36,7 @@ Include:
 - `README.md`
 - `requirements.txt`
 - `.gitignore`
+- `.gitattributes`
 - `src/`
 - `configs/`
 - `docs/`
@@ -44,6 +45,10 @@ Include:
 - `site/`
 - `data/annotations/README.md`
 - `data/annotations/annotation_guidelines.md`
+- `data/annotations/span_annotations_full100_draft.jsonl`
+- `data/processed/business_questions_gold.jsonl`
+- `docs/assets/bizhallu_ai_reliability_deck.pptx`
+- `docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png`
 - `models/README.md`
 - `outputs/README.md`
 
@@ -97,6 +102,7 @@ After pushing to GitHub:
    - `portfolio_demo.html` opens
    - `portfolio_narrative.html` opens
    - links to detector interpretation and label lock report work
+   - the interview deck downloads from `assets/bizhallu_ai_reliability_deck.pptx`
 
 ## 6. README Front Page Check
 

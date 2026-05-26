@@ -17,6 +17,12 @@ Public pages:
 - `label_lock_report.html`
 - `label_confirmation_packet.html`
 
+Public assets:
+
+- `assets/bizhallu_ai_reliability_deck.pptx`
+- `assets/bizhallu_ai_reliability_deck_contact_sheet.png`
+- `assets/full100_draft_detector_error_review_examples.csv`
+
 Upload support:
 
 - `github_upload_checklist.md`

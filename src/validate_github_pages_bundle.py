@@ -21,6 +21,7 @@ REQUIRED_INDEX_FRAGMENTS = [
     "Open interactive demo",
     "Read portfolio narrative",
     "Download interview deck",
+    "Preview slides",
     "github_pages_ready",
     "q_0064",
     "q_0069",

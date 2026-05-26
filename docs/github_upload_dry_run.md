@@ -8,135 +8,113 @@ Workspace:
 C:\Users\yuchi\Downloads\p1\bizhallu
 ```
 
+Remote:
+
+```text
+https://github.com/Yuchi-Wang02/bizhallu.git
+```
+
 ## Result
 
-The local repository is ready for a first GitHub upload dry-run.
+The repository is safe for public GitHub upload and is already pushed to
+`main`. GitHub Pages is configured around the `/docs` bundle.
 
-No files were staged, committed, or pushed during this check.
-
-Current git state:
-
-- local git repository initialized on branch `main`
-- no remote configured
-- staged file count: 0
-- dry-run candidate file count: 202
-- dry-run candidate total size: 2.659 MB
-- largest dry-run candidate file: 284,933 bytes
-
-## Important Fix Applied
-
-The first dry-run found several `outputs/*.json` intermediate review files that
-would have been included. These are not final public artifacts.
-
-Fix:
+Current public stage:
 
 ```text
-outputs/*.json
+github_pages_ready
 ```
 
-was added to `.gitignore`.
+Validation status:
 
-After the fix, `outputs/` contributes only:
+- `docs/github_pages_validation.json`: `ready_for_github_pages=true`, `num_failures=0`
+- `results/full100_preflight_validation.json`: `ready_for_current_stage=true`, `num_failures=0`
 
-```text
-outputs/README.md
-```
+## Include In GitHub
 
-## Files That Would Be Included
+Keep these tracked:
 
-Top-level dry-run candidate counts:
+- `README.md`, `LICENSE`, `.gitignore`, `.gitattributes`
+- `src/`
+- `configs/`
+- `docs/`
+- `reports/`
+- `results/`
+- `site/`
+- `data/annotations/`
+- selected lightweight files under `data/processed/`
+- `models/README.md`
+- `outputs/README.md`
 
-| Path | Count |
-| --- | ---: |
-| `.gitignore` | 1 |
-| `README.md` | 1 |
-| `app/` | 1 |
-| `configs/` | 6 |
-| `data/` | 10 |
-| `docs/` | 18 |
-| `models/` | 1 |
-| `outputs/` | 1 |
-| `reports/` | 25 |
-| `requirements.txt` | 1 |
-| `results/` | 64 |
-| `site/` | 3 |
-| `src/` | 70 |
+Current public assets include:
 
-Largest included candidates:
+- `docs/assets/bizhallu_ai_reliability_deck.pptx`
+- `docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png`
+- `docs/assets/full100_draft_detector_error_review_examples.csv`
 
-| File | Size |
-| --- | ---: |
-| `data/processed/business_questions_gold.jsonl` | 284,933 bytes |
-| `data/annotations/span_annotations_full100_draft.jsonl` | 144,831 bytes |
-| `results/full100_draft_detector_error_review.csv` | 103,069 bytes |
-| `src/build_full100_annotation_draft.py` | 91,461 bytes |
-| `results/pilot20_baseline_error_review.csv` | 78,719 bytes |
+## Keep Local
 
-These are small enough for normal GitHub upload.
+Do not upload:
 
-## Large Files Confirmed Ignored
+- `data/raw/`
+- full line-level cleaned transaction tables under `data/processed/`
+- `outputs/*.jsonl`, `outputs/*.csv`, `outputs/*.json`, `outputs/*.log`
+- full Qwen token traces
+- Hugging Face cache under `C:\Users\yuchi\Downloads\p1\hf_cache`
+- downloaded external baseline repositories
+- model weights
+- temporary presentation workspaces under `outputs/*/`
 
-The largest ignored files are the intended local-only artifacts:
+The current `.gitignore` protects these categories.
 
-| File | Size |
-| --- | ---: |
-| `data/processed/retail_lines_normalized.csv` | 84,540,169 bytes |
-| `data/processed/retail_net_revenue_lines.csv` | 83,398,846 bytes |
-| `data/processed/retail_merchandise_net_revenue_lines.csv` | 83,017,508 bytes |
-| `data/processed/retail_sales_lines.csv` | 81,957,009 bytes |
-| `data/processed/retail_merchandise_sales_lines.csv` | 81,652,732 bytes |
-| `data/raw/online_retail_uci.zip` | 23,715,478 bytes |
-| `data/raw/Online Retail.xlsx` | 23,715,344 bytes |
-| `outputs/qwen_full100_token_traces.jsonl` | 7,394,830 bytes |
+## Current Size Check
 
-This confirms the current `.gitignore` protects the main upload risks:
+The repository has no oversized tracked artifacts. The largest tracked files are
+the slide contact sheet, the gold-question JSONL, annotation JSONL, and small
+report-ready CSV files. Raw data and token traces remain ignored.
 
-- raw source dataset
-- large cleaned line-level tables
-- model generation JSONL files
-- token traces
-- local logs
-- generated intermediate output tables
-
-## Validation Status
-
-Public bundle validation:
-
-```text
-docs/github_pages_validation.json
-ready_for_github_pages=true
-num_failures=0
-```
-
-Full preflight validation:
-
-```text
-results/full100_preflight_validation.json
-current_stage=github_pages_ready
-ready_for_current_stage=true
-num_failures=0
-```
-
-## Next Commands When Ready
-
-Review the dry-run output:
+Run this before future pushes:
 
 ```powershell
-git add -n .
+git status --short --branch
+git ls-files --others --exclude-standard
+git ls-tree -r -l HEAD | Sort-Object {[int64]($_ -split '\s+')[3]} -Descending | Select-Object -First 25
 ```
 
-If it still looks safe, stage and commit:
+Expected:
+
+- no untracked raw data
+- no files from `outputs/` except `outputs/README.md`
+- no model weights or Hugging Face cache files
+
+## Publish Check
+
+After pushing:
 
 ```powershell
-git add .
-git commit -m "Initial BizHallu portfolio release"
+python src\build_github_pages_bundle.py
+python src\validate_github_pages_bundle.py
+python src\build_full100_preflight_report.py
 ```
 
-After you create an empty GitHub repository, add the remote:
+Then check:
 
-```powershell
-git remote add origin https://github.com/YOUR_USERNAME/bizhallu.git
-git push -u origin main
-```
+- <https://yuchi-wang02.github.io/bizhallu/>
+- <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html>
+- <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx>
 
-Then enable GitHub Pages from the `/docs` folder.
+## Public Claim Guardrails
+
+Say:
+
+- span-level business fact evaluation
+- UCI Online Retail + local Qwen3-0.6B
+- assistant-reviewed presentation labels
+- internal uncertainty is useful but incomplete
+
+Do not claim:
+
+- large human-labeled benchmark
+- whole-answer correctness
+- production-ready hallucination detection
+- that energy-family methods beat all simple baselines in this run
