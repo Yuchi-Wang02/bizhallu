@@ -51,6 +51,7 @@ Current public assets include:
 - `docs/assets/bizhallu_ai_reliability_deck.pptx`
 - `docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png`
 - `docs/assets/full100_draft_detector_error_review_examples.csv`
+- `docs/assets/bizhallu_demo_v2_data.json`
 
 ## Keep Local
 
@@ -100,7 +101,10 @@ python src\build_full100_preflight_report.py
 Then check:
 
 - <https://yuchi-wang02.github.io/bizhallu/>
+- <https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html>
 - <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html>
+- <https://yuchi-wang02.github.io/bizhallu/career_package.html>
+- <https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html>
 - <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx>
 
 ## Public Claim Guardrails

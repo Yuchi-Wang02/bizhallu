@@ -11,7 +11,10 @@ Recommended GitHub Pages entry point:
 
 Public pages:
 
+- `portfolio_demo_v2.html`
 - `portfolio_demo.html`
+- `career_package.html`
+- `business_risk_lens.html`
 - `portfolio_narrative.html`
 - `detector_interpretation.html`
 - `label_lock_report.html`
@@ -22,6 +25,7 @@ Public assets:
 - `assets/bizhallu_ai_reliability_deck.pptx`
 - `assets/bizhallu_ai_reliability_deck_contact_sheet.png`
 - `assets/full100_draft_detector_error_review_examples.csv`
+- `assets/bizhallu_demo_v2_data.json`
 
 Upload support:
 

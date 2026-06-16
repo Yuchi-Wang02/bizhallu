@@ -1,7 +1,9 @@
 # BizHallu
 
 [Live demo](https://yuchi-wang02.github.io/bizhallu/) |
+[Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) |
 [Case demo](https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html) |
+[Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
 [Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html) |
 [Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
 
@@ -34,7 +36,10 @@ business conclusion.
 | Artifact | Link |
 | --- | --- |
 | GitHub Pages entry | <https://yuchi-wang02.github.io/bizhallu/> |
+| Interactive demo v2 | <https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html> |
 | Interactive case demo | <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html> |
+| Career package | <https://yuchi-wang02.github.io/bizhallu/career_package.html> |
+| Business risk lens | <https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html> |
 | Portfolio narrative | <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html> |
 | Detector interpretation | <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html> |
 | Interview deck | <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx> |
@@ -71,12 +76,15 @@ test F1 comes from `mean_token_entropy`. The strongest energy-family F1 is
   business bindings can still be missed.
 - Portfolio relevance: the final pages and deck explain the work as AI
   reliability for business analysis, not as a generic sales dashboard.
+- Career relevance: the career package and business risk lens connect the work
+  to BA, DS, and AI Analyst interviews across accounting, supply-management,
+  and evidence-grounded decision-support use cases.
 
 ## Repository Map
 
 | Path | Purpose | GitHub status |
 | --- | --- | --- |
-| `docs/` | GitHub Pages bundle, public pages, public assets | upload |
+| `docs/` | GitHub Pages bundle, public pages, public assets; current public source of truth | upload |
 | `reports/` | Experiment-native HTML reports, summaries, deck | upload |
 | `results/` | Detector scores, split metrics, error reviews | upload lightweight files |
 | `src/` | Data, generation, annotation, validation, packaging scripts | upload |

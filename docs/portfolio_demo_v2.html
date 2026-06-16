@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Interactive Demo V2</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --ink: #1d1d1f;
+        --muted: #5f6368;
+        --line: rgba(29, 29, 31, 0.13);
+        --blue: #0066cc;
+        --green: #0f766e;
+        --red: #b3261e;
+        --amber: #9a6700;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #eef2f5 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.5;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, select { font: inherit; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        min-height: 62px;
+        padding: 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        background: rgba(246, 247, 249, 0.88);
+        backdrop-filter: blur(16px);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; }
+      .brand span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: white;
+        font-size: 12px;
+      }
+      .nav { display: flex; gap: 14px; color: var(--muted); font-size: 14px; font-weight: 750; }
+      main { width: min(1240px, calc(100% - 40px)); margin: 0 auto; }
+      .hero { padding: 56px 0 34px; }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p, td, th, li, button, select { overflow-wrap: anywhere; }
+      h1 { margin: 0; max-width: 960px; font-size: clamp(42px, 6vw, 70px); line-height: 1; letter-spacing: 0; }
+      h2 { margin: 0; font-size: 30px; line-height: 1.1; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 18px; line-height: 1.22; letter-spacing: 0; }
+      .lede { margin: 20px 0 0; max-width: 920px; color: var(--muted); font-size: 21px; }
+      .layout {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+        padding: 22px 0 64px;
+      }
+      .sidebar, .panel, .toolbar, .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+      .sidebar {
+        position: sticky;
+        top: 82px;
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+      }
+      .case-button {
+        display: grid;
+        gap: 4px;
+        width: 100%;
+        min-height: 62px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+      .case-button.active {
+        border-color: rgba(0, 102, 204, 0.5);
+        background: rgba(0, 102, 204, 0.08);
+      }
+      .case-button strong { font-size: 14px; }
+      .case-button span { color: var(--muted); font-size: 12px; }
+      .content { display: grid; gap: 14px; }
+      .toolbar {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px;
+      }
+      label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+      select {
+        min-height: 40px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+      }
+      .panel { padding: 22px; }
+      .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+      .metric { padding: 16px; }
+      .metric span { color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+      .metric strong { display: block; margin-top: 6px; font-size: 26px; line-height: 1; }
+      .case-head { display: grid; gap: 8px; }
+      .case-head p, .panel p { color: var(--muted); }
+      .answer-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 12px; }
+      pre {
+        white-space: pre-wrap;
+        margin: 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfbfd;
+        color: var(--ink);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+      }
+      mark {
+        padding: 2px 4px;
+        border-radius: 5px;
+        color: inherit;
+      }
+      mark.ok { background: rgba(15, 118, 110, 0.18); outline: 1px solid rgba(15, 118, 110, 0.35); }
+      mark.bad { background: rgba(179, 38, 30, 0.16); outline: 1px solid rgba(179, 38, 30, 0.35); }
+      table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+      th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 850;
+      }
+      .pill.ok { color: var(--green); background: rgba(15, 118, 110, 0.10); }
+      .pill.bad { color: var(--red); background: rgba(179, 38, 30, 0.10); }
+      .pill.warn { color: var(--amber); background: rgba(154, 103, 0, 0.10); }
+      .small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+      .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+      .links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 9px 13px;
+        border-radius: 8px;
+        color: var(--blue);
+        border: 1px solid rgba(0, 102, 204, 0.22);
+        background: rgba(0, 102, 204, 0.07);
+        font-weight: 800;
+      }
+      @media (max-width: 980px) {
+        .topbar { padding: 0 20px; }
+        .nav { display: none; }
+        main { width: min(100% - 28px, 760px); }
+        .layout, .answer-grid, .toolbar, .metric-grid { grid-template-columns: 1fr; }
+        .sidebar { position: static; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span>BH</span>BizHallu</a>
+      <nav class="nav">
+        <a href="./career_package.html">Career package</a>
+        <a href="./portfolio_demo.html">Original demo</a>
+        <a href="./detector_interpretation.html">Metrics</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Interactive demo v2</p>
+        <h1>Filter hallucinated business facts by case, label, fact type, and detector outcome.</h1>
+        <p class="lede">This page uses only public, assistant-reviewed presentation labels and presentation-locked artifacts. It shows why evidence-aware checking matters when internal uncertainty misses confident wrong business bindings.</p>
+        <div class="links">
+          <a href="./assets/bizhallu_demo_v2_data.json">Open JSON data bundle</a>
+          <a href="./portfolio_narrative.html">Read project narrative</a>
+        </div>
+      </section>
+
+      <section class="metric-grid" id="metrics"></section>
+      <section class="layout">
+        <aside class="sidebar" id="caseList"></aside>
+        <div class="content">
+          <div class="toolbar">
+            <label>Detector<select id="detectorFilter"></select></label>
+            <label>Fact type<select id="factTypeFilter"></select></label>
+            <label>Label<select id="labelFilter"></select></label>
+            <label>Outcome<select id="outcomeFilter"></select></label>
+          </div>
+          <article class="panel" id="casePanel"></article>
+          <article class="panel" id="spanPanel"></article>
+          <article class="panel" id="evidencePanel"></article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const DEMO_DATA = {"meta": {"status": "portfolio_demo_v2_ready", "title": "BizHallu Interactive Demo V2", "case_count": 9, "span_count": 15, "primary_question_ids": ["q_0064", "q_0069"], "label_lock_basis": "assistant_full_review", "label_lock_status": "presentation_labels_locked", "simple_threshold": 0.334333, "entropy_threshold": 0.004817, "energy_threshold": 0.000225, "best_test_auprc": 0.835073, "best_test_f1": 0.779412, "guardrail": "Assistant-reviewed presentation labels; span-level demo, not a human benchmark or production detector."}, "filters": {"fact_types": ["comparison_direction", "currency_amount", "percentage", "product_name", "ranking"], "labels": ["correct_key_fact", "hallucinated_key_fact"], "outcomes": ["caught", "missed", "false alarm", "cleared"], "detectors": [{"id": "simple", "label": "Top-2 margin", "score_field": "one_minus_min_top2_margin"}, {"id": "entropy", "label": "Entropy", "score_field": "mean_token_entropy"}, {"id": "energy", "label": "Energy-family", "score_field": "mean_spilled_probability_mass_after_top2"}]}, "cases": [{"question_id": "q_0064", "is_primary": true, "split": "test", "question_type": "top3_products_month", "difficulty": "medium", "question": "What were the top 3 products by merchandise net revenue in April 2011? Give the rank, stock code, product name, and net revenue.", "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51.", "generated_text": "The top 3 products by merchandise net revenue in April 2011 were:  \n1. **REGENCY CAKESTAND 3 TIER** (rank 1) with a net revenue of GBP 14,280.90.  \n2. **PARTY BUNTING** (rank 2) with a net revenue of GBP 10,323.87.  \n3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.", "evidence_columns": ["stock_code", "description", "net_revenue", "gross_positive_revenue", "cancellation_revenue"], "prompt_evidence_rows": [{"stock_code": "22423", "description": "REGENCY CAKESTAND 3 TIER", "net_revenue": 14280.9, "gross_positive_revenue": 14812.95, "cancellation_revenue": -532.05}, {"stock_code": "22499", "description": "WOODEN UNION JACK BUNTING", "net_revenue": 4173.18, "gross_positive_revenue": 4191.03, "cancellation_revenue": -17.85}, {"stock_code": "47566", "description": "PARTY BUNTING", "net_revenue": 10323.87, "gross_positive_revenue": 10778.47, "cancellation_revenue": -454.6}, {"stock_code": "85099B", "description": "JUMBO BAG RED RETROSPOT", "net_revenue": 4870.92, "gross_positive_revenue": 4878.08, "cancellation_revenue": -7.16}, {"stock_code": "85123A", "description": "WHITE HANGING HEART T-LIGHT HOLDER", "net_revenue": 5078.59, "gross_positive_revenue": 10017.79, "cancellation_revenue": -4939.2}, {"stock_code": "22084", "description": "PAPER CHAIN KIT EMPIRE", "net_revenue": 6619.51, "gross_positive_revenue": 6634.26, "cancellation_revenue": -14.75}, {"stock_code": "84879", "description": "ASSORTED COLOUR BIRD ORNAMENT", "net_revenue": 4174.24, "gross_positive_revenue": 4174.24, "cancellation_revenue": 0.0}, {"stock_code": "22087", "description": "PAPER BUNTING WHITE LACE", "net_revenue": 3512.24, "gross_positive_revenue": 3579.69, "cancellation_revenue": -67.45}], "takeaway": "Best paired contrast: Qwen states correct rank-1 and rank-2 facts, then binds rank 3 to the wrong product and amount.", "spans": [{"annotation_id": "ann_full100_draft_q_0064_004", "confirmation_item_id": "confirm_006", "question_id": "q_0064", "span_text": "GBP 14,280.90", "span_start_char": 131, "span_end_char": 144, "fact_type": "currency_amount", "label": "correct_key_fact", "publish_use": "primary_demo", "presentation_use": "paired_contrast_example", "demo_priority": "high", "review_note": "The rank-1 amount is supported by gold evidence. It works well in the April 2011 paired example, where nearby spans include both supported and hallucinated claims.", "detector_role_text": "simple false_positive via one_minus_min_top2_margin", "simple_score": 0.799101, "entropy_score": 0.155575, "energy_score": 0.016624, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51."}, {"annotation_id": "ann_full100_draft_q_0064_006", "confirmation_item_id": "confirm_007", "question_id": "q_0064", "span_text": "PARTY BUNTING", "span_start_char": 153, "span_end_char": 166, "fact_type": "product_name", "label": "correct_key_fact", "publish_use": "primary_demo", "presentation_use": "paired_contrast_example", "demo_priority": "high", "review_note": "The rank-2 product name is supported by gold evidence. This is a clean correct span inside the April 2011 paired contrast example.", "detector_role_text": "simple false_positive via one_minus_min_top2_margin", "simple_score": 0.769828, "entropy_score": 0.189533, "energy_score": 0.012085, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51."}, {"annotation_id": "ann_full100_draft_q_0064_008", "confirmation_item_id": "confirm_008", "question_id": "q_0064", "span_text": "3.", "span_start_char": 217, "span_end_char": 219, "fact_type": "ranking", "label": "hallucinated_key_fact", "publish_use": "primary_demo", "presentation_use": "paired_contrast_example", "demo_priority": "high", "review_note": "The rank-3 marker is attached to WOODEN UNION JACK BUNTING, but gold rank 3 is PAPER CHAIN KIT EMPIRE. This is a clear hallucinated ranking span.", "detector_role_text": "energy false_negative via mean_spilled_probability_mass_after_top2; simple false_negative via one_minus_min_top2_margin", "simple_score": 5.99999999995e-06, "entropy_score": 3.6e-05, "energy_score": 1e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51."}, {"annotation_id": "ann_full100_draft_q_0064_010", "confirmation_item_id": "confirm_009", "question_id": "q_0064", "span_text": "GBP 4,173.18", "span_start_char": 281, "span_end_char": 293, "fact_type": "currency_amount", "label": "hallucinated_key_fact", "publish_use": "primary_demo", "presentation_use": "paired_contrast_example", "demo_priority": "high", "review_note": "The rank-3 amount is for the wrong generated product and does not match the gold rank-3 revenue. This is a strong amount-level hallucination in the April 2011 example.", "detector_role_text": "energy false_negative via mean_spilled_probability_mass_after_top2; simple false_negative via one_minus_min_top2_margin", "simple_score": 1.9e-05, "entropy_score": 5.9e-05, "energy_score": 1e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51."}], "span_count": 4}, {"question_id": "q_0069", "is_primary": true, "split": "test", "question_type": "top3_products_month", "difficulty": "medium", "question": "What were the top 3 products by merchandise net revenue in September 2011? Give the rank, stock code, product name, and net revenue.", "gold_short_answer": "Top 3 products in September 2011: 1. 23243 (SET OF TEA COFFEE SUGAR TINS PANTRY), GBP 9,971.51; 2. 22423 (REGENCY CAKESTAND 3 TIER), GBP 9,315.03; 3. 85099B (JUMBO BAG RED RETROSPOT), GBP 8,630.45.", "generated_text": "The top 3 products by merchandise net revenue in September 2011 were:  \n1. **JUMBO BAG RED RETROSPOT** (rank 1) with a net revenue of GBP 8630.45.  \n2. **PAPER CHAIN KIT 50'S CHRISTMAS** (rank 2) with a net revenue of GBP 5997.25.  \n3. **REGENCY CAKESTAND 3 TIER** (rank 3) with a net revenue of GBP 9315.03.", "evidence_columns": ["stock_code", "description", "net_revenue", "gross_positive_revenue", "cancellation_revenue"], "prompt_evidence_rows": [{"stock_code": "85123A", "description": "WHITE HANGING HEART T-LIGHT HOLDER", "net_revenue": 6880.76, "gross_positive_revenue": 6945.66, "cancellation_revenue": -64.9}, {"stock_code": "22720", "description": "SET OF 3 CAKE TINS PANTRY DESIGN", "net_revenue": 6250.48, "gross_positive_revenue": 6285.13, "cancellation_revenue": -34.65}, {"stock_code": "22423", "description": "REGENCY CAKESTAND 3 TIER", "net_revenue": 9315.03, "gross_positive_revenue": 9619.53, "cancellation_revenue": -304.5}, {"stock_code": "23355", "description": "HOT WATER BOTTLE KEEP CALM", "net_revenue": 6229.79, "gross_positive_revenue": 6254.54, "cancellation_revenue": -24.75}, {"stock_code": "23243", "description": "SET OF TEA COFFEE SUGAR TINS PANTRY", "net_revenue": 9971.51, "gross_positive_revenue": 9981.41, "cancellation_revenue": -9.9}, {"stock_code": "22086", "description": "PAPER CHAIN KIT 50'S CHRISTMAS", "net_revenue": 5997.25, "gross_positive_revenue": 5997.25, "cancellation_revenue": 0.0}, {"stock_code": "85099B", "description": "JUMBO BAG RED RETROSPOT", "net_revenue": 8630.45, "gross_positive_revenue": 8880.17, "cancellation_revenue": -249.72}, {"stock_code": "47566", "description": "PARTY BUNTING", "net_revenue": 6113.7, "gross_positive_revenue": 6383.15, "cancellation_revenue": -269.45}], "takeaway": "Best confident-miss case: plausible product and revenue statements stay below detector thresholds while the rank binding is wrong.", "spans": [{"annotation_id": "ann_full100_draft_q_0069_005", "confirmation_item_id": "confirm_011", "question_id": "q_0069", "span_text": "2.", "span_start_char": 149, "span_end_char": 151, "fact_type": "ranking", "label": "hallucinated_key_fact", "publish_use": "primary_demo", "presentation_use": "strong_false_negative_example", "demo_priority": "high", "review_note": "The rank-2 marker is tied to PAPER CHAIN KIT 50'S CHRISTMAS, while gold rank 2 is REGENCY CAKESTAND 3 TIER. This is a clear detector-missed hallucinated ranking span.", "detector_role_text": "energy false_negative via mean_spilled_probability_mass_after_top2; simple false_negative via one_minus_min_top2_margin", "simple_score": 1.6e-05, "entropy_score": 7.9e-05, "energy_score": 2e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in September 2011: 1. 23243 (SET OF TEA COFFEE SUGAR TINS PANTRY), GBP 9,971.51; 2. 22423 (REGENCY CAKESTAND 3 TIER), GBP 9,315.03; 3. 85099B (JUMBO BAG RED RETROSPOT), GBP 8,630.45."}, {"annotation_id": "ann_full100_draft_q_0069_008", "confirmation_item_id": "confirm_012", "question_id": "q_0069", "span_text": "3.", "span_start_char": 233, "span_end_char": 235, "fact_type": "ranking", "label": "hallucinated_key_fact", "publish_use": "primary_demo", "presentation_use": "strong_false_negative_example", "demo_priority": "high", "review_note": "The rank-3 marker is tied to REGENCY CAKESTAND 3 TIER, while gold rank 3 is JUMBO BAG RED RETROSPOT. This is a clear detector-missed hallucinated ranking span.", "detector_role_text": "energy false_negative via mean_spilled_probability_mass_after_top2; simple false_negative via one_minus_min_top2_margin", "simple_score": 6.99999999998e-06, "entropy_score": 4.8e-05, "energy_score": 2e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in September 2011: 1. 23243 (SET OF TEA COFFEE SUGAR TINS PANTRY), GBP 9,971.51; 2. 22423 (REGENCY CAKESTAND 3 TIER), GBP 9,315.03; 3. 85099B (JUMBO BAG RED RETROSPOT), GBP 8,630.45."}, {"annotation_id": "ann_full100_draft_q_0069_010", "confirmation_item_id": "confirm_013", "question_id": "q_0069", "span_text": "GBP 9315.03", "span_start_char": 296, "span_end_char": 307, "fact_type": "currency_amount", "label": "hallucinated_key_fact", "publish_use": "primary_demo", "presentation_use": "strong_false_negative_example", "demo_priority": "high", "review_note": "The amount is a real rank-2 amount but is used for rank 3. This is a useful example of a value that is locally plausible but wrong in its assigned business context.", "detector_role_text": "energy false_negative via mean_spilled_probability_mass_after_top2; simple false_negative via one_minus_min_top2_margin", "simple_score": 3.2e-05, "entropy_score": 5.9e-05, "energy_score": 2e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in September 2011: 1. 23243 (SET OF TEA COFFEE SUGAR TINS PANTRY), GBP 9,971.51; 2. 22423 (REGENCY CAKESTAND 3 TIER), GBP 9,315.03; 3. 85099B (JUMBO BAG RED RETROSPOT), GBP 8,630.45."}], "span_count": 3}, {"question_id": "q_0039", "is_primary": false, "split": "test", "question_type": "country_comparison_month", "difficulty": "medium", "question": "In October 2011, did Germany or France generate more net revenue, and by how much?", "gold_short_answer": "Germany generated more net revenue than France by GBP 5,586.63 in October 2011.", "generated_text": "France generated more net revenue (25,017.64 GBP) than Germany (30,604.27 GBP), with France earning a net revenue of -8,453.41 GBP. The difference in net revenue is 5,586.83 GBP.", "evidence_columns": ["country", "net_revenue", "gross_positive_revenue", "cancellation_revenue", "invoice_count"], "prompt_evidence_rows": [{"country": "France", "net_revenue": 25017.64, "gross_positive_revenue": 33471.05, "cancellation_revenue": -8453.41, "invoice_count": 43}, {"country": "Germany", "net_revenue": 30604.27, "gross_positive_revenue": 31628.42, "cancellation_revenue": -1024.15, "invoice_count": 73}, {"country": "Netherlands", "net_revenue": 40708.65, "gross_positive_revenue": 40708.65, "cancellation_revenue": 0.0, "invoice_count": 15}, {"country": "United Kingdom", "net_revenue": 876246.45, "gross_positive_revenue": 935404.14, "cancellation_revenue": -59157.69, "invoice_count": 2126}], "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.", "spans": [{"annotation_id": "ann_full100_draft_q_0039_006", "confirmation_item_id": "confirm_001", "question_id": "q_0039", "span_text": "5,586.83 GBP", "span_start_char": 165, "span_end_char": 177, "fact_type": "currency_amount", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The selected delta amount is within tolerance, but the generated sentence also says France generated more despite listing Germany as higher. Use only as a span-level false-positive example, not as a whole-answer correctness example.", "detector_role_text": "energy false_positive via mean_spilled_probability_mass_after_top2", "simple_score": 0.550849, "entropy_score": 0.291525, "energy_score": 0.021932, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Germany generated more net revenue than France by GBP 5,586.63 in October 2011."}], "span_count": 1}, {"question_id": "q_0054", "is_primary": false, "split": "test", "question_type": "monthly_revenue_change", "difficulty": "hard", "question": "How did net revenue change from May 2011 to June 2011? Provide the absolute change and percentage change.", "gold_short_answer": "Net revenue decreased by GBP 32,116.87 (-4.45%) from May 2011 to June 2011.", "generated_text": "From May 2011 to June 2011, net revenue decreased by **GBP 3,121.37**, representing a **-4.14%** change. The absolute change is **-GBP 3,121.37**, and the percentage change is **-4.14%**.", "evidence_columns": ["net_revenue", "gross_positive_revenue", "cancellation_revenue", "invoice_count", "year_month"], "prompt_evidence_rows": [{"year_month": "2011-05", "net_revenue": 722094.1, "gross_positive_revenue": 769296.61, "cancellation_revenue": -47202.51, "invoice_count": 1995}, {"year_month": "2011-06", "net_revenue": 689977.23, "gross_positive_revenue": 760547.01, "cancellation_revenue": -70569.78, "invoice_count": 1862}], "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.", "spans": [{"annotation_id": "ann_full100_draft_q_0054_003", "confirmation_item_id": "confirm_002", "question_id": "q_0054", "span_text": "decreased", "span_start_char": 40, "span_end_char": 49, "fact_type": "comparison_direction", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The direction word is correct, while the amount in the same answer is off by a factor of about ten. This is safe only when framed as span-level labeling.", "detector_role_text": "energy false_positive via mean_spilled_probability_mass_after_top2", "simple_score": 0.06377, "entropy_score": 0.269832, "energy_score": 0.028835, "simple_outcome": "cleared", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Net revenue decreased by GBP 32,116.87 (-4.45%) from May 2011 to June 2011."}, {"annotation_id": "ann_full100_draft_q_0054_005", "confirmation_item_id": "confirm_003", "question_id": "q_0054", "span_text": "-4.14%", "span_start_char": 88, "span_end_char": 94, "fact_type": "percentage", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The percentage is within the configured tolerance, but it appears in an answer with a wrong absolute amount. If shown, mention the tolerance and avoid implying the full answer is correct.", "detector_role_text": "energy false_positive via mean_spilled_probability_mass_after_top2; simple false_positive via one_minus_min_top2_margin", "simple_score": 0.969707, "entropy_score": 0.997715, "energy_score": 0.242012, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Net revenue decreased by GBP 32,116.87 (-4.45%) from May 2011 to June 2011."}], "span_count": 2}, {"question_id": "q_0059", "is_primary": false, "split": "test", "question_type": "monthly_revenue_change", "difficulty": "hard", "question": "How did net revenue change from October 2011 to November 2011? Provide the absolute change and percentage change.", "gold_short_answer": "Net revenue increased by GBP 386,777.57 (36.17%) from October 2011 to November 2011.", "generated_text": "The net revenue for November 2011 was 145,614.50 GBP, which represents a **29.75%** increase from October 2011's 106,936.83 GBP. The absolute change is **38,677.67 GBP**, and the percentage change is calculated by dividing the absolute change by the previous month's net revenue.", "evidence_columns": ["net_revenue", "gross_positive_revenue", "cancellation_revenue", "invoice_count", "year_month"], "prompt_evidence_rows": [{"year_month": "2011-10", "net_revenue": 1069368.23, "gross_positive_revenue": 1151263.73, "cancellation_revenue": -81895.5, "invoice_count": 2402}, {"year_month": "2011-11", "net_revenue": 1456145.8, "gross_positive_revenue": 1503866.78, "cancellation_revenue": -47720.98, "invoice_count": 3210}], "takeaway": "Locked support case for explaining span-level labeling and detector readouts.", "spans": [{"annotation_id": "ann_full100_draft_q_0059_004", "confirmation_item_id": "confirm_004", "question_id": "q_0059", "span_text": "increase", "span_start_char": 84, "span_end_char": 92, "fact_type": "comparison_direction", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The increase direction is correct, but the generated revenue and change figures are scaled down. Use as a span-level false-positive example only.", "detector_role_text": "energy false_positive via mean_spilled_probability_mass_after_top2", "simple_score": 0.209808, "entropy_score": 0.469527, "energy_score": 0.023611, "simple_outcome": "cleared", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Net revenue increased by GBP 386,777.57 (36.17%) from October 2011 to November 2011."}], "span_count": 1}, {"question_id": "q_0063", "is_primary": false, "split": "dev", "question_type": "top3_products_month", "difficulty": "medium", "question": "What were the top 3 products by merchandise net revenue in March 2011? Give the rank, stock code, product name, and net revenue.", "gold_short_answer": "Top 3 products in March 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 16,817.85; 2. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,116.43; 3. 47566 (PARTY BUNTING), GBP 9,098.27.", "generated_text": "The top 3 products by merchandise net revenue in March 2011 were:  \n1. **JUMBO BAG STRAWBERRY** (85099F) with a net revenue of GBP 5853.80.  \n2. **JUMBO BAG PINK POLKADOT** (22386) with a net revenue of GBP 5079.29.  \n3. **VINTAGE UNION JACK BUNTING** (21621) with a net revenue of GBP 5214.33.  \n\nThe rankings are based on the provided net_revenue_gbp values.", "evidence_columns": ["stock_code", "description", "net_revenue", "gross_positive_revenue", "cancellation_revenue"], "prompt_evidence_rows": [{"stock_code": "85123A", "description": "WHITE HANGING HEART T-LIGHT HOLDER", "net_revenue": 5550.95, "gross_positive_revenue": 5597.9, "cancellation_revenue": -46.95}, {"stock_code": "22423", "description": "REGENCY CAKESTAND 3 TIER", "net_revenue": 16817.85, "gross_positive_revenue": 18359.25, "cancellation_revenue": -1541.4}, {"stock_code": "47566", "description": "PARTY BUNTING", "net_revenue": 9098.27, "gross_positive_revenue": 9123.02, "cancellation_revenue": -24.75}, {"stock_code": "85099F", "description": "JUMBO BAG STRAWBERRY", "net_revenue": 5853.8, "gross_positive_revenue": 5853.8, "cancellation_revenue": 0.0}, {"stock_code": "22386", "description": "JUMBO BAG PINK POLKADOT", "net_revenue": 5079.29, "gross_positive_revenue": 5079.29, "cancellation_revenue": 0.0}, {"stock_code": "22084", "description": "PAPER CHAIN KIT EMPIRE", "net_revenue": 4743.0, "gross_positive_revenue": 4743.0, "cancellation_revenue": 0.0}, {"stock_code": "21621", "description": "VINTAGE UNION JACK BUNTING", "net_revenue": 5214.33, "gross_positive_revenue": 5299.33, "cancellation_revenue": -85.0}, {"stock_code": "85099B", "description": "JUMBO BAG RED RETROSPOT", "net_revenue": 10116.43, "gross_positive_revenue": 10118.38, "cancellation_revenue": -1.95}], "takeaway": "Useful false-negative case: the generated span is wrong, but the internal uncertainty signal is low.", "spans": [{"annotation_id": "ann_full100_draft_q_0063_010", "confirmation_item_id": "confirm_005", "question_id": "q_0063", "span_text": "3.", "span_start_char": 218, "span_end_char": 220, "fact_type": "ranking", "label": "hallucinated_key_fact", "publish_use": "qa_regression_only", "presentation_use": "offset_check_only", "demo_priority": "low", "review_note": "The span is the rank-3 list marker and is tied to the wrong generated product. This is mainly useful as an offset-regression check, not as a detector error example.", "detector_role_text": "No detector-error row; offset check only.", "simple_score": 4e-06, "entropy_score": 3.1e-05, "energy_score": 1e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in March 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 16,817.85; 2. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,116.43; 3. 47566 (PARTY BUNTING), GBP 9,098.27."}], "span_count": 1}, {"question_id": "q_0068", "is_primary": false, "split": "dev", "question_type": "top3_products_month", "difficulty": "medium", "question": "What were the top 3 products by merchandise net revenue in August 2011? Give the rank, stock code, product name, and net revenue.", "gold_short_answer": "Top 3 products in August 2011: 1. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,441.77; 2. 84879 (ASSORTED COLOUR BIRD ORNAMENT), GBP 9,867.04; 3. 47566 (PARTY BUNTING), GBP 9,655.25.", "generated_text": "In August 2011, the top 3 merchandise net revenue products were:  \n1. **JUMBO BAG PINK POLKADOT** (rank 1), with a net revenue of GBP 4,728.73.  \n2. **JUMBO BAG RED RETROSPOT** (rank 2), with a net revenue of GBP 10,441.77.  \n3. **SPOTTY BUNTING** (rank 3), with a net revenue of GBP 7,864.43.", "evidence_columns": ["stock_code", "description", "net_revenue", "gross_positive_revenue", "cancellation_revenue"], "prompt_evidence_rows": [{"stock_code": "85123A", "description": "WHITE HANGING HEART T-LIGHT HOLDER", "net_revenue": 5589.72, "gross_positive_revenue": 5620.57, "cancellation_revenue": -30.85}, {"stock_code": "22386", "description": "JUMBO BAG PINK POLKADOT", "net_revenue": 4728.73, "gross_positive_revenue": 4728.73, "cancellation_revenue": 0.0}, {"stock_code": "47566", "description": "PARTY BUNTING", "net_revenue": 9655.25, "gross_positive_revenue": 9694.85, "cancellation_revenue": -39.6}, {"stock_code": "85099B", "description": "JUMBO BAG RED RETROSPOT", "net_revenue": 10441.77, "gross_positive_revenue": 10622.56, "cancellation_revenue": -180.79}, {"stock_code": "23199", "description": "JUMBO BAG APPLES", "net_revenue": 6204.89, "gross_positive_revenue": 6233.72, "cancellation_revenue": -28.83}, {"stock_code": "84879", "description": "ASSORTED COLOUR BIRD ORNAMENT", "net_revenue": 9867.04, "gross_positive_revenue": 9868.73, "cancellation_revenue": -1.69}, {"stock_code": "23298", "description": "SPOTTY BUNTING", "net_revenue": 7864.43, "gross_positive_revenue": 7869.38, "cancellation_revenue": -4.95}, {"stock_code": "22423", "description": "REGENCY CAKESTAND 3 TIER", "net_revenue": 8393.55, "gross_positive_revenue": 10521.3, "cancellation_revenue": -2127.75}], "takeaway": "Useful false-negative case: the generated span is wrong, but the internal uncertainty signal is low.", "spans": [{"annotation_id": "ann_full100_draft_q_0068_008", "confirmation_item_id": "confirm_010", "question_id": "q_0068", "span_text": "3.", "span_start_char": 226, "span_end_char": 228, "fact_type": "ranking", "label": "hallucinated_key_fact", "publish_use": "qa_regression_only", "presentation_use": "offset_check_only", "demo_priority": "low", "review_note": "The span is the rank-3 list marker, not a decimal inside the nearby amount. Keep this primarily as an offset-regression check.", "detector_role_text": "No detector-error row; offset check only.", "simple_score": 5.00000000003e-06, "entropy_score": 3.7e-05, "energy_score": 1e-06, "simple_outcome": "missed", "entropy_outcome": "missed", "energy_outcome": "missed", "gold_short_answer": "Top 3 products in August 2011: 1. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,441.77; 2. 84879 (ASSORTED COLOUR BIRD ORNAMENT), GBP 9,867.04; 3. 47566 (PARTY BUNTING), GBP 9,655.25."}], "span_count": 1}, {"question_id": "q_0093", "is_primary": false, "split": "test", "question_type": "return_impact_month", "difficulty": "hard", "question": "In April 2011, how much did cancellations and returns reduce gross positive revenue, and what was the final net revenue?", "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 44,600.65 (8.31% of gross), leaving net revenue of GBP 492,367.84.", "generated_text": "In April 2011, cancellations and returns reduced gross positive revenue by \u00a344,600.65, resulting in a final net revenue of \u00a344,600.65.", "evidence_columns": ["net_revenue", "gross_positive_revenue", "cancellation_revenue", "invoice_count", "year_month"], "prompt_evidence_rows": [{"year_month": "2011-04", "net_revenue": 492367.84, "gross_positive_revenue": 536968.49, "cancellation_revenue": -44600.65, "invoice_count": 1486}], "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.", "spans": [{"annotation_id": "ann_full100_draft_q_0093_002", "confirmation_item_id": "confirm_014", "question_id": "q_0093", "span_text": "\u00a344,600.65", "span_start_char": 75, "span_end_char": 85, "fact_type": "currency_amount", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The reduction amount is correct, but the generated final net revenue repeats that same value and is wrong. Use only to show a correct span that a detector flags, with a clear span-level caveat.", "detector_role_text": "energy false_positive via mean_spilled_probability_mass_after_top2; simple false_positive via one_minus_min_top2_margin", "simple_score": 0.910483, "entropy_score": 0.350166, "energy_score": 0.075874, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 44,600.65 (8.31% of gross), leaving net revenue of GBP 492,367.84."}], "span_count": 1}, {"question_id": "q_0098", "is_primary": false, "split": "test", "question_type": "return_impact_month", "difficulty": "hard", "question": "In September 2011, how much did cancellations and returns reduce gross positive revenue, and what was the final net revenue?", "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 38,838.51 (3.68% of gross), leaving net revenue of GBP 1,017,596.68.", "generated_text": "In September 2011, cancellations and returns reduced gross positive revenue by GBP 38,838.51, resulting in a net revenue of GBP 101,759.68.", "evidence_columns": ["net_revenue", "gross_positive_revenue", "cancellation_revenue", "invoice_count", "year_month"], "prompt_evidence_rows": [{"year_month": "2011-09", "net_revenue": 1017596.68, "gross_positive_revenue": 1056435.19, "cancellation_revenue": -38838.51, "invoice_count": 2170}], "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.", "spans": [{"annotation_id": "ann_full100_draft_q_0098_002", "confirmation_item_id": "confirm_015", "question_id": "q_0098", "span_text": "GBP 38,838.51", "span_start_char": 79, "span_end_char": 92, "fact_type": "currency_amount", "label": "correct_key_fact", "publish_use": "caveat_demo", "presentation_use": "span_level_caveat", "demo_priority": "medium", "review_note": "The reduction amount is correct, but the final net revenue is off by a factor of ten. Use only as a span-level false-positive example.", "detector_role_text": "simple false_positive via one_minus_min_top2_margin", "simple_score": 0.700917, "entropy_score": 0.129517, "energy_score": 0.018201, "simple_outcome": "false alarm", "entropy_outcome": "false alarm", "energy_outcome": "false alarm", "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 38,838.51 (3.68% of gross), leaving net revenue of GBP 1,017,596.68."}], "span_count": 1}]};
+      let currentCaseId = DEMO_DATA.cases[0].question_id;
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        }[char]));
+      }
+
+      function scoreText(value) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return "n/a";
+        if (number === 0) return "0";
+        if (Math.abs(number) < 0.001) return number.toExponential(2);
+        return number.toFixed(3);
+      }
+
+      function activeDetector() {
+        return document.getElementById("detectorFilter").value || "simple";
+      }
+
+      function detectorOutcome(span) {
+        return span[`${activeDetector()}_outcome`];
+      }
+
+      function detectorScore(span) {
+        return span[`${activeDetector()}_score`];
+      }
+
+      function filteredSpans(caseRow) {
+        const factType = document.getElementById("factTypeFilter").value;
+        const label = document.getElementById("labelFilter").value;
+        const outcome = document.getElementById("outcomeFilter").value;
+        return caseRow.spans.filter((span) => {
+          if (factType !== "all" && span.fact_type !== factType) return false;
+          if (label !== "all" && span.label !== label) return false;
+          if (outcome !== "all" && detectorOutcome(span) !== outcome) return false;
+          return true;
+        });
+      }
+
+      function highlightAnswer(text, spans) {
+        const sorted = [...spans].sort((a, b) => a.span_start_char - b.span_start_char);
+        let cursor = 0;
+        let html = "";
+        for (const span of sorted) {
+          if (span.span_start_char < cursor) continue;
+          html += escapeHtml(text.slice(cursor, span.span_start_char));
+          const cls = span.label === "correct_key_fact" ? "ok" : "bad";
+          html += `<mark class="${cls}" title="${escapeHtml(span.fact_type)} / ${escapeHtml(span.label)}">${escapeHtml(text.slice(span.span_start_char, span.span_end_char))}</mark>`;
+          cursor = span.span_end_char;
+        }
+        html += escapeHtml(text.slice(cursor));
+        return html;
+      }
+
+      function renderFilters() {
+        const detector = document.getElementById("detectorFilter");
+        detector.innerHTML = DEMO_DATA.filters.detectors.map((item) => `<option value="${item.id}">${escapeHtml(item.label)}</option>`).join("");
+        document.getElementById("factTypeFilter").innerHTML = `<option value="all">All fact types</option>` + DEMO_DATA.filters.fact_types.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+        document.getElementById("labelFilter").innerHTML = `<option value="all">All labels</option>` + DEMO_DATA.filters.labels.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+        document.getElementById("outcomeFilter").innerHTML = `<option value="all">All outcomes</option>` + DEMO_DATA.filters.outcomes.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+        for (const id of ["detectorFilter", "factTypeFilter", "labelFilter", "outcomeFilter"]) {
+          document.getElementById(id).addEventListener("change", render);
+        }
+      }
+
+      function renderMetrics() {
+        const meta = DEMO_DATA.meta;
+        const items = [
+          ["Cases", meta.case_count, "Locked questions in the demo bundle."],
+          ["Locked spans", meta.span_count, "Presentation-selected fact spans."],
+          ["Best test AUPRC", Number(meta.best_test_auprc).toFixed(3), "Split-safe detector ranking result."],
+          ["Best test F1", Number(meta.best_test_f1).toFixed(3), "Dev-thresholded held-out result."]
+        ];
+        document.getElementById("metrics").innerHTML = items.map(([label, value, text]) => `
+          <article class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><p>${escapeHtml(text)}</p></article>
+        `).join("");
+      }
+
+      function renderCaseList() {
+        document.getElementById("caseList").innerHTML = DEMO_DATA.cases.map((caseRow) => `
+          <button class="case-button ${caseRow.question_id === currentCaseId ? "active" : ""}" data-case="${escapeHtml(caseRow.question_id)}">
+            <strong>${escapeHtml(caseRow.question_id)}${caseRow.is_primary ? " / primary" : ""}</strong>
+            <span>${escapeHtml(caseRow.question_type)} / ${caseRow.span_count} spans</span>
+          </button>
+        `).join("");
+        document.querySelectorAll(".case-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            currentCaseId = button.dataset.case;
+            render();
+          });
+        });
+      }
+
+      function renderCase(caseRow, spans) {
+        document.getElementById("casePanel").innerHTML = `
+          <div class="case-head">
+            <p class="eyebrow">${escapeHtml(caseRow.question_id)} / ${escapeHtml(caseRow.split)} / ${escapeHtml(caseRow.question_type)}</p>
+            <h2>${escapeHtml(caseRow.question)}</h2>
+            <p>${escapeHtml(caseRow.takeaway)}</p>
+          </div>
+          <div class="answer-grid">
+            <div>
+              <h3>Gold answer</h3>
+              <p>${escapeHtml(caseRow.gold_short_answer)}</p>
+            </div>
+            <div>
+              <h3>Qwen answer</h3>
+              <pre>${highlightAnswer(caseRow.generated_text, spans)}</pre>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderSpans(spans) {
+        const rows = spans.map((span) => {
+          const isCorrect = span.label === "correct_key_fact";
+          const labelClass = isCorrect ? "ok" : "bad";
+          const outcome = detectorOutcome(span);
+          const outcomeClass = outcome === "caught" || outcome === "cleared" ? "ok" : outcome === "missed" ? "bad" : "warn";
+          return `
+            <tr>
+              <td><span class="pill ${labelClass}">${escapeHtml(span.label)}</span><span class="small">${escapeHtml(span.fact_type)}</span></td>
+              <td>${escapeHtml(span.span_text)}<span class="small">${escapeHtml(span.annotation_id)}</span></td>
+              <td><span class="pill ${outcomeClass}">${escapeHtml(outcome)}</span><span class="small">score ${scoreText(detectorScore(span))}</span></td>
+              <td>${escapeHtml(span.detector_role_text)}<span class="small">${escapeHtml(span.publish_use)} / ${escapeHtml(span.presentation_use)}</span></td>
+              <td>${escapeHtml(span.review_note)}</td>
+            </tr>
+          `;
+        }).join("");
+        document.getElementById("spanPanel").innerHTML = `
+          <h3>Filtered locked spans</h3>
+          <p>${spans.length} span(s) match the current filters. Outcomes use the selected detector in the toolbar.</p>
+          <table>
+            <thead><tr><th>Label</th><th>Span</th><th>Detector outcome</th><th>Role</th><th>Review note</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="5">No spans match these filters.</td></tr>'}</tbody>
+          </table>
+        `;
+      }
+
+      function renderEvidence(caseRow) {
+        const cols = caseRow.evidence_columns;
+        const header = cols.map((col) => `<th>${escapeHtml(col)}</th>`).join("");
+        const body = caseRow.prompt_evidence_rows.map((row) => `
+          <tr>${cols.map((col) => `<td>${escapeHtml(row[col])}</td>`).join("")}</tr>
+        `).join("");
+        document.getElementById("evidencePanel").innerHTML = `
+          <h3>Evidence rows shown to Qwen</h3>
+          <p>The page includes only compact public evidence fields, not raw line-level transaction data or token traces.</p>
+          <table><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>
+        `;
+      }
+
+      function render() {
+        renderCaseList();
+        const caseRow = DEMO_DATA.cases.find((item) => item.question_id === currentCaseId) || DEMO_DATA.cases[0];
+        const spans = filteredSpans(caseRow);
+        renderCase(caseRow, spans.length ? spans : caseRow.spans);
+        renderSpans(spans);
+        renderEvidence(caseRow);
+      }
+
+      renderFilters();
+      renderMetrics();
+      render();
+    </script>
+  </body>
+</html>

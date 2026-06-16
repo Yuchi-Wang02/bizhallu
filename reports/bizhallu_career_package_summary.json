@@ -1,0 +1,24 @@
+{
+  "status": "career_package_ready",
+  "career_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package.html",
+  "career_markdown_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package.md",
+  "question_count": 100,
+  "question_type_count": 7,
+  "annotated_span_count": 205,
+  "heldout_test_span_count": 103,
+  "best_test_auprc": 0.835073,
+  "best_test_auprc_baseline": "one_minus_min_top2_margin",
+  "best_test_f1": 0.779412,
+  "best_test_f1_baseline": "mean_token_entropy",
+  "primary_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "label_lock_basis": "assistant_full_review",
+  "resume_bullet_count": 5,
+  "faq_count": 10,
+  "guardrail_count": 5,
+  "ready_for_current_stage": true,
+  "num_failures": 0,
+  "failures": []
+}

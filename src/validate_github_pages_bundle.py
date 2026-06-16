@@ -18,7 +18,9 @@ PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.jso
 
 REQUIRED_INDEX_FRAGMENTS = [
     "BizHallu GitHub Pages",
-    "Open interactive demo",
+    "Open demo v2",
+    "Open career package",
+    "Business risk lens",
     "Read portfolio narrative",
     "Download interview deck",
     "Preview slides",
@@ -31,16 +33,21 @@ REQUIRED_INDEX_FRAGMENTS = [
     "span-level",
     "business analytics and AI reliability",
     "GitHub Pages bundle",
+    "BA / DS / AI Analyst",
 ]
 
 REQUIRED_PAGE_FILES = [
     "index.html",
     "portfolio_demo.html",
+    "portfolio_demo_v2.html",
     "portfolio_narrative.html",
+    "career_package.html",
+    "business_risk_lens.html",
     "detector_interpretation.html",
     "label_lock_report.html",
     "label_confirmation_packet.html",
     "assets/full100_draft_detector_error_review_examples.csv",
+    "assets/bizhallu_demo_v2_data.json",
     "assets/bizhallu_ai_reliability_deck.pptx",
     "assets/bizhallu_ai_reliability_deck_contact_sheet.png",
 ]
@@ -52,6 +59,7 @@ FORBIDDEN_FRAGMENTS = [
     "./full100_label_lock_report.html",
     "./full100_label_confirmation_packet.html",
     "./bizhallu_portfolio_demo.html",
+    "./bizhallu_portfolio_demo_v2.html",
     "pending human review",
     "requires human confirmation",
     "presentation-level confirmation required",
@@ -221,6 +229,9 @@ def main() -> None:
         "best_test_auprc": 0.835073,
         "best_test_f1": 0.779412,
         "label_lock_basis": "assistant_full_review",
+        "demo_v2_locked_span_count": 15,
+        "career_faq_count": 10,
+        "business_risk_lens_count": 4,
     }
     for key, expected in expected_manifest_values.items():
         if manifest.get(key) != expected:

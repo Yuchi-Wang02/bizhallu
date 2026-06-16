@@ -1,12 +1,9 @@
 # Annotation Artifacts
 
-This directory stores human span-level labels.
-
-Planned files:
-
-- `annotation_guidelines.md`
-- `span_annotations_pilot.jsonl`
-- `span_annotations_full100.jsonl`
+This directory stores span-level annotation artifacts for BizHallu. Public
+portfolio pages should describe the selected demo labels as
+assistant-reviewed / presentation-locked span labels, not as a large
+independent human-labeled benchmark.
 
 Do not store generated model answers here. Generated text belongs in `outputs/`;
 annotations should reference records by `question_id`, `prompt_id`, and
@@ -19,8 +16,14 @@ Current files:
 - `span_annotations_full100_seed.jsonl` (policy-reviewed draft 5-question
   full100 seed for offset/schema validation before expanding to the full
   held-out batch)
-- `span_annotations_full100_draft.jsonl` (current 35-question held-out
-  high-priority draft annotation pass; consistency audit is in
-  `outputs/full100_annotation_consistency_audit_report.json`; audit-note
-  review is in `outputs/full100_audit_note_review_report.json`; review before
-  using for public final scoring)
+- `span_annotations_full100_draft.jsonl` (35-question held-out high-priority
+  working annotation file with 205 spans; the `draft` name is retained for
+  artifact lineage, while selected public examples are presentation-locked in
+  `reports/full100_label_lock_decisions.jsonl`)
+
+Public wording:
+
+- Say: assistant-reviewed presentation labels.
+- Say: span-level business-fact evaluation.
+- Do not say: large human-labeled benchmark.
+- Do not say: whole-answer correctness benchmark.

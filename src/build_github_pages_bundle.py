@@ -22,6 +22,9 @@ REPORTS_DIR = ROOT / "reports"
 RESULTS_DIR = ROOT / "results"
 
 DEMO_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_summary.json"
+DEMO_V2_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
+CAREER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
+RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -33,9 +36,24 @@ PAGE_COPIES = [
         "interactive_demo",
     ),
     (
+        REPORTS_DIR / "bizhallu_portfolio_demo_v2.html",
+        DOCS_DIR / "portfolio_demo_v2.html",
+        "interactive_demo_v2",
+    ),
+    (
         REPORTS_DIR / "bizhallu_portfolio_narrative.html",
         DOCS_DIR / "portfolio_narrative.html",
         "portfolio_narrative",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_career_package.html",
+        DOCS_DIR / "career_package.html",
+        "career_package",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_business_risk_lens.html",
+        DOCS_DIR / "business_risk_lens.html",
+        "business_risk_lens",
     ),
     (
         REPORTS_DIR / "full100_detector_interpretation.html",
@@ -61,6 +79,11 @@ ASSET_COPIES = [
         "detector_error_examples_csv",
     ),
     (
+        REPORTS_DIR / "bizhallu_demo_v2_data.json",
+        DOCS_ASSETS_DIR / "bizhallu_demo_v2_data.json",
+        "interactive_demo_v2_data_json",
+    ),
+    (
         REPORTS_DIR / "bizhallu_ai_reliability_deck.pptx",
         DOCS_ASSETS_DIR / "bizhallu_ai_reliability_deck.pptx",
         "presentation_deck_pptx",
@@ -80,6 +103,7 @@ LINK_REWRITES = {
         "./assets/full100_draft_detector_error_review_examples.csv"
     ),
     "./bizhallu_portfolio_demo.html": "./portfolio_demo.html",
+    "./bizhallu_portfolio_demo_v2.html": "./portfolio_demo_v2.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
     "./full100_label_confirmation_packet.html": "./label_confirmation_packet.html",
@@ -111,7 +135,14 @@ def metric(value: Any, digits: int = 3) -> str:
     return "n/a"
 
 
-def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dict[str, Any]) -> str:
+def render_index(
+    demo: dict[str, Any],
+    demo_v2: dict[str, Any],
+    career: dict[str, Any],
+    risk: dict[str, Any],
+    narrative: dict[str, Any],
+    preflight: dict[str, Any],
+) -> str:
     primary_ids = narrative.get("primary_question_ids") or demo.get("primary_question_ids") or []
     primary_text = " / ".join(escape(str(item)) for item in primary_ids)
     question_count = narrative.get("question_count", 100)
@@ -120,6 +151,9 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
     best_auprc = metric(narrative.get("best_test_auprc"))
     best_f1 = metric(narrative.get("best_test_f1"))
     energy_f1 = metric(narrative.get("energy_best_f1"))
+    demo_v2_cases = demo_v2.get("case_count", "n/a")
+    career_faq_count = career.get("faq_count", "n/a")
+    risk_lens_count = risk.get("lens_count", "n/a")
     current_stage = escape(str(preflight.get("current_stage", "portfolio_narrative_ready")))
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -392,8 +426,10 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
           <h1>Auditing hallucinated business facts in LLM retail analysis.</h1>
           <p>{positioning}</p>
           <div class="actions">
-            <a class="button primary" href="./portfolio_demo.html">Open interactive demo</a>
+            <a class="button primary" href="./portfolio_demo_v2.html">Open demo v2</a>
+            <a class="button secondary" href="./portfolio_demo.html">Open original demo</a>
             <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
+            <a class="button secondary" href="./career_package.html">Open career package</a>
             <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
           </div>
         </div>
@@ -414,7 +450,12 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
         </p>
         <div class="card-grid">
           <article class="card">
-            <h3>Interactive case demo</h3>
+            <h3>Interactive demo v2</h3>
+            <p>Filter {demo_v2_cases} locked cases by fact type, label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
+            <p><a href="./portfolio_demo_v2.html">Open demo v2</a></p>
+          </article>
+          <article class="card">
+            <h3>Original case demo</h3>
             <p>Inspect q_0064 and q_0069, including gold evidence, generated answer text, locked span labels, and detector outcomes.</p>
             <p><a href="./portfolio_demo.html">Open demo</a></p>
           </article>
@@ -422,6 +463,16 @@ def render_index(demo: dict[str, Any], narrative: dict[str, Any], preflight: dic
             <h3>Portfolio narrative</h3>
             <p>Use this as the source of truth for the project story, resume bullets, LinkedIn wording, and presentation outline.</p>
             <p><a href="./portfolio_narrative.html">Open narrative</a></p>
+          </article>
+          <article class="card">
+            <h3>Career package</h3>
+            <p>Use the one-page brief, {career_faq_count}-question FAQ, resume bullets, and profile blurbs for BA / DS / AI Analyst interviews.</p>
+            <p><a href="./career_package.html">Open package</a></p>
+          </article>
+          <article class="card">
+            <h3>Business risk lens</h3>
+            <p>Connect the same experiment to {risk_lens_count} accounting and supply-management views: reconciliation, returns, concentration, and exposure.</p>
+            <p><a href="./business_risk_lens.html">Open business lens</a></p>
           </article>
           <article class="card">
             <h3>Detector interpretation</h3>
@@ -542,10 +593,13 @@ def main() -> None:
     DOCS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
     demo = load_json(DEMO_SUMMARY_PATH)
+    demo_v2 = load_json(DEMO_V2_SUMMARY_PATH)
+    career = load_json(CAREER_SUMMARY_PATH)
+    risk = load_json(RISK_SUMMARY_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
-    index_html = render_index(demo, narrative, preflight)
+    index_html = render_index(demo, demo_v2, career, risk, narrative, preflight)
     index_path = DOCS_DIR / "index.html"
     index_path.write_text(index_html, encoding="utf-8")
 
@@ -557,6 +611,9 @@ def main() -> None:
         "index_path": str(index_path),
         "index_sha256": sha256_file(index_path),
         "source_demo_summary_path": str(DEMO_SUMMARY_PATH),
+        "source_demo_v2_summary_path": str(DEMO_V2_SUMMARY_PATH),
+        "source_career_summary_path": str(CAREER_SUMMARY_PATH),
+        "source_risk_summary_path": str(RISK_SUMMARY_PATH),
         "source_narrative_summary_path": str(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": str(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -569,6 +626,10 @@ def main() -> None:
         "best_test_f1": narrative.get("best_test_f1"),
         "energy_best_f1": narrative.get("energy_best_f1"),
         "label_lock_basis": narrative.get("label_lock_basis"),
+        "demo_v2_case_count": demo_v2.get("case_count"),
+        "demo_v2_locked_span_count": demo_v2.get("locked_span_count"),
+        "career_faq_count": career.get("faq_count"),
+        "business_risk_lens_count": risk.get("lens_count"),
         "pages": page_records,
         "assets": asset_records,
         "num_failures": 0,

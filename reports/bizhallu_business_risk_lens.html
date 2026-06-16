@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Business Risk Lens</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --ink: #1d1d1f;
+        --muted: #5f6368;
+        --line: rgba(29, 29, 31, 0.13);
+        --blue: #0066cc;
+        --green: #0f766e;
+        --amber: #9a6700;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #eef2f5 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.55;
+      }
+      a { color: inherit; text-decoration: none; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        min-height: 62px;
+        padding: 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        background: rgba(246, 247, 249, 0.88);
+        backdrop-filter: blur(16px);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; }
+      .brand span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: white;
+        font-size: 12px;
+      }
+      nav { display: flex; gap: 14px; color: var(--muted); font-size: 14px; font-weight: 750; }
+      main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+      section { padding: 58px 0; border-top: 1px solid var(--line); }
+      .hero { min-height: calc(100vh - 62px); display: grid; align-content: center; border-top: 0; }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p, td, th, li { overflow-wrap: anywhere; }
+      h1 { margin: 0; max-width: 920px; font-size: clamp(42px, 6vw, 70px); line-height: 1; letter-spacing: 0; }
+      h2 { margin: 0; font-size: clamp(30px, 4vw, 42px); line-height: 1.1; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 20px; line-height: 1.22; letter-spacing: 0; }
+      .lede { margin: 22px 0 0; max-width: 900px; color: var(--muted); font-size: 21px; }
+      .metric-grid, .lens-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 28px;
+      }
+      .lens-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric, .lens-card, .panel, .example {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+      .metric, .lens-card, .panel { padding: 22px; }
+      .metric span, .example span { color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+      .metric strong { display: block; margin-top: 8px; font-size: 28px; line-height: 1; }
+      .metric p, .lens-card p, .panel p, .example p, li { color: var(--muted); }
+      ul, ol { display: grid; gap: 10px; margin: 16px 0 0; padding-left: 20px; }
+      .examples { display: grid; gap: 10px; margin-top: 18px; }
+      .example { padding: 14px; }
+      .example strong { display: block; margin-top: 6px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; }
+      th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+      .callout {
+        margin-top: 24px;
+        padding: 22px;
+        border-radius: 8px;
+        border: 1px solid rgba(15, 118, 110, 0.22);
+        background: rgba(15, 118, 110, 0.08);
+      }
+      footer { padding: 34px 0 50px; color: var(--muted); border-top: 1px solid var(--line); }
+      @media (max-width: 900px) {
+        .topbar { padding: 0 20px; }
+        nav { display: none; }
+        main { width: min(100% - 28px, 720px); }
+        .metric-grid, .lens-grid { grid-template-columns: 1fr; }
+        .hero { min-height: auto; padding-top: 46px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span>BH</span>BizHallu</a>
+      <nav>
+        <a href="./career_package.html">Career package</a>
+        <a href="./portfolio_demo_v2.html">Demo v2</a>
+        <a href="./portfolio_narrative.html">Narrative</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Accounting and supply-management extension</p>
+        <h1>Use BizHallu to talk about business risk, not only hallucination metrics.</h1>
+        <p class="lede">The same Online Retail experiment can be framed around reconciliation, returns, product concentration, market exposure, and inventory priority. This keeps the project aligned with BA / DS / AI Analyst roles while using the validated 100-question setup.</p>
+      </section>
+
+      <section>
+        <p class="eyebrow">Dataset and evaluation facts</p>
+        <h2>The business story is already present in the current artifacts.</h2>
+        <div class="metric-grid">
+        <article class="metric">
+          <span>Raw rows</span>
+          <strong>541,909</strong>
+          <p>Original Online Retail records before cleaning.</p>
+        </article>
+        <article class="metric">
+          <span>Countries</span>
+          <strong>38</strong>
+          <p>Country values available for market comparison.</p>
+        </article>
+        <article class="metric">
+          <span>Stock codes</span>
+          <strong>4,070</strong>
+          <p>Product identifiers available for supply-management analysis.</p>
+        </article>
+        <article class="metric">
+          <span>Net revenue</span>
+          <strong>GBP 9,748,131.07</strong>
+          <p>Cleaned net revenue after returns and cancellations.</p>
+        </article>
+        <article class="metric">
+          <span>Merchandise net revenue</span>
+          <strong>GBP 9,771,708.99</strong>
+          <p>Primary product-level metric used in the project.</p>
+        </article>
+        <article class="metric">
+          <span>Return/cancellation rows</span>
+          <strong>10,587</strong>
+          <p>Rows that make reconciliation and risk framing necessary.</p>
+        </article>
+        <article class="metric">
+          <span>Gold questions</span>
+          <strong>100</strong>
+          <p>Existing deterministic question set, not a new model run.</p>
+        </article>
+        <article class="metric">
+          <span>Best test AUPRC</span>
+          <strong>0.835</strong>
+          <p>Current detector ranking result for span-level errors.</p>
+        </article></div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Four ways to present the project</p>
+        <h2>Each lens maps the same experiment to a business stakeholder.</h2>
+        <div class="lens-grid">
+            <article class="lens-card">
+              <p class="eyebrow">Accounting lens</p>
+              <h3>Net revenue reconciliation</h3>
+              <p>Translate gross sales, cancellations, returns, and net revenue into auditable claims that can support monthly reporting.</p>
+              <ul>
+                <li><strong>Question types:</strong> monthly_revenue_change, country_comparison_month, return_impact_month</li>
+                <li><strong>Existing coverage:</strong> 42 existing questions in the current 100-question gold set</li>
+                <li><strong>AI reliability risk:</strong> A model may get the direction right while scaling the amount incorrectly, or may mix gross revenue with net revenue.</li>
+              </ul>
+              <div class="examples">
+        <article class="example">
+          <span>q_0030 / country_comparison_month / train</span>
+          <strong>In January 2011, did Germany or France generate more net revenue, and by how much?</strong>
+          <p>France generated more net revenue than Germany by GBP 1,081.64 in January 2011.</p>
+        </article>
+        <article class="example">
+          <span>q_0031 / country_comparison_month / train</span>
+          <strong>In February 2011, did Germany or France generate more net revenue, and by how much?</strong>
+          <p>Germany generated more net revenue than France by GBP 530.33 in February 2011.</p>
+        </article>
+        <article class="example">
+          <span>q_0032 / country_comparison_month / train</span>
+          <strong>In March 2011, did Germany or France generate more net revenue, and by how much?</strong>
+          <p>France generated more net revenue than Germany by GBP 342.28 in March 2011.</p>
+        </article></div>
+            </article>
+
+            <article class="lens-card">
+              <p class="eyebrow">Accounting + operations lens</p>
+              <h3>Returns impact and margin-risk triage</h3>
+              <p>Surface products or months where cancellations and returns change the business conclusion a stakeholder would draw from gross sales.</p>
+              <ul>
+                <li><strong>Question types:</strong> return_impact_month, product_revenue_share_month</li>
+                <li><strong>Existing coverage:</strong> 28 existing questions in the current 100-question gold set</li>
+                <li><strong>AI reliability risk:</strong> A generated answer can copy a plausible percentage or amount while failing to reconcile it to the source table.</li>
+              </ul>
+              <div class="examples">
+        <article class="example">
+          <span>q_0073 / product_revenue_share_month / train</span>
+          <strong>What percentage of merchandise net revenue in January 2011 came from the top product?</strong>
+          <p>In January 2011, the top product (85123A - WHITE HANGING HEART T-LIGHT HOLDER) contributed GBP 15,174.26 out of GBP 578,914.41, or 2.62% of merchandise net revenue.</p>
+        </article>
+        <article class="example">
+          <span>q_0074 / product_revenue_share_month / train</span>
+          <strong>What percentage of merchandise net revenue in February 2011 came from the top product?</strong>
+          <p>In February 2011, the top product (22423 - REGENCY CAKESTAND 3 TIER) contributed GBP 10,491.54 out of GBP 499,514.57, or 2.10% of merchandise net revenue.</p>
+        </article>
+        <article class="example">
+          <span>q_0075 / product_revenue_share_month / train</span>
+          <strong>What percentage of merchandise net revenue in March 2011 came from the top product?</strong>
+          <p>In March 2011, the top product (22423 - REGENCY CAKESTAND 3 TIER) contributed GBP 16,817.85 out of GBP 679,212.52, or 2.48% of merchandise net revenue.</p>
+        </article></div>
+            </article>
+
+            <article class="lens-card">
+              <p class="eyebrow">Supply management lens</p>
+              <h3>Product concentration and inventory priority</h3>
+              <p>Identify which products dominate monthly merchandise revenue and would deserve procurement, stocking, or vendor attention.</p>
+              <ul>
+                <li><strong>Question types:</strong> top_product_month, top3_products_month, product_revenue_share_month</li>
+                <li><strong>Existing coverage:</strong> 42 existing questions in the current 100-question gold set</li>
+                <li><strong>AI reliability risk:</strong> Top-3 product questions are the clearest confident-error failure mode because rank, product, and amount must stay bound together.</li>
+              </ul>
+              <div class="examples">
+        <article class="example">
+          <span>q_0017 / top_product_month / train</span>
+          <strong>Which product had the highest merchandise net revenue in December 2010? Provide the stock code, product name, and net revenue.</strong>
+          <p>22423 (REGENCY CAKESTAND 3 TIER) had the highest merchandise net revenue in December 2010 at GBP 26,722.16.</p>
+        </article>
+        <article class="example">
+          <span>q_0018 / top_product_month / train</span>
+          <strong>Which product had the highest merchandise net revenue in January 2011? Provide the stock code, product name, and net revenue.</strong>
+          <p>85123A (WHITE HANGING HEART T-LIGHT HOLDER) had the highest merchandise net revenue in January 2011 at GBP 15,174.26.</p>
+        </article>
+        <article class="example">
+          <span>q_0019 / top_product_month / train</span>
+          <strong>Which product had the highest merchandise net revenue in February 2011? Provide the stock code, product name, and net revenue.</strong>
+          <p>22423 (REGENCY CAKESTAND 3 TIER) had the highest merchandise net revenue in February 2011 at GBP 10,491.54.</p>
+        </article></div>
+            </article>
+
+            <article class="lens-card">
+              <p class="eyebrow">Business analyst lens</p>
+              <h3>Country exposure and market comparison</h3>
+              <p>Compare country-level revenue exposure and explain which market is driving monthly performance.</p>
+              <ul>
+                <li><strong>Question types:</strong> top_country_month, country_comparison_month</li>
+                <li><strong>Existing coverage:</strong> 36 existing questions in the current 100-question gold set</li>
+                <li><strong>AI reliability risk:</strong> A model can state the correct countries but reverse the comparison direction or attach the wrong delta.</li>
+              </ul>
+              <div class="examples">
+        <article class="example">
+          <span>q_0001 / top_country_month / train</span>
+          <strong>Which country had the highest net revenue in January 2011, excluding the United Kingdom?</strong>
+          <p>Netherlands had the highest net revenue in January 2011 (excluding United Kingdom) at GBP 26,611.16.</p>
+        </article>
+        <article class="example">
+          <span>q_0002 / top_country_month / train</span>
+          <strong>Which country had the highest net revenue in February 2011, excluding the United Kingdom?</strong>
+          <p>Netherlands had the highest net revenue in February 2011 (excluding United Kingdom) at GBP 22,932.11.</p>
+        </article>
+        <article class="example">
+          <span>q_0003 / top_country_month / train</span>
+          <strong>Which country had the highest net revenue in March 2011, excluding the United Kingdom?</strong>
+          <p>Netherlands had the highest net revenue in March 2011 (excluding United Kingdom) at GBP 22,416.49.</p>
+        </article></div>
+            </article></div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Question-set coverage</p>
+        <h2>The current 100 questions already cover the core business-analysis tasks.</h2>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Question type</th><th>Count</th><th>Existing records</th></tr></thead>
+            <tbody><tr><td>country_comparison_month</td><td>20</td><td>20</td></tr><tr><td>monthly_revenue_change</td><td>10</td><td>10</td></tr><tr><td>product_revenue_share_month</td><td>16</td><td>16</td></tr><tr><td>return_impact_month</td><td>12</td><td>12</td></tr><tr><td>top3_products_month</td><td>13</td><td>13</td></tr><tr><td>top_country_month</td><td>16</td><td>16</td></tr><tr><td>top_product_month</td><td>13</td><td>13</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Next extension</p>
+        <h2>Do this after the portfolio package, not before it.</h2>
+        <div class="panel">
+          <p>These are the strongest follow-up questions because they connect the hallucination detector to accounting and supply-management decisions.</p>
+          <ol><li>Which products have high gross sales but poor net revenue after returns, and should they be reviewed for quality or demand issues?</li><li>Which monthly revenue changes are driven by returns rather than sales growth or decline?</li><li>Which top-3 products are most vulnerable to rank changes if return activity increases?</li><li>Which country contributes the largest non-UK revenue exposure after excluding one-off cancellations?</li><li>Which product categories should be prioritized for replenishment because they appear in recurring top-product answers?</li><li>Which answer claims should be verified against structured evidence before being sent to a stakeholder?</li><li>Which detector false negatives correspond to the highest business risk because the hallucinated span is a currency amount or rank?</li><li>Which detector false positives are acceptable as conservative review flags in accounting-style workflows?</li><li>How often does Qwen copy a real amount but bind it to the wrong product or rank?</li><li>Would an evidence-aware verifier catch errors that entropy and top-2 margin miss?</li></ol>
+          <div class="callout">
+            <strong>Implementation rule:</strong> keep Qwen3-0.6B and Online Retail as the core setup. Add a small 10-20 question business-risk extension before considering a larger benchmark or a new model family.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <main>
+        Business risk lens generated from existing BizHallu artifacts. It introduces no new model run and no new raw data.
+      </main>
+    </footer>
+  </body>
+</html>

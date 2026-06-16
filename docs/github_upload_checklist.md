@@ -49,6 +49,7 @@ Include:
 - `data/processed/business_questions_gold.jsonl`
 - `docs/assets/bizhallu_ai_reliability_deck.pptx`
 - `docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png`
+- `docs/assets/bizhallu_demo_v2_data.json`
 - `models/README.md`
 - `outputs/README.md`
 
@@ -99,7 +100,10 @@ After pushing to GitHub:
 5. Select `/docs` as the publishing folder.
 6. Open the published URL and check:
    - landing page loads
+   - `portfolio_demo_v2.html` opens
    - `portfolio_demo.html` opens
+   - `career_package.html` opens
+   - `business_risk_lens.html` opens
    - `portfolio_narrative.html` opens
    - links to detector interpretation and label lock report work
    - the interview deck downloads from `assets/bizhallu_ai_reliability_deck.pptx`

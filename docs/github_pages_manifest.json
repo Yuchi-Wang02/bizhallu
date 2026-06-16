@@ -1,8 +1,11 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\index.html",
-  "index_sha256": "ba6002ec2a14d74f80800bc35f1f7c643c76085a76814a537318806a60190801",
+  "index_sha256": "048088998c39787ae7735cb74bac2fceb2b534e3b0a9c1b19d26a949aa2b4467",
   "source_demo_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
+  "source_demo_v2_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_v2_summary.json",
+  "source_career_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package_summary.json",
+  "source_risk_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_business_risk_lens_summary.json",
   "source_narrative_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -18,6 +21,10 @@
   "best_test_f1": 0.779412,
   "energy_best_f1": 0.772727,
   "label_lock_basis": "assistant_full_review",
+  "demo_v2_case_count": 9,
+  "demo_v2_locked_span_count": 15,
+  "career_faq_count": 10,
+  "business_risk_lens_count": 4,
   "pages": [
     {
       "role": "interactive_demo",
@@ -28,12 +35,36 @@
       "dest_size_bytes": 25377
     },
     {
+      "role": "interactive_demo_v2",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_v2.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\portfolio_demo_v2.html",
+      "source_sha256": "53ce97bb1e574530778b4068d47dace396d08a191feaa643777acd50f9021bc0",
+      "dest_sha256": "c8a04a58183b34678f4208d717c2517f8bb68dd790df0d29f478253ef0442ac8",
+      "dest_size_bytes": 48212
+    },
+    {
       "role": "portfolio_narrative",
       "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative.html",
       "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\portfolio_narrative.html",
       "source_sha256": "e0e0fbb33ea89157ff0d8413b6959716a83300d81d81ea251cb3ad2ec191dcf2",
       "dest_sha256": "b02450a066069b343d03f8198d1a6564ade4e63ee3decaf6525a993c1411c2f5",
       "dest_size_bytes": 26686
+    },
+    {
+      "role": "career_package",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\career_package.html",
+      "source_sha256": "9c59c03ea7e312d71492f575f2482a5460657cf0fd2a2e9711650f8159f42435",
+      "dest_sha256": "d00dec61af4906e06ac2ccd92ff6a8e36513cf72fdd889269faa056fd14e4731",
+      "dest_size_bytes": 17228
+    },
+    {
+      "role": "business_risk_lens",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_business_risk_lens.html",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\business_risk_lens.html",
+      "source_sha256": "d2916d40daf9a718f0fff547a50938d1735b879416da056f5ed64aa72200738b",
+      "dest_sha256": "1abfa26d30f4951960967736c727cc608dc21bc8022765bfd4147a7825ea18c3",
+      "dest_size_bytes": 17834
     },
     {
       "role": "detector_interpretation",
@@ -68,6 +99,14 @@
       "source_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
       "dest_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
       "dest_size_bytes": 38433
+    },
+    {
+      "role": "interactive_demo_v2_data_json",
+      "source": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_demo_v2_data.json",
+      "dest": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\assets\\bizhallu_demo_v2_data.json",
+      "source_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
+      "dest_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
+      "dest_size_bytes": 39913
     },
     {
       "role": "presentation_deck_pptx",

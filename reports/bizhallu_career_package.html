@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Career Package</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --ink: #1d1d1f;
+        --muted: #5f6368;
+        --line: rgba(29, 29, 31, 0.13);
+        --blue: #0066cc;
+        --green: #0f766e;
+        --amber: #9a6700;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 50%, #eef2f5 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        line-height: 1.55;
+      }
+      a { color: inherit; text-decoration: none; }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        min-height: 62px;
+        padding: 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        background: rgba(246, 247, 249, 0.88);
+        backdrop-filter: blur(16px);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; }
+      .brand span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: white;
+        font-size: 12px;
+      }
+      nav { display: flex; gap: 14px; color: var(--muted); font-size: 14px; font-weight: 750; }
+      main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+      section { padding: 58px 0; border-top: 1px solid var(--line); }
+      .hero {
+        min-height: calc(100vh - 62px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 34px;
+        align-items: center;
+        border-top: 0;
+      }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p, li { overflow-wrap: anywhere; }
+      h1 { margin: 0; max-width: 860px; font-size: clamp(42px, 6vw, 70px); line-height: 1; letter-spacing: 0; }
+      h2 { margin: 0; font-size: clamp(30px, 4vw, 42px); line-height: 1.1; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 19px; line-height: 1.22; letter-spacing: 0; }
+      .lede { margin: 22px 0 0; max-width: 820px; color: var(--muted); font-size: 21px; }
+      .snapshot, .panel, .faq-item, .metric-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+      .snapshot { display: grid; overflow: hidden; }
+      .snapshot div { padding: 20px; border-bottom: 1px solid var(--line); }
+      .snapshot div:last-child { border-bottom: 0; }
+      .label { display: block; color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+      .snapshot strong { display: block; margin-top: 6px; font-size: 20px; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
+      .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+      .panel, .faq-item, .metric-card { padding: 22px; }
+      .metric-card strong { display: block; margin-top: 8px; font-size: 32px; line-height: 1; }
+      .metric-card p, .panel p, .faq-item p, li { color: var(--muted); }
+      ul, ol { display: grid; gap: 10px; margin: 18px 0 0; padding-left: 20px; }
+      .faq-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+      .quote {
+        margin-top: 24px;
+        padding: 22px;
+        border-left: 4px solid var(--blue);
+        background: rgba(0, 102, 204, 0.07);
+        border-radius: 8px;
+        font-size: 20px;
+        font-weight: 750;
+      }
+      .artifact-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+      .artifact-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 9px 13px;
+        border: 1px solid rgba(0, 102, 204, 0.24);
+        border-radius: 8px;
+        color: var(--blue);
+        background: rgba(0, 102, 204, 0.07);
+        font-weight: 800;
+        font-size: 14px;
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 6px;
+        background: rgba(0,0,0,0.06);
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+      footer { padding: 34px 0 50px; color: var(--muted); border-top: 1px solid var(--line); }
+      @media (max-width: 900px) {
+        .topbar { padding: 0 20px; }
+        nav { display: none; }
+        main { width: min(100% - 28px, 720px); }
+        .hero, .grid, .faq-grid, .metric-grid { grid-template-columns: 1fr; }
+        .hero { min-height: auto; padding-top: 46px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span>BH</span>BizHallu</a>
+      <nav>
+        <a href="#brief">Brief</a>
+        <a href="#pitch">Pitch</a>
+        <a href="#faq">FAQ</a>
+        <a href="#guardrails">Guardrails</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Career package for BA / DS / AI analyst roles</p>
+          <h1>Business analytics systems should audit their own evidence.</h1>
+          <p class="lede">I build business analytics systems that do not just generate answers, but audit whether the answer is grounded in the underlying transaction evidence.</p>
+          <div class="quote">Use BizHallu as an interview story about data quality, LLM evaluation, metrics discipline, and business-risk interpretation.</div>
+        </div>
+        <aside class="snapshot">
+          <div><span class="label">Gold questions</span><strong>100</strong></div>
+          <div><span class="label">Question types</span><strong>7</strong></div>
+          <div><span class="label">Aligned spans</span><strong>205</strong></div>
+          <div><span class="label">Best test AUPRC / F1</span><strong>0.835 / 0.779</strong></div>
+          <div><span class="label">Primary demo cases</span><strong>q_0064 / q_0069</strong></div>
+        </aside>
+      </section>
+
+      <section id="brief">
+        <p class="eyebrow">One-page project brief</p>
+        <h2>What a recruiter or interviewer should understand first.</h2>
+        <div class="grid">
+          <article class="panel"><ul><li>Problem: business users increasingly ask LLMs to summarize revenue, rankings, returns, and product performance, but fluent answers can still bind transaction evidence incorrectly.</li><li>Approach: BizHallu turns UCI Online Retail records into deterministic business questions, runs local Qwen3-0.6B generations, labels exact business-fact spans, aligns spans to token traces, and evaluates split-safe detector baselines.</li><li>Result: on 103 held-out test spans, the best ranking signal reached 0.835 AUPRC and the best dev-thresholded F1 reached 0.779.</li><li>Business value: the project demonstrates an auditable workflow for checking whether generated analytics claims are grounded in evidence before a stakeholder relies on them.</li><li>Limitation: this is a portfolio-scale span-level evaluation with assistant-reviewed presentation labels, not a production detector or a large independent human-labeled benchmark.</li></ul></article>
+          <article class="panel">
+            <h3>Public artifacts</h3>
+            <p>These links are safe to share in a resume, GitHub profile, LinkedIn post, or interview follow-up.</p>
+            <div class="artifact-row"><a class="artifact-link" href="https://yuchi-wang02.github.io/bizhallu/">Live demo</a><a class="artifact-link" href="https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html">Interactive case demo</a><a class="artifact-link" href="https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html">Detector interpretation</a><a class="artifact-link" href="https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx">Interview deck</a><a class="artifact-link" href="https://carey.jhu.edu/programs/master-science/business-analytics-artificial-intelligence/full-time">JHU Carey BAAI</a><a class="artifact-link" href="https://www.bls.gov/ooh/math/data-scientists.htm">BLS Data Scientists</a><a class="artifact-link" href="https://www.onetonline.org/link/summary/15-2051.00">O*NET Data Scientists</a><a class="artifact-link" href="https://www.onetonline.org/link/summary/15-2051.01">O*NET Business Intelligence Analysts</a></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="pitch">
+        <p class="eyebrow">Interview language</p>
+        <h2>Prepare one short version and one technical version.</h2>
+        <div class="grid">
+          <article class="panel">
+            <h3>60-second version</h3>
+            <ol><li>BizHallu is my business analytics AI reliability project.</li><li>I used UCI Online Retail transactions to create deterministic questions with known gold answers, then asked Qwen3-0.6B to write concise business analysis.</li><li>Instead of judging whole answers, I labeled exact spans such as product names, ranks, countries, months, amounts, and percentages.</li><li>The strongest result is that internal uncertainty has useful signal, but it still misses confident evidence-binding errors, especially top-3 product rank and amount mistakes.</li><li>That makes the project relevant to BA, DS, and AI analyst roles because it connects data cleaning, experiment design, metrics, and business-risk interpretation.</li></ol>
+          </article>
+          <article class="panel">
+            <h3>5-minute version</h3>
+            <ol><li>Start with the business problem: a stakeholder may ask an LLM which product, country, or month performed best, and a fluent answer can still be wrong.</li><li>Explain the data pipeline: Online Retail records are cleaned into deterministic evidence tables and gold answers, so each question can be audited.</li><li>Explain the model run: Qwen3-0.6B is small enough to run locally, which makes the project reproducible and transparent.</li><li>Explain the label unit: the evaluation unit is a business fact span, not a whole answer, because one answer can mix correct and hallucinated claims.</li><li>Explain the metrics: thresholds are selected on dev spans and reused on test spans, so the reported AUPRC/F1 avoid train-test leakage.</li><li>Show q_0064 or q_0069: the model uses plausible values but binds them to the wrong rank or product, which is exactly the business-risk failure mode.</li><li>Close with the next step: add evidence-aware claim verification to complement internal uncertainty signals.</li></ol>
+          </article>
+        </div>
+      </section>
+
+      <section id="resume">
+        <p class="eyebrow">Reusable wording</p>
+        <h2>Resume bullets and profile copy.</h2>
+        <div class="grid">
+          <article class="panel">
+            <h3>Resume bullets</h3>
+            <ul><li>Built BizHallu, an AI reliability project for business analytics that evaluates whether LLM-generated retail claims are grounded in transaction evidence.</li><li>Generated 100 deterministic Online Retail questions across 7 business-analysis types and ran local Qwen3-0.6B inference with saved token-level traces.</li><li>Reviewed 35 held-out dev/test questions, labeled 205 business-fact spans, and aligned every span to uncertainty and energy-style detector scores.</li><li>Implemented split-safe detector evaluation with dev-selected thresholds and held-out test reporting; best test AUPRC reached 0.835 and best test F1 reached 0.779.</li><li>Published a GitHub Pages portfolio demo, detector interpretation page, and interview deck that connect AI evaluation with accounting and supply-management risk.</li></ul>
+          </article>
+          <article class="panel">
+            <h3>LinkedIn / GitHub profile</h3>
+            <p>I built BizHallu to study hallucinations in business analytics as concrete evidence-grounding failures: wrong products, ranks, amounts, countries, and conclusions. The project uses Online Retail transactions, local Qwen3-0.6B generations, span-level labels, token alignment, and split-safe detector metrics to show why business AI systems need auditable validation, not just fluent answers.</p>
+            <p><strong>Short profile line:</strong> Business analytics + AI reliability. I build evidence-grounded evaluation workflows for LLM-generated analysis, with a focus on finance, supply management, and decision-support use cases.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq">
+        <p class="eyebrow">Interview FAQ</p>
+        <h2>Answers to the questions this project should invite.</h2>
+        <div class="faq-grid">
+        <article class="faq-item">
+          <h3>Why is this relevant to business analytics instead of only NLP research?</h3>
+          <p>The errors are business facts: wrong revenue, country, product, month, rank, percentage, or conclusion. Those are exactly the claims a business user might put into a decision memo.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Why span-level labels?</h3>
+          <p>Whole-answer labels hide mixed cases. A generated answer can correctly state rank 1 and rank 2 while hallucinating rank 3, so the useful unit is the exact fact span.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Why Qwen3-0.6B?</h3>
+          <p>It is small enough to run locally on available hardware while still producing realistic fluent errors. That makes the experiment reproducible and portfolio-friendly.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Why not claim production-ready hallucination detection?</h3>
+          <p>The current detector baselines are diagnostic. They show signal and limitations, but the dataset and label scope are not large enough for a production claim.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Why did simple uncertainty beat the energy-family result?</h3>
+          <p>In this run, the strongest energy-family F1 came from a probability-mass control, while simple entropy and top-2 margin were slightly stronger overall. That is a result, not a problem.</p>
+        </article>
+        <article class="faq-item">
+          <h3>What is the strongest technical decision?</h3>
+          <p>The split-safe evaluation policy: thresholds are selected on dev spans and reused on test spans, which keeps the result more defensible than tuning directly on test.</p>
+        </article>
+        <article class="faq-item">
+          <h3>What is the strongest business insight?</h3>
+          <p>LLMs can copy real-looking values from a table while assigning them to the wrong product or rank. Business AI needs evidence checks, not only answer fluency checks.</p>
+        </article>
+        <article class="faq-item">
+          <h3>How does your accounting and supply-management background show up?</h3>
+          <p>The project focuses on net revenue, returns, product performance, country exposure, and rank-based decisions. These connect directly to reconciliation, inventory priority, and performance reporting.</p>
+        </article>
+        <article class="faq-item">
+          <h3>What would you build next?</h3>
+          <p>An evidence-aware verifier baseline that compares generated claims directly against structured evidence rows, then measures whether it catches confident wrong bindings missed by uncertainty-only signals.</p>
+        </article>
+        <article class="faq-item">
+          <h3>How should the label scope be described?</h3>
+          <p>Use assistant-reviewed presentation labels and locked demo spans. Do not call it a large independent human-labeled benchmark.</p>
+        </article></div>
+      </section>
+
+      <section id="guardrails">
+        <p class="eyebrow">Claim guardrails</p>
+        <h2>Keep the public story strong by keeping it precise.</h2>
+        <div class="panel">
+          <ul><li>Say span-level business fact evaluation, not whole-answer correctness.</li><li>Say assistant-reviewed presentation labels, not large human-labeled benchmark.</li><li>Say diagnostic detector baselines, not production-ready detection.</li><li>Say simple uncertainty is strongest in this run; do not imply energy baselines won overall.</li><li>Say the project is built for portfolio-scale auditability and interview discussion.</li></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <main>
+        Career package generated from validated BizHallu reports. Label basis: <code>assistant_full_review</code>.
+      </main>
+    </footer>
+  </body>
+</html>

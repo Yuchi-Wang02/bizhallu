@@ -51,7 +51,10 @@ bizhallu/
   docs/
     index.html
     portfolio_demo.html
+    portfolio_demo_v2.html
     portfolio_narrative.html
+    career_package.html
+    business_risk_lens.html
     detector_interpretation.html
     label_lock_report.html
     github_upload_checklist.md
@@ -82,16 +85,25 @@ bizhallu/
 | --- | --- | --- |
 | `data/raw/` | Immutable source files. | Contains UCI Online Retail XLSX and ZIP. |
 | `data/processed/` | Deterministic cleaned tables, gold questions, validation reports. | Complete for Step 1 and Step 2. |
-| `data/annotations/` | Human span labels and annotation guidelines. | Contains annotation guidelines and 20-answer pilot span labels. |
+| `data/annotations/` | Span-label artifacts and annotation guidelines. | Contains pilot labels, full100 working annotations, and guidance. Public wording should say assistant-reviewed / presentation-locked labels, not large human-labeled benchmark. |
 | `outputs/` | Intermediate model inputs, generations, traces, review files. | Contains prompt files, Qwen runs, pilot20 and full100 review artifacts, structured/control pilot runs, and validations. |
 | `results/` | Final detector scores, metrics, confusion matrices, tables for report/demo. | Contains pilot20 simple and energy baseline diagnostics, top3 prompt-condition evaluations, split-safe evaluation checks, full100 preflight, full100 draft detector score files, split-safe metrics, family comparison, and detector error review. |
 | `models/` | Metadata about model choices and external cache locations. | Should not store Qwen weights. |
 | `configs/` | Reusable run configs for generation, annotation, baselines, and evaluation. | Contains pilot20, top3 structured/control pilot, full100 generation, and detector baseline-suite configs. |
 | `src/` | Project-owned scripts and adapters. | Contains data, prompt, Qwen, and validation scripts. |
-| `app/` | Streamlit or local demo. | Planned. |
-| `docs/` | Design docs and GitHub Pages bundle. | Contains public GitHub Pages copies of the demo, narrative, detector interpretation, and label lock pages. |
-| `reports/` | Final written report, figures, and portfolio assets. | Contains the detector interpretation HTML draft, focused label confirmation packet, review notes, label lock package, portfolio demo page, and portfolio narrative page. |
-| `site/` | Static HTML reading and portfolio overview. | Contains the first visual overview page. |
+| `app/` | Optional local demo. | Static GitHub Pages demo v2 is the public priority; Streamlit can be added later for local deep inspection. |
+| `docs/` | Public GitHub Pages bundle and design docs. | Public source of truth for the Pages site: index, demo v2, career package, business risk lens, narrative, detector interpretation, and label lock pages. |
+| `reports/` | Source HTML reports, summaries, figures, and portfolio assets. | Contains generated source pages and summaries before they are copied into `docs/`. |
+| `site/` | Earlier local static overview. | Kept as a local overview; `docs/` is the current public Pages bundle. |
+
+### Public Terminology
+
+- `full100_draft_*` remains in filenames for artifact lineage. It refers to the
+  working annotation/evaluation files used during development.
+- Public pages should refer to selected demo labels as
+  assistant-reviewed / presentation-locked span labels.
+- Do not describe the project as a large human-labeled benchmark, a
+  production-ready detector, or a whole-answer correctness benchmark.
 
 ## Artifact Lifecycle
 
@@ -555,12 +567,15 @@ results, demo cases, personal-branding text, and presentation guardrails.
 
 The GitHub Pages bundle is generated and validated. It records
 `github_pages_ready`, exposes `docs/index.html` as the public entry point, and
-copies the demo, narrative, detector interpretation, label-lock report, and
-confirmation packet into `docs/` with checked local links.
+copies the demo, demo v2, career package, business risk lens, narrative,
+detector interpretation, label-lock report, and confirmation packet into
+`docs/` with checked local links.
 
 Next one-step branch:
 
-- prepare the first public GitHub upload and keep large local artifacts out
-- decide whether slides belong in the first public release or a follow-up
-- use `docs/index.html` as the GitHub Pages entry point and
-  `docs/portfolio_narrative.html` as the wording source
+- keep `docs/index.html` as the GitHub Pages entry point
+- use `docs/portfolio_demo_v2.html` as the primary recruiter/interviewer demo
+- use `docs/career_package.html` for resume, LinkedIn, and interview language
+- use `docs/business_risk_lens.html` to connect the project to accounting,
+  supply management, and BA / DS / AI Analyst positioning
+- defer new model runs until the public package remains clean after validation

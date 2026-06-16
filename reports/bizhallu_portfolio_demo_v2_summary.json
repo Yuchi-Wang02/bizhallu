@@ -1,0 +1,35 @@
+{
+  "status": "portfolio_demo_v2_ready",
+  "portfolio_demo_v2_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_v2.html",
+  "portfolio_demo_v2_data_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_demo_v2_data.json",
+  "case_count": 9,
+  "locked_span_count": 15,
+  "primary_question_ids": [
+    "q_0064",
+    "q_0069"
+  ],
+  "primary_case_count": 2,
+  "fact_type_count": 5,
+  "label_count": 2,
+  "detector_count": 3,
+  "by_label": {
+    "correct_key_fact": 8,
+    "hallucinated_key_fact": 7
+  },
+  "by_simple_outcome": {
+    "false alarm": 6,
+    "missed": 7,
+    "cleared": 2
+  },
+  "by_entropy_outcome": {
+    "false alarm": 8,
+    "missed": 7
+  },
+  "by_energy_outcome": {
+    "false alarm": 8,
+    "missed": 7
+  },
+  "label_lock_basis": "assistant_full_review",
+  "num_failures": 0,
+  "failures": []
+}

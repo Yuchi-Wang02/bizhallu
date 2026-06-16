@@ -1358,16 +1358,29 @@ entry point for GitHub Pages.
 
 ## Recommended Next Steps
 
-1. Prepare the first public GitHub upload.
-   - Use `docs/index.html` as the GitHub Pages entry point.
-   - Use `docs/portfolio_narrative.html` as the main story source.
-   - Use `docs/portfolio_demo.html` as the primary visual case demo.
-   - Use `docs/label_lock_report.html` as the current label status.
-   - Use `q_0064` and `q_0069` as the primary examples.
-   - Keep full-answer correctness separate from span-level detector claims.
+1. Keep the public GitHub Pages bundle as the source of truth.
+   - Use `docs/index.html` as the public entry point.
+   - Use `docs/portfolio_demo_v2.html` as the recruiter/interviewer demo.
+   - Use `docs/career_package.html` for interview wording, resume bullets, and
+     public positioning.
+   - Use `docs/business_risk_lens.html` to connect the project to accounting,
+     supply management, and BA / DS / AI Analyst roles.
+   - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
+     `docs/detector_interpretation.html` as deeper technical references.
 
-2. Decide the final medium.
-   - Use `docs/detector_interpretation.html` as the detector-results
-     section.
-   - Decide whether slides should be included in the first public release or
-     added as a follow-up.
+2. Preserve claim guardrails.
+   - Say span-level business-fact evaluation, not whole-answer correctness.
+   - Say assistant-reviewed presentation labels, not a large independent
+     human-labeled benchmark.
+   - Say diagnostic detector baselines, not production-ready hallucination
+     detection.
+   - Say simple uncertainty is strongest in this run; do not imply the
+     energy-family methods won overall.
+
+3. Extend only after the career package is stable.
+   - First add a small evidence-aware verifier baseline that checks generated
+     claims against structured evidence rows.
+   - Then add a 10-20 question business-risk extension for returns, revenue
+     reconciliation, product concentration, and country exposure.
+   - Defer larger benchmark expansion or additional complex baselines until the
+     public demo and interview story remain clean after validation.

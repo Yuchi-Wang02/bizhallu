@@ -33,6 +33,17 @@ Current report-ready drafts:
 - `bizhallu_portfolio_narrative.html`
 - `bizhallu_portfolio_narrative_summary.json`
 - `bizhallu_portfolio_narrative_validation.json`
+- `bizhallu_portfolio_demo_v2.html`
+- `bizhallu_demo_v2_data.json`
+- `bizhallu_portfolio_demo_v2_summary.json`
+- `bizhallu_portfolio_demo_v2_validation.json`
+- `bizhallu_career_package.html`
+- `bizhallu_career_package.md`
+- `bizhallu_career_package_summary.json`
+- `bizhallu_career_package_validation.json`
+- `bizhallu_business_risk_lens.html`
+- `bizhallu_business_risk_lens_summary.json`
+- `bizhallu_business_risk_lens_validation.json`
 - `bizhallu_ai_reliability_deck.pptx`
 - `bizhallu_ai_reliability_deck_contact_sheet.png`
 

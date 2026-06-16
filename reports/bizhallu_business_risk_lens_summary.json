@@ -1,0 +1,31 @@
+{
+  "status": "business_risk_lens_ready",
+  "business_risk_lens_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_business_risk_lens.html",
+  "question_count": 100,
+  "question_type_count": 7,
+  "split_counts": {
+    "train": 64,
+    "dev": 18,
+    "test": 18
+  },
+  "lens_count": 4,
+  "next_question_count": 10,
+  "data_rows_raw": 541909,
+  "country_count": 38,
+  "stock_code_count": 4070,
+  "net_revenue": 9748131.07,
+  "merchandise_net_revenue": 9771708.99,
+  "cancellation_or_return_rows": 10587,
+  "best_test_auprc": 0.835073,
+  "best_test_f1": 0.779412,
+  "simple_false_negative_top_fact_type": {
+    "group_value": "currency_amount",
+    "count": 9,
+    "family": "simple",
+    "baseline": "one_minus_min_top2_margin",
+    "baseline_role": "simple_best_test_auprc",
+    "error_type": "false_negative"
+  },
+  "num_failures": 0,
+  "failures": []
+}
