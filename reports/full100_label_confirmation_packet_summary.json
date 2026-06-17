@@ -1,10 +1,10 @@
 {
   "status": "confirmation_packet_ready_not_locked",
-  "packet_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.csv",
-  "packet_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.jsonl",
-  "packet_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.html",
-  "source_error_examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv",
-  "source_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "packet_csv_path": "reports/full100_label_confirmation_packet.csv",
+  "packet_jsonl_path": "reports/full100_label_confirmation_packet.jsonl",
+  "packet_html_path": "reports/full100_label_confirmation_packet.html",
+  "source_error_examples_path": "results/full100_draft_detector_error_review_examples.csv",
+  "source_interpretation_summary_path": "reports/full100_detector_interpretation_summary.json",
   "source_error_example_row_count": 20,
   "source_unique_error_example_annotation_count": 13,
   "offset_regression_annotation_ids": [

@@ -6,6 +6,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
@@ -163,7 +165,7 @@ def main() -> None:
 
     summary = {
         "status": "business_risk_lens_ready",
-        "business_risk_lens_html_path": str(RISK_HTML_PATH),
+        "business_risk_lens_html_path": repo_path(RISK_HTML_PATH),
         "question_count": question_report["record_count"],
         "question_type_count": len(question_report["question_type_counts"]),
         "split_counts": dict(split_counts),
@@ -378,7 +380,7 @@ def main() -> None:
 
     RISK_HTML_PATH.write_text(html_text, encoding="utf-8")
     RISK_SUMMARY_PATH.write_text(json.dumps(summary, indent=2, ensure_ascii=True), encoding="utf-8")
-    print(json.dumps({"status": summary["status"], "html": str(RISK_HTML_PATH)}, indent=2))
+    print(json.dumps({"status": summary["status"], "html": repo_path(RISK_HTML_PATH)}, indent=2))
 
 
 if __name__ == "__main__":

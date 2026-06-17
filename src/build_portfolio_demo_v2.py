@@ -7,6 +7,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
@@ -620,8 +622,8 @@ def main() -> None:
     all_spans = [span for case in data["cases"] for span in case["spans"]]
     summary = {
         "status": "portfolio_demo_v2_ready",
-        "portfolio_demo_v2_html_path": str(DEMO_V2_HTML_PATH),
-        "portfolio_demo_v2_data_path": str(DEMO_V2_DATA_PATH),
+        "portfolio_demo_v2_html_path": repo_path(DEMO_V2_HTML_PATH),
+        "portfolio_demo_v2_data_path": repo_path(DEMO_V2_DATA_PATH),
         "case_count": len(data["cases"]),
         "locked_span_count": len(all_spans),
         "primary_question_ids": PRIMARY_QUESTION_IDS,
@@ -638,7 +640,7 @@ def main() -> None:
         "failures": [],
     }
     DEMO_V2_SUMMARY_PATH.write_text(json.dumps(summary, indent=2, ensure_ascii=True), encoding="utf-8")
-    print(json.dumps({"status": summary["status"], "html": str(DEMO_V2_HTML_PATH)}, indent=2))
+    print(json.dumps({"status": summary["status"], "html": repo_path(DEMO_V2_HTML_PATH)}, indent=2))
 
 
 if __name__ == "__main__":

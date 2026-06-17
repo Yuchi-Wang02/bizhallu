@@ -4,68 +4,68 @@
   "checks": [
     {
       "name": "gold_questions_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold_validation.json",
+      "path": "data/processed/business_questions_gold_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "prompts_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_input_prompts_validation.json",
+      "path": "outputs/qwen_input_prompts_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "full100_config_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_config_validation.json",
+      "path": "outputs/full100_config_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "energy_trace_readiness_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\energy_trace_readiness_validation.json",
+      "path": "results/energy_trace_readiness_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "pilot20_energy_trace_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_pilot20_energy_validation.json",
+      "path": "outputs/qwen_pilot20_energy_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "pilot20_energy_baselines_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_validation.json",
+      "path": "results/pilot20_energy_baseline_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "detector_readiness_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_detector_readiness_validation.json",
+      "path": "results/pilot20_detector_readiness_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     },
     {
       "name": "split_eval_smoke_validated",
-      "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\split_eval_smoke_validation.json",
+      "path": "results/split_eval_smoke_validation.json",
       "passed": true,
       "num_failures": 0,
       "expected_num_failures": 0
     }
   ],
-  "detector_baseline_suite_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "detector_baseline_suite_path": "configs/detector_baseline_suite.json",
   "detector_families": {
     "energy": 7,
     "simple": 5,
     "smoke": 2
   },
-  "full100_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\full100_questions.json",
+  "full100_config_path": "configs/full100_questions.json",
   "full100_question_count": 100,
   "full100_split_counts": {
     "train": 64,
@@ -73,7 +73,7 @@
     "test": 18
   },
   "full100_generation_command": {
-    "python": "C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe",
+    "python": "local_python_env/python.exe",
     "script": "src\\run_qwen_batch.py",
     "arguments": [
       "--question-config",
@@ -86,20 +86,20 @@
       "42"
     ],
     "required_environment": {
-      "HF_HOME": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache",
-      "HUGGINGFACE_HUB_CACHE": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache\\hub"
+      "HF_HOME": "../hf_cache",
+      "HUGGINGFACE_HUB_CACHE": "../hf_cache/hub"
     }
   },
   "split_eval_smoke": {
-    "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\split_eval_smoke_report.json",
+    "path": "results/split_eval_smoke_report.json",
     "ready_for_split_metrics": true,
     "dev_row_count": 4,
     "test_row_count": 4
   },
   "full100_generation": {
     "run": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_full100_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_full100_validation.json",
+    "report_path": "outputs/qwen_full100_report.json",
+    "validation_path": "outputs/qwen_full100_validation.json",
     "validation_num_failures": 0,
     "record_count": 100,
     "trace_count": 100,
@@ -108,8 +108,8 @@
   },
   "full100_review": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_review_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_review_validation.json",
+    "report_path": "outputs/full100_review_report.json",
+    "validation_path": "outputs/full100_review_validation.json",
     "validation_num_failures": 0,
     "record_count": 100,
     "jsonl_record_count": 100,
@@ -126,8 +126,8 @@
   },
   "full100_annotation_queue": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_queue_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_queue_validation.json",
+    "report_path": "outputs/full100_annotation_queue_report.json",
+    "validation_path": "outputs/full100_annotation_queue_validation.json",
     "validation_num_failures": 0,
     "record_count": 100,
     "initial_batch_count": 35,
@@ -145,8 +145,8 @@
   },
   "full100_annotation_seed": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_seed_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_seed_validation.json",
+    "report_path": "outputs/full100_annotation_seed_report.json",
+    "validation_path": "outputs/full100_annotation_seed_validation.json",
     "validation_num_failures": 0,
     "annotated_question_count": 5,
     "span_count": 18,
@@ -165,8 +165,8 @@
   },
   "full100_annotation_draft": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_draft_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_draft_validation.json",
+    "report_path": "outputs/full100_annotation_draft_report.json",
+    "validation_path": "outputs/full100_annotation_draft_validation.json",
     "validation_num_failures": 0,
     "annotated_question_count": 35,
     "span_count": 205,
@@ -204,7 +204,7 @@
   },
   "full100_annotation_consistency_audit": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_annotation_consistency_audit_report.json",
+    "report_path": "outputs/full100_annotation_consistency_audit_report.json",
     "status": "pass_with_review_notes",
     "ready_for_alignment": true,
     "num_failures": 0,
@@ -213,8 +213,8 @@
   },
   "full100_span_token_alignment": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_validation.json",
+    "report_path": "outputs/full100_draft_span_token_alignment_report.json",
+    "validation_path": "outputs/full100_draft_span_token_alignment_validation.json",
     "validation_num_failures": 0,
     "span_count": 205,
     "question_count": 35,
@@ -238,8 +238,8 @@
   },
   "full100_audit_note_review": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_validation.json",
+    "report_path": "outputs/full100_audit_note_review_report.json",
+    "validation_path": "outputs/full100_audit_note_review_validation.json",
     "validation_num_failures": 0,
     "reviewed_question_count": 4,
     "reviewed_question_ids": [
@@ -259,10 +259,10 @@
   },
   "full100_detector_scores": {
     "ready": true,
-    "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
-    "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_validation.json",
+    "scores_path": "results/full100_draft_detector_scores.csv",
+    "by_split_path": "results/full100_draft_detector_scores_by_split.csv",
+    "report_path": "results/full100_draft_detector_scores_report.json",
+    "validation_path": "results/full100_draft_detector_scores_validation.json",
     "validation_num_failures": 0,
     "row_count": 205,
     "question_count": 35,
@@ -286,9 +286,9 @@
   },
   "full100_simple_split_metrics": {
     "ready": true,
-    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_metrics.csv",
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_validation.json",
+    "metrics_path": "results/full100_draft_simple_split_metrics.csv",
+    "report_path": "results/full100_draft_simple_split_report.json",
+    "validation_path": "results/full100_draft_simple_split_validation.json",
     "validation_num_failures": 0,
     "baseline_family": "simple",
     "baseline_count": 5,
@@ -345,9 +345,9 @@
   },
   "full100_energy_split_metrics": {
     "ready": true,
-    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_metrics.csv",
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_validation.json",
+    "metrics_path": "results/full100_draft_energy_split_metrics.csv",
+    "report_path": "results/full100_draft_energy_split_report.json",
+    "validation_path": "results/full100_draft_energy_split_validation.json",
     "validation_num_failures": 0,
     "baseline_family": "energy",
     "baseline_count": 7,
@@ -404,8 +404,8 @@
   },
   "full100_detector_family_comparison": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_validation.json",
+    "report_path": "results/full100_draft_detector_family_comparison_report.json",
+    "validation_path": "results/full100_draft_detector_family_comparison_validation.json",
     "validation_num_failures": 0,
     "comparison_row_count": 12,
     "summary_row_count": 2,
@@ -503,8 +503,8 @@
   },
   "full100_detector_error_review": {
     "ready": true,
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_validation.json",
+    "report_path": "results/full100_draft_detector_error_review_report.json",
+    "validation_path": "results/full100_draft_detector_error_review_validation.json",
     "validation_num_failures": 0,
     "review_scope": "heldout_test_split_only",
     "selected_baseline_count": 2,
@@ -687,8 +687,8 @@
   },
   "full100_detector_interpretation": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_validation.json",
+    "summary_path": "reports/full100_detector_interpretation_summary.json",
+    "validation_path": "reports/full100_detector_interpretation_validation.json",
     "validation_num_failures": 0,
     "status": "report_ready_draft",
     "best_overall_by_test_auprc": {
@@ -732,8 +732,8 @@
   },
   "full100_label_confirmation_packet": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_validation.json",
+    "summary_path": "reports/full100_label_confirmation_packet_summary.json",
+    "validation_path": "reports/full100_label_confirmation_packet_validation.json",
     "validation_num_failures": 0,
     "status": "confirmation_packet_ready_not_locked",
     "selected_annotation_count": 15,
@@ -744,8 +744,8 @@
   },
   "full100_label_confirmation_review_notes": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes_validation.json",
+    "summary_path": "reports/full100_label_confirmation_review_notes_summary.json",
+    "validation_path": "reports/full100_label_confirmation_review_notes_validation.json",
     "validation_num_failures": 0,
     "status": "assistant_review_complete_not_human_locked",
     "selected_annotation_count": 15,
@@ -768,8 +768,8 @@
   },
   "full100_label_lock": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_validation.json",
+    "summary_path": "reports/full100_label_lock_summary.json",
+    "validation_path": "reports/full100_label_lock_validation.json",
     "validation_num_failures": 0,
     "status": "presentation_labels_locked",
     "review_status": "locked_after_assistant_full_review",
@@ -792,8 +792,8 @@
   },
   "portfolio_demo": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_validation.json",
+    "summary_path": "reports/bizhallu_portfolio_demo_summary.json",
+    "validation_path": "reports/bizhallu_portfolio_demo_validation.json",
     "validation_num_failures": 0,
     "status": "portfolio_demo_ready",
     "case_count": 2,
@@ -809,8 +809,8 @@
   },
   "portfolio_narrative": {
     "ready": true,
-    "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_validation.json",
+    "summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
+    "validation_path": "reports/bizhallu_portfolio_narrative_validation.json",
     "validation_num_failures": 0,
     "status": "portfolio_narrative_ready",
     "primary_question_ids": [
@@ -827,8 +827,8 @@
   },
   "github_pages_bundle": {
     "ready": true,
-    "manifest_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\github_pages_manifest.json",
-    "validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\docs\\github_pages_validation.json",
+    "manifest_path": "docs/github_pages_manifest.json",
+    "validation_path": "docs/github_pages_validation.json",
     "validation_num_failures": 0,
     "status": "github_pages_bundle_ready",
     "ready_for_github_pages": true,
@@ -842,7 +842,7 @@
     "best_test_f1": 0.779412
   },
   "train_only_split_guard": {
-    "path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_train_only_split_guard_report.json",
+    "path": "results/pilot20_train_only_split_guard_report.json",
     "ready_for_split_metrics": false,
     "split_counts": {
       "train": 135

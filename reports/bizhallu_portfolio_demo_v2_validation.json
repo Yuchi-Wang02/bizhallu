@@ -1,6 +1,6 @@
 {
-  "portfolio_demo_v2_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_v2.html",
-  "portfolio_demo_v2_data_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_demo_v2_data.json",
+  "portfolio_demo_v2_html_path": "reports/bizhallu_portfolio_demo_v2.html",
+  "portfolio_demo_v2_data_path": "reports/bizhallu_demo_v2_data.json",
   "ready_for_public_demo_v2": true,
   "case_count": 9,
   "locked_span_count": 15,

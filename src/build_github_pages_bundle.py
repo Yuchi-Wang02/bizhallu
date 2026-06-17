@@ -14,6 +14,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
@@ -25,6 +27,7 @@ DEMO_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_summary.json"
 DEMO_V2_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
 CAREER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
+RESEARCH_SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -54,6 +57,11 @@ PAGE_COPIES = [
         REPORTS_DIR / "bizhallu_business_risk_lens.html",
         DOCS_DIR / "business_risk_lens.html",
         "business_risk_lens",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_research_one_pager.html",
+        DOCS_DIR / "research_one_pager.html",
+        "research_one_pager",
     ),
     (
         REPORTS_DIR / "full100_detector_interpretation.html",
@@ -140,6 +148,7 @@ def render_index(
     demo_v2: dict[str, Any],
     career: dict[str, Any],
     risk: dict[str, Any],
+    research: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -154,7 +163,8 @@ def render_index(
     demo_v2_cases = demo_v2.get("case_count", "n/a")
     career_faq_count = career.get("faq_count", "n/a")
     risk_lens_count = risk.get("lens_count", "n/a")
-    current_stage = escape(str(preflight.get("current_stage", "portfolio_narrative_ready")))
+    research_extension_count = research.get("extension_count", "n/a")
+    current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
     positioning = escape(
@@ -430,6 +440,7 @@ def render_index(
             <a class="button secondary" href="./portfolio_demo.html">Open original demo</a>
             <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
             <a class="button secondary" href="./career_package.html">Open career package</a>
+            <a class="button secondary" href="./research_one_pager.html">Open research one-pager</a>
             <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
           </div>
         </div>
@@ -473,6 +484,11 @@ def render_index(
             <h3>Business risk lens</h3>
             <p>Connect the same experiment to {risk_lens_count} accounting and supply-management views: reconciliation, returns, concentration, and exposure.</p>
             <p><a href="./business_risk_lens.html">Open business lens</a></p>
+          </article>
+          <article class="card">
+            <h3>Research one-pager</h3>
+            <p>Use this professor-facing page to frame the project as evidence binding, responsible AI, and {research_extension_count} possible JHU extension paths.</p>
+            <p><a href="./research_one_pager.html">Open one-pager</a></p>
           </article>
           <article class="card">
             <h3>Detector interpretation</h3>
@@ -559,8 +575,8 @@ def copy_html_pages() -> list[dict[str, Any]]:
         records.append(
             {
                 "role": role,
-                "source": str(source),
-                "dest": str(dest),
+                "source": repo_path(source),
+                "dest": repo_path(dest),
                 "source_sha256": sha256_text(original),
                 "dest_sha256": sha256_file(dest),
                 "dest_size_bytes": dest.stat().st_size,
@@ -578,8 +594,8 @@ def copy_assets() -> list[dict[str, Any]]:
         records.append(
             {
                 "role": role,
-                "source": str(source),
-                "dest": str(dest),
+                "source": repo_path(source),
+                "dest": repo_path(dest),
                 "source_sha256": sha256_file(source),
                 "dest_sha256": sha256_file(dest),
                 "dest_size_bytes": dest.stat().st_size,
@@ -596,10 +612,11 @@ def main() -> None:
     demo_v2 = load_json(DEMO_V2_SUMMARY_PATH)
     career = load_json(CAREER_SUMMARY_PATH)
     risk = load_json(RISK_SUMMARY_PATH)
+    research = load_json(RESEARCH_SUMMARY_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
-    index_html = render_index(demo, demo_v2, career, risk, narrative, preflight)
+    index_html = render_index(demo, demo_v2, career, risk, research, narrative, preflight)
     index_path = DOCS_DIR / "index.html"
     index_path.write_text(index_html, encoding="utf-8")
 
@@ -608,14 +625,15 @@ def main() -> None:
 
     manifest = {
         "status": "github_pages_bundle_ready",
-        "index_path": str(index_path),
+        "index_path": repo_path(index_path),
         "index_sha256": sha256_file(index_path),
-        "source_demo_summary_path": str(DEMO_SUMMARY_PATH),
-        "source_demo_v2_summary_path": str(DEMO_V2_SUMMARY_PATH),
-        "source_career_summary_path": str(CAREER_SUMMARY_PATH),
-        "source_risk_summary_path": str(RISK_SUMMARY_PATH),
-        "source_narrative_summary_path": str(NARRATIVE_SUMMARY_PATH),
-        "source_preflight_validation_path": str(PREFLIGHT_VALIDATION_PATH),
+        "source_demo_summary_path": repo_path(DEMO_SUMMARY_PATH),
+        "source_demo_v2_summary_path": repo_path(DEMO_V2_SUMMARY_PATH),
+        "source_career_summary_path": repo_path(CAREER_SUMMARY_PATH),
+        "source_risk_summary_path": repo_path(RISK_SUMMARY_PATH),
+        "source_research_summary_path": repo_path(RESEARCH_SUMMARY_PATH),
+        "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
+        "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
         "current_stage": "github_pages_ready",
         "primary_question_ids": narrative.get("primary_question_ids"),
@@ -630,6 +648,7 @@ def main() -> None:
         "demo_v2_locked_span_count": demo_v2.get("locked_span_count"),
         "career_faq_count": career.get("faq_count"),
         "business_risk_lens_count": risk.get("lens_count"),
+        "research_extension_count": research.get("extension_count"),
         "pages": page_records,
         "assets": asset_records,
         "num_failures": 0,
@@ -637,7 +656,7 @@ def main() -> None:
     }
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=True), encoding="utf-8")
 
-    print(json.dumps({"status": manifest["status"], "manifest_path": str(MANIFEST_PATH)}, indent=2))
+    print(json.dumps({"status": manifest["status"], "manifest_path": repo_path(MANIFEST_PATH)}, indent=2))
 
 
 if __name__ == "__main__":

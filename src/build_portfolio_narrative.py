@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
@@ -198,10 +200,10 @@ def main() -> None:
 
     summary = {
         "status": "portfolio_narrative_ready",
-        "narrative_html_path": str(NARRATIVE_HTML_PATH),
-        "source_portfolio_demo_summary_path": str(DEMO_SUMMARY_PATH),
-        "source_detector_interpretation_summary_path": str(INTERPRETATION_SUMMARY_PATH),
-        "source_label_lock_summary_path": str(LABEL_LOCK_SUMMARY_PATH),
+        "narrative_html_path": repo_path(NARRATIVE_HTML_PATH),
+        "source_portfolio_demo_summary_path": repo_path(DEMO_SUMMARY_PATH),
+        "source_detector_interpretation_summary_path": repo_path(INTERPRETATION_SUMMARY_PATH),
+        "source_label_lock_summary_path": repo_path(LABEL_LOCK_SUMMARY_PATH),
         "current_preflight_stage": preflight["current_stage"],
         "ready_for_current_stage": preflight["ready_for_current_stage"],
         "primary_question_ids": primary_question_ids,

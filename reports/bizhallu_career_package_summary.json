@@ -1,7 +1,7 @@
 {
   "status": "career_package_ready",
-  "career_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package.html",
-  "career_markdown_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_career_package.md",
+  "career_html_path": "reports/bizhallu_career_package.html",
+  "career_markdown_path": "reports/bizhallu_career_package.md",
   "question_count": 100,
   "question_type_count": 7,
   "annotated_span_count": 205,

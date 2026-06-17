@@ -571,6 +571,13 @@ copies the demo, demo v2, career package, business risk lens, narrative,
 detector interpretation, label-lock report, and confirmation packet into
 `docs/` with checked local links.
 
+The public polish layer is now part of the project. README provides a first
+screen TL;DR, role statement, 5-minute review path, and reproducibility levels.
+`AGENTS.md` records claim guardrails for future agent work. Public JSON path
+hygiene is enforced by `src/validate_public_path_hygiene.py`. The GitHub Pages
+bundle also includes `docs/research_one_pager.html` for professor and research
+advisor outreach.
+
 Next one-step branch:
 
 - keep `docs/index.html` as the GitHub Pages entry point
@@ -578,4 +585,6 @@ Next one-step branch:
 - use `docs/career_package.html` for resume, LinkedIn, and interview language
 - use `docs/business_risk_lens.html` to connect the project to accounting,
   supply management, and BA / DS / AI Analyst positioning
+- use `docs/research_one_pager.html` for professor, capstone, and research
+  advisor conversations
 - defer new model runs until the public package remains clean after validation

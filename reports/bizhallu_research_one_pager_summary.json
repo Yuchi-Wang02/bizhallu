@@ -1,0 +1,17 @@
+{
+  "status": "research_one_pager_ready",
+  "research_one_pager_html_path": "reports/bizhallu_research_one_pager.html",
+  "title": "BizHallu: Auditing Evidence Binding Errors in LLM-Generated Business Analysis",
+  "question_count": 100,
+  "annotated_span_count": 205,
+  "heldout_test_span_count": 103,
+  "best_test_auprc": 0.835073,
+  "best_test_f1": 0.779412,
+  "demo_case_count": 9,
+  "business_risk_lens_count": 4,
+  "research_question_count": 4,
+  "extension_count": 4,
+  "label_lock_basis": "assistant_full_review",
+  "num_failures": 0,
+  "failures": []
+}

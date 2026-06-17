@@ -7,6 +7,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
@@ -78,7 +80,7 @@ def main() -> None:
     ]
     for path in required_paths:
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     if html_text:
@@ -217,9 +219,9 @@ def main() -> None:
             add_failure(failures, "html contains stale confirmation wording", fragment)
 
     validation = {
-        "html_path": str(HTML_PATH),
-        "summary_path": str(SUMMARY_PATH),
-        "source_label_lock_summary_path": str(LOCK_SUMMARY_PATH),
+        "html_path": repo_path(HTML_PATH),
+        "summary_path": repo_path(SUMMARY_PATH),
+        "source_label_lock_summary_path": repo_path(LOCK_SUMMARY_PATH),
         "case_count": summary.get("case_count"),
         "primary_question_ids": summary.get("primary_question_ids"),
         "locked_primary_span_count": summary.get("locked_primary_span_count"),

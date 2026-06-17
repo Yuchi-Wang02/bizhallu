@@ -11,41 +11,29 @@ from public_paths import repo_path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
 
-HTML_PATH = REPORTS_DIR / "bizhallu_career_package.html"
-MD_PATH = REPORTS_DIR / "bizhallu_career_package.md"
-SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
-VALIDATION_PATH = REPORTS_DIR / "bizhallu_career_package_validation.json"
+HTML_PATH = REPORTS_DIR / "bizhallu_research_one_pager.html"
+SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
+VALIDATION_PATH = REPORTS_DIR / "bizhallu_research_one_pager_validation.json"
 
-REQUIRED_HTML_FRAGMENTS = [
-    "Career package for BA / DS / AI analyst roles",
-    "One-page project brief",
-    "Interview FAQ",
-    "Resume bullets",
-    "60-second version",
-    "5-minute version",
-    "assistant-reviewed presentation labels",
-    "not a production detector",
-    "large independent human-labeled benchmark",
+REQUIRED_FRAGMENTS = [
+    "Professor / research advisor one-pager",
+    "BizHallu: Auditing Evidence Binding Errors in LLM-Generated Business Analysis",
+    "Research problem",
+    "Dataset and task",
+    "Pipeline from transaction evidence",
+    "Best AUPRC / F1",
     "0.835",
     "0.779",
-    "q_0064",
-    "q_0069",
-]
-
-REQUIRED_MD_FRAGMENTS = [
-    "# BizHallu Career Package",
-    "Project Brief",
-    "Resume Bullets",
-    "Interview FAQ",
-    "Public Claim Guardrails",
+    "Internal uncertainty has signal",
+    "evidence-aware verifier",
+    "Possible JHU extensions",
+    "assistant-reviewed presentation labels",
 ]
 
 FORBIDDEN_FRAGMENTS = [
-    "is a large human-labeled benchmark",
-    "production-ready hallucination detection system",
+    "is a production-ready detector",
+    "is a large independent human-labeled benchmark",
     "evaluates whole-answer correctness",
-    "pending human review",
-    "requires human confirmation",
 ]
 
 
@@ -69,12 +57,11 @@ def add_failure(failures: list[dict[str, Any]], name: str, detail: Any) -> None:
 def main() -> None:
     failures: list[dict[str, Any]] = []
 
-    for path in [HTML_PATH, MD_PATH, SUMMARY_PATH]:
+    for path in [HTML_PATH, SUMMARY_PATH]:
         if not path.exists():
             add_failure(failures, "required_file_missing", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
-    md_text = MD_PATH.read_text(encoding="utf-8") if MD_PATH.exists() else ""
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
 
     if html_text:
@@ -82,29 +69,23 @@ def main() -> None:
         parser.feed(html_text)
         if parser.seen_tags == 0:
             add_failure(failures, "html_parse", "no HTML tags parsed")
-        for fragment in REQUIRED_HTML_FRAGMENTS:
+        for fragment in REQUIRED_FRAGMENTS:
             if fragment not in html_text:
-                add_failure(failures, "required_html_fragment_missing", fragment)
-
-    if md_text:
-        for fragment in REQUIRED_MD_FRAGMENTS:
-            if fragment not in md_text:
-                add_failure(failures, "required_markdown_fragment_missing", fragment)
-
-    combined_public_text = f"{html_text}\n{md_text}"
-    for fragment in FORBIDDEN_FRAGMENTS:
-        if fragment in combined_public_text:
-            add_failure(failures, "forbidden_fragment", fragment)
+                add_failure(failures, "required_fragment_missing", fragment)
+        for fragment in FORBIDDEN_FRAGMENTS:
+            if fragment in html_text:
+                add_failure(failures, "forbidden_fragment", fragment)
 
     expected = {
-        "status": "career_package_ready",
+        "status": "research_one_pager_ready",
         "question_count": 100,
         "annotated_span_count": 205,
+        "heldout_test_span_count": 103,
         "best_test_auprc": 0.835073,
         "best_test_f1": 0.779412,
+        "demo_case_count": 9,
+        "business_risk_lens_count": 4,
         "label_lock_basis": "assistant_full_review",
-        "resume_bullet_count": 5,
-        "faq_count": 10,
     }
     for key, value in expected.items():
         if summary.get(key) != value:
@@ -115,14 +96,15 @@ def main() -> None:
             )
 
     validation = {
-        "career_html_path": repo_path(HTML_PATH),
-        "career_markdown_path": repo_path(MD_PATH),
-        "ready_for_public_career_use": len(failures) == 0,
+        "research_one_pager_html_path": repo_path(HTML_PATH),
+        "ready_for_research_outreach": len(failures) == 0,
         "num_failures": len(failures),
         "failures": failures,
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 {
   "status": "portfolio_demo_ready",
-  "portfolio_demo_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo.html",
-  "source_label_lock_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
-  "source_detector_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
+  "portfolio_demo_html_path": "reports/bizhallu_portfolio_demo.html",
+  "source_label_lock_summary_path": "reports/full100_label_lock_summary.json",
+  "source_detector_interpretation_summary_path": "reports/full100_detector_interpretation_summary.json",
   "primary_question_ids": [
     "q_0064",
     "q_0069"

@@ -1,0 +1,36 @@
+name: Validate public portfolio artifacts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-public:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate public path hygiene
+        run: python src/validate_public_path_hygiene.py
+
+      - name: Validate GitHub Pages bundle
+        run: python src/validate_github_pages_bundle.py
+
+      - name: Validate portfolio demo v2
+        run: python src/validate_portfolio_demo_v2.py
+
+      - name: Validate career package
+        run: python src/validate_career_package.py
+
+      - name: Validate business risk lens
+        run: python src/validate_business_risk_lens.py
+
+      - name: Validate research one-pager
+        run: python src/validate_research_one_pager.py

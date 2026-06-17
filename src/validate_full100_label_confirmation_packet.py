@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -50,7 +52,7 @@ def main() -> None:
     failures: list[dict[str, Any]] = []
     for path in (PACKET_CSV_PATH, PACKET_JSONL_PATH, PACKET_HTML_PATH, PACKET_SUMMARY_PATH, ERROR_EXAMPLES_PATH):
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     packet_rows = load_jsonl(PACKET_JSONL_PATH) if PACKET_JSONL_PATH.exists() else []
     packet_csv_rows = load_csv(PACKET_CSV_PATH) if PACKET_CSV_PATH.exists() else []
@@ -131,10 +133,10 @@ def main() -> None:
             add_failure(failures, "html missing required fragment", fragment)
 
     validation = {
-        "packet_csv_path": str(PACKET_CSV_PATH),
-        "packet_jsonl_path": str(PACKET_JSONL_PATH),
-        "packet_html_path": str(PACKET_HTML_PATH),
-        "packet_summary_path": str(PACKET_SUMMARY_PATH),
+        "packet_csv_path": repo_path(PACKET_CSV_PATH),
+        "packet_jsonl_path": repo_path(PACKET_JSONL_PATH),
+        "packet_html_path": repo_path(PACKET_HTML_PATH),
+        "packet_summary_path": repo_path(PACKET_SUMMARY_PATH),
         "selected_annotation_count": len(packet_rows),
         "selected_question_count": len({row["question_id"] for row in packet_rows}),
         "source_error_example_row_count": len(error_examples),

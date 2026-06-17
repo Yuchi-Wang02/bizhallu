@@ -1,9 +1,9 @@
 {
   "status": "assistant_review_complete_not_human_locked",
-  "source_packet_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_summary.json",
-  "review_notes_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.csv",
-  "review_notes_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.jsonl",
-  "review_notes_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_review_notes.html",
+  "source_packet_summary_path": "reports/full100_label_confirmation_packet_summary.json",
+  "review_notes_csv_path": "reports/full100_label_confirmation_review_notes.csv",
+  "review_notes_jsonl_path": "reports/full100_label_confirmation_review_notes.jsonl",
+  "review_notes_html_path": "reports/full100_label_confirmation_review_notes.html",
   "selected_annotation_count": 15,
   "selected_question_count": 9,
   "assistant_label_verdict_counts": {

@@ -1,7 +1,7 @@
 {
-  "html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative.html",
-  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative_summary.json",
-  "source_portfolio_demo_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
+  "html_path": "reports/bizhallu_portfolio_narrative.html",
+  "summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
+  "source_portfolio_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "status": "portfolio_narrative_ready",
   "primary_question_ids": [
     "q_0064",

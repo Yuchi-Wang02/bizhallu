@@ -1,0 +1,38 @@
+{
+  "status": "public_path_hygiene_ready",
+  "checked_file_count": 25,
+  "checked_files": [
+    "docs/assets/bizhallu_demo_v2_data.json",
+    "docs/github_pages_manifest.json",
+    "docs/github_pages_validation.json",
+    "reports/bizhallu_business_risk_lens_summary.json",
+    "reports/bizhallu_career_package_summary.json",
+    "reports/bizhallu_portfolio_demo_summary.json",
+    "reports/bizhallu_portfolio_demo_v2_summary.json",
+    "reports/bizhallu_portfolio_narrative_summary.json",
+    "reports/bizhallu_research_one_pager_summary.json",
+    "reports/full100_detector_interpretation_summary.json",
+    "reports/full100_label_confirmation_packet_summary.json",
+    "reports/full100_label_confirmation_review_notes_summary.json",
+    "reports/full100_label_lock_summary.json",
+    "reports/bizhallu_business_risk_lens_validation.json",
+    "reports/bizhallu_career_package_validation.json",
+    "reports/bizhallu_portfolio_demo_v2_validation.json",
+    "reports/bizhallu_portfolio_demo_validation.json",
+    "reports/bizhallu_portfolio_narrative_validation.json",
+    "reports/bizhallu_research_one_pager_validation.json",
+    "reports/full100_detector_interpretation_validation.json",
+    "reports/full100_label_confirmation_packet_validation.json",
+    "reports/full100_label_confirmation_review_notes_validation.json",
+    "reports/full100_label_lock_validation.json",
+    "results/full100_preflight_report.json",
+    "results/full100_preflight_validation.json"
+  ],
+  "forbidden_pattern_count": 6,
+  "forbidden_pattern_groups": [
+    "windows_user_absolute_path",
+    "project_local_download_path"
+  ],
+  "num_failures": 0,
+  "failures": []
+}

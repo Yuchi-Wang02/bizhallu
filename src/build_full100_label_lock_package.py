@@ -4,9 +4,10 @@ import csv
 import html
 import json
 from collections import Counter
-from datetime import date
 from pathlib import Path
 from typing import Any
+
+from public_paths import repo_path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,7 @@ LOCK_REPORT_HTML_PATH = REPORTS_DIR / "full100_label_lock_report.html"
 LOCK_BASIS = "assistant_full_review"
 LOCK_STATUS = "presentation_labels_locked"
 LOCK_SCOPE = "15 presentation-selected held-out spans"
+LOCKED_ON = "2026-05-25"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -82,7 +84,7 @@ def main() -> None:
             f"source_fix_required={len(source_fix_required)}, unsupported={len(unsupported)}"
         )
 
-    lock_date = date.today().isoformat()
+    lock_date = LOCKED_ON
     decisions: list[dict[str, Any]] = []
     for row in review_rows:
         publish_use = publish_use_for(row)
@@ -168,11 +170,11 @@ def main() -> None:
         "locked_on": lock_date,
         "labels_locked": True,
         "human_confirmation_required": False,
-        "source_review_notes_summary_path": str(REVIEW_NOTES_SUMMARY_PATH),
-        "source_detector_interpretation_summary_path": str(DETECTOR_INTERPRETATION_SUMMARY_PATH),
-        "label_lock_decisions_csv_path": str(LOCK_DECISIONS_CSV_PATH),
-        "label_lock_decisions_jsonl_path": str(LOCK_DECISIONS_JSONL_PATH),
-        "label_lock_report_html_path": str(LOCK_REPORT_HTML_PATH),
+        "source_review_notes_summary_path": repo_path(REVIEW_NOTES_SUMMARY_PATH),
+        "source_detector_interpretation_summary_path": repo_path(DETECTOR_INTERPRETATION_SUMMARY_PATH),
+        "label_lock_decisions_csv_path": repo_path(LOCK_DECISIONS_CSV_PATH),
+        "label_lock_decisions_jsonl_path": repo_path(LOCK_DECISIONS_JSONL_PATH),
+        "label_lock_report_html_path": repo_path(LOCK_REPORT_HTML_PATH),
         "selected_annotation_count": len(decisions),
         "selected_question_count": len({row["question_id"] for row in decisions}),
         "locked_label_count": sum(1 for row in decisions if row["lock_decision"] == "locked"),

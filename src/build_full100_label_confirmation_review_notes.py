@@ -7,6 +7,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -288,10 +290,10 @@ def main() -> None:
 
     summary = {
         "status": "assistant_review_complete_not_human_locked",
-        "source_packet_summary_path": str(PACKET_SUMMARY_PATH),
-        "review_notes_csv_path": str(NOTES_CSV_PATH),
-        "review_notes_jsonl_path": str(NOTES_JSONL_PATH),
-        "review_notes_html_path": str(NOTES_HTML_PATH),
+        "source_packet_summary_path": repo_path(PACKET_SUMMARY_PATH),
+        "review_notes_csv_path": repo_path(NOTES_CSV_PATH),
+        "review_notes_jsonl_path": repo_path(NOTES_JSONL_PATH),
+        "review_notes_html_path": repo_path(NOTES_HTML_PATH),
         "selected_annotation_count": len(rows),
         "selected_question_count": len({row["question_id"] for row in rows}),
         "assistant_label_verdict_counts": dict(sorted(by_verdict.items())),

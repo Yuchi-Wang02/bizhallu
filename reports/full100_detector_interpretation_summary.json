@@ -256,10 +256,10 @@
     "Correct numeric and context facts are still over-flagged, so detector claims must stay qualified."
   ],
   "source_files": {
-    "family_comparison_report": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
-    "error_review_report": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_report.json",
-    "error_review_validation": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_validation.json",
-    "error_review_examples": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_error_review_examples.csv"
+    "family_comparison_report": "results/full100_draft_detector_family_comparison_report.json",
+    "error_review_report": "results/full100_draft_detector_error_review_report.json",
+    "error_review_validation": "results/full100_draft_detector_error_review_validation.json",
+    "error_review_examples": "results/full100_draft_detector_error_review_examples.csv"
   },
   "num_failures": 0,
   "source_validation_num_failures": 0

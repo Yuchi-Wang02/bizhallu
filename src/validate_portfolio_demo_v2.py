@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -56,7 +58,7 @@ def main() -> None:
     failures: list[dict[str, Any]] = []
     for path in [HTML_PATH, DATA_PATH, SUMMARY_PATH]:
         if not path.exists():
-            add_failure(failures, "required_file_missing", str(path))
+            add_failure(failures, "required_file_missing", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     data = load_json(DATA_PATH) if DATA_PATH.exists() else {}
@@ -115,8 +117,8 @@ def main() -> None:
             )
 
     validation = {
-        "portfolio_demo_v2_html_path": str(HTML_PATH),
-        "portfolio_demo_v2_data_path": str(DATA_PATH),
+        "portfolio_demo_v2_html_path": repo_path(HTML_PATH),
+        "portfolio_demo_v2_data_path": repo_path(DATA_PATH),
         "ready_for_public_demo_v2": len(failures) == 0,
         "case_count": len(cases),
         "locked_span_count": len(all_spans),

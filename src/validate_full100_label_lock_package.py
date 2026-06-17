@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -59,7 +61,7 @@ def main() -> None:
         LOCK_REPORT_HTML_PATH,
     ):
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     review_rows = load_jsonl(REVIEW_NOTES_JSONL_PATH) if REVIEW_NOTES_JSONL_PATH.exists() else []
     lock_rows = load_jsonl(LOCK_DECISIONS_JSONL_PATH) if LOCK_DECISIONS_JSONL_PATH.exists() else []
@@ -162,10 +164,10 @@ def main() -> None:
             add_failure(failures, "lock report contains stale human-confirmation wording", fragment)
 
     validation = {
-        "label_lock_decisions_csv_path": str(LOCK_DECISIONS_CSV_PATH),
-        "label_lock_decisions_jsonl_path": str(LOCK_DECISIONS_JSONL_PATH),
-        "label_lock_summary_path": str(LOCK_SUMMARY_PATH),
-        "label_lock_report_html_path": str(LOCK_REPORT_HTML_PATH),
+        "label_lock_decisions_csv_path": repo_path(LOCK_DECISIONS_CSV_PATH),
+        "label_lock_decisions_jsonl_path": repo_path(LOCK_DECISIONS_JSONL_PATH),
+        "label_lock_summary_path": repo_path(LOCK_SUMMARY_PATH),
+        "label_lock_report_html_path": repo_path(LOCK_REPORT_HTML_PATH),
         "selected_annotation_count": len(lock_rows),
         "selected_question_count": len({row["question_id"] for row in lock_rows}),
         "labels_locked": len(failures) == 0,

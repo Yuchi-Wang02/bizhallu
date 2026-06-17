@@ -1,10 +1,10 @@
 {
   "status": "portfolio_narrative_ready",
-  "narrative_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_narrative.html",
-  "source_portfolio_demo_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
-  "source_detector_interpretation_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_detector_interpretation_summary.json",
-  "source_label_lock_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
-  "current_preflight_stage": "portfolio_narrative_ready",
+  "narrative_html_path": "reports/bizhallu_portfolio_narrative.html",
+  "source_portfolio_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
+  "source_detector_interpretation_summary_path": "reports/full100_detector_interpretation_summary.json",
+  "source_label_lock_summary_path": "reports/full100_label_lock_summary.json",
+  "current_preflight_stage": "github_pages_ready",
   "ready_for_current_stage": true,
   "primary_question_ids": [
     "q_0064",

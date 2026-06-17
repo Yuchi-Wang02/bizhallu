@@ -4,8 +4,19 @@
 [Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) |
 [Case demo](https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html) |
 [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
+[Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
 [Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html) |
 [Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
+
+## TL;DR
+
+BizHallu is an AI reliability project for business analytics. It turns retail
+transaction evidence into deterministic business questions, asks
+`Qwen/Qwen3-0.6B` to generate analysis, labels supported versus hallucinated
+business-fact spans, aligns those spans to token-level uncertainty traces, and
+evaluates split-safe detector baselines.
+
+Best held-out result: 0.835 AUPRC and 0.779 F1 across 103 held-out test spans.
 
 BizHallu is a span-level hallucination detection project for LLM-generated
 business analysis. It asks whether generated retail analytics claims are
@@ -16,6 +27,35 @@ business-fact span labels, token alignment, and split-safe detector baselines.
 It is designed as a business analytics and AI reliability portfolio artifact.
 
 ![BizHallu deck preview](docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png)
+
+## My Role
+
+I designed and implemented the full pipeline: data cleaning, deterministic
+question generation, prompt construction, local Qwen generation, span review,
+token alignment, detector evaluation, public GitHub Pages packaging, and
+interview/research-facing documentation.
+
+## How to Review This Project in 5 Minutes
+
+1. Open [Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html)
+   and inspect `q_0064` or `q_0069`.
+2. Read the highlighted span labels: supported facts can sit next to
+   hallucinated rank, product, or amount bindings.
+3. Check the detector outcome column to see which internal uncertainty signals
+   missed confident wrong business facts.
+4. Open the [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html)
+   for interview language.
+5. Open the [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html)
+   for professor or research-advisor framing.
+
+## Reproducibility Levels
+
+- Public review: GitHub Pages, README, reports, summaries, and committed
+  lightweight validation artifacts.
+- Local rebuild: public pages and validations can be rebuilt from committed
+  reports plus local generated artifacts.
+- Full rerun: Qwen generation requires the raw UCI Online Retail file, local
+  model cache, and non-committed token traces.
 
 ## Why It Matters
 
@@ -40,6 +80,7 @@ business conclusion.
 | Interactive case demo | <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html> |
 | Career package | <https://yuchi-wang02.github.io/bizhallu/career_package.html> |
 | Business risk lens | <https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html> |
+| Research one-pager | <https://yuchi-wang02.github.io/bizhallu/research_one_pager.html> |
 | Portfolio narrative | <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html> |
 | Detector interpretation | <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html> |
 | Interview deck | <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx> |

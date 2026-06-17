@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from public_paths import sanitize_public_paths
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
@@ -1189,6 +1191,8 @@ def main() -> None:
         "legacy_ready_to_run_full100_generation": legacy_ready_to_run_full100_generation,
         "ready_to_run_full100_generation": legacy_ready_to_run_full100_generation,
     }
+    report = sanitize_public_paths(report)
+    validation = sanitize_public_paths(validation)
     REPORT_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8")
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=True))

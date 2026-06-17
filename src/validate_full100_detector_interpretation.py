@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = PROJECT_ROOT / "results"
@@ -40,7 +42,7 @@ def main() -> None:
 
     for path in (HTML_PATH, SUMMARY_PATH, FAMILY_REPORT_PATH, ERROR_REVIEW_REPORT_PATH, ERROR_REVIEW_VALIDATION_PATH):
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     if html_text:
@@ -114,10 +116,10 @@ def main() -> None:
             add_failure(failures, "html contains stale fragment", fragment)
 
     validation = {
-        "html_path": str(HTML_PATH),
-        "summary_path": str(SUMMARY_PATH),
-        "source_family_report_path": str(FAMILY_REPORT_PATH),
-        "source_error_review_report_path": str(ERROR_REVIEW_REPORT_PATH),
+        "html_path": repo_path(HTML_PATH),
+        "summary_path": repo_path(SUMMARY_PATH),
+        "source_family_report_path": repo_path(FAMILY_REPORT_PATH),
+        "source_error_review_report_path": repo_path(ERROR_REVIEW_REPORT_PATH),
         "ready_for_presentation_label_confirmation": len(failures) == 0,
         "ready_for_locked_presentation": len(failures) == 0,
         "num_failures": len(failures),

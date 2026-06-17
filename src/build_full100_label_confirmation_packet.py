@@ -7,6 +7,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
@@ -215,11 +217,11 @@ def main() -> None:
 
     summary = {
         "status": "confirmation_packet_ready_not_locked",
-        "packet_csv_path": str(PACKET_CSV_PATH),
-        "packet_jsonl_path": str(PACKET_JSONL_PATH),
-        "packet_html_path": str(PACKET_HTML_PATH),
-        "source_error_examples_path": str(ERROR_EXAMPLES_PATH),
-        "source_interpretation_summary_path": str(INTERPRETATION_SUMMARY_PATH),
+        "packet_csv_path": repo_path(PACKET_CSV_PATH),
+        "packet_jsonl_path": repo_path(PACKET_JSONL_PATH),
+        "packet_html_path": repo_path(PACKET_HTML_PATH),
+        "source_error_examples_path": repo_path(ERROR_EXAMPLES_PATH),
+        "source_interpretation_summary_path": repo_path(INTERPRETATION_SUMMARY_PATH),
         "source_error_example_row_count": len(error_examples),
         "source_unique_error_example_annotation_count": len(example_rows_by_annotation),
         "offset_regression_annotation_ids": OFFSET_REGRESSION_ANNOTATION_IDS,
@@ -431,10 +433,10 @@ def main() -> None:
     print(
         json.dumps(
             {
-                "packet_csv_path": str(PACKET_CSV_PATH),
-                "packet_jsonl_path": str(PACKET_JSONL_PATH),
-                "packet_html_path": str(PACKET_HTML_PATH),
-                "packet_summary_path": str(PACKET_SUMMARY_PATH),
+                "packet_csv_path": repo_path(PACKET_CSV_PATH),
+                "packet_jsonl_path": repo_path(PACKET_JSONL_PATH),
+                "packet_html_path": repo_path(PACKET_HTML_PATH),
+                "packet_summary_path": repo_path(PACKET_SUMMARY_PATH),
                 "selected_annotation_count": summary["selected_annotation_count"],
                 "selected_question_count": summary["selected_question_count"],
                 "status": summary["status"],

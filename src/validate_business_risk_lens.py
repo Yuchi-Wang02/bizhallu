@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -50,7 +52,7 @@ def main() -> None:
     failures: list[dict[str, Any]] = []
     for path in [HTML_PATH, SUMMARY_PATH]:
         if not path.exists():
-            add_failure(failures, "required_file_missing", str(path))
+            add_failure(failures, "required_file_missing", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
@@ -88,7 +90,7 @@ def main() -> None:
         add_failure(failures, "missing_net_revenue_context", summary.get("net_revenue"))
 
     validation = {
-        "business_risk_lens_html_path": str(HTML_PATH),
+        "business_risk_lens_html_path": repo_path(HTML_PATH),
         "ready_for_public_business_lens": len(failures) == 0,
         "num_failures": len(failures),
         "failures": failures,

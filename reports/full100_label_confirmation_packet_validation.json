@@ -1,8 +1,8 @@
 {
-  "packet_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.csv",
-  "packet_jsonl_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.jsonl",
-  "packet_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet.html",
-  "packet_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_confirmation_packet_summary.json",
+  "packet_csv_path": "reports/full100_label_confirmation_packet.csv",
+  "packet_jsonl_path": "reports/full100_label_confirmation_packet.jsonl",
+  "packet_html_path": "reports/full100_label_confirmation_packet.html",
+  "packet_summary_path": "reports/full100_label_confirmation_packet_summary.json",
   "selected_annotation_count": 15,
   "selected_question_count": 9,
   "source_error_example_row_count": 20,

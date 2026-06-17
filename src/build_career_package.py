@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -178,8 +180,8 @@ def main() -> None:
 
     summary = {
         "status": "career_package_ready",
-        "career_html_path": str(CAREER_HTML_PATH),
-        "career_markdown_path": str(CAREER_MD_PATH),
+        "career_html_path": repo_path(CAREER_HTML_PATH),
+        "career_markdown_path": repo_path(CAREER_MD_PATH),
         "question_count": narrative["question_count"],
         "question_type_count": len(question_report["question_type_counts"]),
         "annotated_span_count": narrative["annotated_span_count"],
@@ -474,7 +476,7 @@ Short profile line: {github_profile_blurb}
     CAREER_MD_PATH.write_text(md_text, encoding="utf-8")
     CAREER_SUMMARY_PATH.write_text(json.dumps(summary, indent=2, ensure_ascii=True), encoding="utf-8")
 
-    print(json.dumps({"status": summary["status"], "html": str(CAREER_HTML_PATH)}, indent=2))
+    print(json.dumps({"status": summary["status"], "html": repo_path(CAREER_HTML_PATH)}, indent=2))
 
 
 if __name__ == "__main__":

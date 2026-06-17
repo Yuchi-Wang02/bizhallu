@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -43,7 +45,7 @@ def main() -> None:
     failures: list[dict[str, Any]] = []
     for path in (PACKET_JSONL_PATH, NOTES_CSV_PATH, NOTES_JSONL_PATH, NOTES_HTML_PATH, NOTES_SUMMARY_PATH):
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     packet_rows = load_jsonl(PACKET_JSONL_PATH) if PACKET_JSONL_PATH.exists() else []
     notes_rows = load_jsonl(NOTES_JSONL_PATH) if NOTES_JSONL_PATH.exists() else []
@@ -119,10 +121,10 @@ def main() -> None:
             add_failure(failures, "html missing required fragment", fragment)
 
     validation = {
-        "review_notes_csv_path": str(NOTES_CSV_PATH),
-        "review_notes_jsonl_path": str(NOTES_JSONL_PATH),
-        "review_notes_html_path": str(NOTES_HTML_PATH),
-        "review_notes_summary_path": str(NOTES_SUMMARY_PATH),
+        "review_notes_csv_path": repo_path(NOTES_CSV_PATH),
+        "review_notes_jsonl_path": repo_path(NOTES_JSONL_PATH),
+        "review_notes_html_path": repo_path(NOTES_HTML_PATH),
+        "review_notes_summary_path": repo_path(NOTES_SUMMARY_PATH),
         "selected_annotation_count": len(notes_rows),
         "selected_question_count": len({row["question_id"] for row in notes_rows}),
         "assistant_review_complete": len(failures) == 0,

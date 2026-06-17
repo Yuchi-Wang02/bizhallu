@@ -1,7 +1,7 @@
 {
-  "html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo.html",
-  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_portfolio_demo_summary.json",
-  "source_label_lock_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\full100_label_lock_summary.json",
+  "html_path": "reports/bizhallu_portfolio_demo.html",
+  "summary_path": "reports/bizhallu_portfolio_demo_summary.json",
+  "source_label_lock_summary_path": "reports/full100_label_lock_summary.json",
   "case_count": 2,
   "primary_question_ids": [
     "q_0064",

@@ -7,6 +7,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
@@ -388,9 +390,9 @@ def main() -> None:
 
     summary = {
         "status": "portfolio_demo_ready",
-        "portfolio_demo_html_path": str(PORTFOLIO_DEMO_HTML_PATH),
-        "source_label_lock_summary_path": str(LOCK_SUMMARY_PATH),
-        "source_detector_interpretation_summary_path": str(DETECTOR_INTERPRETATION_SUMMARY_PATH),
+        "portfolio_demo_html_path": repo_path(PORTFOLIO_DEMO_HTML_PATH),
+        "source_label_lock_summary_path": repo_path(LOCK_SUMMARY_PATH),
+        "source_detector_interpretation_summary_path": repo_path(DETECTOR_INTERPRETATION_SUMMARY_PATH),
         "primary_question_ids": PRIMARY_QUESTION_IDS,
         "case_count": len(cases),
         "locked_primary_span_count": len(primary_lock_rows),

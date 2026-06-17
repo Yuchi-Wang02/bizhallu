@@ -15,6 +15,7 @@ Public pages:
 - `portfolio_demo.html`
 - `career_package.html`
 - `business_risk_lens.html`
+- `research_one_pager.html`
 - `portfolio_narrative.html`
 - `detector_interpretation.html`
 - `label_lock_report.html`

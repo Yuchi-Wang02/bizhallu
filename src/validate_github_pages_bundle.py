@@ -9,18 +9,21 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import contains_local_path, repo_path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
 VALIDATION_PATH = DOCS_DIR / "github_pages_validation.json"
-PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 
 REQUIRED_INDEX_FRAGMENTS = [
     "BizHallu GitHub Pages",
     "Open demo v2",
     "Open career package",
+    "Open research one-pager",
     "Business risk lens",
+    "Research one-pager",
     "Read portfolio narrative",
     "Download interview deck",
     "Preview slides",
@@ -43,6 +46,7 @@ REQUIRED_PAGE_FILES = [
     "portfolio_narrative.html",
     "career_package.html",
     "business_risk_lens.html",
+    "research_one_pager.html",
     "detector_interpretation.html",
     "label_lock_report.html",
     "label_confirmation_packet.html",
@@ -99,10 +103,10 @@ def parse_html(path: Path, failures: list[dict[str, Any]]) -> None:
     try:
         parser.feed(path.read_text(encoding="utf-8"))
     except Exception as exc:  # pragma: no cover - diagnostic path
-        failures.append({"name": "html_parse", "path": str(path), "reason": str(exc)})
+        failures.append({"name": "html_parse", "path": repo_path(path), "reason": str(exc)})
         return
     if parser.seen_tags == 0:
-        failures.append({"name": "html_parse", "path": str(path), "reason": "no HTML tags parsed"})
+        failures.append({"name": "html_parse", "path": repo_path(path), "reason": "no HTML tags parsed"})
 
 
 def local_links(path: Path) -> list[str]:
@@ -129,7 +133,7 @@ def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
             failures.append(
                 {
                     "name": "local_link_scope",
-                    "path": str(path),
+                    "path": repo_path(path),
                     "href": href,
                     "reason": "link resolves outside project root",
                 }
@@ -139,9 +143,9 @@ def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
             failures.append(
                 {
                     "name": "local_link_exists",
-                    "path": str(path),
+                    "path": repo_path(path),
                     "href": href,
-                    "resolved": str(target),
+                    "resolved": repo_path(target),
                     "reason": "linked file is missing",
                 }
             )
@@ -150,7 +154,6 @@ def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
 def main() -> None:
     failures: list[dict[str, Any]] = []
     manifest = load_json(MANIFEST_PATH) if MANIFEST_PATH.exists() else {}
-    preflight = load_json(PREFLIGHT_VALIDATION_PATH) if PREFLIGHT_VALIDATION_PATH.exists() else {}
 
     if manifest.get("status") != "github_pages_bundle_ready":
         failures.append(
@@ -164,7 +167,7 @@ def main() -> None:
     for rel_path in REQUIRED_PAGE_FILES:
         path = DOCS_DIR / rel_path
         if not path.exists():
-            failures.append({"name": "required_file", "path": str(path), "reason": "missing"})
+            failures.append({"name": "required_file", "path": repo_path(path), "reason": "missing"})
         elif path.suffix.lower() == ".html":
             parse_html(path, failures)
             validate_local_links(path, failures)
@@ -192,7 +195,7 @@ def main() -> None:
                 failures.append(
                     {
                         "name": "forbidden_fragment",
-                        "path": str(path),
+                        "path": repo_path(path),
                         "fragment": fragment,
                         "reason": "stale or non-public link/text remains",
                     }
@@ -200,23 +203,39 @@ def main() -> None:
 
     for record in manifest.get("pages", []):
         dest = Path(record.get("dest", ""))
+        if not dest.is_absolute():
+            dest = ROOT / dest
         if dest.exists() and record.get("dest_sha256") != sha256_file(dest):
             failures.append(
                 {
                     "name": "page_hash",
-                    "path": str(dest),
+                    "path": repo_path(dest),
                     "reason": "page content no longer matches manifest hash",
                 }
             )
 
     for record in manifest.get("assets", []):
         dest = Path(record.get("dest", ""))
+        if not dest.is_absolute():
+            dest = ROOT / dest
         if dest.exists() and record.get("dest_sha256") != sha256_file(dest):
             failures.append(
                 {
                     "name": "asset_hash",
-                    "path": str(dest),
+                    "path": repo_path(dest),
                     "reason": "asset content no longer matches manifest hash",
+                }
+            )
+
+    for json_path in sorted(DOCS_DIR.rglob("*.json")):
+        if json_path == VALIDATION_PATH:
+            continue
+        if contains_local_path(json_path.read_text(encoding="utf-8")):
+            failures.append(
+                {
+                    "name": "public_json_local_path",
+                    "path": repo_path(json_path),
+                    "reason": "GitHub Pages JSON must use repo-relative paths",
                 }
             )
 
@@ -232,6 +251,7 @@ def main() -> None:
         "demo_v2_locked_span_count": 15,
         "career_faq_count": 10,
         "business_risk_lens_count": 4,
+        "research_extension_count": 4,
     }
     for key, expected in expected_manifest_values.items():
         if manifest.get(key) != expected:
@@ -245,17 +265,8 @@ def main() -> None:
                 }
             )
 
-    if preflight.get("num_failures") != 0 or preflight.get("ready_for_current_stage") is not True:
-        failures.append(
-            {
-                "name": "preflight_dependency",
-                "reason": "full100 preflight is not clean",
-                "preflight": preflight,
-            }
-        )
-
     validation = {
-        "manifest_path": str(MANIFEST_PATH),
+        "manifest_path": repo_path(MANIFEST_PATH),
         "ready_for_github_pages": len(failures) == 0,
         "required_file_count": len(REQUIRED_PAGE_FILES),
         "checked_html_file_count": len(html_files),

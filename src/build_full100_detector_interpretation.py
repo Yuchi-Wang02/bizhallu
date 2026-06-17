@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = PROJECT_ROOT / "results"
@@ -174,10 +176,10 @@ def main() -> None:
         "grouped_error_patterns": grouped,
         "takeaways": takeaways,
         "source_files": {
-            "family_comparison_report": str(FAMILY_REPORT_PATH),
-            "error_review_report": str(ERROR_REVIEW_REPORT_PATH),
-            "error_review_validation": str(ERROR_REVIEW_VALIDATION_PATH),
-            "error_review_examples": str(RESULTS_DIR / "full100_draft_detector_error_review_examples.csv"),
+            "family_comparison_report": repo_path(FAMILY_REPORT_PATH),
+            "error_review_report": repo_path(ERROR_REVIEW_REPORT_PATH),
+            "error_review_validation": repo_path(ERROR_REVIEW_VALIDATION_PATH),
+            "error_review_examples": repo_path(RESULTS_DIR / "full100_draft_detector_error_review_examples.csv"),
         },
         "num_failures": 0,
         "source_validation_num_failures": error_validation.get("num_failures"),

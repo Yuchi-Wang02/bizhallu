@@ -1321,6 +1321,28 @@ entry point for GitHub Pages.
       `docs/`, rewriting report-relative links, copying the detector error
       examples CSV, and advancing preflight to `github_pages_ready`.
 
+31. The public repo needed final polish for recruiter and professor review.
+    - Fix: strengthened the README first screen with a TL;DR, role statement,
+      5-minute review path, and reproducibility levels.
+    - Fix: added `AGENTS.md` so future agent edits preserve metrics, label
+      wording, public path hygiene, and claim guardrails.
+
+32. Public JSON paths needed a durable hygiene rule.
+    - Fix: added `public_paths.py` and `validate_public_path_hygiene.py`, then
+      updated public build/validation scripts so generated summaries and
+      manifests use repo-relative paths instead of local Windows absolute
+      paths.
+
+33. Professor-facing packaging needed a concise research artifact.
+    - Fix: added `build_research_one_pager.py` and
+      `validate_research_one_pager.py`, then included `research_one_pager.html`
+      in the GitHub Pages bundle.
+
+34. Public artifact validation needed to run on GitHub.
+    - Fix: added `.github/workflows/validate-public.yml` as a lightweight CI
+      workflow that validates committed public artifacts without rerunning Qwen
+      or depending on local-only token traces.
+
 ## Remaining Risks
 
 1. Current review auto-status is only a triage aid.
@@ -1365,6 +1387,8 @@ entry point for GitHub Pages.
      public positioning.
    - Use `docs/business_risk_lens.html` to connect the project to accounting,
      supply management, and BA / DS / AI Analyst roles.
+   - Use `docs/research_one_pager.html` for professor, capstone, and research
+     advisor outreach.
    - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
      `docs/detector_interpretation.html` as deeper technical references.
 
@@ -1377,7 +1401,7 @@ entry point for GitHub Pages.
    - Say simple uncertainty is strongest in this run; do not imply the
      energy-family methods won overall.
 
-3. Extend only after the career package is stable.
+3. Extend only after the public package and CI remain stable.
    - First add a small evidence-aware verifier baseline that checks generated
      claims against structured evidence rows.
    - Then add a 10-20 question business-risk extension for returns, revenue

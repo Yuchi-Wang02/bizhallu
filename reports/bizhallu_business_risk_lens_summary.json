@@ -1,6 +1,6 @@
 {
   "status": "business_risk_lens_ready",
-  "business_risk_lens_html_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\reports\\bizhallu_business_risk_lens.html",
+  "business_risk_lens_html_path": "reports/bizhallu_business_risk_lens.html",
   "question_count": 100,
   "question_type_count": 7,
   "split_counts": {

@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -47,7 +49,7 @@ def main() -> None:
         PREFLIGHT_VALIDATION_PATH,
     ):
         if not path.exists():
-            add_failure(failures, "missing required file", str(path))
+            add_failure(failures, "missing required file", repo_path(path))
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     if html_text:
@@ -64,10 +66,10 @@ def main() -> None:
 
     if summary.get("status") != "portfolio_narrative_ready":
         add_failure(failures, "unexpected narrative status", summary.get("status"))
-    if preflight.get("current_stage") not in {"portfolio_demo_ready", "portfolio_narrative_ready"}:
+    if preflight.get("current_stage") not in {"portfolio_demo_ready", "portfolio_narrative_ready", "github_pages_ready"}:
         add_failure(
             failures,
-            "preflight must be portfolio_demo_ready or portfolio_narrative_ready",
+            "preflight must be portfolio_demo_ready, portfolio_narrative_ready, or github_pages_ready",
             preflight.get("current_stage"),
         )
     if preflight.get("ready_for_current_stage") is not True:
@@ -144,9 +146,9 @@ def main() -> None:
             add_failure(failures, "html contains stale confirmation wording", fragment)
 
     validation = {
-        "html_path": str(HTML_PATH),
-        "summary_path": str(SUMMARY_PATH),
-        "source_portfolio_demo_summary_path": str(DEMO_SUMMARY_PATH),
+        "html_path": repo_path(HTML_PATH),
+        "summary_path": repo_path(SUMMARY_PATH),
+        "source_portfolio_demo_summary_path": repo_path(DEMO_SUMMARY_PATH),
         "status": summary.get("status"),
         "primary_question_ids": summary.get("primary_question_ids"),
         "resume_bullet_count": summary.get("resume_bullet_count"),

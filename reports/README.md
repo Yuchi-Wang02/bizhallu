@@ -44,6 +44,10 @@ Current report-ready drafts:
 - `bizhallu_business_risk_lens.html`
 - `bizhallu_business_risk_lens_summary.json`
 - `bizhallu_business_risk_lens_validation.json`
+- `bizhallu_research_one_pager.html`
+- `bizhallu_research_one_pager_summary.json`
+- `bizhallu_research_one_pager_validation.json`
+- `public_path_hygiene_validation.json`
 - `bizhallu_ai_reliability_deck.pptx`
 - `bizhallu_ai_reliability_deck_contact_sheet.png`
 
