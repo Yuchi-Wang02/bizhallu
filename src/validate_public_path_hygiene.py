@@ -19,8 +19,10 @@ def public_json_files() -> list[Path]:
     files.extend(sorted(DOCS_DIR.rglob("*.json")))
     files.extend(sorted(REPORTS_DIR.glob("*_summary.json")))
     files.extend(sorted(REPORTS_DIR.glob("*_validation.json")))
+    files.extend(sorted(REPORTS_DIR.glob("*_data.json")))
+    files.extend(sorted(REPORTS_DIR.glob("*_rows.json")))
     files.extend(sorted(RESULTS_DIR.glob("*.json")))
-    return [path for path in files if path.exists() and path != VALIDATION_PATH]
+    return sorted({path for path in files if path.exists() and path != VALIDATION_PATH})
 
 
 def find_local_path_lines(path: Path) -> list[dict[str, Any]]:

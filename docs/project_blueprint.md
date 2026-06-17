@@ -568,7 +568,8 @@ results, demo cases, personal-branding text, and presentation guardrails.
 The GitHub Pages bundle is generated and validated. It records
 `github_pages_ready`, exposes `docs/index.html` as the public entry point, and
 copies the demo, demo v2, career package, business risk lens, narrative,
-detector interpretation, label-lock report, and confirmation packet into
+research one-pager, evidence-aware verifier pilot, detector interpretation,
+label-lock report, and confirmation packet into
 `docs/` with checked local links.
 
 The public polish layer is now part of the project. README provides a first
@@ -576,13 +577,14 @@ screen TL;DR, role statement, 5-minute review path, and reproducibility levels.
 `AGENTS.md` records claim guardrails for future agent work. Public JSON path
 hygiene is enforced by `src/validate_public_path_hygiene.py`. The GitHub Pages
 bundle also includes `docs/research_one_pager.html` for professor and research
-advisor outreach.
+advisor outreach and `docs/evidence_verifier_pilot.html` for the first
+evidence-aware verifier prototype.
 
 The current research extension should remain dual-track. Evidence-aware
 verification is the near-term business-facing design direction, but internal
 uncertainty and literature-grounded methods remain comparison candidates rather
-than rejected paths. Use `docs/evidence_aware_verifier_design.md` before
-implementing any new verifier experiment.
+than rejected paths. The current verifier pilot is limited to Demo v2 locked
+spans and should be treated as protocol scaffolding, not a new benchmark.
 
 Next one-step branch:
 
@@ -593,6 +595,7 @@ Next one-step branch:
   supply management, and BA / DS / AI Analyst positioning
 - use `docs/research_one_pager.html` for professor, capstone, and research
   advisor conversations
-- use `docs/evidence_aware_verifier_design.md` to plan the next research
-  extension before implementation
+- use `docs/evidence_verifier_pilot.html` to show the v0 evidence-aware
+  verifier family and `docs/evidence_aware_verifier_design.md` to plan any
+  expansion beyond Demo v2
 - defer new model runs until the public package remains clean after validation

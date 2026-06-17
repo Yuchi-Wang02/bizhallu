@@ -16,6 +16,7 @@ Public pages:
 - `career_package.html`
 - `business_risk_lens.html`
 - `research_one_pager.html`
+- `evidence_verifier_pilot.html`
 - `portfolio_narrative.html`
 - `detector_interpretation.html`
 - `label_lock_report.html`
@@ -27,6 +28,8 @@ Public assets:
 - `assets/bizhallu_ai_reliability_deck_contact_sheet.png`
 - `assets/full100_draft_detector_error_review_examples.csv`
 - `assets/bizhallu_demo_v2_data.json`
+- `assets/bizhallu_evidence_verifier_pilot_rows.csv`
+- `assets/bizhallu_evidence_verifier_pilot_rows.json`
 
 Upload support:
 
@@ -36,14 +39,19 @@ Upload support:
 Research planning:
 
 - `evidence_aware_verifier_design.md`
+- `evidence_verifier_pilot.html`
 
 Refresh command:
 
 ```powershell
+python src\build_evidence_verifier_pilot.py
+python src\build_research_one_pager.py
 python src\build_github_pages_bundle.py
 python src\sanitize_public_json_paths.py
 python src\validate_public_path_hygiene.py
 python src\validate_github_pages_bundle.py
+python src\validate_research_one_pager.py
+python src\validate_evidence_verifier_pilot.py
 python src\build_full100_preflight_report.py
 ```
 

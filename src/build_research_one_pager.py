@@ -15,6 +15,7 @@ NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.jso
 INTERPRETATION_SUMMARY_PATH = REPORTS_DIR / "full100_detector_interpretation_summary.json"
 DEMO_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
+VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 
 HTML_PATH = REPORTS_DIR / "bizhallu_research_one_pager.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
@@ -43,6 +44,7 @@ def main() -> None:
     interpretation = load_json(INTERPRETATION_SUMMARY_PATH)
     demo = load_json(DEMO_SUMMARY_PATH)
     risk = load_json(RISK_SUMMARY_PATH)
+    verifier = load_json(VERIFIER_SUMMARY_PATH)
 
     best_auprc = interpretation["best_overall_by_test_auprc"]
     best_f1 = interpretation["best_overall_by_test_f1"]
@@ -79,7 +81,7 @@ def main() -> None:
     research_tracks = [
         "Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.",
         "Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.",
-        "Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers.",
+        "Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers; current v0 covers Demo v2 locked spans only.",
     ]
 
     baseline_backlog = [
@@ -100,11 +102,13 @@ def main() -> None:
         "best_test_f1": best_f1["test_f1"],
         "demo_case_count": demo["case_count"],
         "business_risk_lens_count": risk["lens_count"],
+        "verifier_pilot_span_count": verifier["span_count"],
+        "verifier_pilot_contradicted_count": verifier["verifier_label_counts"]["contradicted"],
         "research_question_count": len(research_questions),
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "design-only evidence-aware verifier; no full100 rerun",
+        "next_stage_scope": "verifier pilot v0 over Demo v2 locked spans; no full100 rerun",
         "label_lock_basis": narrative["label_lock_basis"],
         "num_failures": 0,
         "failures": [],
@@ -253,6 +257,7 @@ def main() -> None:
           <p class="lede">BizHallu studies evidence-grounding failures in LLM-generated business analysis: cases where the answer sounds fluent and may use real values, but binds them to the wrong product, rank, amount, comparison, or conclusion.</p>
           <div class="links">
             <a href="./portfolio_demo_v2.html">Open demo v2</a>
+            <a href="./evidence_verifier_pilot.html">Open verifier pilot</a>
             <a href="./business_risk_lens.html">Open business risk lens</a>
             <a href="./detector_interpretation.html">Open detector interpretation</a>
           </div>
@@ -328,7 +333,7 @@ def main() -> None:
             {render_list(baseline_backlog)}
           </article>
         </div>
-        <div class="callout"><strong>Implementation caution:</strong> the next step is a design document and small-scope verifier plan. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
+        <div class="callout"><strong>Implementation caution:</strong> the current evidence-aware verifier is a v0 pilot over {esc(summary["verifier_pilot_span_count"])} Demo v2 locked spans, including {esc(summary["verifier_pilot_contradicted_count"])} contradicted bindings. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
       </section>
 
       <section>

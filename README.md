@@ -5,6 +5,7 @@
 [Case demo](https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html) |
 [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
 [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
+[Evidence verifier pilot](https://yuchi-wang02.github.io/bizhallu/evidence_verifier_pilot.html) |
 [Portfolio narrative](https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html) |
 [Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
 
@@ -62,7 +63,7 @@ interview/research-facing documentation.
 | Reader | Start with |
 | --- | --- |
 | Recruiter | [Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) and [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
-| Professor or research advisor | [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
+| Professor or research advisor | [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) and [evidence verifier pilot](https://yuchi-wang02.github.io/bizhallu/evidence_verifier_pilot.html) |
 | Technical interviewer | [Detector interpretation](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html) and `AGENTS.md` guardrails |
 | Business interviewer | [Business risk lens](https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html) |
 
@@ -90,6 +91,7 @@ business conclusion.
 | Career package | <https://yuchi-wang02.github.io/bizhallu/career_package.html> |
 | Business risk lens | <https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html> |
 | Research one-pager | <https://yuchi-wang02.github.io/bizhallu/research_one_pager.html> |
+| Evidence-aware verifier pilot | <https://yuchi-wang02.github.io/bizhallu/evidence_verifier_pilot.html> |
 | Portfolio narrative | <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html> |
 | Detector interpretation | <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html> |
 | Interview deck | <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx> |
@@ -124,6 +126,8 @@ test F1 comes from `mean_token_entropy`. The strongest energy-family F1 is
   labels, offsets, token alignment, and split-safe metrics.
 - Practical limitation: internal uncertainty is useful, but confident wrong
   business bindings can still be missed.
+- Research extension: the evidence-aware verifier pilot reframes 15 Demo v2
+  spans as claim-evidence rows, without changing the locked detector metrics.
 - Portfolio relevance: the final pages and deck explain the work as AI
   reliability for business analysis, not as a generic sales dashboard.
 - Career relevance: the career package and business risk lens connect the work
@@ -171,10 +175,17 @@ validated reports, and sample artifacts to understand and reproduce the project.
 ## Reproduce Public Pages
 
 ```powershell
+python src\build_evidence_verifier_pilot.py
+python src\build_research_one_pager.py
 python src\build_github_pages_bundle.py
 python src\sanitize_public_json_paths.py
 python src\validate_public_path_hygiene.py
 python src\validate_github_pages_bundle.py
+python src\validate_portfolio_demo_v2.py
+python src\validate_career_package.py
+python src\validate_business_risk_lens.py
+python src\validate_research_one_pager.py
+python src\validate_evidence_verifier_pilot.py
 python src\build_full100_preflight_report.py
 ```
 
@@ -182,8 +193,14 @@ Expected state:
 
 - `docs/github_pages_validation.json`: `ready_for_github_pages=true`
 - `reports/public_path_hygiene_validation.json`: `num_failures=0`
+- `reports/bizhallu_evidence_verifier_pilot_validation.json`: `num_failures=0`
 - `results/full100_preflight_validation.json`: `current_stage=github_pages_ready`
 - all validation files report `num_failures=0`
+
+The GitHub Actions workflow at `.github/workflows/validate.yml` runs only
+lightweight public-artifact checks with the Python standard library. The
+`requirements.txt` file remains focused on the full local experiment pipeline,
+including Qwen and model-trace dependencies.
 
 ## Scope
 
@@ -192,6 +209,8 @@ Expected state:
 - Metrics should be interpreted at span level, not as whole-answer correctness.
 - The detector baselines are diagnostics, not production hallucination
   detection systems.
+- The evidence-aware verifier pilot is a small research prototype over Demo v2
+  locked spans, not a production checker or new benchmark result.
 
 ## License and Data
 

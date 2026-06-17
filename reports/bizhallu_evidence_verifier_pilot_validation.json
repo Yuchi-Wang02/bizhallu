@@ -1,0 +1,16 @@
+{
+  "status": "evidence_verifier_pilot_validation_ready",
+  "ready_for_public_verifier_pilot": true,
+  "rows_csv_path": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
+  "rows_json_path": "reports/bizhallu_evidence_verifier_pilot_rows.json",
+  "summary_path": "reports/bizhallu_evidence_verifier_pilot_summary.json",
+  "html_path": "reports/bizhallu_evidence_verifier_pilot.html",
+  "row_count": 15,
+  "case_count": 9,
+  "verifier_label_counts": {
+    "contradicted": 7,
+    "supported": 8
+  },
+  "num_failures": 0,
+  "failures": []
+}

@@ -32,6 +32,8 @@ Use this public positioning:
 
 ## Validation Checklist
 
+GitHub Actions runs the public artifact checks from `.github/workflows/validate.yml`.
+
 Run these checks after modifying public pages, reports, summaries, or README:
 
 ```powershell
@@ -42,6 +44,7 @@ python src\validate_portfolio_demo_v2.py
 python src\validate_career_package.py
 python src\validate_business_risk_lens.py
 python src\validate_research_one_pager.py
+python src\validate_evidence_verifier_pilot.py
 ```
 
 When local full100 artifacts are available, also run:
@@ -52,7 +55,7 @@ python src\build_full100_preflight_report.py
 
 ## Preferred Next Technical Direction
 
-The next research extension should keep two tracks open. Prioritize an evidence-aware verifier design because it is closest to business analytics use cases, but keep internal-state and literature-grounded hallucination baselines as comparison candidates rather than rejected paths.
+The next research extension should keep two tracks open. A small evidence-aware verifier pilot now exists over Demo v2 locked spans because it is closest to business analytics use cases, but internal-state and literature-grounded hallucination baselines remain comparison candidates rather than rejected paths.
 
 Preferred framing:
 
@@ -63,3 +66,5 @@ Research comparison tracks:
 - Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in the project.
 - Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.
 - Evidence-aware verification: claim-evidence consistency checks against structured evidence rows and deterministic gold answers.
+
+Do not expand the verifier beyond Demo v2 or report new verifier metrics until the comparison protocol is fixed and validated.

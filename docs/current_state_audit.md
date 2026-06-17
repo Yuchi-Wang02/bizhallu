@@ -1339,9 +1339,15 @@ entry point for GitHub Pages.
       in the GitHub Pages bundle.
 
 34. Public artifact validation needed to run on GitHub.
-    - Fix: added `.github/workflows/validate-public.yml` as a lightweight CI
+    - Fix: added `.github/workflows/validate.yml` as a lightweight CI
       workflow that validates committed public artifacts without rerunning Qwen
       or depending on local-only token traces.
+
+35. The next research direction needed a small, reviewable implementation path.
+    - Fix: added an evidence-aware verifier pilot over the 9 Demo v2 cases and
+      15 presentation-locked spans. It creates claim-evidence rows, a summary,
+      an HTML report, and validation checks without changing Qwen outputs,
+      span labels, detector scores, or headline metrics.
 
 ## Remaining Risks
 
@@ -1373,7 +1379,13 @@ entry point for GitHub Pages.
      bundle is ready, but claims should remain span-level and should not imply
      whole-answer correctness.
 
-5. Current pilot metrics are not held-out results.
+5. The evidence-aware verifier pilot is intentionally small.
+   - It covers only Demo v2 locked spans and should be described as a research
+     prototype, not an independent production checker or new benchmark result.
+   - It is useful for showing the next comparison family, but it does not yet
+     replace internal uncertainty baselines or formal full100 evaluation.
+
+6. Current pilot metrics are not held-out results.
     - The split-safe full100 metrics, interpretation, and label lock package
       are now available; the remaining risk is presentation clarity, not metric
       availability.
@@ -1389,6 +1401,8 @@ entry point for GitHub Pages.
      supply management, and BA / DS / AI Analyst roles.
    - Use `docs/research_one_pager.html` for professor, capstone, and research
      advisor outreach.
+   - Use `docs/evidence_verifier_pilot.html` to show the next evidence-aware
+     verifier family without claiming new headline detector metrics.
    - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
      `docs/detector_interpretation.html` as deeper technical references.
 
@@ -1402,9 +1416,9 @@ entry point for GitHub Pages.
      energy-family methods won overall.
 
 3. Extend only after the public package and CI remain stable.
-   - First design a small evidence-aware verifier that checks generated claims
-     against structured evidence rows; do not rerun full100 or add new headline
-     metrics until the protocol is fixed.
+   - Treat the current evidence-aware verifier pilot as v0 over Demo v2 locked
+     spans; the next research step is protocol hardening before any full100
+     expansion or new headline metrics.
    - Keep internal-state and literature-grounded methods as comparison tracks:
      entropy, top-2 margin, energy-style signals, Semantic Entropy, TOHA, and
      entity-level hallucination detection.

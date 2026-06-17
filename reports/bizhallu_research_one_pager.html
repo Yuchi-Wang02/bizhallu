@@ -141,6 +141,7 @@
           <p class="lede">BizHallu studies evidence-grounding failures in LLM-generated business analysis: cases where the answer sounds fluent and may use real values, but binds them to the wrong product, rank, amount, comparison, or conclusion.</p>
           <div class="links">
             <a href="./portfolio_demo_v2.html">Open demo v2</a>
+            <a href="./evidence_verifier_pilot.html">Open verifier pilot</a>
             <a href="./business_risk_lens.html">Open business risk lens</a>
             <a href="./detector_interpretation.html">Open detector interpretation</a>
           </div>
@@ -209,14 +210,14 @@
         <div class="grid">
           <article class="panel">
             <h3>Comparison tracks</h3>
-            <ul><li>Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.</li><li>Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.</li><li>Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers.</li></ul>
+            <ul><li>Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.</li><li>Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.</li><li>Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers; current v0 covers Demo v2 locked spans only.</li></ul>
           </article>
           <article class="panel">
             <h3>Baseline candidates</h3>
             <ul><li>Semantic Entropy: useful for testing semantic consistency across sampled answers; requires multiple generations per question.</li><li>TOHA: relevant as an attention-graph topology baseline; implementation depends on reliable access to attention tensors and runnable reference code.</li><li>Real-time hallucinated entity detection: relevant for product, country, month, and stock-code spans; needs entity extraction and entity-level evidence matching.</li><li>Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.</li></ul>
           </article>
         </div>
-        <div class="callout"><strong>Implementation caution:</strong> the next step is a design document and small-scope verifier plan. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
+        <div class="callout"><strong>Implementation caution:</strong> the current evidence-aware verifier is a v0 pilot over 15 Demo v2 locked spans, including 7 contradicted bindings. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
       </section>
 
       <section>

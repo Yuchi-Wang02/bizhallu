@@ -34,3 +34,6 @@ jobs:
 
       - name: Validate research one-pager
         run: python src/validate_research_one_pager.py
+
+      - name: Validate evidence-aware verifier pilot
+        run: python src/validate_evidence_verifier_pilot.py

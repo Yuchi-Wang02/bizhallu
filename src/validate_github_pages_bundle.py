@@ -22,8 +22,10 @@ REQUIRED_INDEX_FRAGMENTS = [
     "Open demo v2",
     "Open career package",
     "Open research one-pager",
+    "Open verifier pilot",
     "Business risk lens",
     "Research one-pager",
+    "Evidence-aware verifier pilot",
     "Read portfolio narrative",
     "Download interview deck",
     "Preview slides",
@@ -41,6 +43,7 @@ REQUIRED_INDEX_FRAGMENTS = [
     "Professor",
     "Technical interviewer",
     "Business interviewer",
+    "claim-evidence rows",
 ]
 
 REQUIRED_PAGE_FILES = [
@@ -51,11 +54,14 @@ REQUIRED_PAGE_FILES = [
     "career_package.html",
     "business_risk_lens.html",
     "research_one_pager.html",
+    "evidence_verifier_pilot.html",
     "detector_interpretation.html",
     "label_lock_report.html",
     "label_confirmation_packet.html",
     "assets/full100_draft_detector_error_review_examples.csv",
     "assets/bizhallu_demo_v2_data.json",
+    "assets/bizhallu_evidence_verifier_pilot_rows.csv",
+    "assets/bizhallu_evidence_verifier_pilot_rows.json",
     "assets/bizhallu_ai_reliability_deck.pptx",
     "assets/bizhallu_ai_reliability_deck_contact_sheet.png",
 ]
@@ -256,6 +262,8 @@ def main() -> None:
         "career_faq_count": 10,
         "business_risk_lens_count": 4,
         "research_extension_count": 4,
+        "verifier_pilot_span_count": 15,
+        "verifier_pilot_contradicted_count": 7,
     }
     for key, expected in expected_manifest_values.items():
         if manifest.get(key) != expected:
@@ -281,6 +289,8 @@ def main() -> None:
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

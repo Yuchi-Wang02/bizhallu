@@ -1,12 +1,13 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "2d1d2b8c078bbdc803831ab6e102f43cff5e739b1c26fa78eeb1fa354bf26ee5",
+  "index_sha256": "728ef0a29a55d0ae5a83f51d90e89aa9d03621bd7342bae439f20b159720c0b4",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
   "source_risk_summary_path": "reports/bizhallu_business_risk_lens_summary.json",
   "source_research_summary_path": "reports/bizhallu_research_one_pager_summary.json",
+  "source_verifier_summary_path": "reports/bizhallu_evidence_verifier_pilot_summary.json",
   "source_narrative_summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "results/full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -27,6 +28,8 @@
   "career_faq_count": 10,
   "business_risk_lens_count": 4,
   "research_extension_count": 4,
+  "verifier_pilot_span_count": 15,
+  "verifier_pilot_contradicted_count": 7,
   "pages": [
     {
       "role": "interactive_demo",
@@ -72,9 +75,17 @@
       "role": "research_one_pager",
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "f9efa275d592661ed0f09cd5fa622658ba6c010429184f55c91fed923f7e4f5f",
-      "dest_sha256": "d52007d2f2c39167d0c42a02ad03cce84d06e57df0dc4d70c414c6ed62470760",
-      "dest_size_bytes": 13961
+      "source_sha256": "b0dd1493baa067e821f4d31747cebbfaf496dc9c6c21071fa11628ed6bc69f7a",
+      "dest_sha256": "46c6deb1fb08e4f2f5810d8bc7b3ed0f99678e2079ae9b2f0ea0e78f67e4d5bf",
+      "dest_size_bytes": 14133
+    },
+    {
+      "role": "evidence_verifier_pilot",
+      "source": "reports/bizhallu_evidence_verifier_pilot.html",
+      "dest": "docs/evidence_verifier_pilot.html",
+      "source_sha256": "2acff5bec6bc30d091ca68e047d04609938537b8f15e5f144a7eac8969df4764",
+      "dest_sha256": "03efcb0d740906f80da892de6b699342a2bbba4a51ec73461293dad9c7fb5bc5",
+      "dest_size_bytes": 16230
     },
     {
       "role": "detector_interpretation",
@@ -117,6 +128,22 @@
       "source_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
       "dest_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
       "dest_size_bytes": 39913
+    },
+    {
+      "role": "evidence_verifier_pilot_rows_csv",
+      "source": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
+      "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.csv",
+      "source_sha256": "77534192924f8af4bff985817859101347909af5e3fa58913becc796695deca9",
+      "dest_sha256": "77534192924f8af4bff985817859101347909af5e3fa58913becc796695deca9",
+      "dest_size_bytes": 14390
+    },
+    {
+      "role": "evidence_verifier_pilot_rows_json",
+      "source": "reports/bizhallu_evidence_verifier_pilot_rows.json",
+      "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.json",
+      "source_sha256": "41f323416dfd2afe581cbd5811fa751c2662012894ba21f50bdacdb2d4f3b640",
+      "dest_sha256": "41f323416dfd2afe581cbd5811fa751c2662012894ba21f50bdacdb2d4f3b640",
+      "dest_size_bytes": 24200
     },
     {
       "role": "presentation_deck_pptx",

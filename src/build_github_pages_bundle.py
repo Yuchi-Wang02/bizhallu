@@ -28,6 +28,7 @@ DEMO_V2_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
 CAREER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 RESEARCH_SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
+VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -64,6 +65,11 @@ PAGE_COPIES = [
         "research_one_pager",
     ),
     (
+        REPORTS_DIR / "bizhallu_evidence_verifier_pilot.html",
+        DOCS_DIR / "evidence_verifier_pilot.html",
+        "evidence_verifier_pilot",
+    ),
+    (
         REPORTS_DIR / "full100_detector_interpretation.html",
         DOCS_DIR / "detector_interpretation.html",
         "detector_interpretation",
@@ -90,6 +96,16 @@ ASSET_COPIES = [
         REPORTS_DIR / "bizhallu_demo_v2_data.json",
         DOCS_ASSETS_DIR / "bizhallu_demo_v2_data.json",
         "interactive_demo_v2_data_json",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_evidence_verifier_pilot_rows.csv",
+        DOCS_ASSETS_DIR / "bizhallu_evidence_verifier_pilot_rows.csv",
+        "evidence_verifier_pilot_rows_csv",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_evidence_verifier_pilot_rows.json",
+        DOCS_ASSETS_DIR / "bizhallu_evidence_verifier_pilot_rows.json",
+        "evidence_verifier_pilot_rows_json",
     ),
     (
         REPORTS_DIR / "bizhallu_ai_reliability_deck.pptx",
@@ -149,6 +165,7 @@ def render_index(
     career: dict[str, Any],
     risk: dict[str, Any],
     research: dict[str, Any],
+    verifier: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -164,6 +181,8 @@ def render_index(
     career_faq_count = career.get("faq_count", "n/a")
     risk_lens_count = risk.get("lens_count", "n/a")
     research_extension_count = research.get("extension_count", "n/a")
+    verifier_span_count = verifier.get("span_count", "n/a")
+    verifier_contradicted_count = (verifier.get("verifier_label_counts") or {}).get("contradicted", "n/a")
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -441,6 +460,7 @@ def render_index(
             <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
             <a class="button secondary" href="./career_package.html">Open career package</a>
             <a class="button secondary" href="./research_one_pager.html">Open research one-pager</a>
+            <a class="button secondary" href="./evidence_verifier_pilot.html">Open verifier pilot</a>
             <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
           </div>
         </div>
@@ -467,8 +487,8 @@ def render_index(
           </article>
           <article class="card">
             <h3>Professor</h3>
-            <p>Start with the research one-pager to frame the project as evidence binding and responsible AI.</p>
-            <p><a href="./research_one_pager.html">Research one-pager</a></p>
+            <p>Start with the research one-pager, then use the verifier pilot to see the next evidence-aware comparison direction.</p>
+            <p><a href="./research_one_pager.html">Research one-pager</a> / <a href="./evidence_verifier_pilot.html">Verifier pilot</a></p>
           </article>
           <article class="card">
             <h3>Technical interviewer</h3>
@@ -511,6 +531,11 @@ def render_index(
             <h3>Research one-pager</h3>
             <p>Use this professor-facing page to frame the project as evidence binding, responsible AI, and {research_extension_count} possible JHU extension paths.</p>
             <p><a href="./research_one_pager.html">Open one-pager</a></p>
+          </article>
+          <article class="card">
+            <h3>Evidence-aware verifier pilot</h3>
+            <p>Review {verifier_span_count} locked Demo v2 spans as claim-evidence rows, including {verifier_contradicted_count} contradicted business-fact bindings.</p>
+            <p><a href="./evidence_verifier_pilot.html">Open verifier pilot</a></p>
           </article>
           <article class="card">
             <h3>Detector interpretation</h3>
@@ -635,10 +660,11 @@ def main() -> None:
     career = load_json(CAREER_SUMMARY_PATH)
     risk = load_json(RISK_SUMMARY_PATH)
     research = load_json(RESEARCH_SUMMARY_PATH)
+    verifier = load_json(VERIFIER_SUMMARY_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
-    index_html = render_index(demo, demo_v2, career, risk, research, narrative, preflight)
+    index_html = render_index(demo, demo_v2, career, risk, research, verifier, narrative, preflight)
     index_path = DOCS_DIR / "index.html"
     index_path.write_text(index_html, encoding="utf-8")
 
@@ -654,6 +680,7 @@ def main() -> None:
         "source_career_summary_path": repo_path(CAREER_SUMMARY_PATH),
         "source_risk_summary_path": repo_path(RISK_SUMMARY_PATH),
         "source_research_summary_path": repo_path(RESEARCH_SUMMARY_PATH),
+        "source_verifier_summary_path": repo_path(VERIFIER_SUMMARY_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -671,6 +698,8 @@ def main() -> None:
         "career_faq_count": career.get("faq_count"),
         "business_risk_lens_count": risk.get("lens_count"),
         "research_extension_count": research.get("extension_count"),
+        "verifier_pilot_span_count": verifier.get("span_count"),
+        "verifier_pilot_contradicted_count": (verifier.get("verifier_label_counts") or {}).get("contradicted"),
         "pages": page_records,
         "assets": asset_records,
         "num_failures": 0,

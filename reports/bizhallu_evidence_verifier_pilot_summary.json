@@ -1,0 +1,51 @@
+{
+  "status": "evidence_verifier_pilot_ready",
+  "scope": "demo_v2_locked_spans_only",
+  "title": "BizHallu Evidence-Aware Verifier Pilot",
+  "source_demo_v2_data_path": "reports/bizhallu_demo_v2_data.json",
+  "rows_csv_path": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
+  "rows_json_path": "reports/bizhallu_evidence_verifier_pilot_rows.json",
+  "html_path": "reports/bizhallu_evidence_verifier_pilot.html",
+  "case_count": 9,
+  "span_count": 15,
+  "question_ids": [
+    "q_0039",
+    "q_0054",
+    "q_0059",
+    "q_0063",
+    "q_0064",
+    "q_0068",
+    "q_0069",
+    "q_0093",
+    "q_0098"
+  ],
+  "verifier_label_counts": {
+    "contradicted": 7,
+    "supported": 8
+  },
+  "locked_span_label_counts": {
+    "correct_key_fact": 8,
+    "hallucinated_key_fact": 7
+  },
+  "allowed_verifier_labels": [
+    "contradicted",
+    "needs_review",
+    "supported",
+    "unmatched"
+  ],
+  "detector_miss_counts": {
+    "contradicted_spans": 7,
+    "any_detector_missed_contradicted": 7,
+    "all_detectors_missed_contradicted": 7,
+    "simple_missed_contradicted": 7,
+    "entropy_missed_contradicted": 7,
+    "energy_missed_contradicted": 7
+  },
+  "best_test_auprc": 0.835073,
+  "best_test_f1": 0.779412,
+  "label_lock_basis": "assistant_full_review",
+  "label_lock_status": "presentation_labels_locked",
+  "guardrail": "Prototype over Demo v2 locked spans only; not a production checker, not a new benchmark result, and not a replacement for existing metrics.",
+  "num_failures": 0,
+  "failures": []
+}

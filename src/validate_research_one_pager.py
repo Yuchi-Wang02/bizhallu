@@ -26,6 +26,8 @@ REQUIRED_FRAGMENTS = [
     "0.779",
     "Internal uncertainty has signal",
     "evidence-aware verifier",
+    "Open verifier pilot",
+    "v0 pilot",
     "Possible JHU extensions",
     "Research backlog",
     "Semantic Entropy",
@@ -91,9 +93,11 @@ def main() -> None:
         "best_test_f1": 0.779412,
         "demo_case_count": 9,
         "business_risk_lens_count": 4,
+        "verifier_pilot_span_count": 15,
+        "verifier_pilot_contradicted_count": 7,
         "research_track_count": 3,
         "baseline_backlog_count": 4,
-        "next_stage_scope": "design-only evidence-aware verifier; no full100 rerun",
+        "next_stage_scope": "verifier pilot v0 over Demo v2 locked spans; no full100 rerun",
         "label_lock_basis": "assistant_full_review",
     }
     for key, value in expected.items():

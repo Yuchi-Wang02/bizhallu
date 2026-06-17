@@ -32,6 +32,18 @@ Start small and do not rerun full100.
 - Do not claim production readiness or a new benchmark result until a fixed
   protocol is implemented and validated.
 
+Current v0 implementation:
+
+- `reports/bizhallu_evidence_verifier_pilot.html`
+- `reports/bizhallu_evidence_verifier_pilot_rows.csv`
+- `reports/bizhallu_evidence_verifier_pilot_rows.json`
+- `reports/bizhallu_evidence_verifier_pilot_summary.json`
+- `reports/bizhallu_evidence_verifier_pilot_validation.json`
+
+This pilot covers only the 9 Demo v2 cases and 15 presentation-locked spans. It
+is protocol scaffolding for comparison with internal-state signals, not a new
+headline detector metric.
+
 ## Inputs
 
 Use existing committed and local artifacts:
