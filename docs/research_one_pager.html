@@ -184,8 +184,8 @@
       <section>
         <p class="eyebrow">Findings</p>
         <h2>Internal uncertainty has signal, but it is not the same as evidence verification.</h2>
-        <div class="panel"><ul><li>Best held-out span-level AUPRC is 0.835 from one_minus_min_top2_margin.</li><li>Best held-out span-level F1 is 0.779 from mean_token_entropy.</li><li>Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.</li><li>Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates explicit evidence-aware verification.</li></ul></div>
-        <div class="callout"><strong>Main research seed:</strong> use BizHallu to compare internal-only hallucination signals with an explicit evidence-aware verifier for structured business claims.</div>
+        <div class="panel"><ul><li>Best held-out span-level AUPRC is 0.835 from one_minus_min_top2_margin.</li><li>Best held-out span-level F1 is 0.779 from mean_token_entropy.</li><li>Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.</li><li>Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.</li></ul></div>
+        <div class="callout"><strong>Main research seed:</strong> internal uncertainty signals can rank some risky spans, but confident wrong evidence bindings remain difficult. The next research step is to compare internal-state signals with evidence-aware verification for business-fact grounding.</div>
       </section>
 
       <section>
@@ -194,13 +194,29 @@
         <div class="grid">
           <article class="panel">
             <h3>Research questions</h3>
-            <ul><li>When LLMs generate business analysis from structured evidence, which fact spans fail most often: products, ranks, amounts, percentages, countries, or comparison directions?</li><li>Can token-level uncertainty signals detect hallucinated business-fact spans when the generated answer is fluent and numerically plausible?</li><li>Where do internal uncertainty signals fail, especially when the model confidently binds a real evidence value to the wrong entity, rank, or conclusion?</li><li>Can an evidence-aware verifier improve on internal-only detection by explicitly checking generated claims against source rows and deterministic gold answers?</li></ul>
+            <ul><li>When LLMs generate business analysis from structured evidence, which fact spans fail most often: products, ranks, amounts, percentages, countries, or comparison directions?</li><li>Can token-level uncertainty signals detect hallucinated business-fact spans when the generated answer is fluent and numerically plausible?</li><li>Where do internal uncertainty signals fail, especially when the model confidently binds a real evidence value to the wrong entity, rank, or conclusion?</li><li>How should evidence-aware verification be compared with internal-state hallucination signals rather than treated as a replacement for them?</li></ul>
           </article>
           <article class="panel">
             <h3>Extension paths</h3>
-            <ul><li>Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.</li><li>Operations analytics: verify product, inventory, vendor, or demand claims before they influence prioritization decisions.</li><li>Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.</li><li>Capstone direction: compare internal uncertainty baselines with deterministic evidence-aware verifiers on business claims.</li></ul>
+            <ul><li>Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.</li><li>Operations analytics: verify product, inventory, vendor, or demand claims before they influence prioritization decisions.</li><li>Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.</li><li>Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.</li></ul>
           </article>
         </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Research backlog</p>
+        <h2>Keep the academic route open while building the business-facing verifier.</h2>
+        <div class="grid">
+          <article class="panel">
+            <h3>Comparison tracks</h3>
+            <ul><li>Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.</li><li>Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.</li><li>Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers.</li></ul>
+          </article>
+          <article class="panel">
+            <h3>Baseline candidates</h3>
+            <ul><li>Semantic Entropy: useful for testing semantic consistency across sampled answers; requires multiple generations per question.</li><li>TOHA: relevant as an attention-graph topology baseline; implementation depends on reliable access to attention tensors and runnable reference code.</li><li>Real-time hallucinated entity detection: relevant for product, country, month, and stock-code spans; needs entity extraction and entity-level evidence matching.</li><li>Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.</li></ul>
+          </article>
+        </div>
+        <div class="callout"><strong>Implementation caution:</strong> the next step is a design document and small-scope verifier plan. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
       </section>
 
       <section>

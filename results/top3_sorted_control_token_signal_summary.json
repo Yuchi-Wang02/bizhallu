@@ -1,7 +1,7 @@
 {
-  "signal_spans_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_spans.csv",
-  "source_generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_generations.jsonl",
-  "source_trace_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_token_traces.jsonl",
+  "signal_spans_csv_path": "results/top3_sorted_control_token_signal_spans.csv",
+  "source_generation_path": "outputs/qwen_top3_sorted_control_pilot3_generations.jsonl",
+  "source_trace_path": "outputs/qwen_top3_sorted_control_pilot3_token_traces.jsonl",
   "question_ids": [
     "q_0060",
     "q_0065",

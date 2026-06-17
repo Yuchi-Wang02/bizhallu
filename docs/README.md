@@ -33,10 +33,16 @@ Upload support:
 - `github_upload_checklist.md`
 - `github_upload_dry_run.md`
 
+Research planning:
+
+- `evidence_aware_verifier_design.md`
+
 Refresh command:
 
 ```powershell
 python src\build_github_pages_bundle.py
+python src\sanitize_public_json_paths.py
+python src\validate_public_path_hygiene.py
 python src\validate_github_pages_bundle.py
 python src\build_full100_preflight_report.py
 ```

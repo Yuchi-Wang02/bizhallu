@@ -35,6 +35,7 @@ Use this public positioning:
 Run these checks after modifying public pages, reports, summaries, or README:
 
 ```powershell
+python src\sanitize_public_json_paths.py
 python src\validate_public_path_hygiene.py
 python src\validate_github_pages_bundle.py
 python src\validate_portfolio_demo_v2.py
@@ -51,4 +52,14 @@ python src\build_full100_preflight_report.py
 
 ## Preferred Next Technical Direction
 
-Do not add more complex baselines by default. The next research extension should be an evidence-aware verifier baseline that checks generated business claims against structured evidence rows and deterministic gold answers, then compares that with internal uncertainty-only signals.
+The next research extension should keep two tracks open. Prioritize an evidence-aware verifier design because it is closest to business analytics use cases, but keep internal-state and literature-grounded hallucination baselines as comparison candidates rather than rejected paths.
+
+Preferred framing:
+
+> Internal uncertainty signals can rank some risky spans, but confident wrong evidence bindings remain difficult. BizHallu's next research step is to compare internal-state signals with evidence-aware verification for business-fact grounding.
+
+Research comparison tracks:
+
+- Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in the project.
+- Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.
+- Evidence-aware verification: claim-evidence consistency checks against structured evidence rows and deterministic gold answers.

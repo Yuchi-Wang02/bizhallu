@@ -1,6 +1,6 @@
 {
-  "source_signal_spans_csv": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_sorted_control_token_signal_spans.csv",
-  "distribution_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_stock_code_score_distribution.csv",
+  "source_signal_spans_csv": "results/top3_sorted_control_token_signal_spans.csv",
+  "distribution_csv_path": "results/top3_stock_code_score_distribution.csv",
   "stock_code_span_count": 9,
   "label_counts": {
     "correct": 6,

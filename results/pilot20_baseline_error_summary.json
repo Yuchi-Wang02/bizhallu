@@ -1,7 +1,7 @@
 {
-  "input_scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_scores.csv",
-  "input_baseline_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_report.json",
-  "error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_review.csv",
+  "input_scores_path": "results/pilot20_simple_baseline_scores.csv",
+  "input_baseline_report_path": "results/pilot20_simple_baseline_report.json",
+  "error_review_path": "results/pilot20_baseline_error_review.csv",
   "selected_baselines": [
     {
       "baseline": "max_token_entropy",

@@ -578,6 +578,12 @@ hygiene is enforced by `src/validate_public_path_hygiene.py`. The GitHub Pages
 bundle also includes `docs/research_one_pager.html` for professor and research
 advisor outreach.
 
+The current research extension should remain dual-track. Evidence-aware
+verification is the near-term business-facing design direction, but internal
+uncertainty and literature-grounded methods remain comparison candidates rather
+than rejected paths. Use `docs/evidence_aware_verifier_design.md` before
+implementing any new verifier experiment.
+
 Next one-step branch:
 
 - keep `docs/index.html` as the GitHub Pages entry point
@@ -587,4 +593,6 @@ Next one-step branch:
   supply management, and BA / DS / AI Analyst positioning
 - use `docs/research_one_pager.html` for professor, capstone, and research
   advisor conversations
+- use `docs/evidence_aware_verifier_design.md` to plan the next research
+  extension before implementation
 - defer new model runs until the public package remains clean after validation

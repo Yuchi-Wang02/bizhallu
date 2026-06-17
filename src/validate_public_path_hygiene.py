@@ -19,12 +19,7 @@ def public_json_files() -> list[Path]:
     files.extend(sorted(DOCS_DIR.rglob("*.json")))
     files.extend(sorted(REPORTS_DIR.glob("*_summary.json")))
     files.extend(sorted(REPORTS_DIR.glob("*_validation.json")))
-    files.extend(
-        [
-            RESULTS_DIR / "full100_preflight_report.json",
-            RESULTS_DIR / "full100_preflight_validation.json",
-        ]
-    )
+    files.extend(sorted(RESULTS_DIR.glob("*.json")))
     return [path for path in files if path.exists() and path != VALIDATION_PATH]
 
 

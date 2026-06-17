@@ -1,6 +1,6 @@
 {
-  "simple_metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_simple_baseline_metrics.csv",
-  "energy_metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_metrics.csv",
+  "simple_metrics_path": "results/pilot20_simple_baseline_metrics.csv",
+  "energy_metrics_path": "results/pilot20_energy_baseline_metrics.csv",
   "span_count": 135,
   "positive_count": 69,
   "negative_count": 66,

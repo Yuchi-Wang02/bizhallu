@@ -1,7 +1,7 @@
 {
-  "comparison_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison.csv",
-  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_summary.csv",
-  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison_report.json",
+  "comparison_path": "results/full100_draft_detector_family_comparison.csv",
+  "summary_path": "results/full100_draft_detector_family_summary.csv",
+  "report_path": "results/full100_draft_detector_family_comparison_report.json",
   "row_count": 12,
   "summary_row_count": 2,
   "family_counts": {

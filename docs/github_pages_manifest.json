@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "4335c7223c49f83e8aeb88174183169799148931161b0e0be82ddac2eda8d2bf",
+  "index_sha256": "2d1d2b8c078bbdc803831ab6e102f43cff5e739b1c26fa78eeb1fa354bf26ee5",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -72,9 +72,9 @@
       "role": "research_one_pager",
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "3e021db4474f6ae366a301cf536bb872fe1cf5fb652a0c413c3088257ec25e0e",
-      "dest_sha256": "972c6d7762df74216c551668cac3ad7eba9a79827ac8de76221b2a331a2b5665",
-      "dest_size_bytes": 12105
+      "source_sha256": "f9efa275d592661ed0f09cd5fa622658ba6c010429184f55c91fed923f7e4f5f",
+      "dest_sha256": "d52007d2f2c39167d0c42a02ad03cce84d06e57df0dc4d70c414c6ed62470760",
+      "dest_size_bytes": 13961
     },
     {
       "role": "detector_interpretation",

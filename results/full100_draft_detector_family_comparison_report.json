@@ -1,12 +1,12 @@
 {
-  "simple_metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_metrics.csv",
-  "simple_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_report.json",
-  "simple_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_validation.json",
-  "energy_metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_metrics.csv",
-  "energy_report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_report.json",
-  "energy_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_validation.json",
-  "comparison_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_comparison.csv",
-  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_family_summary.csv",
+  "simple_metrics_path": "results/full100_draft_simple_split_metrics.csv",
+  "simple_report_path": "results/full100_draft_simple_split_report.json",
+  "simple_validation_path": "results/full100_draft_simple_split_validation.json",
+  "energy_metrics_path": "results/full100_draft_energy_split_metrics.csv",
+  "energy_report_path": "results/full100_draft_energy_split_report.json",
+  "energy_validation_path": "results/full100_draft_energy_split_validation.json",
+  "comparison_path": "results/full100_draft_detector_family_comparison.csv",
+  "summary_path": "results/full100_draft_detector_family_summary.csv",
   "families_compared": [
     "simple",
     "energy"
@@ -246,8 +246,8 @@
     "Keep public claims draft until labels are confirmed for presentation."
   ],
   "simple_source_validation": {
-    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_metrics.csv",
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_simple_split_report.json",
+    "metrics_path": "results/full100_draft_simple_split_metrics.csv",
+    "report_path": "results/full100_draft_simple_split_report.json",
     "metric_row_count": 10,
     "baseline_count": 5,
     "dev_split": "dev",
@@ -256,8 +256,8 @@
     "failures": []
   },
   "energy_source_validation": {
-    "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_metrics.csv",
-    "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_energy_split_report.json",
+    "metrics_path": "results/full100_draft_energy_split_metrics.csv",
+    "report_path": "results/full100_draft_energy_split_report.json",
     "metric_row_count": 14,
     "baseline_count": 7,
     "dev_split": "dev",

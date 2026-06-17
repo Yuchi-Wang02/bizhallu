@@ -1,7 +1,7 @@
 {
   "generation_prefix": "qwen_top3_sorted_control_pilot3_energy",
-  "generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_energy_generations.jsonl",
-  "trace_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_sorted_control_pilot3_energy_token_traces.jsonl",
+  "generation_path": "outputs/qwen_top3_sorted_control_pilot3_energy_generations.jsonl",
+  "trace_path": "outputs/qwen_top3_sorted_control_pilot3_energy_token_traces.jsonl",
   "record_count": 3,
   "trace_count": 3,
   "question_ids": [

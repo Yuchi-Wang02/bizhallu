@@ -11,6 +11,9 @@
   "business_risk_lens_count": 4,
   "research_question_count": 4,
   "extension_count": 4,
+  "research_track_count": 3,
+  "baseline_backlog_count": 4,
+  "next_stage_scope": "design-only evidence-aware verifier; no full100 rerun",
   "label_lock_basis": "assistant_full_review",
   "num_failures": 0,
   "failures": []

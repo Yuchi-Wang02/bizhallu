@@ -1,5 +1,5 @@
 {
-  "comparison_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.csv",
+  "comparison_csv_path": "results/top3_prompt_condition_comparison.csv",
   "conditions": [
     {
       "condition_id": "structured_shuffled",

@@ -1,11 +1,11 @@
 {
-  "alignment_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment.jsonl",
-  "alignment_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment_validation.json",
-  "audit_note_review_validation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_audit_note_review_validation.json",
-  "questions_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
-  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
-  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
-  "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
+  "alignment_path": "outputs/full100_draft_span_token_alignment.jsonl",
+  "alignment_validation_path": "outputs/full100_draft_span_token_alignment_validation.json",
+  "audit_note_review_validation_path": "outputs/full100_audit_note_review_validation.json",
+  "questions_path": "data/processed/business_questions_gold.jsonl",
+  "baseline_config_path": "configs/detector_baseline_suite.json",
+  "scores_path": "results/full100_draft_detector_scores.csv",
+  "by_split_path": "results/full100_draft_detector_scores_by_split.csv",
   "row_count": 205,
   "question_count": 35,
   "split_counts": {

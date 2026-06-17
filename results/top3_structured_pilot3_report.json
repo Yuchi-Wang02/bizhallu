@@ -1,7 +1,7 @@
 {
-  "generation_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_structured_pilot3_generations.jsonl",
-  "prompt_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\qwen_top3_structured_prompts.jsonl",
-  "evaluation_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_structured_pilot3_evaluation.csv",
+  "generation_path": "outputs/qwen_top3_structured_pilot3_generations.jsonl",
+  "prompt_path": "outputs/qwen_top3_structured_prompts.jsonl",
+  "evaluation_csv_path": "results/top3_structured_pilot3_evaluation.csv",
   "condition_name": "structured top3",
   "record_count": 3,
   "total_gold_rank_rows": 9,

@@ -51,7 +51,7 @@ def main() -> None:
         "When LLMs generate business analysis from structured evidence, which fact spans fail most often: products, ranks, amounts, percentages, countries, or comparison directions?",
         "Can token-level uncertainty signals detect hallucinated business-fact spans when the generated answer is fluent and numerically plausible?",
         "Where do internal uncertainty signals fail, especially when the model confidently binds a real evidence value to the wrong entity, rank, or conclusion?",
-        "Can an evidence-aware verifier improve on internal-only detection by explicitly checking generated claims against source rows and deterministic gold answers?",
+        "How should evidence-aware verification be compared with internal-state hallucination signals rather than treated as a replacement for them?",
     ]
 
     method_steps = [
@@ -66,14 +66,27 @@ def main() -> None:
         f"Best held-out span-level AUPRC is {metric(best_auprc['test_auprc'])} from {best_auprc['baseline']}.",
         f"Best held-out span-level F1 is {metric(best_f1['test_f1'])} from {best_f1['baseline']}.",
         "Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.",
-        "Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates explicit evidence-aware verification.",
+        "Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.",
     ]
 
     jhu_extensions = [
         "Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.",
         "Operations analytics: verify product, inventory, vendor, or demand claims before they influence prioritization decisions.",
         "Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.",
-        "Capstone direction: compare internal uncertainty baselines with deterministic evidence-aware verifiers on business claims.",
+        "Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.",
+    ]
+
+    research_tracks = [
+        "Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.",
+        "Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.",
+        "Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers.",
+    ]
+
+    baseline_backlog = [
+        "Semantic Entropy: useful for testing semantic consistency across sampled answers; requires multiple generations per question.",
+        "TOHA: relevant as an attention-graph topology baseline; implementation depends on reliable access to attention tensors and runnable reference code.",
+        "Real-time hallucinated entity detection: relevant for product, country, month, and stock-code spans; needs entity extraction and entity-level evidence matching.",
+        "Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.",
     ]
 
     summary = {
@@ -89,6 +102,9 @@ def main() -> None:
         "business_risk_lens_count": risk["lens_count"],
         "research_question_count": len(research_questions),
         "extension_count": len(jhu_extensions),
+        "research_track_count": len(research_tracks),
+        "baseline_backlog_count": len(baseline_backlog),
+        "next_stage_scope": "design-only evidence-aware verifier; no full100 rerun",
         "label_lock_basis": narrative["label_lock_basis"],
         "num_failures": 0,
         "failures": [],
@@ -281,7 +297,7 @@ def main() -> None:
         <p class="eyebrow">Findings</p>
         <h2>Internal uncertainty has signal, but it is not the same as evidence verification.</h2>
         <div class="panel">{render_list(key_findings)}</div>
-        <div class="callout"><strong>Main research seed:</strong> use BizHallu to compare internal-only hallucination signals with an explicit evidence-aware verifier for structured business claims.</div>
+        <div class="callout"><strong>Main research seed:</strong> internal uncertainty signals can rank some risky spans, but confident wrong evidence bindings remain difficult. The next research step is to compare internal-state signals with evidence-aware verification for business-fact grounding.</div>
       </section>
 
       <section>
@@ -297,6 +313,22 @@ def main() -> None:
             {render_list(jhu_extensions)}
           </article>
         </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Research backlog</p>
+        <h2>Keep the academic route open while building the business-facing verifier.</h2>
+        <div class="grid">
+          <article class="panel">
+            <h3>Comparison tracks</h3>
+            {render_list(research_tracks)}
+          </article>
+          <article class="panel">
+            <h3>Baseline candidates</h3>
+            {render_list(baseline_backlog)}
+          </article>
+        </div>
+        <div class="callout"><strong>Implementation caution:</strong> the next step is a design document and small-scope verifier plan. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
       </section>
 
       <section>

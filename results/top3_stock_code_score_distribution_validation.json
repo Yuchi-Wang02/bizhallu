@@ -1,6 +1,6 @@
 {
-  "distribution_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_stock_code_score_distribution.csv",
-  "summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_stock_code_score_distribution_summary.json",
+  "distribution_csv_path": "results/top3_stock_code_score_distribution.csv",
+  "summary_path": "results/top3_stock_code_score_distribution_summary.json",
   "stock_code_span_count": 9,
   "label_counts": {
     "correct": 6,

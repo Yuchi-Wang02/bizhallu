@@ -1,8 +1,8 @@
 {
-  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\split_eval_smoke_scores.csv",
-  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
-  "questions_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
-  "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\split_eval_smoke_metrics.csv",
+  "scores_path": "outputs/split_eval_smoke_scores.csv",
+  "baseline_config_path": "configs/detector_baseline_suite.json",
+  "questions_path": "data/processed/business_questions_gold.jsonl",
+  "metrics_path": "results/split_eval_smoke_metrics.csv",
   "baseline_family": "smoke",
   "dev_split": "dev",
   "test_split": "test",

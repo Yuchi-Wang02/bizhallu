@@ -1,8 +1,8 @@
 {
-  "source_error_review_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_review.csv",
-  "source_error_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_baseline_error_summary.json",
-  "analysis_by_family_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_by_family.csv",
-  "analysis_examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_examples.csv",
+  "source_error_review_path": "results/pilot20_baseline_error_review.csv",
+  "source_error_summary_path": "results/pilot20_baseline_error_summary.json",
+  "analysis_by_family_path": "results/pilot20_error_analysis_by_family.csv",
+  "analysis_examples_path": "results/pilot20_error_analysis_examples.csv",
   "baseline_error_rows": 101,
   "unique_annotation_errors": 52,
   "false_positive_rows": 76,

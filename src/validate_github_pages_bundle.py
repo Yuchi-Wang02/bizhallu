@@ -37,6 +37,10 @@ REQUIRED_INDEX_FRAGMENTS = [
     "business analytics and AI reliability",
     "GitHub Pages bundle",
     "BA / DS / AI Analyst",
+    "Recruiter",
+    "Professor",
+    "Technical interviewer",
+    "Business interviewer",
 ]
 
 REQUIRED_PAGE_FILES = [

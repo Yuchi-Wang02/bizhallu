@@ -1,6 +1,6 @@
 {
-  "comparison_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.csv",
-  "comparison_json_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_prompt_condition_comparison.json",
+  "comparison_csv_path": "results/top3_prompt_condition_comparison.csv",
+  "comparison_json_path": "results/top3_prompt_condition_comparison.json",
   "condition_count": 2,
   "question_ids": [
     "q_0060",

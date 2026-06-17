@@ -1,9 +1,9 @@
 {
-  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores.csv",
-  "by_split_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_by_split.csv",
-  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\full100_draft_detector_scores_report.json",
-  "alignment_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\outputs\\full100_draft_span_token_alignment.jsonl",
-  "baseline_config_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\configs\\detector_baseline_suite.json",
+  "scores_path": "results/full100_draft_detector_scores.csv",
+  "by_split_path": "results/full100_draft_detector_scores_by_split.csv",
+  "report_path": "results/full100_draft_detector_scores_report.json",
+  "alignment_path": "outputs/full100_draft_span_token_alignment.jsonl",
+  "baseline_config_path": "configs/detector_baseline_suite.json",
   "row_count": 205,
   "question_count": 35,
   "split_counts": {

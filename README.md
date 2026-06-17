@@ -57,6 +57,15 @@ interview/research-facing documentation.
 - Full rerun: Qwen generation requires the raw UCI Online Retail file, local
   model cache, and non-committed token traces.
 
+## Best Use Cases
+
+| Reader | Start with |
+| --- | --- |
+| Recruiter | [Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) and [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
+| Professor or research advisor | [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
+| Technical interviewer | [Detector interpretation](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html) and `AGENTS.md` guardrails |
+| Business interviewer | [Business risk lens](https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html) |
+
 ## Why It Matters
 
 Business users do not only need fluent analysis. They need to know whether a
@@ -141,6 +150,7 @@ test F1 comes from `mean_token_entropy`. The strongest energy-family F1 is
 | --- | --- |
 | [`docs/project_blueprint.md`](docs/project_blueprint.md) | Project architecture and workflow overview |
 | [`docs/current_state_audit.md`](docs/current_state_audit.md) | Detailed state audit of completed work |
+| [`docs/evidence_aware_verifier_design.md`](docs/evidence_aware_verifier_design.md) | Next-stage verifier design and research comparison plan |
 | [`docs/github_upload_checklist.md`](docs/github_upload_checklist.md) | Public upload checklist and claim guardrails |
 | [`docs/github_upload_dry_run.md`](docs/github_upload_dry_run.md) | Current GitHub safety and file-inclusion review |
 
@@ -162,6 +172,8 @@ validated reports, and sample artifacts to understand and reproduce the project.
 
 ```powershell
 python src\build_github_pages_bundle.py
+python src\sanitize_public_json_paths.py
+python src\validate_public_path_hygiene.py
 python src\validate_github_pages_bundle.py
 python src\build_full100_preflight_report.py
 ```
@@ -169,8 +181,9 @@ python src\build_full100_preflight_report.py
 Expected state:
 
 - `docs/github_pages_validation.json`: `ready_for_github_pages=true`
+- `reports/public_path_hygiene_validation.json`: `num_failures=0`
 - `results/full100_preflight_validation.json`: `current_stage=github_pages_ready`
-- both validation files report `num_failures=0`
+- all validation files report `num_failures=0`
 
 ## Scope
 

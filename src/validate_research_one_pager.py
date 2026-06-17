@@ -27,6 +27,12 @@ REQUIRED_FRAGMENTS = [
     "Internal uncertainty has signal",
     "evidence-aware verifier",
     "Possible JHU extensions",
+    "Research backlog",
+    "Semantic Entropy",
+    "TOHA",
+    "Real-time hallucinated entity detection",
+    "Spilled Energy",
+    "compare internal-state signals with evidence-aware verification",
     "assistant-reviewed presentation labels",
 ]
 
@@ -85,6 +91,9 @@ def main() -> None:
         "best_test_f1": 0.779412,
         "demo_case_count": 9,
         "business_risk_lens_count": 4,
+        "research_track_count": 3,
+        "baseline_backlog_count": 4,
+        "next_stage_scope": "design-only evidence-aware verifier; no full100 rerun",
         "label_lock_basis": "assistant_full_review",
     }
     for key, value in expected.items():

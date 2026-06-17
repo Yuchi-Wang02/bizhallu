@@ -1402,9 +1402,13 @@ entry point for GitHub Pages.
      energy-family methods won overall.
 
 3. Extend only after the public package and CI remain stable.
-   - First add a small evidence-aware verifier baseline that checks generated
-     claims against structured evidence rows.
+   - First design a small evidence-aware verifier that checks generated claims
+     against structured evidence rows; do not rerun full100 or add new headline
+     metrics until the protocol is fixed.
+   - Keep internal-state and literature-grounded methods as comparison tracks:
+     entropy, top-2 margin, energy-style signals, Semantic Entropy, TOHA, and
+     entity-level hallucination detection.
    - Then add a 10-20 question business-risk extension for returns, revenue
      reconciliation, product concentration, and country exposure.
-   - Defer larger benchmark expansion or additional complex baselines until the
-     public demo and interview story remain clean after validation.
+   - Defer larger benchmark expansion until the public demo, interview story,
+     and research comparison plan remain clean after validation.

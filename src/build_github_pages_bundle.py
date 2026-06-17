@@ -461,6 +461,28 @@ def render_index(
         </p>
         <div class="card-grid">
           <article class="card">
+            <h3>Recruiter</h3>
+            <p>Start with demo v2 for the core case and the career package for resume-ready language.</p>
+            <p><a href="./portfolio_demo_v2.html">Demo v2</a> / <a href="./career_package.html">Career package</a></p>
+          </article>
+          <article class="card">
+            <h3>Professor</h3>
+            <p>Start with the research one-pager to frame the project as evidence binding and responsible AI.</p>
+            <p><a href="./research_one_pager.html">Research one-pager</a></p>
+          </article>
+          <article class="card">
+            <h3>Technical interviewer</h3>
+            <p>Start with detector interpretation to inspect split-safe metrics and baseline tradeoffs.</p>
+            <p><a href="./detector_interpretation.html">Detector interpretation</a></p>
+          </article>
+          <article class="card">
+            <h3>Business interviewer</h3>
+            <p>Start with the business risk lens to connect hallucinated spans to accounting and operations risk.</p>
+            <p><a href="./business_risk_lens.html">Business risk lens</a></p>
+          </article>
+        </div>
+        <div class="card-grid">
+          <article class="card">
             <h3>Interactive demo v2</h3>
             <p>Filter {demo_v2_cases} locked cases by fact type, label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
             <p><a href="./portfolio_demo_v2.html">Open demo v2</a></p>

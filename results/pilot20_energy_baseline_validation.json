@@ -1,8 +1,8 @@
 {
-  "scores_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_scores.csv",
-  "metrics_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_metrics.csv",
-  "confusion_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\confusion_matrices\\pilot20_energy_baselines_confusion_matrices.csv",
-  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_energy_baseline_report.json",
+  "scores_path": "results/pilot20_energy_baseline_scores.csv",
+  "metrics_path": "results/pilot20_energy_baseline_metrics.csv",
+  "confusion_path": "results/confusion_matrices/pilot20_energy_baselines_confusion_matrices.csv",
+  "report_path": "results/pilot20_energy_baseline_report.json",
   "score_count": 135,
   "metric_count": 7,
   "confusion_row_count": 28,

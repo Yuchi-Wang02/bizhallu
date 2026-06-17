@@ -1,7 +1,7 @@
 {
-  "analysis_summary_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_summary.json",
-  "analysis_by_family_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_by_family.csv",
-  "analysis_examples_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\pilot20_error_analysis_examples.csv",
+  "analysis_summary_path": "results/pilot20_error_analysis_summary.json",
+  "analysis_by_family_path": "results/pilot20_error_analysis_by_family.csv",
+  "analysis_examples_path": "results/pilot20_error_analysis_examples.csv",
   "baseline_error_rows": 101,
   "unique_annotation_errors": 52,
   "family_count": 7,

@@ -1,6 +1,6 @@
 {
-  "evaluation_csv_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_structured_pilot3_evaluation.csv",
-  "report_path": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\results\\top3_structured_pilot3_report.json",
+  "evaluation_csv_path": "results/top3_structured_pilot3_evaluation.csv",
+  "report_path": "results/top3_structured_pilot3_report.json",
   "record_count": 3,
   "format_valid_count": 3,
   "exact_order_match_count": 0,
