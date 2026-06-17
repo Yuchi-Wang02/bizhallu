@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
 VALIDATION_PATH = DOCS_DIR / "github_pages_validation.json"
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 
 REQUIRED_INDEX_FRAGMENTS = [
     "BizHallu GitHub Pages",
@@ -105,6 +106,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def sha256_file(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 

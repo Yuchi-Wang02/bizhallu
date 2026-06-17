@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "728ef0a29a55d0ae5a83f51d90e89aa9d03621bd7342bae439f20b159720c0b4",
+  "index_sha256": "0f29f151108c5075de34d56a929827a7ddf52614da31a30121c831d461a1cc91",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -36,7 +36,7 @@
       "source": "reports/bizhallu_portfolio_demo.html",
       "dest": "docs/portfolio_demo.html",
       "source_sha256": "d58da03fd9c153d8af5c1b5204c0c67a0111370e2827fad74917e8ef50f190b7",
-      "dest_sha256": "ec75159be605d0527e348c3c3862607c6a207672e3088900b9e0fa5057fdfebf",
+      "dest_sha256": "252272112c2447846b1fb9b15a39808eea9b8dc5d6dfcc854f80735637323c09",
       "dest_size_bytes": 25377
     },
     {
@@ -44,7 +44,7 @@
       "source": "reports/bizhallu_portfolio_demo_v2.html",
       "dest": "docs/portfolio_demo_v2.html",
       "source_sha256": "53ce97bb1e574530778b4068d47dace396d08a191feaa643777acd50f9021bc0",
-      "dest_sha256": "c8a04a58183b34678f4208d717c2517f8bb68dd790df0d29f478253ef0442ac8",
+      "dest_sha256": "53ce97bb1e574530778b4068d47dace396d08a191feaa643777acd50f9021bc0",
       "dest_size_bytes": 48212
     },
     {
@@ -52,7 +52,7 @@
       "source": "reports/bizhallu_portfolio_narrative.html",
       "dest": "docs/portfolio_narrative.html",
       "source_sha256": "e0e0fbb33ea89157ff0d8413b6959716a83300d81d81ea251cb3ad2ec191dcf2",
-      "dest_sha256": "b02450a066069b343d03f8198d1a6564ade4e63ee3decaf6525a993c1411c2f5",
+      "dest_sha256": "ba6c19f0eeb83041e15b6c0a9a783f52713bd7f7e3b29b86e55d78a374047ac4",
       "dest_size_bytes": 26686
     },
     {
@@ -60,7 +60,7 @@
       "source": "reports/bizhallu_career_package.html",
       "dest": "docs/career_package.html",
       "source_sha256": "9c59c03ea7e312d71492f575f2482a5460657cf0fd2a2e9711650f8159f42435",
-      "dest_sha256": "d00dec61af4906e06ac2ccd92ff6a8e36513cf72fdd889269faa056fd14e4731",
+      "dest_sha256": "9c59c03ea7e312d71492f575f2482a5460657cf0fd2a2e9711650f8159f42435",
       "dest_size_bytes": 17228
     },
     {
@@ -68,7 +68,7 @@
       "source": "reports/bizhallu_business_risk_lens.html",
       "dest": "docs/business_risk_lens.html",
       "source_sha256": "d2916d40daf9a718f0fff547a50938d1735b879416da056f5ed64aa72200738b",
-      "dest_sha256": "1abfa26d30f4951960967736c727cc608dc21bc8022765bfd4147a7825ea18c3",
+      "dest_sha256": "d2916d40daf9a718f0fff547a50938d1735b879416da056f5ed64aa72200738b",
       "dest_size_bytes": 17834
     },
     {
@@ -76,7 +76,7 @@
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
       "source_sha256": "b0dd1493baa067e821f4d31747cebbfaf496dc9c6c21071fa11628ed6bc69f7a",
-      "dest_sha256": "46c6deb1fb08e4f2f5810d8bc7b3ed0f99678e2079ae9b2f0ea0e78f67e4d5bf",
+      "dest_sha256": "b0dd1493baa067e821f4d31747cebbfaf496dc9c6c21071fa11628ed6bc69f7a",
       "dest_size_bytes": 14133
     },
     {
@@ -84,7 +84,7 @@
       "source": "reports/bizhallu_evidence_verifier_pilot.html",
       "dest": "docs/evidence_verifier_pilot.html",
       "source_sha256": "2acff5bec6bc30d091ca68e047d04609938537b8f15e5f144a7eac8969df4764",
-      "dest_sha256": "03efcb0d740906f80da892de6b699342a2bbba4a51ec73461293dad9c7fb5bc5",
+      "dest_sha256": "2acff5bec6bc30d091ca68e047d04609938537b8f15e5f144a7eac8969df4764",
       "dest_size_bytes": 16230
     },
     {
@@ -92,7 +92,7 @@
       "source": "reports/full100_detector_interpretation.html",
       "dest": "docs/detector_interpretation.html",
       "source_sha256": "50c60113e53bad15b27b5f5bccf310e383538edcd7ebfa9fcdd324001a43322f",
-      "dest_sha256": "1cda0f3eb285175b0f06c327d0b211135b46e0183cced5bdd17c818dd605cb26",
+      "dest_sha256": "68dd01444978756df75b2ac91bf6c242cb1830a3c0277a59e524f509e969a4d4",
       "dest_size_bytes": 14911
     },
     {
@@ -100,7 +100,7 @@
       "source": "reports/full100_label_lock_report.html",
       "dest": "docs/label_lock_report.html",
       "source_sha256": "47ef51af4f71dfb975c215763df993b524d970837c241cea30ed658d95a34fdb",
-      "dest_sha256": "b4607db4c533e16621c989ea5ac373eacacbc6a0570ef91a2e08199b923441eb",
+      "dest_sha256": "5b93ea7d9b8a0e2b4ece5ad05706b2c8a32ed7c5410a17d2e45d84f9cd31732d",
       "dest_size_bytes": 23282
     },
     {
@@ -108,7 +108,7 @@
       "source": "reports/full100_label_confirmation_packet.html",
       "dest": "docs/label_confirmation_packet.html",
       "source_sha256": "606c689909b1685a9e94d8363872b5fbf041462f4850fba7d253c9d9056a46b1",
-      "dest_sha256": "e5953e234e0d4cd503a18eefe8c86521a4fcc5cb06755f3d59467172c02c90bb",
+      "dest_sha256": "e92ac94ba5781c6637297986e217a809d56c210eefce0d77aa969696206a584b",
       "dest_size_bytes": 39677
     }
   ],
@@ -117,32 +117,32 @@
       "role": "detector_error_examples_csv",
       "source": "results/full100_draft_detector_error_review_examples.csv",
       "dest": "docs/assets/full100_draft_detector_error_review_examples.csv",
-      "source_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
-      "dest_sha256": "31d4ade6968dacb1466f1f604bc25210ef982700a0dab3925d822d1e4dc0b582",
+      "source_sha256": "9fa1a700946e72d543f92b0817bafc2f82c0cfc3d5bb694348c186f69748e99f",
+      "dest_sha256": "9fa1a700946e72d543f92b0817bafc2f82c0cfc3d5bb694348c186f69748e99f",
       "dest_size_bytes": 38433
     },
     {
       "role": "interactive_demo_v2_data_json",
       "source": "reports/bizhallu_demo_v2_data.json",
       "dest": "docs/assets/bizhallu_demo_v2_data.json",
-      "source_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
-      "dest_sha256": "bbc04bb36d4cceec93f03dba13fe2270d80b22b4e5d9e713172e4be33e1de474",
+      "source_sha256": "e755653f2d9ebd61c717c2fbeb59b5c2cd8722c76b79cbd71032acb516785ff5",
+      "dest_sha256": "e755653f2d9ebd61c717c2fbeb59b5c2cd8722c76b79cbd71032acb516785ff5",
       "dest_size_bytes": 39913
     },
     {
       "role": "evidence_verifier_pilot_rows_csv",
       "source": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
       "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.csv",
-      "source_sha256": "77534192924f8af4bff985817859101347909af5e3fa58913becc796695deca9",
-      "dest_sha256": "77534192924f8af4bff985817859101347909af5e3fa58913becc796695deca9",
+      "source_sha256": "79908c10174689f3f7901e89d13570df5310fd5f04beee7ba9f18de10a3d956b",
+      "dest_sha256": "79908c10174689f3f7901e89d13570df5310fd5f04beee7ba9f18de10a3d956b",
       "dest_size_bytes": 14390
     },
     {
       "role": "evidence_verifier_pilot_rows_json",
       "source": "reports/bizhallu_evidence_verifier_pilot_rows.json",
       "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.json",
-      "source_sha256": "41f323416dfd2afe581cbd5811fa751c2662012894ba21f50bdacdb2d4f3b640",
-      "dest_sha256": "41f323416dfd2afe581cbd5811fa751c2662012894ba21f50bdacdb2d4f3b640",
+      "source_sha256": "cb4d0e3e978fef7645f896eab9fb217e1a5ed569922981705258381d5c20f5fa",
+      "dest_sha256": "cb4d0e3e978fef7645f896eab9fb217e1a5ed569922981705258381d5c20f5fa",
       "dest_size_bytes": 24200
     },
     {

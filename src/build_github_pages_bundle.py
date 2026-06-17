@@ -32,6 +32,7 @@ VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 
 PAGE_COPIES = [
     (
@@ -143,6 +144,9 @@ def sha256_text(text: str) -> str:
 
 
 def sha256_file(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
