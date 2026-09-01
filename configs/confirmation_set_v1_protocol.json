@@ -18,10 +18,15 @@
     "selection_status": "provisional_selection_pending_local_profile",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
+    "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
+    "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_candidate_role": "prospective_temporal_internal_replication",
     "selected_candidate_gate_status": "pending",
-    "recommended_sequence": "Profile the strict non-overlapping prior-period window from UCI Online Retail II for a prospective temporal internal replication, then require a separately scoped second-dataset replication for broader generalization claims.",
+    "official_acquisition_verified": true,
+    "structure_and_date_window_verified": true,
+    "strict_window_row_count": 502938,
+    "recommended_sequence": "Complete the remaining field-quality, duplicate/grain, cancellation, overlap, monthly-coverage, and context-feasibility checks on the verified strict prior-period window, then require a separately scoped second-dataset replication for broader generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -309,10 +314,10 @@
     {
       "gate": "dataset_source_selected_and_audited",
       "status": "pending",
-      "progress": "official-source desk audit complete; UCI Online Retail II prior-period window provisionally selected",
+      "progress": "official workbook acquired and hashed; two-sheet structure, three header aliases, and the 502,938-row strict prior-period boundary verified",
       "blocking_requirements": [
-        "official workbook acquisition and SHA-256 record",
-        "strict prior-period profile and current-source overlap proof",
+        "full field-level completeness, duplicate/grain, cancellation, and monthly-coverage profile",
+        "zero normalized record overlap proof against the current Online Retail lineage",
         "outcome-blind feasibility proof for at least 36 disjoint contexts"
       ]
     },

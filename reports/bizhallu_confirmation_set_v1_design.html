@@ -59,7 +59,7 @@
           <div><span>Human reviewers</span><strong>2</strong></div>
           <div><span>Execution gates</span><strong>7 pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> Online Retail II's strict prior-period window is provisionally selected, but no candidate file has been downloaded or profiled, no context manifest has been frozen, no new model output has been generated, and no Confirmation Set v1 performance result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, and its 502,938-row strict prior-period boundary is structurally verified. Full analytical quality, overlap, and context-feasibility checks remain pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
       </section>
 
       <section>
@@ -76,7 +76,7 @@
       <section>
         <p class="eyebrow">Dataset decision</p>
         <h2>Use a staged path instead of overstating one dataset.</h2>
-        <p>Profile the strict non-overlapping prior-period window from UCI Online Retail II for a prospective temporal internal replication, then require a separately scoped second-dataset replication for broader generalization claims.</p>
+        <p>Complete the remaining field-quality, duplicate/grain, cancellation, overlap, monthly-coverage, and context-feasibility checks on the verified strict prior-period window, then require a separately scoped second-dataset replication for broader generalization claims.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody><tr>
@@ -104,7 +104,7 @@
           <td><ul><li>availability and permissions are not yet known</li><li>should not delay the near-term internal replication</li></ul></td>
         </tr></tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the strict 2009-12-01 inclusive to 2010-12-01 exclusive window, after local completeness, overlap, and context-feasibility checks pass. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
+        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the verified 2009-12-01 inclusive to 2010-12-01 exclusive window after the remaining field-quality, overlap, and context-feasibility checks pass. The raw workbook requires explicit <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
       </section>
 
       <section>
@@ -164,7 +164,7 @@
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody><tr><td>1</td><td><code>dataset_source_selected_and_audited</code></td><td>pending</td></tr><tr><td>2</td><td><code>context_manifest_split_and_precision_review_frozen</code></td><td>pending</td></tr><tr><td>3</td><td><code>question_templates_and_gold_calculations_validated</code></td><td>pending</td></tr><tr><td>4</td><td><code>model_prompt_and_detector_configs_frozen</code></td><td>pending</td></tr><tr><td>5</td><td><code>two_independent_human_reviewers_assigned</code></td><td>pending</td></tr><tr><td>6</td><td><code>claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data</code></td><td>pending</td></tr><tr><td>7</td><td><code>sealed_confirmation_run_authorized</code></td><td>pending</td></tr></tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Acquire the provisionally selected workbook from UCI, record its SHA-256, and complete the strict prior-period profile and overlap checks. Then run the outcome-blind precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Complete the strict-window missingness, duplicate/grain, business-rule, monthly-coverage, current-source overlap, and outcome-blind context-feasibility profile. Then run the precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
       </section>
 
       <section>

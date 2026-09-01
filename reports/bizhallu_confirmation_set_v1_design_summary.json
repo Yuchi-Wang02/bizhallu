@@ -10,7 +10,11 @@
   "selected_candidate_id": "uci_online_retail_ii_prior_period",
   "selected_candidate_role": "prospective_temporal_internal_replication",
   "dataset_gate_status": "pending",
+  "dataset_acquisition_verified": true,
+  "dataset_structure_profile_complete": true,
   "dataset_local_profile_complete": false,
+  "strict_window_row_count": 502938,
+  "metadata_header_drift_detected": true,
   "dataset_option_count": 4,
   "candidate_question_family_count": 4,
   "protocol_pilot_question_count": 12,
@@ -44,7 +48,7 @@
   "current_share_status": "share_with_caveats",
   "historical_exploratory_max_test_auprc": 0.835073,
   "historical_exploratory_max_test_f1": 0.779412,
-  "recommended_next_decision": "Acquire the provisionally selected Online Retail II source from UCI and complete the strict prior-period local profile before creating any context manifest, prompt, or generation file.",
+  "recommended_next_decision": "Complete the remaining strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, overlap, and context-feasibility checks before creating any context manifest, prompt, or generation file.",
   "num_failures": 0,
   "failures": []
 }

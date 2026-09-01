@@ -12,6 +12,8 @@ from public_paths import contains_local_path, repo_path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.json"
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
+ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_report.json"
+STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
 LOCAL_QUALITY_PATH = PROJECT_ROOT / "data" / "processed" / "data_quality_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
@@ -36,7 +38,7 @@ EXPECTED_CRITERION_STATUSES = {
 
 REQUIRED_HTML_FRAGMENTS = [
     "Confirmation Dataset Source Audit v1",
-    "A source is selected in principle, not cleared for execution.",
+    "The official source is verified; execution remains blocked.",
     "Online Retail II",
     "2009-12-01T00:00:00",
     "2010-12-01T00:00:00",
@@ -44,9 +46,11 @@ REQUIRED_HTML_FRAGMENTS = [
     "Complete Journey",
     "Metadata conflict matters.",
     "135,080 missing customer IDs",
-    "Ten checks must pass",
-    "Acquire and profile; do not generate.",
-    "No candidate file was downloaded",
+    "502,938",
+    "Schema drift recorded.",
+    "Three checks are complete; six remain pending and privacy stays active.",
+    "Profile the verified window; do not generate.",
+    "The raw files remain local and Git-ignored.",
     ".panel { min-width:0;",
     "overflow-x:auto;",
     "overflow-wrap:anywhere;",
@@ -61,6 +65,7 @@ FORBIDDEN_HTML_FRAGMENTS = [
     "production-ready hallucination detector",
     "new confirmation AUPRC",
     "clamp(",
+    "No candidate file was downloaded",
 ]
 
 
@@ -93,6 +98,8 @@ def main() -> None:
     required_paths = [
         AUDIT_PATH,
         PROTOCOL_PATH,
+        ACQUISITION_PATH,
+        STRUCTURE_PATH,
         LOCAL_QUALITY_PATH,
         HTML_PATH,
         SUMMARY_PATH,
@@ -103,6 +110,8 @@ def main() -> None:
 
     audit = load_json(AUDIT_PATH) if AUDIT_PATH.exists() else {}
     protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
+    acquisition = load_json(ACQUISITION_PATH) if ACQUISITION_PATH.exists() else {}
+    structure = load_json(STRUCTURE_PATH) if STRUCTURE_PATH.exists() else {}
     local_quality = load_json(LOCAL_QUALITY_PATH) if LOCAL_QUALITY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
@@ -120,7 +129,7 @@ def main() -> None:
                     "html_tag_count",
                     {"tag": tag, "expected": expected_count, "actual": parser.tag_counts[tag]},
                 )
-        if parser.tag_counts["section"] < 7 or parser.tag_counts["table"] != 4:
+        if parser.tag_counts["section"] < 8 or parser.tag_counts["table"] != 4:
             add_failure(
                 failures,
                 "html_report_structure",
@@ -142,10 +151,12 @@ def main() -> None:
             add_failure(failures, "local_path_in_html", repo_path(HTML_PATH))
 
     expected_audit_boundary = {
-        "status": "desk_audit_complete_local_profile_pending",
+        "status": "acquisition_and_structure_verified_quality_profile_pending",
         "audit_date": "2026-09-01",
         "no_new_results": True,
-        "download_performed": False,
+        "download_performed": True,
+        "acquisition_verified": True,
+        "structure_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
     }
@@ -288,9 +299,14 @@ def main() -> None:
     expected_strategy = {
         "selection_status": "provisional_selection_pending_local_profile",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
+        "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
+        "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "pending",
+        "official_acquisition_verified": True,
+        "structure_and_date_window_verified": True,
+        "strict_window_row_count": 502938,
     }
     for key, expected in expected_strategy.items():
         if strategy.get(key) != expected:
@@ -316,7 +332,7 @@ def main() -> None:
     )
     if dataset_gate.get("status") != "pending":
         add_failure(failures, "dataset_gate_status", dataset_gate)
-    if "official-source desk audit complete" not in dataset_gate.get("progress", ""):
+    if "official workbook acquired and hashed" not in dataset_gate.get("progress", ""):
         add_failure(failures, "dataset_gate_progress", dataset_gate)
     if len(dataset_gate.get("blocking_requirements", [])) != 3:
         add_failure(failures, "dataset_gate_blockers", dataset_gate)
@@ -327,7 +343,9 @@ def main() -> None:
         "status": "confirmation_dataset_source_audit_v1_ready",
         "audit_date": "2026-09-01",
         "desk_audit_complete": True,
-        "download_performed": False,
+        "download_performed": True,
+        "acquisition_verified": True,
+        "structure_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,
@@ -338,6 +356,18 @@ def main() -> None:
         "selected_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
         "selected_window": "2009-12-01 inclusive through 2010-12-01 exclusive",
         "dataset_gate_status": "pending",
+        "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+        "xlsx_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+        "workbook_total_data_rows": 1067371,
+        "strict_window_row_count": 502938,
+        "strict_window_date_min": "2009-12-01 07:45:00",
+        "strict_window_date_max": "2010-11-30 19:35:00",
+        "metadata_header_drift_detected": True,
+        "required_header_aliases": {
+            "Invoice": "InvoiceNo",
+            "Price": "UnitPrice",
+            "Customer ID": "CustomerID",
+        },
         "candidate_count": 6,
         "external_shortlist_count": 2,
         "source_reference_count": 10,
@@ -357,7 +387,46 @@ def main() -> None:
                 {"field": key, "expected": expected, "actual": summary.get(key)},
             )
 
-    for artifact_path, payload in [(AUDIT_PATH, audit), (SUMMARY_PATH, summary)]:
+    expected_check_statuses = {
+        "official_acquisition_and_hash": "completed",
+        "workbook_structure": "completed",
+        "strict_prior_period_filter": "completed",
+        "completeness": "pending",
+        "duplicates_and_grain": "pending",
+        "business_rule_validity": "pending",
+        "historical_overlap": "pending",
+        "monthly_coverage": "pending",
+        "context_feasibility": "pending",
+        "public_privacy_boundary": "active",
+    }
+    observed_check_statuses = {item.get("check_id"): item.get("status") for item in checks}
+    if observed_check_statuses != expected_check_statuses:
+        add_failure(failures, "local_profile_check_statuses", observed_check_statuses)
+
+    expected_acquisition_evidence = {
+        "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+        "xlsx_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+        "workbook_total_data_rows": 1067371,
+        "strict_window_row_count": 502938,
+    }
+    for key, expected in expected_acquisition_evidence.items():
+        if audit.get("acquisition_evidence", {}).get(key) != expected:
+            add_failure(
+                failures,
+                "acquisition_evidence",
+                {"field": key, "expected": expected, "actual": audit.get("acquisition_evidence", {}).get(key)},
+            )
+    if acquisition.get("raw_artifacts", {}).get("xlsx", {}).get("sha256") != expected_acquisition_evidence["xlsx_sha256"]:
+        add_failure(failures, "acquisition_report_hash", acquisition.get("raw_artifacts"))
+    if structure.get("date_scan", {}).get("strict_window_row_count") != 502938:
+        add_failure(failures, "structure_report_window_count", structure.get("date_scan"))
+
+    for artifact_path, payload in [
+        (AUDIT_PATH, audit),
+        (ACQUISITION_PATH, acquisition),
+        (STRUCTURE_PATH, structure),
+        (SUMMARY_PATH, summary),
+    ]:
         if contains_local_path(json.dumps(payload, ensure_ascii=True)):
             add_failure(failures, "local_path_in_json", repo_path(artifact_path))
 
@@ -374,7 +443,9 @@ def main() -> None:
         "desk_audit_complete": True,
         "selected_candidate_id": decision.get("selected_candidate_id"),
         "dataset_gate_status": dataset_gate.get("status"),
-        "download_performed": False,
+        "download_performed": True,
+        "acquisition_verified": True,
+        "structure_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,

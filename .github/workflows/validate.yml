@@ -41,6 +41,9 @@ jobs:
       - name: Validate methodology hardening report
         run: python src/validate_methodology_hardening.py
 
+      - name: Validate Confirmation Dataset acquisition artifacts
+        run: python src/validate_confirmation_dataset_acquisition.py
+
       - name: Validate Confirmation Dataset Source Audit v1
         run: python src/validate_confirmation_dataset_source_audit.py
 

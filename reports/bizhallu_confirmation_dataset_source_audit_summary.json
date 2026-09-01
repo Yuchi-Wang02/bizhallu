@@ -5,7 +5,9 @@
   "html_path": "reports/bizhallu_confirmation_dataset_source_audit.html",
   "audit_date": "2026-09-01",
   "desk_audit_complete": true,
-  "download_performed": false,
+  "download_performed": true,
+  "acquisition_verified": true,
+  "structure_profile_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "no_new_results": true,
@@ -16,6 +18,18 @@
   "selected_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
   "selected_window": "2009-12-01 inclusive through 2010-12-01 exclusive",
   "dataset_gate_status": "pending",
+  "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+  "xlsx_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "workbook_total_data_rows": 1067371,
+  "strict_window_row_count": 502938,
+  "strict_window_date_min": "2009-12-01 07:45:00",
+  "strict_window_date_max": "2010-11-30 19:35:00",
+  "metadata_header_drift_detected": true,
+  "required_header_aliases": {
+    "Invoice": "InvoiceNo",
+    "Price": "UnitPrice",
+    "Customer ID": "CustomerID"
+  },
   "candidate_count": 6,
   "external_shortlist_count": 2,
   "source_reference_count": 10,
@@ -29,7 +43,7 @@
     "minimum_36_disjoint_contexts"
   ],
   "local_profile_check_count": 10,
-  "next_authorized_action": "Acquire Online Retail II from the official UCI source, record its SHA-256, and run the strict prior-period data-quality and context-feasibility profile.",
+  "next_authorized_action": "Run the full strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, current-source overlap, and outcome-blind context-feasibility profile without creating prompts.",
   "num_failures": 0,
   "failures": []
 }

@@ -1,0 +1,17 @@
+{
+  "status": "confirmation_dataset_acquisition_validation_passed",
+  "acquisition_report_path": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
+  "structure_report_path": "reports/bizhallu_confirmation_dataset_structure_report.json",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+  "xlsx_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "workbook_total_data_rows": 1067371,
+  "strict_window_row_count": 502938,
+  "metadata_header_drift_detected": true,
+  "dataset_gate_status": "pending",
+  "execution_ready": false,
+  "no_new_results": true,
+  "local_artifact_verification_command": "python src/validate_confirmation_dataset_acquisition.py --require-local",
+  "num_failures": 0,
+  "failures": []
+}

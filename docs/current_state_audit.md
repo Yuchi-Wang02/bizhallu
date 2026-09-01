@@ -79,10 +79,11 @@ policies before new model answers are viewed.
   bootstrap by evidence context.
 - Internal uncertainty, literature-grounded baselines, evidence-aware
   verification, and an optional frozen hybrid remain comparison families.
-- Seven execution gates are deliberately pending. The desk audit provisionally
-  selects UCI Online Retail II's strict prior-period window, but the first gate
-  stays pending until official acquisition, hashing, local profiling, overlap
-  proof, and 36-context feasibility are complete.
+- Seven execution gates are deliberately pending. The official Online Retail II
+  ZIP and workbook are acquired, hashed, and Git-ignored; the two-sheet structure,
+  three raw-header aliases, and 502,938-row strict prior-period boundary are
+  verified. The first gate still stays pending until the remaining quality,
+  overlap, and 36-context feasibility checks are complete.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
@@ -92,8 +93,9 @@ maxima and are not targets or results for Confirmation Set v1.
 The companion source audit at
 `reports/bizhallu_confirmation_dataset_source_audit.html` compares six routes,
 records official source and license evidence, and keeps Complete Journey as the
-preferred external-replication shortlist candidate. It is a desk audit only: no
-candidate data file was downloaded and no context manifest was created.
+preferred external-replication shortlist candidate. The selected source is now
+locally acquired and structurally inspected, but no context manifest, prompt,
+generation, annotation target, or new metric was created.
 
 ## Audit Scope
 
@@ -1450,13 +1452,29 @@ entry point for GitHub Pages.
     - Decision: provisionally select UCI Online Retail II only within the strict
       `2009-12-01` inclusive to `2010-12-01` exclusive window for a temporal
       internal replication.
-    - Boundary: the source file has not been downloaded or profiled, the first
-      execution gate remains pending, and no context, question, generation,
-      annotation, detector, or confirmation result was created.
+    - Initial boundary: source acquisition and local profiling were deferred to a
+      separate gated step; no context, question, generation, annotation,
+      detector, or confirmation result was created in the desk audit.
     - Academic path: retain Complete Journey as the preferred external
       replication shortlist candidate, with Olist and NYC TLC serving different
       relational-ecommerce and operations-transfer roles rather than being
       treated as equivalent datasets.
+
+37. The provisional source needed immutable local acquisition and structure
+    evidence before any analytical profile could be trusted.
+    - Fix: downloaded the official UCI ZIP into the Git-ignored raw-data tree,
+      validated its CRC and unique XLSX member, and recorded both SHA-256 hashes.
+    - Reconciliation: the workbook has two sheets and exactly 1,067,371 data
+      rows, matching UCI's documented instance count with a delta of zero.
+    - Schema finding: actual headers require three deterministic aliases:
+      `Invoice -> InvoiceNo`, `Price -> UnitPrice`, and
+      `Customer ID -> CustomerID`.
+    - Date finding: the complete date scan has zero blank or invalid dates. The
+      strict `2009-12-01` inclusive to `2010-12-01` exclusive window retains
+      502,938 rows and ends at `2010-11-30 19:35:00`.
+    - Boundary: full missingness, duplicate/grain, cancellation, monthly coverage,
+      historical overlap, and context-feasibility checks remain pending. The
+      dataset gate and all six downstream execution gates remain open.
 
 ## Remaining Risks
 
@@ -1505,9 +1523,10 @@ entry point for GitHub Pages.
    - The next result needs fresh or context-separated evidence, annotation
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
-   - Online Retail II is only provisionally selected. The strict prior-period
-     window still needs an official-file hash, local quality profile, zero-overlap
-     proof, and outcome-blind 36-context feasibility check.
+   - Online Retail II is only provisionally selected. Acquisition, hashes,
+     structure, and the strict date boundary are verified, but the window still
+     needs a full local quality profile, zero-overlap proof, and outcome-blind
+     36-context feasibility check.
 
 ## Recommended Next Steps
 
@@ -1537,11 +1556,12 @@ entry point for GitHub Pages.
      energy-family methods won overall.
 
 3. Treat Confirmation Set v1 as the next research branch, but keep it blocked
-   until the provisional source passes its local acquisition gate.
-   - Acquire `online_retail_II.xlsx` only from the official UCI source and record
-     retrieval date, byte size, and SHA-256; keep the workbook out of Git.
-   - Profile only `2009-12-01` inclusive through `2010-12-01` exclusive, then
-     prove zero normalized record overlap with the current Online Retail source.
+   until the provisionally selected strict window passes the remaining source QA.
+   - Preserve the recorded official-file hashes and keep the workbook and local
+     validation record under the Git-ignored raw-data tree.
+   - Apply the three recorded header aliases before shared BizHallu business
+     rules, and profile only the verified 502,938-row strict window.
+   - Prove zero normalized record overlap with the current Online Retail source.
    - Audit missingness, duplicates, invoice-line grain, quantity and price
      validity, cancellation semantics, monthly coverage, and public-ID handling.
    - Prove at least 6 pilot, 15 development, and 15 confirmation contexts can be

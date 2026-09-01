@@ -1,13 +1,15 @@
 {
   "schema_version": "1.0",
-  "status": "desk_audit_complete_local_profile_pending",
+  "status": "acquisition_and_structure_verified_quality_profile_pending",
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "audit_date": "2026-09-01",
-  "audit_scope": "Official-source metadata, access, license, schema-fit, independence, and execution-risk review only. No candidate source file was downloaded or profiled in this phase.",
+  "audit_scope": "Official-source metadata review plus local acquisition, immutable file hashing, workbook-structure inspection, and a complete InvoiceDate boundary scan. Full field quality, duplicate/grain, business-rule, overlap, and context-feasibility checks remain pending.",
   "protocol_source": "configs/confirmation_set_v1_protocol.json",
   "no_new_results": true,
-  "download_performed": false,
+  "download_performed": true,
+  "acquisition_verified": true,
+  "structure_profile_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "decision": {
@@ -15,7 +17,7 @@
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_role": "prospective_temporal_internal_replication",
     "dataset_gate_status": "pending",
-    "decision_summary": "Provisionally select the non-overlapping prior-period portion of UCI Online Retail II because it preserves the existing transaction schema while moving the study to unseen transaction rows and earlier business periods.",
+    "decision_summary": "Provisionally select the non-overlapping prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases while moving the study to unseen transaction rows and earlier business periods.",
     "allowed_time_window": {
       "start_inclusive": "2009-12-01T00:00:00",
       "end_exclusive": "2010-12-01T00:00:00",
@@ -24,7 +26,35 @@
     "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
     "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
     "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
-    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until the official workbook is acquired, hashed, profiled, checked for overlap against current cleaned rows, and shown to support at least 36 outcome-blind evidence contexts."
+    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until full field quality, duplicate/grain, cancellation, monthly coverage, current-source overlap, and 36-context feasibility checks pass. Acquisition, hashing, workbook structure, and the strict date boundary are complete."
+  },
+  "acquisition_evidence": {
+    "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
+    "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
+    "official_download_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
+    "zip_size_bytes": 45622418,
+    "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+    "xlsx_size_bytes": 45622278,
+    "xlsx_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+    "workbook_total_data_rows": 1067371,
+    "strict_window_row_count": 502938,
+    "strict_window_date_min": "2009-12-01 07:45:00",
+    "strict_window_date_max": "2010-11-30 19:35:00",
+    "actual_headers": [
+      "Invoice",
+      "StockCode",
+      "Description",
+      "Quantity",
+      "InvoiceDate",
+      "Price",
+      "Customer ID",
+      "Country"
+    ],
+    "required_header_aliases": {
+      "Invoice": "InvoiceNo",
+      "Price": "UnitPrice",
+      "Customer ID": "CustomerID"
+    }
   },
   "source_acceptance_criteria": [
     {
@@ -122,15 +152,16 @@
         "returns_or_cancellations": "strong"
       },
       "known_strengths": [
-        "same documented schema as the current BizHallu source",
+        "same required business fields after deterministic Invoice, Price, and Customer ID header aliases",
         "prior periods allow transaction-level temporal separation",
         "small enough for the local Windows and 5070 Ti workflow",
-        "supports all four candidate business-question families with minimal metric translation"
+        "the strict prior-period window contains 502,938 date-valid rows before any outcome-based filtering"
       ],
       "known_risks": [
         "same retailer and source lineage, so this remains internal replication",
-        "the full workbook overlaps the current source and therefore requires a strict date cutoff plus record fingerprints",
-        "missing values are documented but not yet profiled",
+        "the first workbook sheet extends through 2010-12-09, so 22,523 rows in that sheet and all 541,910 rows in the second sheet must remain outside the strict window",
+        "actual workbook headers differ from UCI's canonical field names for InvoiceNo, UnitPrice, and CustomerID and require an explicit ingestion mapping",
+        "missing values are documented but the full field-level completeness profile is still pending",
         "36 context feasibility is plausible but not yet measured"
       ],
       "recommended_use": "Acquire from UCI, profile only the strict prior-period window, and use it for the protocol pilot, development, and sealed confirmation splits only if every local acceptance check passes."
@@ -269,42 +300,52 @@
   "required_local_profile_checks": [
     {
       "check_id": "official_acquisition_and_hash",
+      "status": "completed",
       "requirement": "Download online_retail_II.xlsx only from the official UCI source, record retrieval date, byte size, and SHA-256, and keep the workbook out of Git."
     },
     {
       "check_id": "workbook_structure",
+      "status": "completed",
       "requirement": "Record workbook sheet names, dimensions, headers, inferred types, and parsing warnings before filtering."
     },
     {
       "check_id": "strict_prior_period_filter",
+      "status": "completed",
       "requirement": "Retain InvoiceDate >= 2009-12-01 and < 2010-12-01; report excluded rows on both sides of the window."
     },
     {
       "check_id": "completeness",
+      "status": "pending",
       "requirement": "Measure null and blank rates overall and by month for every required field, especially Description and CustomerID."
     },
     {
       "check_id": "duplicates_and_grain",
+      "status": "pending",
       "requirement": "Measure exact duplicate rows and candidate invoice-line key duplication; define rather than assume the analytical grain."
     },
     {
       "check_id": "business_rule_validity",
+      "status": "pending",
       "requirement": "Profile negative, zero, and extreme Quantity and UnitPrice values; compare cancellation-prefix rows with negative-quantity rows."
     },
     {
       "check_id": "historical_overlap",
+      "status": "pending",
       "requirement": "Normalize shared fields and prove zero exact record fingerprints against the current Online Retail raw and cleaned lineages after the strict cutoff."
     },
     {
       "check_id": "monthly_coverage",
+      "status": "pending",
       "requirement": "Report monthly row, invoice, customer, product, country, cancellation, and monetary totals to identify sparse or abnormal periods."
     },
     {
       "check_id": "context_feasibility",
+      "status": "pending",
       "requirement": "Generate outcome-blind candidate context counts for each planned question family and prove at least 6 pilot, 15 development, and 15 confirmation contexts can be assigned with period and evidence-fingerprint separation."
     },
     {
       "check_id": "public_privacy_boundary",
+      "status": "active",
       "requirement": "Keep raw customer and invoice identifiers out of public artifacts; use aggregates or study-local opaque identifiers."
     }
   ],
@@ -403,7 +444,10 @@
   "claim_policy": {
     "allowed": [
       "A same-source prior-period candidate has been provisionally selected for local feasibility testing.",
-      "Official metadata supports schema and license fit, while completeness, overlap, and context-count checks remain pending.",
+      "The official workbook was acquired and hashed locally; its raw files remain Git-ignored.",
+      "The workbook contains 1,067,371 date-valid rows, and the strict prior-period window contains 502,938 rows after the date boundary is applied.",
+      "Three raw header aliases are required before shared BizHallu business rules can be applied.",
+      "Official metadata and local structure checks support schema and license fit, while full completeness, duplicate/grain, business-rule, overlap, and context-count checks remain pending.",
       "Complete Journey is the preferred external-replication shortlist candidate, not a selected or downloaded confirmation source."
     ],
     "disallowed": [

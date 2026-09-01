@@ -1,0 +1,231 @@
+{
+  "status": "workbook_structure_and_strict_window_verified",
+  "study_name": "Confirmation Set v1",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "profile_scope": "workbook structure, sampled value types, and complete InvoiceDate boundary scan only",
+  "acquisition_report_path": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
+  "workbook_path": "data/raw/confirmation_online_retail_ii/online_retail_II.xlsx",
+  "workbook_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "parser": {
+    "library": "openpyxl",
+    "version": "3.1.5",
+    "read_only": true,
+    "data_only": true
+  },
+  "documented_instance_count": 1067371,
+  "workbook_sheet_count": 2,
+  "sheet_names": [
+    "Year 2009-2010",
+    "Year 2010-2011"
+  ],
+  "workbook_total_data_rows": 1067371,
+  "documented_instance_delta": 0,
+  "workbook_total_fully_blank_rows": 0,
+  "canonical_columns": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "actual_workbook_headers": [
+    "Invoice",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "Price",
+    "Customer ID",
+    "Country"
+  ],
+  "header_alias_mapping": {
+    "Invoice": "InvoiceNo",
+    "StockCode": "StockCode",
+    "Description": "Description",
+    "Quantity": "Quantity",
+    "InvoiceDate": "InvoiceDate",
+    "Price": "UnitPrice",
+    "Customer ID": "CustomerID",
+    "Country": "Country"
+  },
+  "metadata_header_drift_detected": true,
+  "metadata_header_drift": {
+    "severity": "low_documented_alias_mapping_required",
+    "actual_to_canonical_changes": {
+      "Invoice": "InvoiceNo",
+      "Price": "UnitPrice",
+      "Customer ID": "CustomerID"
+    },
+    "impact": "Existing Online Retail scripts cannot assume identical raw header names; ingestion must rename aliases before applying shared business rules."
+  },
+  "date_policy": {
+    "source_timezone": "not documented; workbook datetimes are treated as naive source-local timestamps",
+    "start_inclusive": "2009-12-01T00:00:00",
+    "end_exclusive": "2010-12-01T00:00:00"
+  },
+  "date_scan": {
+    "valid_invoice_date_rows": 1067371,
+    "blank_invoice_date_rows": 0,
+    "invalid_invoice_date_rows": 0,
+    "overall_date_min": "2009-12-01 07:45:00",
+    "overall_date_max": "2011-12-09 12:50:00",
+    "rows_before_window": 0,
+    "strict_window_row_count": 502938,
+    "strict_window_date_min": "2009-12-01 07:45:00",
+    "strict_window_date_max": "2010-11-30 19:35:00",
+    "rows_at_or_after_window": 564433
+  },
+  "sheet_profiles": [
+    {
+      "sheet_name": "Year 2009-2010",
+      "declared_max_row_including_header": 525462,
+      "declared_max_column": 8,
+      "actual_headers": [
+        "Invoice",
+        "StockCode",
+        "Description",
+        "Quantity",
+        "InvoiceDate",
+        "Price",
+        "Customer ID",
+        "Country"
+      ],
+      "canonical_headers": [
+        "InvoiceNo",
+        "StockCode",
+        "Description",
+        "Quantity",
+        "InvoiceDate",
+        "UnitPrice",
+        "CustomerID",
+        "Country"
+      ],
+      "data_rows": 525461,
+      "fully_blank_rows": 0,
+      "valid_invoice_date_rows": 525461,
+      "blank_invoice_date_rows": 0,
+      "invalid_invoice_date_rows": 0,
+      "date_min": "2009-12-01 07:45:00",
+      "date_max": "2010-12-09 20:01:00",
+      "strict_window_row_count": 502938,
+      "strict_window_date_min": "2009-12-01 07:45:00",
+      "strict_window_date_max": "2010-11-30 19:35:00",
+      "rows_before_window": 0,
+      "rows_at_or_after_window": 22523,
+      "sampled_non_null_value_type_counts": {
+        "InvoiceNo": {
+          "int": 1916,
+          "str": 84
+        },
+        "StockCode": {
+          "int": 1647,
+          "str": 353
+        },
+        "Description": {
+          "str": 2000
+        },
+        "Quantity": {
+          "int": 2000
+        },
+        "InvoiceDate": {
+          "datetime": 2000
+        },
+        "UnitPrice": {
+          "float": 1983,
+          "int": 17
+        },
+        "CustomerID": {
+          "int": 2000
+        },
+        "Country": {
+          "str": 2000
+        }
+      },
+      "type_sample_limit_per_column": 2000
+    },
+    {
+      "sheet_name": "Year 2010-2011",
+      "declared_max_row_including_header": 541911,
+      "declared_max_column": 8,
+      "actual_headers": [
+        "Invoice",
+        "StockCode",
+        "Description",
+        "Quantity",
+        "InvoiceDate",
+        "Price",
+        "Customer ID",
+        "Country"
+      ],
+      "canonical_headers": [
+        "InvoiceNo",
+        "StockCode",
+        "Description",
+        "Quantity",
+        "InvoiceDate",
+        "UnitPrice",
+        "CustomerID",
+        "Country"
+      ],
+      "data_rows": 541910,
+      "fully_blank_rows": 0,
+      "valid_invoice_date_rows": 541910,
+      "blank_invoice_date_rows": 0,
+      "invalid_invoice_date_rows": 0,
+      "date_min": "2010-12-01 08:26:00",
+      "date_max": "2011-12-09 12:50:00",
+      "strict_window_row_count": 0,
+      "strict_window_date_min": null,
+      "strict_window_date_max": null,
+      "rows_before_window": 0,
+      "rows_at_or_after_window": 541910,
+      "sampled_non_null_value_type_counts": {
+        "InvoiceNo": {
+          "int": 1974,
+          "str": 26
+        },
+        "StockCode": {
+          "int": 1748,
+          "str": 252
+        },
+        "Description": {
+          "str": 2000
+        },
+        "Quantity": {
+          "int": 2000
+        },
+        "InvoiceDate": {
+          "datetime": 2000
+        },
+        "UnitPrice": {
+          "float": 1990,
+          "int": 10
+        },
+        "CustomerID": {
+          "int": 2000
+        },
+        "Country": {
+          "str": 2000
+        }
+      },
+      "type_sample_limit_per_column": 2000
+    }
+  ],
+  "parse_warning_count": 0,
+  "parse_warning_examples": [],
+  "full_missingness_profile_complete": false,
+  "duplicate_and_grain_profile_complete": false,
+  "business_rule_profile_complete": false,
+  "historical_overlap_check_complete": false,
+  "context_feasibility_check_complete": false,
+  "context_manifest_created": false,
+  "prompt_created": false,
+  "model_run_performed": false,
+  "new_metrics_reported": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "next_authorized_action": "Run the full field-level quality, duplicate/grain, cancellation, overlap, and context-feasibility profile without creating prompts."
+}

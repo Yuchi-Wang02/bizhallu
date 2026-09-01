@@ -53,7 +53,11 @@ def main() -> None:
         "selected_candidate_id": dataset_audit["selected_candidate_id"],
         "selected_candidate_role": dataset_audit["selected_candidate_role"],
         "dataset_gate_status": dataset_audit["dataset_gate_status"],
+        "dataset_acquisition_verified": dataset_audit["acquisition_verified"],
+        "dataset_structure_profile_complete": dataset_audit["structure_profile_complete"],
         "dataset_local_profile_complete": dataset_audit["local_profile_complete"],
+        "strict_window_row_count": dataset_audit["strict_window_row_count"],
+        "metadata_header_drift_detected": dataset_audit["metadata_header_drift_detected"],
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -76,7 +80,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Acquire the provisionally selected Online Retail II source from UCI and complete the strict prior-period local profile before creating any context manifest, prompt, or generation file.",
+        "recommended_next_decision": "Complete the remaining strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, overlap, and context-feasibility checks before creating any context manifest, prompt, or generation file.",
         "num_failures": 0,
         "failures": [],
     }
@@ -162,7 +166,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> Online Retail II's strict prior-period window is provisionally selected, but no candidate file has been downloaded or profiled, no context manifest has been frozen, no new model output has been generated, and no Confirmation Set v1 performance result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, and its 502,938-row strict prior-period boundary is structurally verified. Full analytical quality, overlap, and context-feasibility checks remain pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
       </section>
 
       <section>
@@ -184,7 +188,7 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the strict 2009-12-01 inclusive to 2010-12-01 exclusive window, after local completeness, overlap, and context-feasibility checks pass. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
+        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the verified 2009-12-01 inclusive to 2010-12-01 exclusive window after the remaining field-quality, overlap, and context-feasibility checks pass. The raw workbook requires explicit <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
       </section>
 
       <section>
@@ -244,7 +248,7 @@ def main() -> None:
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Acquire the provisionally selected workbook from UCI, record its SHA-256, and complete the strict prior-period profile and overlap checks. Then run the outcome-blind precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Complete the strict-window missingness, duplicate/grain, business-rule, monthly-coverage, current-source overlap, and outcome-blind context-feasibility profile. Then run the precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
       </section>
 
       <section>

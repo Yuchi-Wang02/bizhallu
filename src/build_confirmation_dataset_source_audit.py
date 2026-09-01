@@ -12,6 +12,8 @@ from public_paths import repo_path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.json"
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
+ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_report.json"
+STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_summary.json"
@@ -41,6 +43,8 @@ def main() -> None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     audit = load_json(AUDIT_PATH)
     protocol = load_json(PROTOCOL_PATH)
+    acquisition = load_json(ACQUISITION_PATH)
+    structure = load_json(STRUCTURE_PATH)
 
     decision = audit["decision"]
     candidates = audit["candidates"]
@@ -73,6 +77,8 @@ def main() -> None:
         "audit_date": audit["audit_date"],
         "desk_audit_complete": True,
         "download_performed": audit["download_performed"],
+        "acquisition_verified": audit["acquisition_verified"],
+        "structure_profile_complete": audit["structure_profile_complete"],
         "local_profile_complete": audit["local_profile_complete"],
         "execution_ready": audit["execution_ready"],
         "no_new_results": audit["no_new_results"],
@@ -83,6 +89,14 @@ def main() -> None:
         "selected_source_url": selected["official_source_url"],
         "selected_window": selected["selected_window"],
         "dataset_gate_status": decision["dataset_gate_status"],
+        "zip_sha256": acquisition["raw_artifacts"]["zip"]["sha256"],
+        "xlsx_sha256": acquisition["raw_artifacts"]["xlsx"]["sha256"],
+        "workbook_total_data_rows": structure["workbook_total_data_rows"],
+        "strict_window_row_count": structure["date_scan"]["strict_window_row_count"],
+        "strict_window_date_min": structure["date_scan"]["strict_window_date_min"],
+        "strict_window_date_max": structure["date_scan"]["strict_window_date_max"],
+        "metadata_header_drift_detected": structure["metadata_header_drift_detected"],
+        "required_header_aliases": structure["metadata_header_drift"]["actual_to_canonical_changes"],
         "candidate_count": len(candidates),
         "external_shortlist_count": len(external_shortlist),
         "source_reference_count": len(references),
@@ -90,8 +104,8 @@ def main() -> None:
         "pending_criterion_ids": pending_criteria,
         "local_profile_check_count": len(checks),
         "next_authorized_action": (
-            "Acquire Online Retail II from the official UCI source, record its SHA-256, and run the "
-            "strict prior-period data-quality and context-feasibility profile."
+            "Run the full strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, "
+            "current-source overlap, and outcome-blind context-feasibility profile without creating prompts."
         ),
         "num_failures": 0,
         "failures": [],
@@ -124,7 +138,7 @@ def main() -> None:
     )
 
     check_rows = "\n".join(
-        f"<tr><td>{index}</td><td><code>{esc(item['check_id'])}</code></td><td>{esc(item['requirement'])}</td></tr>"
+        f"<tr><td>{index}</td><td><code>{esc(item['check_id'])}</code></td><td><span class=\"badge {esc(item['status'])}\">{esc(item['status'])}</span></td><td>{esc(item['requirement'])}</td></tr>"
         for index, item in enumerate(checks, start=1)
     )
 
@@ -182,8 +196,8 @@ def main() -> None:
       ul, ol {{ display:grid; gap:8px; padding-left:21px; margin:8px 0; }}
       code {{ padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }}
       .badge {{ display:inline-block; margin-top:5px; padding:3px 7px; border:1px solid var(--line); border-radius:5px; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }}
-      .badge.pass_metadata {{ color:var(--green); border-color:#93c8b4; background:#f3fbf7; }}
-      .badge.conditional_pass, .badge.pending_local_profile {{ color:var(--amber); border-color:#d7bd88; background:#fff9ed; }}
+      .badge.pass_metadata, .badge.completed {{ color:var(--green); border-color:#93c8b4; background:#f3fbf7; }}
+      .badge.conditional_pass, .badge.pending_local_profile, .badge.pending, .badge.active {{ color:var(--amber); border-color:#d7bd88; background:#fff9ed; }}
       footer {{ padding:32px 0 48px; color:var(--muted); }}
       @media (max-width:820px) {{ nav {{ display:none; }} h1 {{ font-size:40px; }} h2 {{ font-size:28px; }} .status,.grid {{ grid-template-columns:1fr; }} main {{ width:min(100% - 24px,1180px); }} }}
     </style>
@@ -196,15 +210,15 @@ def main() -> None:
     <main>
       <section class="hero">
         <p class="eyebrow">Confirmation Dataset Source Audit v1</p>
-        <h1>A source is selected in principle, not cleared for execution.</h1>
-        <p class="lede">Use the strict prior-period portion of UCI Online Retail II as the near-term temporal internal-replication candidate. Keep the dataset gate pending until acquisition, hashing, row-level profiling, overlap testing, and 36-context feasibility all pass.</p>
+        <h1>The official source is verified; execution remains blocked.</h1>
+        <p class="lede">UCI Online Retail II is now acquired, hashed, and structurally inspected. The strict prior-period boundary retains 502,938 date-valid rows, but the dataset gate stays pending until full quality, overlap, and context-feasibility checks pass.</p>
         <div class="status">
           <div><span>Decision</span><strong>Provisional</strong></div>
-          <div><span>Candidate</span><strong>Online Retail II</strong></div>
-          <div><span>Local profile</span><strong>Pending</strong></div>
+          <div><span>Source</span><strong>Verified</strong></div>
+          <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
         </div>
-        <div class="callout"><strong>Execution remains blocked.</strong> No candidate file was downloaded, no context manifest was generated, no prompt was created, and no model or detector result was produced in this audit.</div>
+        <div class="callout"><strong>Execution remains blocked.</strong> The raw files remain local and Git-ignored. No context manifest, prompt, model output, annotation target, detector decision, or Confirmation Set result was created.</div>
       </section>
 
       <section>
@@ -220,9 +234,21 @@ def main() -> None:
       </section>
 
       <section>
+        <p class="eyebrow">Acquisition evidence</p>
+        <h2>The immutable file and strict date boundary now reconcile.</h2>
+        <div class="grid">
+          <article class="panel"><h3>Official ZIP</h3><p>{esc(acquisition['raw_artifacts']['zip']['size_bytes'])} bytes</p><code>{esc(acquisition['raw_artifacts']['zip']['sha256'])}</code></article>
+          <article class="panel"><h3>Extracted workbook</h3><p>{esc(acquisition['raw_artifacts']['xlsx']['size_bytes'])} bytes</p><code>{esc(acquisition['raw_artifacts']['xlsx']['sha256'])}</code></article>
+          <article class="panel"><h3>Workbook reconciliation</h3><p>{esc(structure['workbook_total_data_rows'])} data rows across {esc(structure['workbook_sheet_count'])} sheets; documented instance delta: {esc(structure['documented_instance_delta'])}.</p></article>
+          <article class="panel"><h3>Strict window</h3><p>{esc(structure['date_scan']['strict_window_row_count'])} rows from {esc(structure['date_scan']['strict_window_date_min'])} through {esc(structure['date_scan']['strict_window_date_max'])}.</p></article>
+        </div>
+        <div class="callout"><strong>Schema drift recorded.</strong> The workbook uses <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code>; ingestion must map them to <code>InvoiceNo</code>, <code>UnitPrice</code>, and <code>CustomerID</code> before shared business rules run.</div>
+      </section>
+
+      <section>
         <p class="eyebrow">Acceptance criteria</p>
-        <h2>Official metadata clears three checks; local evidence must clear the rest.</h2>
-        <p>Metadata confirms row-level fields, documented business measures, and CC BY 4.0 use. Completeness, duplicate behavior, record independence, privacy handling, and context capacity still require local evidence.</p>
+        <h2>Metadata and structure are verified; analytical fitness is not.</h2>
+        <p>Local evidence now confirms file integrity, workbook shape, date coverage, and deterministic header aliases. Completeness, duplicate behavior, business-rule validity, record independence, and context capacity still require the next profile.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody>{criterion_rows}</tbody>
@@ -241,9 +267,9 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Local acquisition gate</p>
-        <h2>Ten checks must pass before any context manifest exists.</h2>
+        <h2>Three checks are complete; six remain pending and privacy stays active.</h2>
         <div class="table-wrap"><table>
-          <thead><tr><th>#</th><th>Check</th><th>Requirement</th></tr></thead>
+          <thead><tr><th>#</th><th>Check</th><th>Status</th><th>Requirement</th></tr></thead>
           <tbody>{check_rows}</tbody>
         </table></div>
       </section>
@@ -268,12 +294,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Acquire and profile; do not generate.</h2>
+        <h2>Profile the verified window; do not generate.</h2>
         <p>{esc(summary['next_authorized_action'])}</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Desk audit completed {esc(audit['audit_date'])}; local source QA remains pending.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition and structure verified {esc(audit['audit_date'])}; analytical source QA remains pending.</footer>
     </main>
   </body>
 </html>

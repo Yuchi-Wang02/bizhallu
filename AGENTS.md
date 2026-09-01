@@ -64,6 +64,7 @@ python src\validate_business_risk_lens.py
 python src\validate_research_one_pager.py
 python src\validate_evidence_verifier_pilot.py
 python src\validate_methodology_hardening.py
+python src\validate_confirmation_dataset_acquisition.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -106,12 +107,15 @@ the prospective next study.
 Confirmation Set v1 is design-only and is not execution-ready. Its seven gates
 must remain pending until each requirement is actually satisfied. The official-source
 desk audit provisionally selects the strict prior-period window from UCI Online
-Retail II, but the dataset gate remains pending. The next authorized research
-action is to acquire that workbook from UCI, record its SHA-256, and complete the
-strict date-window, missingness, duplicate, cancellation, overlap, and 36-context
-feasibility profile. Do not create new prompts, run Qwen, annotate new outputs, or
-report confirmation metrics before that profile and the subsequent outcome-blind
-precision review are complete. Any future result described as confirmatory must use
+Retail II. The official ZIP and workbook are now acquired, hashed, and kept under
+the Git-ignored raw-data tree. The two-sheet structure, three required raw-header
+aliases, complete InvoiceDate range, and 502,938-row strict prior-period boundary
+are verified, but the dataset gate remains pending. The next authorized research
+action is the full strict-window missingness, duplicate/grain, cancellation,
+monthly-coverage, current-source overlap, and 36-context feasibility profile. Do
+not create new prompts, run Qwen, annotate new outputs, or report confirmation
+metrics before that profile and the subsequent outcome-blind precision review are
+complete. Any future result described as confirmatory must use
 fresh or context-separated data, select annotation targets before answer-quality
 review, freeze primary detector and threshold policies before confirmation-set
 access, use two independent human reviewers, and report claim extraction

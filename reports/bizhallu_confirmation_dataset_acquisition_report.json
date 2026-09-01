@@ -1,0 +1,56 @@
+{
+  "status": "official_acquisition_and_hash_verified",
+  "study_name": "Confirmation Set v1",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "source_page_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
+  "official_download_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
+  "doi": "10.24432/C5CG6D",
+  "license": "CC BY 4.0",
+  "retrieved_at_utc": "2026-09-01T15:59:16.252679+00:00",
+  "acquisition_mode": "downloaded_from_official_source",
+  "http_response": {
+    "resolved_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
+    "http_status": 200,
+    "headers": {
+      "content_type": null,
+      "content_length": null,
+      "etag": null,
+      "last_modified": null,
+      "server": "nginx/1.31.4"
+    }
+  },
+  "raw_artifacts": {
+    "zip": {
+      "path": "data/raw/confirmation_online_retail_ii/online_retail_ii.zip",
+      "size_bytes": 45622418,
+      "sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb"
+    },
+    "xlsx": {
+      "path": "data/raw/confirmation_online_retail_ii/online_retail_II.xlsx",
+      "size_bytes": 45622278,
+      "sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980"
+    }
+  },
+  "archive_member": {
+    "name": "online_retail_II.xlsx",
+    "uncompressed_size_bytes": 45622278,
+    "compressed_size_bytes": 45622278,
+    "crc32_hex": "e51262e5"
+  },
+  "checks": {
+    "official_host": true,
+    "zip_nonempty": true,
+    "zip_crc_passed": true,
+    "single_expected_xlsx_member": true,
+    "xlsx_size_matches_zip_member": true,
+    "xlsx_container_valid": true,
+    "raw_paths_under_gitignored_tree": true
+  },
+  "local_only_raw_data": true,
+  "context_manifest_created": false,
+  "prompt_created": false,
+  "model_run_performed": false,
+  "new_metrics_reported": false,
+  "execution_ready": false,
+  "no_new_results": true
+}

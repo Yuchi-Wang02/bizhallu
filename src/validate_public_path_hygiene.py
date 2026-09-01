@@ -19,10 +19,7 @@ VALIDATION_PATH = REPORTS_DIR / "public_path_hygiene_validation.json"
 def public_json_files() -> list[Path]:
     files: list[Path] = []
     files.extend(sorted(DOCS_DIR.rglob("*.json")))
-    files.extend(sorted(REPORTS_DIR.glob("*_summary.json")))
-    files.extend(sorted(REPORTS_DIR.glob("*_validation.json")))
-    files.extend(sorted(REPORTS_DIR.glob("*_data.json")))
-    files.extend(sorted(REPORTS_DIR.glob("*_rows.json")))
+    files.extend(sorted(REPORTS_DIR.glob("*.json")))
     files.extend(sorted(RESULTS_DIR.glob("*.json")))
     files.extend(sorted(CONFIGS_DIR.rglob("*.json")))
     files.extend(sorted(PROCESSED_DATA_DIR.rglob("*.json")))
