@@ -1,0 +1,35 @@
+{
+  "status": "confirmation_dataset_source_audit_v1_ready",
+  "audit_path": "configs/confirmation_dataset_source_audit_v1.json",
+  "protocol_path": "configs/confirmation_set_v1_protocol.json",
+  "html_path": "reports/bizhallu_confirmation_dataset_source_audit.html",
+  "audit_date": "2026-09-01",
+  "desk_audit_complete": true,
+  "download_performed": false,
+  "local_profile_complete": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "selection_status": "provisional_selection_pending_local_profile",
+  "selected_candidate_id": "uci_online_retail_ii_prior_period",
+  "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
+  "selected_candidate_role": "prospective_temporal_internal_replication",
+  "selected_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
+  "selected_window": "2009-12-01 inclusive through 2010-12-01 exclusive",
+  "dataset_gate_status": "pending",
+  "candidate_count": 6,
+  "external_shortlist_count": 2,
+  "source_reference_count": 10,
+  "selected_criterion_status_counts": {
+    "conditional_pass": 1,
+    "pass_metadata": 3,
+    "pending_local_profile": 2
+  },
+  "pending_criterion_ids": [
+    "completeness_and_duplicates_auditable",
+    "minimum_36_disjoint_contexts"
+  ],
+  "local_profile_check_count": 10,
+  "next_authorized_action": "Acquire Online Retail II from the official UCI source, record its SHA-256, and run the strict prior-period data-quality and context-feasibility profile.",
+  "num_failures": 0,
+  "failures": []
+}

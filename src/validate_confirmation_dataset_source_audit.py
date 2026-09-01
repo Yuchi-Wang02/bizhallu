@@ -1,0 +1,395 @@
+from __future__ import annotations
+
+import json
+from collections import Counter
+from html.parser import HTMLParser
+from pathlib import Path
+from typing import Any
+
+from public_paths import contains_local_path, repo_path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.json"
+PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
+LOCAL_QUALITY_PATH = PROJECT_ROOT / "data" / "processed" / "data_quality_report.json"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
+SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_summary.json"
+VALIDATION_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_validation.json"
+
+
+EXPECTED_CANDIDATE_IDS = {
+    "current_online_retail_new_contexts",
+    "uci_online_retail_ii_prior_period",
+    "completejourney_external",
+    "olist_external",
+    "nyc_tlc_domain_transfer",
+    "jhu_future_domain_extension",
+}
+
+EXPECTED_CRITERION_STATUSES = {
+    "pass_metadata": 3,
+    "conditional_pass": 1,
+    "pending_local_profile": 2,
+}
+
+REQUIRED_HTML_FRAGMENTS = [
+    "Confirmation Dataset Source Audit v1",
+    "A source is selected in principle, not cleared for execution.",
+    "Online Retail II",
+    "2009-12-01T00:00:00",
+    "2010-12-01T00:00:00",
+    "prospective_temporal_internal_replication",
+    "Complete Journey",
+    "Metadata conflict matters.",
+    "135,080 missing customer IDs",
+    "Ten checks must pass",
+    "Acquire and profile; do not generate.",
+    "No candidate file was downloaded",
+    ".panel { min-width:0;",
+    "overflow-x:auto;",
+    "overflow-wrap:anywhere;",
+    "@media (max-width:820px)",
+    "h1 { font-size:40px; } h2 { font-size:28px; }",
+]
+
+FORBIDDEN_HTML_FRAGMENTS = [
+    "Confirmation Set v1 has started.",
+    "The selected source is execution-ready.",
+    "Thirty-six disjoint contexts have already been verified.",
+    "production-ready hallucination detector",
+    "new confirmation AUPRC",
+    "clamp(",
+]
+
+
+class HTMLCheckParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.seen_tags = 0
+        self.tag_counts: Counter[str] = Counter()
+        self.hrefs: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.seen_tags += 1
+        self.tag_counts[tag] += 1
+        if tag == "a":
+            href = dict(attrs).get("href")
+            if href:
+                self.hrefs.append(href)
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def add_failure(failures: list[dict[str, Any]], name: str, detail: Any) -> None:
+    failures.append({"name": name, "detail": detail})
+
+
+def main() -> None:
+    failures: list[dict[str, Any]] = []
+    required_paths = [
+        AUDIT_PATH,
+        PROTOCOL_PATH,
+        LOCAL_QUALITY_PATH,
+        HTML_PATH,
+        SUMMARY_PATH,
+    ]
+    for path in required_paths:
+        if not path.exists():
+            add_failure(failures, "required_file_missing", repo_path(path))
+
+    audit = load_json(AUDIT_PATH) if AUDIT_PATH.exists() else {}
+    protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
+    local_quality = load_json(LOCAL_QUALITY_PATH) if LOCAL_QUALITY_PATH.exists() else {}
+    summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
+    html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
+
+    if html_text:
+        parser = HTMLCheckParser()
+        parser.feed(html_text)
+        if parser.seen_tags == 0:
+            add_failure(failures, "html_parse", "no tags parsed")
+        expected_tag_counts = {"html": 1, "head": 1, "body": 1, "main": 1, "h1": 1}
+        for tag, expected_count in expected_tag_counts.items():
+            if parser.tag_counts[tag] != expected_count:
+                add_failure(
+                    failures,
+                    "html_tag_count",
+                    {"tag": tag, "expected": expected_count, "actual": parser.tag_counts[tag]},
+                )
+        if parser.tag_counts["section"] < 7 or parser.tag_counts["table"] != 4:
+            add_failure(
+                failures,
+                "html_report_structure",
+                {
+                    "section_count": parser.tag_counts["section"],
+                    "table_count": parser.tag_counts["table"],
+                },
+            )
+        for href in parser.hrefs:
+            if href.startswith("./") and not (HTML_PATH.parent / href[2:]).exists():
+                add_failure(failures, "broken_internal_html_link", href)
+        for fragment in REQUIRED_HTML_FRAGMENTS:
+            if fragment not in html_text:
+                add_failure(failures, "required_html_fragment_missing", fragment)
+        for fragment in FORBIDDEN_HTML_FRAGMENTS:
+            if fragment in html_text:
+                add_failure(failures, "forbidden_html_fragment", fragment)
+        if contains_local_path(html_text):
+            add_failure(failures, "local_path_in_html", repo_path(HTML_PATH))
+
+    expected_audit_boundary = {
+        "status": "desk_audit_complete_local_profile_pending",
+        "audit_date": "2026-09-01",
+        "no_new_results": True,
+        "download_performed": False,
+        "local_profile_complete": False,
+        "execution_ready": False,
+    }
+    for key, expected in expected_audit_boundary.items():
+        if audit.get(key) != expected:
+            add_failure(
+                failures,
+                "audit_boundary_mismatch",
+                {"field": key, "expected": expected, "actual": audit.get(key)},
+            )
+
+    decision = audit.get("decision", {})
+    expected_decision = {
+        "selection_status": "provisional_selection_pending_local_profile",
+        "selected_candidate_id": "uci_online_retail_ii_prior_period",
+        "selected_role": "prospective_temporal_internal_replication",
+        "dataset_gate_status": "pending",
+    }
+    for key, expected in expected_decision.items():
+        if decision.get(key) != expected:
+            add_failure(
+                failures,
+                "decision_mismatch",
+                {"field": key, "expected": expected, "actual": decision.get(key)},
+            )
+
+    expected_window = {
+        "start_inclusive": "2009-12-01T00:00:00",
+        "end_exclusive": "2010-12-01T00:00:00",
+        "reason": (
+            "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff "
+            "prevents intentional calendar overlap before record-level fingerprint checks are run."
+        ),
+    }
+    if decision.get("allowed_time_window") != expected_window:
+        add_failure(failures, "selected_window_mismatch", decision.get("allowed_time_window"))
+
+    candidates = audit.get("candidates", [])
+    candidate_ids = {item.get("candidate_id") for item in candidates}
+    if candidate_ids != EXPECTED_CANDIDATE_IDS:
+        add_failure(failures, "candidate_ids", sorted(str(item) for item in candidate_ids))
+    if len(candidates) != 6:
+        add_failure(failures, "candidate_count", len(candidates))
+
+    selected = next(
+        (item for item in candidates if item.get("candidate_id") == decision.get("selected_candidate_id")),
+        {},
+    )
+    selected_identity = selected.get("source_identity", {})
+    expected_selected_identity = {
+        "doi": "10.24432/C5CG6D",
+        "documented_instances_full_workbook": 1067371,
+        "documented_period_full_workbook": "2009-12-01 through 2011-12-09",
+        "documented_file": "online_retail_II.xlsx",
+        "documented_file_size": "43.5 MB",
+        "license": "CC BY 4.0",
+        "official_missing_value_flag": True,
+    }
+    if selected_identity != expected_selected_identity:
+        add_failure(failures, "selected_source_identity", selected_identity)
+    if selected.get("official_source_url") != "https://archive.ics.uci.edu/dataset/502/online+retail":
+        add_failure(failures, "selected_source_url", selected.get("official_source_url"))
+    if selected.get("decision_status") != "provisional_selected_pending_local_profile":
+        add_failure(failures, "selected_decision_status", selected.get("decision_status"))
+
+    criteria = audit.get("source_acceptance_criteria", [])
+    criterion_counts = dict(
+        Counter(item.get("selected_candidate_status") for item in criteria)
+    )
+    if criterion_counts != EXPECTED_CRITERION_STATUSES:
+        add_failure(failures, "criterion_status_counts", criterion_counts)
+    expected_criterion_ids = {
+        "row_level_deterministic_gold",
+        "documented_time_entity_quantity_value",
+        "completeness_and_duplicates_auditable",
+        "permitted_research_use",
+        "no_sensitive_personal_data_required",
+        "minimum_36_disjoint_contexts",
+    }
+    if {item.get("criterion_id") for item in criteria} != expected_criterion_ids:
+        add_failure(failures, "criterion_ids", criteria)
+
+    checks = audit.get("required_local_profile_checks", [])
+    if len(checks) != 10:
+        add_failure(failures, "local_profile_check_count", len(checks))
+    expected_check_ids = {
+        "official_acquisition_and_hash",
+        "workbook_structure",
+        "strict_prior_period_filter",
+        "completeness",
+        "duplicates_and_grain",
+        "business_rule_validity",
+        "historical_overlap",
+        "monthly_coverage",
+        "context_feasibility",
+        "public_privacy_boundary",
+    }
+    check_ids = {item.get("check_id") for item in checks}
+    if check_ids != expected_check_ids:
+        add_failure(
+            failures,
+            "local_profile_check_ids",
+            {
+                "missing": sorted(expected_check_ids - check_ids),
+                "unexpected": sorted(str(item) for item in check_ids - expected_check_ids),
+            },
+        )
+
+    references = audit.get("source_references", [])
+    if len(references) != 10:
+        add_failure(failures, "source_reference_count", len(references))
+    reference_ids = [item.get("source_id") for item in references]
+    if len(reference_ids) != len(set(reference_ids)):
+        add_failure(failures, "duplicate_source_reference_id", reference_ids)
+    for item in references:
+        url = item.get("url")
+        if not isinstance(url, str) or not url:
+            add_failure(failures, "invalid_source_reference_url", item)
+        elif not (url.startswith("https://") or url == "data/processed/data_quality_report.json"):
+            add_failure(failures, "noncanonical_source_reference_url", url)
+
+    expected_local_quality = {
+        "raw_shape": [541909, 8],
+        "date_min": "2010-12-01 08:26:00",
+        "missing_description": 1454,
+        "missing_customer_id": 135080,
+        "duplicate_rows": 5268,
+    }
+    observed_local_quality = {
+        "raw_shape": local_quality.get("raw_shape"),
+        "date_min": local_quality.get("date_min"),
+        "missing_description": local_quality.get("missing_values", {}).get("Description"),
+        "missing_customer_id": local_quality.get("missing_values", {}).get("CustomerID"),
+        "duplicate_rows": local_quality.get("duplicate_rows"),
+    }
+    if observed_local_quality != expected_local_quality:
+        add_failure(failures, "local_quality_evidence_drift", observed_local_quality)
+
+    strategy = protocol.get("dataset_strategy", {})
+    expected_strategy = {
+        "selection_status": "provisional_selection_pending_local_profile",
+        "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
+        "selected_candidate_id": "uci_online_retail_ii_prior_period",
+        "selected_candidate_role": "prospective_temporal_internal_replication",
+        "selected_candidate_gate_status": "pending",
+    }
+    for key, expected in expected_strategy.items():
+        if strategy.get(key) != expected:
+            add_failure(
+                failures,
+                "protocol_dataset_strategy_mismatch",
+                {"field": key, "expected": expected, "actual": strategy.get(key)},
+            )
+    option_ids = {item.get("option_id") for item in strategy.get("options", [])}
+    expected_option_ids = {
+        "same_dataset_new_contexts",
+        "same_source_prior_period",
+        "second_public_transaction_dataset",
+        "jhu_domain_extension",
+    }
+    if option_ids != expected_option_ids:
+        add_failure(failures, "protocol_option_ids", sorted(str(item) for item in option_ids))
+
+    gates = protocol.get("execution_gates", [])
+    dataset_gate = next(
+        (item for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),
+        {},
+    )
+    if dataset_gate.get("status") != "pending":
+        add_failure(failures, "dataset_gate_status", dataset_gate)
+    if "official-source desk audit complete" not in dataset_gate.get("progress", ""):
+        add_failure(failures, "dataset_gate_progress", dataset_gate)
+    if len(dataset_gate.get("blocking_requirements", [])) != 3:
+        add_failure(failures, "dataset_gate_blockers", dataset_gate)
+    if protocol.get("execution_ready") is not False or protocol.get("no_new_results") is not True:
+        add_failure(failures, "protocol_execution_boundary", protocol)
+
+    expected_summary = {
+        "status": "confirmation_dataset_source_audit_v1_ready",
+        "audit_date": "2026-09-01",
+        "desk_audit_complete": True,
+        "download_performed": False,
+        "local_profile_complete": False,
+        "execution_ready": False,
+        "no_new_results": True,
+        "selection_status": "provisional_selection_pending_local_profile",
+        "selected_candidate_id": "uci_online_retail_ii_prior_period",
+        "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
+        "selected_candidate_role": "prospective_temporal_internal_replication",
+        "selected_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
+        "selected_window": "2009-12-01 inclusive through 2010-12-01 exclusive",
+        "dataset_gate_status": "pending",
+        "candidate_count": 6,
+        "external_shortlist_count": 2,
+        "source_reference_count": 10,
+        "selected_criterion_status_counts": EXPECTED_CRITERION_STATUSES,
+        "pending_criterion_ids": [
+            "completeness_and_duplicates_auditable",
+            "minimum_36_disjoint_contexts",
+        ],
+        "local_profile_check_count": 10,
+        "num_failures": 0,
+    }
+    for key, expected in expected_summary.items():
+        if summary.get(key) != expected:
+            add_failure(
+                failures,
+                "summary_value_mismatch",
+                {"field": key, "expected": expected, "actual": summary.get(key)},
+            )
+
+    for artifact_path, payload in [(AUDIT_PATH, audit), (SUMMARY_PATH, summary)]:
+        if contains_local_path(json.dumps(payload, ensure_ascii=True)):
+            add_failure(failures, "local_path_in_json", repo_path(artifact_path))
+
+    validation = {
+        "status": (
+            "confirmation_dataset_source_audit_validation_passed"
+            if not failures
+            else "confirmation_dataset_source_audit_validation_failed"
+        ),
+        "audit_path": repo_path(AUDIT_PATH),
+        "protocol_path": repo_path(PROTOCOL_PATH),
+        "html_path": repo_path(HTML_PATH),
+        "summary_path": repo_path(SUMMARY_PATH),
+        "desk_audit_complete": True,
+        "selected_candidate_id": decision.get("selected_candidate_id"),
+        "dataset_gate_status": dataset_gate.get("status"),
+        "download_performed": False,
+        "local_profile_complete": False,
+        "execution_ready": False,
+        "no_new_results": True,
+        "candidate_count": len(candidates),
+        "local_profile_check_count": len(checks),
+        "num_failures": len(failures),
+        "failures": failures,
+    }
+    VALIDATION_PATH.write_text(
+        json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8"
+    )
+    print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

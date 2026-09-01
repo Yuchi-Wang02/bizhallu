@@ -11,6 +11,7 @@ from public_paths import repo_path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
+DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -32,6 +33,7 @@ def main() -> None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     protocol = load_json(PROTOCOL_PATH)
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
+    dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH)
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -47,6 +49,11 @@ def main() -> None:
         "html_path": repo_path(HTML_PATH),
         "study_role": protocol["study_role"],
         "dataset_selection_status": protocol["dataset_strategy"]["selection_status"],
+        "dataset_source_audit_path": repo_path(DATASET_AUDIT_SUMMARY_PATH),
+        "selected_candidate_id": dataset_audit["selected_candidate_id"],
+        "selected_candidate_role": dataset_audit["selected_candidate_role"],
+        "dataset_gate_status": dataset_audit["dataset_gate_status"],
+        "dataset_local_profile_complete": dataset_audit["local_profile_complete"],
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -69,7 +76,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Select and audit the dataset source before creating any new prompt or generation file.",
+        "recommended_next_decision": "Acquire the provisionally selected Online Retail II source from UCI and complete the strict prior-period local profile before creating any context manifest, prompt, or generation file.",
         "num_failures": 0,
         "failures": [],
     }
@@ -142,7 +149,7 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -155,7 +162,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> No dataset option has been selected, no context manifest has been frozen, no new model output has been generated, and no Confirmation Set v1 performance result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> Online Retail II's strict prior-period window is provisionally selected, but no candidate file has been downloaded or profiled, no context manifest has been frozen, no new model output has been generated, and no Confirmation Set v1 performance result exists.</div>
       </section>
 
       <section>
@@ -177,7 +184,7 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Recommended near-term decision.</strong> Use the existing Online Retail lineage only for a prospectively sampled internal replication. A broader generalization claim still requires the second-public-dataset arm.</div>
+        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the strict 2009-12-01 inclusive to 2010-12-01 exclusive window, after local completeness, overlap, and context-feasibility checks pass. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
       </section>
 
       <section>
@@ -237,7 +244,7 @@ def main() -> None:
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Select and audit the dataset source, then complete the outcome-blind precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those decisions are recorded.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Acquire the provisionally selected workbook from UCI, record its SHA-256, and complete the strict prior-period profile and overlap checks. Then run the outcome-blind precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
       </section>
 
       <section>

@@ -11,6 +11,7 @@ from public_paths import contains_local_path, repo_path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
+DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -24,6 +25,7 @@ REQUIRED_HTML_FRAGMENTS = [
     "Two human reviewers",
     "sealed confirmation labels",
     "same_dataset_new_contexts",
+    "same_source_prior_period",
     "second_public_transaction_dataset",
     "jhu_domain_extension",
     "72 generations",
@@ -45,6 +47,8 @@ REQUIRED_HTML_FRAGMENTS = [
     "Every gate is intentionally pending.",
     "The current 0.835 / 0.779 values remain exploratory context.",
     "introduces no new detector metric",
+    "Online Retail II's strict prior-period window is provisionally selected",
+    "Read the source audit.",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -77,16 +81,27 @@ def add_failure(failures: list[dict[str, Any]], name: str, detail: Any) -> None:
 
 def main() -> None:
     failures: list[dict[str, Any]] = []
-    for path in [PROTOCOL_PATH, METHODOLOGY_SUMMARY_PATH, HTML_PATH, SUMMARY_PATH]:
+    for path in [
+        PROTOCOL_PATH,
+        METHODOLOGY_SUMMARY_PATH,
+        DATASET_AUDIT_SUMMARY_PATH,
+        HTML_PATH,
+        SUMMARY_PATH,
+    ]:
         if not path.exists():
             add_failure(failures, "required_file_missing", repo_path(path))
 
     protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
     methodology = load_json(METHODOLOGY_SUMMARY_PATH) if METHODOLOGY_SUMMARY_PATH.exists() else {}
+    dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH) if DATASET_AUDIT_SUMMARY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
 
-    for path, payload in [(PROTOCOL_PATH, protocol), (SUMMARY_PATH, summary)]:
+    for path, payload in [
+        (PROTOCOL_PATH, protocol),
+        (DATASET_AUDIT_SUMMARY_PATH, dataset_audit),
+        (SUMMARY_PATH, summary),
+    ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
             add_failure(failures, "local_path_in_public_json", repo_path(path))
 
@@ -153,16 +168,30 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "decision_pending":
+    if dataset_strategy.get("selection_status") != "provisional_selection_pending_local_profile":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
         "same_dataset_new_contexts",
+        "same_source_prior_period",
         "second_public_transaction_dataset",
         "jhu_domain_extension",
     }
     if option_ids != expected_option_ids:
         add_failure(failures, "dataset_option_ids", sorted(option_ids))
+    expected_selected_strategy = {
+        "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
+        "selected_candidate_id": "uci_online_retail_ii_prior_period",
+        "selected_candidate_role": "prospective_temporal_internal_replication",
+        "selected_candidate_gate_status": "pending",
+    }
+    for key, expected in expected_selected_strategy.items():
+        if dataset_strategy.get(key) != expected:
+            add_failure(
+                failures,
+                "selected_dataset_strategy",
+                {"field": key, "expected": expected, "actual": dataset_strategy.get(key)},
+            )
 
     sampling = protocol.get("sampling_plan", {})
     expected_sampling = {
@@ -273,8 +302,12 @@ def main() -> None:
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "decision_pending",
-        "dataset_option_count": 3,
+        "dataset_selection_status": "provisional_selection_pending_local_profile",
+        "selected_candidate_id": "uci_online_retail_ii_prior_period",
+        "selected_candidate_role": "prospective_temporal_internal_replication",
+        "dataset_gate_status": "pending",
+        "dataset_local_profile_complete": False,
+        "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
         "development_question_count": 30,
@@ -312,7 +345,11 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_decision_pending": dataset_strategy.get("selection_status") == "decision_pending",
+        "dataset_selection_provisional": dataset_strategy.get("selection_status") == "provisional_selection_pending_local_profile",
+        "dataset_gate_pending": next(
+            (item.get("status") for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),
+            None,
+        ) == "pending",
         "precision_review_pending": precision_review.get("status") == "pending",
         "pending_gate_count": len(gates),
         "num_failures": len(failures),

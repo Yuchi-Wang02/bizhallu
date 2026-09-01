@@ -15,14 +15,18 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "decision_pending",
+    "selection_status": "provisional_selection_pending_local_profile",
     "decision_must_precede_prompt_generation": true,
-    "recommended_sequence": "Run a prospective internal replication first, then require a second-dataset external replication for broader generalization claims.",
+    "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
+    "selected_candidate_id": "uci_online_retail_ii_prior_period",
+    "selected_candidate_role": "prospective_temporal_internal_replication",
+    "selected_candidate_gate_status": "pending",
+    "recommended_sequence": "Profile the strict non-overlapping prior-period window from UCI Online Retail II for a prospective temporal internal replication, then require a separately scoped second-dataset replication for broader generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
         "source": "UCI Online Retail cleaned lineage already used by BizHallu",
-        "role": "prospective_internal_replication",
+        "role": "protocol_development_only",
         "candidate_contexts": [
           "customer revenue concentration",
           "product return-rate comparison",
@@ -36,12 +40,34 @@
         ],
         "limitations": [
           "same underlying dataset as the exploratory study",
+          "reuses the same transaction population even when question families are new",
           "cannot support cross-dataset or unseen-domain generalization"
         ]
       },
       {
+        "option_id": "same_source_prior_period",
+        "source": "UCI Online Retail II restricted to 2009-12-01 inclusive through 2010-12-01 exclusive",
+        "role": "prospective_temporal_internal_replication",
+        "candidate_contexts": [
+          "net revenue reconciliation by period",
+          "customer revenue concentration",
+          "product return-rate comparison",
+          "country-product exposure"
+        ],
+        "advantages": [
+          "preserves the current schema and accounting definitions",
+          "moves the study to unseen transaction rows and earlier business periods",
+          "supports a strict cutoff before the current Online Retail source begins"
+        ],
+        "limitations": [
+          "same retailer and source lineage as the exploratory study",
+          "the full workbook overlaps the current source and requires record-level fingerprint checks",
+          "local completeness and 36-context feasibility checks remain pending"
+        ]
+      },
+      {
         "option_id": "second_public_transaction_dataset",
-        "source": "A second row-level transaction dataset selected after completeness, license, and metric-definition review",
+        "source": "Complete Journey is the preferred external shortlist candidate, subject to acquisition, license-lineage, completeness, and metric-definition review",
         "role": "external_replication",
         "candidate_contexts": [
           "revenue reconciliation",
@@ -282,7 +308,13 @@
   "execution_gates": [
     {
       "gate": "dataset_source_selected_and_audited",
-      "status": "pending"
+      "status": "pending",
+      "progress": "official-source desk audit complete; UCI Online Retail II prior-period window provisionally selected",
+      "blocking_requirements": [
+        "official workbook acquisition and SHA-256 record",
+        "strict prior-period profile and current-source overlap proof",
+        "outcome-blind feasibility proof for at least 36 disjoint contexts"
+      ]
     },
     {
       "gate": "context_manifest_split_and_precision_review_frozen",

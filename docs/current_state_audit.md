@@ -79,14 +79,21 @@ policies before new model answers are viewed.
   bootstrap by evidence context.
 - Internal uncertainty, literature-grounded baselines, evidence-aware
   verification, and an optional frozen hybrid remain comparison families.
-- Seven execution gates are deliberately pending. The next authorized action is
-  dataset-source selection and audit, followed by an outcome-blind precision
-  review of the minimum context counts, not prompt generation or a new model run.
+- Seven execution gates are deliberately pending. The desk audit provisionally
+  selects UCI Online Retail II's strict prior-period window, but the first gate
+  stays pending until official acquisition, hashing, local profiling, overlap
+  proof, and 36-context feasibility are complete.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
 metric. The current 0.835 AUPRC and 0.779 F1 remain historical exploratory
 maxima and are not targets or results for Confirmation Set v1.
+
+The companion source audit at
+`reports/bizhallu_confirmation_dataset_source_audit.html` compares six routes,
+records official source and license evidence, and keeps Complete Journey as the
+preferred external-replication shortlist candidate. It is a desk audit only: no
+candidate data file was downloaded and no context manifest was created.
 
 ## Audit Scope
 
@@ -1436,6 +1443,21 @@ entry point for GitHub Pages.
       selected presentation spans. Its statuses are label-derived and prepare
       a future independent comparison; they are not verifier predictions.
 
+36. Confirmation Set v1 needed an official-source dataset decision before any
+    new prompt or generation file could be created.
+    - Fix: added `confirmation_dataset_source_audit_v1.json`, a generated HTML
+      report, a machine-checkable summary, and a dedicated validator.
+    - Decision: provisionally select UCI Online Retail II only within the strict
+      `2009-12-01` inclusive to `2010-12-01` exclusive window for a temporal
+      internal replication.
+    - Boundary: the source file has not been downloaded or profiled, the first
+      execution gate remains pending, and no context, question, generation,
+      annotation, detector, or confirmation result was created.
+    - Academic path: retain Complete Journey as the preferred external
+      replication shortlist candidate, with Olist and NYC TLC serving different
+      relational-ecommerce and operations-transfer roles rather than being
+      treated as equivalent datasets.
+
 ## Remaining Risks
 
 1. Current review auto-status is only a triage aid.
@@ -1483,6 +1505,9 @@ entry point for GitHub Pages.
    - The next result needs fresh or context-separated evidence, annotation
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
+   - Online Retail II is only provisionally selected. The strict prior-period
+     window still needs an official-file hash, local quality profile, zero-overlap
+     proof, and outcome-blind 36-context feasibility check.
 
 ## Recommended Next Steps
 
@@ -1512,12 +1537,16 @@ entry point for GitHub Pages.
      energy-family methods won overall.
 
 3. Treat Confirmation Set v1 as the next research branch, but keep it blocked
-   until the dataset decision is complete.
-   - Audit the same-dataset prospective-replication option and at least one
-     second public transaction dataset against the six source-acceptance
-     criteria in `configs/confirmation_set_v1_protocol.json`.
-   - Record the selected source, exclusions, license, completeness checks, and
-     feasible evidence contexts before creating prompt files.
+   until the provisional source passes its local acquisition gate.
+   - Acquire `online_retail_II.xlsx` only from the official UCI source and record
+     retrieval date, byte size, and SHA-256; keep the workbook out of Git.
+   - Profile only `2009-12-01` inclusive through `2010-12-01` exclusive, then
+     prove zero normalized record overlap with the current Online Retail source.
+   - Audit missingness, duplicates, invoice-line grain, quantity and price
+     validity, cancellation semantics, monthly coverage, and public-ID handling.
+   - Prove at least 6 pilot, 15 development, and 15 confirmation contexts can be
+     assigned without viewing model outputs and with period/fingerprint
+     separation before creating prompt files.
    - Keep the 12/30/30 counts as planning targets until a source-feasibility and
      precision review confirms that they are defensible.
    - Treat the current claim-evidence schema as label-derived v0 scaffolding;

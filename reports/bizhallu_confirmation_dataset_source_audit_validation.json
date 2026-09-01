@@ -1,0 +1,18 @@
+{
+  "status": "confirmation_dataset_source_audit_validation_passed",
+  "audit_path": "configs/confirmation_dataset_source_audit_v1.json",
+  "protocol_path": "configs/confirmation_set_v1_protocol.json",
+  "html_path": "reports/bizhallu_confirmation_dataset_source_audit.html",
+  "summary_path": "reports/bizhallu_confirmation_dataset_source_audit_summary.json",
+  "desk_audit_complete": true,
+  "selected_candidate_id": "uci_online_retail_ii_prior_period",
+  "dataset_gate_status": "pending",
+  "download_performed": false,
+  "local_profile_complete": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "candidate_count": 6,
+  "local_profile_check_count": 10,
+  "num_failures": 0,
+  "failures": []
+}

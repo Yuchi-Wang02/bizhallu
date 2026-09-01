@@ -1,0 +1,417 @@
+{
+  "schema_version": "1.0",
+  "status": "desk_audit_complete_local_profile_pending",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "audit_date": "2026-09-01",
+  "audit_scope": "Official-source metadata, access, license, schema-fit, independence, and execution-risk review only. No candidate source file was downloaded or profiled in this phase.",
+  "protocol_source": "configs/confirmation_set_v1_protocol.json",
+  "no_new_results": true,
+  "download_performed": false,
+  "local_profile_complete": false,
+  "execution_ready": false,
+  "decision": {
+    "selection_status": "provisional_selection_pending_local_profile",
+    "selected_candidate_id": "uci_online_retail_ii_prior_period",
+    "selected_role": "prospective_temporal_internal_replication",
+    "dataset_gate_status": "pending",
+    "decision_summary": "Provisionally select the non-overlapping prior-period portion of UCI Online Retail II because it preserves the existing transaction schema while moving the study to unseen transaction rows and earlier business periods.",
+    "allowed_time_window": {
+      "start_inclusive": "2009-12-01T00:00:00",
+      "end_exclusive": "2010-12-01T00:00:00",
+      "reason": "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff prevents intentional calendar overlap before record-level fingerprint checks are run."
+    },
+    "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
+    "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
+    "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
+    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until the official workbook is acquired, hashed, profiled, checked for overlap against current cleaned rows, and shown to support at least 36 outcome-blind evidence contexts."
+  },
+  "source_acceptance_criteria": [
+    {
+      "criterion_id": "row_level_deterministic_gold",
+      "description": "Row-level evidence supports deterministic gold calculations.",
+      "selected_candidate_status": "pass_metadata",
+      "evidence": "UCI documents transaction-level invoice, stock, quantity, date, price, customer, and country fields."
+    },
+    {
+      "criterion_id": "documented_time_entity_quantity_value",
+      "description": "Time, entity, quantity, and value fields are documented.",
+      "selected_candidate_status": "pass_metadata",
+      "evidence": "InvoiceDate, InvoiceNo, StockCode, CustomerID, Country, Quantity, and UnitPrice are documented on the official UCI page."
+    },
+    {
+      "criterion_id": "completeness_and_duplicates_auditable",
+      "description": "Source completeness and duplicate handling can be audited.",
+      "selected_candidate_status": "pending_local_profile",
+      "evidence": "The workbook is downloadable and UCI flags missing values, but column-level nulls, duplicate rows, and invoice-line key behavior have not been measured locally."
+    },
+    {
+      "criterion_id": "permitted_research_use",
+      "description": "License or terms permit local research and public documentation.",
+      "selected_candidate_status": "pass_metadata",
+      "evidence": "UCI lists CC BY 4.0 and provides DOI 10.24432/C5CG6D."
+    },
+    {
+      "criterion_id": "no_sensitive_personal_data_required",
+      "description": "No sensitive personal data is required for the public artifact.",
+      "selected_candidate_status": "conditional_pass",
+      "evidence": "The source uses nominal customer identifiers rather than names or contact details. Public outputs must remain aggregated or use non-reversible study IDs instead of exposing source customer identifiers."
+    },
+    {
+      "criterion_id": "minimum_36_disjoint_contexts",
+      "description": "At least 36 disjoint evidence contexts can be formed without outcome-based filtering.",
+      "selected_candidate_status": "pending_local_profile",
+      "evidence": "The prior-period window spans twelve calendar months and has transaction-level entities, but the required context counts and split-disjoint fingerprints have not yet been computed."
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "current_online_retail_new_contexts",
+      "name": "UCI Online Retail, current rows with new contexts",
+      "role": "protocol_development_only",
+      "decision_status": "not_selected_for_primary_confirmation",
+      "official_source_url": "https://archive.ics.uci.edu/dataset/352/online+retail",
+      "source_identity": {
+        "doi": "10.24432/C5BW33",
+        "documented_instances": 541909,
+        "documented_period": "2010-12-01 through 2011-12-09",
+        "documented_file": "Online Retail.xlsx",
+        "documented_file_size": "22.6 MB",
+        "license": "CC BY 4.0"
+      },
+      "field_fit": {
+        "time": "strong",
+        "entity": "strong",
+        "quantity": "strong",
+        "value": "strong",
+        "returns_or_cancellations": "strong"
+      },
+      "known_strengths": [
+        "already downloaded, cleaned, and reconciled locally",
+        "exactly matches existing BizHallu metric definitions",
+        "supports customer, product, country, invoice, quantity, and value evidence"
+      ],
+      "known_risks": [
+        "reuses the same transaction population as the exploratory study",
+        "cannot establish unseen-transaction generalization",
+        "official metadata says no missing values, while the local audit found 1,454 missing descriptions, 135,080 missing customer IDs, and 5,268 duplicate rows"
+      ],
+      "recommended_use": "Use only for protocol development, unit tests, and non-confirmation verifier implementation."
+    },
+    {
+      "candidate_id": "uci_online_retail_ii_prior_period",
+      "name": "UCI Online Retail II, strict prior-period window",
+      "role": "prospective_temporal_internal_replication",
+      "decision_status": "provisional_selected_pending_local_profile",
+      "official_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
+      "source_identity": {
+        "doi": "10.24432/C5CG6D",
+        "documented_instances_full_workbook": 1067371,
+        "documented_period_full_workbook": "2009-12-01 through 2011-12-09",
+        "documented_file": "online_retail_II.xlsx",
+        "documented_file_size": "43.5 MB",
+        "license": "CC BY 4.0",
+        "official_missing_value_flag": true
+      },
+      "selected_window": "2009-12-01 inclusive through 2010-12-01 exclusive",
+      "field_fit": {
+        "time": "strong",
+        "entity": "strong",
+        "quantity": "strong",
+        "value": "strong",
+        "returns_or_cancellations": "strong"
+      },
+      "known_strengths": [
+        "same documented schema as the current BizHallu source",
+        "prior periods allow transaction-level temporal separation",
+        "small enough for the local Windows and 5070 Ti workflow",
+        "supports all four candidate business-question families with minimal metric translation"
+      ],
+      "known_risks": [
+        "same retailer and source lineage, so this remains internal replication",
+        "the full workbook overlaps the current source and therefore requires a strict date cutoff plus record fingerprints",
+        "missing values are documented but not yet profiled",
+        "36 context feasibility is plausible but not yet measured"
+      ],
+      "recommended_use": "Acquire from UCI, profile only the strict prior-period window, and use it for the protocol pilot, development, and sealed confirmation splits only if every local acceptance check passes."
+    },
+    {
+      "candidate_id": "completejourney_external",
+      "name": "84.51 Complete Journey via completejourney",
+      "role": "external_replication_shortlist",
+      "decision_status": "preferred_external_candidate_pending_profile",
+      "official_source_url": "https://bradleyboehmke.github.io/completejourney/",
+      "source_identity": {
+        "documented_transaction_rows": 1469307,
+        "documented_variables": 11,
+        "documented_households": 2469,
+        "documented_period": "one year",
+        "grain": "receipt line item",
+        "license": "CC0"
+      },
+      "field_fit": {
+        "time": "strong",
+        "entity": "strong",
+        "quantity": "strong",
+        "value": "strong",
+        "returns_or_cancellations": "unclear"
+      },
+      "known_strengths": [
+        "independent grocery-retail source with household, store, basket, product, quantity, sales value, discount, week, and timestamp fields",
+        "large enough for context-grouped sampling",
+        "CC0 package documentation and reproducible programmatic access"
+      ],
+      "known_risks": [
+        "returns or cancellation semantics are not documented in the transaction reference",
+        "sales value and three discount fields require a new accounting metric map",
+        "full data acquisition relies on the package repository rather than the current Python pipeline"
+      ],
+      "recommended_use": "Preferred Phase 2 external replication candidate after a separate acquisition, license-lineage, value-definition, and return-semantics review."
+    },
+    {
+      "candidate_id": "olist_external",
+      "name": "Brazilian E-Commerce Public Dataset by Olist",
+      "role": "external_relational_alternative",
+      "decision_status": "secondary_external_candidate",
+      "official_source_url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
+      "metadata_api_url": "https://www.kaggle.com/api/v1/datasets/view/olistbr/brazilian-ecommerce",
+      "source_identity": {
+        "documented_orders": 100000,
+        "documented_period": "2016 through 2018",
+        "documented_files": 9,
+        "documented_columns": 52,
+        "documented_total_bytes": 126186995,
+        "license": "CC BY-NC-SA 4.0",
+        "last_updated": "2021-10-01T19:08:27.97Z"
+      },
+      "field_fit": {
+        "time": "strong",
+        "entity": "strong",
+        "quantity": "implicit_item_rows",
+        "value": "strong",
+        "returns_or_cancellations": "partial_order_status"
+      },
+      "known_strengths": [
+        "real anonymized multi-marketplace order data",
+        "supports order status, item price, payments, freight, customer, product, seller, and delivery evidence",
+        "strong operations and supply-management extension"
+      ],
+      "known_risks": [
+        "requires multi-table joins and new integrity tests",
+        "no direct quantity field comparable to Online Retail line quantities",
+        "cancelled order status is not equivalent to item-level returns or refunds",
+        "noncommercial share-alike license and Kaggle access add distribution constraints"
+      ],
+      "recommended_use": "Keep as a relational e-commerce alternative, especially for operations questions, but do not use as the first confirmation source."
+    },
+    {
+      "candidate_id": "nyc_tlc_domain_transfer",
+      "name": "NYC TLC Yellow Taxi Trip Records",
+      "role": "operations_domain_transfer",
+      "decision_status": "domain_transfer_only",
+      "official_source_url": "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page",
+      "data_dictionary_url": "https://www.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf",
+      "source_identity": {
+        "grain": "one row per trip",
+        "publication": "monthly Parquet files",
+        "documented_fields": "pickup and drop-off time and zones, trip distance, itemized fares, payment type, passenger count",
+        "use_terms": "NYC Open Data states no use restrictions, subject to portal terms and source disclaimers"
+      },
+      "field_fit": {
+        "time": "strong",
+        "entity": "moderate_zone_vendor",
+        "quantity": "not_retail_quantity",
+        "value": "strong",
+        "returns_or_cancellations": "not_applicable"
+      },
+      "known_strengths": [
+        "official public operations data with itemized monetary fields",
+        "many disjoint monthly contexts and a detailed data dictionary",
+        "strong JHU operations-analytics narrative"
+      ],
+      "known_risks": [
+        "not a retail transaction source and does not preserve current question families",
+        "very large monthly files increase processing cost",
+        "TLC explicitly does not guarantee source accuracy or completeness",
+        "schema changes across years require version-specific controls"
+      ],
+      "recommended_use": "Reserve for a separately labeled operations domain-transfer study, not Confirmation Set v1 internal replication."
+    },
+    {
+      "candidate_id": "jhu_future_domain_extension",
+      "name": "Future permitted JHU course, capstone, operations, or healthcare source",
+      "role": "future_domain_extension",
+      "decision_status": "unavailable_not_auditable",
+      "official_source_url": null,
+      "source_identity": {
+        "availability": "unknown",
+        "license_or_permission": "unknown",
+        "schema": "unknown"
+      },
+      "field_fit": {
+        "time": "unknown",
+        "entity": "unknown",
+        "quantity": "unknown",
+        "value": "unknown",
+        "returns_or_cancellations": "unknown"
+      },
+      "known_strengths": [
+        "could align the project with coursework, faculty, or capstone needs"
+      ],
+      "known_risks": [
+        "no specific dataset or permission exists yet",
+        "cannot be audited or selected now",
+        "must not delay the near-term internal replication"
+      ],
+      "recommended_use": "Reopen only after a concrete source, owner, permission, and schema are available."
+    }
+  ],
+  "required_local_profile_checks": [
+    {
+      "check_id": "official_acquisition_and_hash",
+      "requirement": "Download online_retail_II.xlsx only from the official UCI source, record retrieval date, byte size, and SHA-256, and keep the workbook out of Git."
+    },
+    {
+      "check_id": "workbook_structure",
+      "requirement": "Record workbook sheet names, dimensions, headers, inferred types, and parsing warnings before filtering."
+    },
+    {
+      "check_id": "strict_prior_period_filter",
+      "requirement": "Retain InvoiceDate >= 2009-12-01 and < 2010-12-01; report excluded rows on both sides of the window."
+    },
+    {
+      "check_id": "completeness",
+      "requirement": "Measure null and blank rates overall and by month for every required field, especially Description and CustomerID."
+    },
+    {
+      "check_id": "duplicates_and_grain",
+      "requirement": "Measure exact duplicate rows and candidate invoice-line key duplication; define rather than assume the analytical grain."
+    },
+    {
+      "check_id": "business_rule_validity",
+      "requirement": "Profile negative, zero, and extreme Quantity and UnitPrice values; compare cancellation-prefix rows with negative-quantity rows."
+    },
+    {
+      "check_id": "historical_overlap",
+      "requirement": "Normalize shared fields and prove zero exact record fingerprints against the current Online Retail raw and cleaned lineages after the strict cutoff."
+    },
+    {
+      "check_id": "monthly_coverage",
+      "requirement": "Report monthly row, invoice, customer, product, country, cancellation, and monetary totals to identify sparse or abnormal periods."
+    },
+    {
+      "check_id": "context_feasibility",
+      "requirement": "Generate outcome-blind candidate context counts for each planned question family and prove at least 6 pilot, 15 development, and 15 confirmation contexts can be assigned with period and evidence-fingerprint separation."
+    },
+    {
+      "check_id": "public_privacy_boundary",
+      "requirement": "Keep raw customer and invoice identifiers out of public artifacts; use aggregates or study-local opaque identifiers."
+    }
+  ],
+  "post_profile_decision_rules": {
+    "accept_selected_source_if": [
+      "the official file hash and lineage are recorded",
+      "the strict prior-period window has zero exact normalized record overlap with the current source",
+      "required fields remain sufficiently complete for deterministic gold calculations",
+      "cancellation and value rules can be documented without outcome-dependent exclusions",
+      "at least 36 disjoint evidence contexts satisfy the frozen split policy"
+    ],
+    "reject_or_redesign_if": [
+      "record overlap remains after the strict cutoff",
+      "missingness or duplicate ambiguity prevents deterministic evidence calculations",
+      "fewer than 36 eligible contexts can be formed without looking at generated answers",
+      "the proposed period split produces materially sparse or incomparable business scopes"
+    ],
+    "fallback_order": [
+      "revise context definitions within the strict Online Retail II prior-period window without viewing model outcomes",
+      "use current Online Retail rows only for protocol development, not sealed confirmation",
+      "audit Complete Journey as a separately scoped external replication source"
+    ]
+  },
+  "source_references": [
+    {
+      "source_id": "uci_online_retail",
+      "title": "UCI Online Retail",
+      "url": "https://archive.ics.uci.edu/dataset/352/online+retail",
+      "source_type": "official_dataset_page",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "uci_online_retail_ii",
+      "title": "UCI Online Retail II",
+      "url": "https://archive.ics.uci.edu/dataset/502/online+retail",
+      "source_type": "official_dataset_page",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "completejourney",
+      "title": "completejourney dataset documentation",
+      "url": "https://bradleyboehmke.github.io/completejourney/",
+      "source_type": "maintainer_dataset_documentation",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "completejourney_transactions",
+      "title": "Complete Journey transactions reference",
+      "url": "https://bradleyboehmke.github.io/completejourney/reference/transactions.html",
+      "source_type": "maintainer_data_dictionary",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "olist",
+      "title": "Brazilian E-Commerce Public Dataset by Olist",
+      "url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
+      "source_type": "owner_published_dataset_page",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "olist_api",
+      "title": "Kaggle dataset metadata API for Olist",
+      "url": "https://www.kaggle.com/api/v1/datasets/view/olistbr/brazilian-ecommerce",
+      "source_type": "official_host_metadata_api",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "nyc_tlc",
+      "title": "NYC TLC Trip Record Data",
+      "url": "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page",
+      "source_type": "official_agency_dataset_page",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "nyc_tlc_dictionary",
+      "title": "NYC TLC Yellow Taxi Trip Records Data Dictionary",
+      "url": "https://www.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf",
+      "source_type": "official_agency_data_dictionary",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "nyc_open_data_faq",
+      "title": "NYC Open Data FAQ",
+      "url": "https://opendata.cityofnewyork.us/faq/",
+      "source_type": "official_open_data_terms_summary",
+      "accessed_on": "2026-09-01"
+    },
+    {
+      "source_id": "local_online_retail_quality",
+      "title": "BizHallu current Online Retail data quality report",
+      "url": "data/processed/data_quality_report.json",
+      "source_type": "repo_local_audit",
+      "accessed_on": "2026-09-01"
+    }
+  ],
+  "claim_policy": {
+    "allowed": [
+      "A same-source prior-period candidate has been provisionally selected for local feasibility testing.",
+      "Official metadata supports schema and license fit, while completeness, overlap, and context-count checks remain pending.",
+      "Complete Journey is the preferred external-replication shortlist candidate, not a selected or downloaded confirmation source."
+    ],
+    "disallowed": [
+      "Confirmation Set v1 has started.",
+      "The selected source is execution-ready.",
+      "Thirty-six disjoint contexts have already been verified.",
+      "Online Retail II is an independent company or domain replication.",
+      "Any new detector or confirmation metric has been produced."
+    ]
+  }
+}
