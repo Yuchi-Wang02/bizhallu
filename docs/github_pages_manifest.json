@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "a97c09ce25289507e50ba10d6568a2e9603b38a458493e03e711790e42bd9e99",
+  "index_sha256": "d657f0f382d3c649292dde64bf837bd86ee12608d7b250d38645bafb0155c53b",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -9,6 +9,7 @@
   "source_research_summary_path": "reports/bizhallu_research_one_pager_summary.json",
   "source_verifier_summary_path": "reports/bizhallu_evidence_verifier_pilot_summary.json",
   "source_methodology_summary_path": "reports/bizhallu_methodology_hardening_summary.json",
+  "source_confirmation_overlap_path": "reports/bizhallu_confirmation_dataset_overlap_report.json",
   "source_narrative_summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "results/full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -36,6 +37,10 @@
   "methodology_heldout_question_count": 36,
   "methodology_annotated_heldout_question_count": 35,
   "methodology_cross_split_evidence_group_count": 9,
+  "confirmation_historical_overlap_status": "historical_record_overlap_proof_complete",
+  "confirmation_canonical_overlap_row_count": 0,
+  "confirmation_date_blind_overlap_row_count": 0,
+  "confirmation_context_feasibility_complete": false,
   "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
   "metric_selection_status": "exploratory_test_maxima",
   "automatic_claim_extraction": false,
@@ -104,6 +109,38 @@
       "source_sha256": "4b244a3c51f7ecf6c2c48097ae77f956ac30bb4c6025f58fd59e96ac48fe6763",
       "dest_sha256": "8ce09155cc6971b0778f20f389f97a049fc0cc1ae66e737a88505927ea5351d4",
       "dest_size_bytes": 13564
+    },
+    {
+      "role": "confirmation_dataset_source_audit",
+      "source": "reports/bizhallu_confirmation_dataset_source_audit.html",
+      "dest": "docs/confirmation_dataset_source_audit.html",
+      "source_sha256": "02f243dd892e197f589e1671c160ab0da9cd2f28d9e0f9738c72d0904abf9dce",
+      "dest_sha256": "d71ccad3bc942cceb66ea0fac92d57e58f4a19288df32b23be839a96486ff4d8",
+      "dest_size_bytes": 29361
+    },
+    {
+      "role": "confirmation_dataset_quality",
+      "source": "reports/bizhallu_confirmation_dataset_quality.html",
+      "dest": "docs/confirmation_dataset_quality.html",
+      "source_sha256": "bee5b9ff23960902639a6c7574ae46959205f770f26097fe5e75691226642f47",
+      "dest_sha256": "bee5b9ff23960902639a6c7574ae46959205f770f26097fe5e75691226642f47",
+      "dest_size_bytes": 16708
+    },
+    {
+      "role": "confirmation_dataset_overlap",
+      "source": "reports/bizhallu_confirmation_dataset_overlap.html",
+      "dest": "docs/confirmation_dataset_overlap.html",
+      "source_sha256": "71173c906cf646fa3a3f0571e13a1eec8373b0c2cd6300232983261c8bf263f9",
+      "dest_sha256": "385fb53f98b24ccedae0aa0cb09ab4d3179ded0221d95abef88e424dd51146fb",
+      "dest_size_bytes": 12587
+    },
+    {
+      "role": "confirmation_set_v1_design",
+      "source": "reports/bizhallu_confirmation_set_v1_design.html",
+      "dest": "docs/confirmation_set_v1_design.html",
+      "source_sha256": "5ccff5f6593451e8fda6bbabf64c7aeb49789dcf9e0a8d5b9b03dd91f0afea21",
+      "dest_sha256": "f073d45fdf4d3d99436fa9f240e507e260faef52821135eb8e0e63211d2b3d12",
+      "dest_size_bytes": 16872
     },
     {
       "role": "detector_interpretation",

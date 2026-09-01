@@ -16,6 +16,8 @@ ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acq
 STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
 QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
 QUALITY_HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality.html"
+OVERLAP_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap_report.json"
+OVERLAP_HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap.html"
 LOCAL_QUALITY_PATH = PROJECT_ROOT / "data" / "processed" / "data_quality_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
@@ -41,7 +43,7 @@ EXPECTED_CRITERION_STATUSES = {
 
 REQUIRED_HTML_FRAGMENTS = [
     "Confirmation Dataset Source Audit v1",
-    "Source quality is profiled; independence is still unproven.",
+    "Source quality and historical record separation are verified.",
     "Online Retail II",
     "2009-12-01T00:00:00",
     "2010-12-01T00:00:00",
@@ -56,8 +58,9 @@ REQUIRED_HTML_FRAGMENTS = [
     "6,544 normalized exact duplicate extra rows",
     "2,057 negative-quantity rows",
     "GBP 9,266,060.76",
-    "Seven checks are complete; two remain pending and privacy stays active.",
-    "Prove record independence next; do not generate.",
+    "Eight checks are complete; context feasibility remains pending and privacy stays active.",
+    "Prove context feasibility next; do not generate.",
+    "Read the aggregate-only overlap proof.",
     "The raw files remain local and Git-ignored.",
     ".panel { min-width:0;",
     "overflow-x:auto;",
@@ -110,6 +113,8 @@ def main() -> None:
         STRUCTURE_PATH,
         QUALITY_PATH,
         QUALITY_HTML_PATH,
+        OVERLAP_PATH,
+        OVERLAP_HTML_PATH,
         LOCAL_QUALITY_PATH,
         HTML_PATH,
         SUMMARY_PATH,
@@ -123,6 +128,7 @@ def main() -> None:
     acquisition = load_json(ACQUISITION_PATH) if ACQUISITION_PATH.exists() else {}
     structure = load_json(STRUCTURE_PATH) if STRUCTURE_PATH.exists() else {}
     quality = load_json(QUALITY_PATH) if QUALITY_PATH.exists() else {}
+    overlap = load_json(OVERLAP_PATH) if OVERLAP_PATH.exists() else {}
     local_quality = load_json(LOCAL_QUALITY_PATH) if LOCAL_QUALITY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
@@ -162,13 +168,14 @@ def main() -> None:
             add_failure(failures, "local_path_in_html", repo_path(HTML_PATH))
 
     expected_audit_boundary = {
-        "status": "quality_profile_verified_overlap_and_context_pending",
+        "status": "quality_and_overlap_verified_context_pending",
         "audit_date": "2026-09-01",
         "no_new_results": True,
         "download_performed": True,
         "acquisition_verified": True,
         "structure_profile_complete": True,
         "quality_profile_complete": True,
+        "historical_overlap_check_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
     }
@@ -182,7 +189,7 @@ def main() -> None:
 
     decision = audit.get("decision", {})
     expected_decision = {
-        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+        "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "pending",
@@ -199,8 +206,9 @@ def main() -> None:
         "start_inclusive": "2009-12-01T00:00:00",
         "end_exclusive": "2010-12-01T00:00:00",
         "reason": (
-            "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff "
-            "prevents intentional calendar overlap before record-level fingerprint checks are run."
+            "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff creates "
+            "a 12-hour-51-minute source boundary, and the completed canonical plus date-blind fingerprint "
+            "checks verify zero repeated records across it."
         ),
     }
     if decision.get("allowed_time_window") != expected_window:
@@ -231,7 +239,7 @@ def main() -> None:
         add_failure(failures, "selected_source_identity", selected_identity)
     if selected.get("official_source_url") != "https://archive.ics.uci.edu/dataset/502/online+retail":
         add_failure(failures, "selected_source_url", selected.get("official_source_url"))
-    if selected.get("decision_status") != "provisional_selected_quality_verified_overlap_context_pending":
+    if selected.get("decision_status") != "provisional_selected_quality_and_overlap_verified_context_pending":
         add_failure(failures, "selected_decision_status", selected.get("decision_status"))
 
     criteria = audit.get("source_acceptance_criteria", [])
@@ -309,18 +317,25 @@ def main() -> None:
 
     strategy = protocol.get("dataset_strategy", {})
     expected_strategy = {
-        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+        "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
         "quality_report": "reports/bizhallu_confirmation_dataset_quality_report.json",
         "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
+        "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+        "overlap_html": "reports/bizhallu_confirmation_dataset_overlap.html",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "pending",
         "official_acquisition_verified": True,
         "structure_and_date_window_verified": True,
         "quality_profile_verified": True,
+        "historical_record_overlap_verified": True,
+        "canonical_record_overlap_row_count": 0,
+        "date_blind_record_overlap_row_count": 0,
+        "business_pattern_overlap_row_count": 195814,
+        "lineage_positive_control_overlap_row_count": 541909,
         "strict_window_row_count": 502938,
         "strict_window_missing_description_rows": 2821,
         "strict_window_missing_customer_id_rows": 100207,
@@ -356,7 +371,9 @@ def main() -> None:
         add_failure(failures, "dataset_gate_progress", dataset_gate)
     if "structure, strict-window completeness" not in dataset_gate.get("progress", ""):
         add_failure(failures, "dataset_gate_quality_progress", dataset_gate)
-    if len(dataset_gate.get("blocking_requirements", [])) != 2:
+    if dataset_gate.get("blocking_requirements") != [
+        "outcome-blind feasibility proof for at least 36 disjoint contexts"
+    ]:
         add_failure(failures, "dataset_gate_blockers", dataset_gate)
     if protocol.get("execution_ready") is not False or protocol.get("no_new_results") is not True:
         add_failure(failures, "protocol_execution_boundary", protocol)
@@ -369,10 +386,11 @@ def main() -> None:
         "acquisition_verified": True,
         "structure_profile_complete": True,
         "quality_profile_complete": True,
+        "historical_overlap_check_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,
-        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+        "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
         "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -399,6 +417,11 @@ def main() -> None:
         "negative_quantity_rows_without_cancel_prefix": 2057,
         "valid_net_revenue_line_count": 492887,
         "net_revenue_gbp": 9266060.76,
+        "overlap_report_path": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+        "canonical_record_overlap_row_count": 0,
+        "date_blind_record_overlap_row_count": 0,
+        "business_pattern_overlap_row_count": 195814,
+        "lineage_positive_control_overlap_row_count": 541909,
         "candidate_count": 6,
         "external_shortlist_count": 2,
         "source_reference_count": 10,
@@ -424,7 +447,7 @@ def main() -> None:
         "completeness": "completed",
         "duplicates_and_grain": "completed",
         "business_rule_validity": "completed",
-        "historical_overlap": "pending",
+        "historical_overlap": "completed",
         "monthly_coverage": "completed",
         "context_feasibility": "pending",
         "public_privacy_boundary": "active",
@@ -493,11 +516,35 @@ def main() -> None:
     if quality.get("context_feasibility_check_complete") is not False:
         add_failure(failures, "quality_context_boundary", quality.get("context_feasibility_check_complete"))
 
+    expected_overlap_evidence = {
+        "status": "historical_record_overlap_proof_complete",
+        "canonical_overlap_rows": 0,
+        "date_blind_overlap_rows": 0,
+        "business_pattern_overlap_rows": 195814,
+        "lineage_overlap_rows": 541909,
+        "context_feasibility_check_complete": False,
+        "execution_ready": False,
+        "no_new_results": True,
+    }
+    observed_overlap_evidence = {
+        "status": overlap.get("status"),
+        "canonical_overlap_rows": overlap.get("record_overlap", {}).get("canonical_eight_field", {}).get("multiset_overlap_row_count"),
+        "date_blind_overlap_rows": overlap.get("record_overlap", {}).get("date_blind_seven_field_sensitivity", {}).get("multiset_overlap_row_count"),
+        "business_pattern_overlap_rows": overlap.get("descriptive_similarity", {}).get("business_pattern_five_field", {}).get("multiset_overlap_row_count"),
+        "lineage_overlap_rows": overlap.get("lineage_calibration", {}).get("comparison", {}).get("multiset_overlap_row_count"),
+        "context_feasibility_check_complete": overlap.get("context_feasibility_check_complete"),
+        "execution_ready": overlap.get("execution_ready"),
+        "no_new_results": overlap.get("no_new_results"),
+    }
+    if observed_overlap_evidence != expected_overlap_evidence:
+        add_failure(failures, "overlap_report_evidence_drift", observed_overlap_evidence)
+
     for artifact_path, payload in [
         (AUDIT_PATH, audit),
         (ACQUISITION_PATH, acquisition),
         (STRUCTURE_PATH, structure),
         (QUALITY_PATH, quality),
+        (OVERLAP_PATH, overlap),
         (SUMMARY_PATH, summary),
     ]:
         if contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -520,6 +567,7 @@ def main() -> None:
         "acquisition_verified": True,
         "structure_profile_complete": True,
         "quality_profile_complete": True,
+        "historical_overlap_check_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,

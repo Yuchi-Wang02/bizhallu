@@ -1,0 +1,238 @@
+{
+  "schema_version": "1.0",
+  "status": "historical_record_overlap_proof_complete",
+  "study_name": "Confirmation Set v1",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "scope": "normalized historical record-overlap proof against the current Online Retail lineage",
+  "explicitly_not_in_scope": [
+    "36-context feasibility, context manifest, or split assignment",
+    "question, prompt, model, annotation, verifier, or detector generation",
+    "new confirmation metrics or external-generalization claims"
+  ],
+  "input_artifacts": {
+    "current_online_retail_workbook": {
+      "path": "data/raw/Online Retail.xlsx",
+      "size_bytes": 23715344,
+      "sha256": "43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d"
+    },
+    "confirmation_online_retail_ii_workbook": {
+      "path": "data/raw/confirmation_online_retail_ii/online_retail_II.xlsx",
+      "size_bytes": 45622278,
+      "sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980"
+    },
+    "strict_prior_window_table": {
+      "path": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
+      "size_bytes": 10959387,
+      "sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc"
+    }
+  },
+  "fingerprint_definitions": {
+    "normalization": {
+      "text": "trim strings; collapse internal whitespace only for Description; empty strings become null",
+      "quantity": "finite integer decimal token",
+      "invoice_date": "naive source-local timestamp formatted to whole seconds",
+      "unit_price": "finite decimal token fixed to six places",
+      "customer_id": "nullable integer decimal token",
+      "encoding": "domain-separated SHA-256 over length-prefixed UTF-8 field tokens with an explicit null marker"
+    },
+    "canonical_record": [
+      "invoice_no",
+      "stock_code",
+      "description",
+      "quantity",
+      "invoice_date",
+      "unit_price",
+      "customer_id",
+      "country"
+    ],
+    "date_blind_record_sensitivity": [
+      "invoice_no",
+      "stock_code",
+      "description",
+      "quantity",
+      "unit_price",
+      "customer_id",
+      "country"
+    ],
+    "business_pattern_descriptive_only": [
+      "stock_code",
+      "description",
+      "quantity",
+      "unit_price",
+      "country"
+    ]
+  },
+  "dataset_profiles": {
+    "strict_prior_window": {
+      "row_count": 502938,
+      "unique_fingerprint_count": 496394,
+      "duplicate_extra_row_count": 6544,
+      "fingerprint_inventory_manifest_sha256": "727bdfca9f58f937ce71b6497e2c7e9978b647772025f8cd98decded2a010ebd",
+      "date_blind_inventory_manifest_sha256": "45c4b92a5d6a2d6d6e669f82c5b62789272a8138de3d45231931e5448f652bb0",
+      "business_pattern_inventory_manifest_sha256": "6d78ef21808bb91349419b9d2d777db5283fa17734cb9e6b92db015d71bf1002",
+      "date_min": "2009-12-01 07:45:00",
+      "date_max": "2010-11-30 19:35:00"
+    },
+    "current_online_retail": {
+      "row_count": 541909,
+      "unique_fingerprint_count": 536641,
+      "duplicate_extra_row_count": 5268,
+      "fingerprint_inventory_manifest_sha256": "983dcf3ee53cdd6793f88d291880d34e2dcec656989fd4433deec20aeb2f2685",
+      "date_blind_inventory_manifest_sha256": "f7ec12a30b2ad671b7d7b90c1560ffda7dadc95d4569e3a3b441034d5d871113",
+      "business_pattern_inventory_manifest_sha256": "223db40fad5cac94e6784a4b675766daa95cf298c69bde5a864b746393a45682",
+      "date_min": "2010-12-01 08:26:00",
+      "date_max": "2011-12-09 12:50:00"
+    },
+    "online_retail_ii_2010_2011_sheet": {
+      "row_count": 541910,
+      "unique_fingerprint_count": 536642,
+      "duplicate_extra_row_count": 5268,
+      "fingerprint_inventory_manifest_sha256": "58f70499c8d40d39209e696bf95febe831f74c8d8b7c1f04e61cb64320abd685",
+      "date_min": "2010-12-01 08:26:00",
+      "date_max": "2011-12-09 12:50:00"
+    }
+  },
+  "temporal_boundary": {
+    "strict_prior_max": "2010-11-30 19:35:00",
+    "current_min": "2010-12-01 08:26:00",
+    "strict_prior_precedes_current": true,
+    "boundary_gap_seconds": 46260,
+    "boundary_gap_human": "12 hours 51 minutes"
+  },
+  "record_overlap": {
+    "canonical_eight_field": {
+      "left_dataset": "strict_prior_window",
+      "right_dataset": "current_online_retail",
+      "unique_fingerprint_overlap_count": 0,
+      "multiset_overlap_row_count": 0,
+      "left_only_row_count": 502938,
+      "right_only_row_count": 541909,
+      "left_multiset_overlap_rate": 0.0,
+      "right_multiset_overlap_rate": 0.0,
+      "left_unique_overlap_rate": 0.0,
+      "right_unique_overlap_rate": 0.0
+    },
+    "date_blind_seven_field_sensitivity": {
+      "left_dataset": "strict_prior_window",
+      "right_dataset": "current_online_retail",
+      "unique_fingerprint_overlap_count": 0,
+      "multiset_overlap_row_count": 0,
+      "left_only_row_count": 502938,
+      "right_only_row_count": 541909,
+      "left_multiset_overlap_rate": 0.0,
+      "right_multiset_overlap_rate": 0.0,
+      "left_unique_overlap_rate": 0.0,
+      "right_unique_overlap_rate": 0.0
+    },
+    "decision": "zero_normalized_record_overlap_verified"
+  },
+  "descriptive_similarity": {
+    "business_pattern_five_field": {
+      "left_dataset": "strict_prior_window",
+      "right_dataset": "current_online_retail",
+      "unique_fingerprint_overlap_count": 27153,
+      "multiset_overlap_row_count": 195814,
+      "left_only_row_count": 307124,
+      "right_only_row_count": 346095,
+      "left_multiset_overlap_rate": 0.38934024,
+      "right_multiset_overlap_rate": 0.36134111,
+      "left_unique_overlap_rate": 0.31333156,
+      "right_unique_overlap_rate": 0.28397373
+    },
+    "entity_overlap": {
+      "invoice_no": {
+        "prior_distinct_count": 27728,
+        "current_distinct_count": 25900,
+        "shared_distinct_count": 0,
+        "prior_entity_coverage_rate": 0.0,
+        "current_entity_coverage_rate": 0.0
+      },
+      "stock_code": {
+        "prior_distinct_count": 4621,
+        "current_distinct_count": 4070,
+        "shared_distinct_count": 3387,
+        "prior_entity_coverage_rate": 0.73295823,
+        "current_entity_coverage_rate": 0.83218673
+      },
+      "description": {
+        "prior_distinct_count": 4624,
+        "current_distinct_count": 4203,
+        "shared_distinct_count": 3183,
+        "prior_entity_coverage_rate": 0.68836505,
+        "current_entity_coverage_rate": 0.7573162
+      },
+      "customer_id": {
+        "prior_distinct_count": 4336,
+        "current_distinct_count": 4372,
+        "shared_distinct_count": 2766,
+        "prior_entity_coverage_rate": 0.63791513,
+        "current_entity_coverage_rate": 0.6326624
+      },
+      "country": {
+        "prior_distinct_count": 40,
+        "current_distinct_count": 38,
+        "shared_distinct_count": 35,
+        "prior_entity_coverage_rate": 0.875,
+        "current_entity_coverage_rate": 0.92105263
+      }
+    },
+    "interpretation": "Shared products, customers, descriptions, countries, quantities, and prices are expected in a same-retailer temporal replication. They describe domain continuity and are not counted as repeated source records."
+  },
+  "lineage_calibration": {
+    "comparison": {
+      "left_dataset": "current_online_retail",
+      "right_dataset": "online_retail_ii_2010_2011_sheet",
+      "unique_fingerprint_overlap_count": 536641,
+      "multiset_overlap_row_count": 541909,
+      "left_only_row_count": 0,
+      "right_only_row_count": 1,
+      "left_multiset_overlap_rate": 1.0,
+      "right_multiset_overlap_rate": 0.99999815,
+      "left_unique_overlap_rate": 1.0,
+      "right_unique_overlap_rate": 0.99999814
+    },
+    "current_is_multiset_subset_of_online_retail_ii_sheet": true,
+    "online_retail_ii_sheet_extra_row_count": 1,
+    "interpretation": "The current workbook is the 2010-2011 Online Retail II lineage minus one source row. This positive control verifies the canonicalization and does not establish external independence."
+  },
+  "research_decision": {
+    "historical_record_overlap_check_complete": true,
+    "zero_normalized_record_overlap_verified": true,
+    "strict_window_is_unseen_at_normalized_record_level": true,
+    "claim_limit": "This proves temporal record-level separation from the current Online Retail rows under the frozen canonicalization. It does not prove company, entity, source-lineage, or domain independence.",
+    "dataset_gate_status": "pending_context_feasibility",
+    "execution_ready": false
+  },
+  "critical_checks": {
+    "current_workbook_hash_matches_frozen_source": true,
+    "confirmation_workbook_hash_matches_acquisition": true,
+    "strict_table_hash_matches_quality_profile": true,
+    "row_counts_match_frozen_sources": true,
+    "strict_prior_window_precedes_current_source": true,
+    "canonical_unique_overlap_is_zero": true,
+    "canonical_multiset_overlap_is_zero": true,
+    "date_blind_sensitivity_overlap_is_zero": true,
+    "lineage_positive_control_recovers_current_source": true,
+    "no_raw_identifiers_or_row_fingerprints_published": true
+  },
+  "failed_critical_checks": [],
+  "local_proof": {
+    "path": "data/processed/confirmation_online_retail_ii/historical_overlap_local_proof.json",
+    "sha256": "adba5365af6b2f01724e4149377a7d8d462f4e1200607ba70c415cafef553048",
+    "git_ignored": true
+  },
+  "privacy": {
+    "contains_raw_identifier_values": false,
+    "contains_row_fingerprint_values": false,
+    "contains_only_aggregate_counts_and_inventory_manifest_hashes": true
+  },
+  "historical_overlap_check_complete": true,
+  "context_feasibility_check_complete": false,
+  "context_manifest_created": false,
+  "prompt_created": false,
+  "model_run_performed": false,
+  "new_metrics_reported": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "next_authorized_action": "Run only the outcome-blind 36-context feasibility check; do not create a context manifest, prompt, or model output yet."
+}

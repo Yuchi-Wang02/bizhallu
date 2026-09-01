@@ -66,6 +66,7 @@ python src\validate_evidence_verifier_pilot.py
 python src\validate_methodology_hardening.py
 python src\validate_confirmation_dataset_acquisition.py
 python src\validate_confirmation_dataset_quality.py
+python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -114,10 +115,12 @@ aliases, complete InvoiceDate range, and 502,938-row strict prior-period boundar
 are verified. Strict-window completeness, duplicate/grain behavior, cancellation
 and value rules, and all 12 months have also been profiled with documented
 controls. The local 23-column line table remains Git-ignored because it contains
-source invoice and customer identifiers. The dataset gate remains pending. The
-next authorized research action is only the normalized record-overlap proof against
-the current Online Retail lineage; do not generate contexts or prompts yet. If that
-proof passes, the following step is the outcome-blind 36-context feasibility check.
+source invoice and customer identifiers. Canonical eight-field and date-blind
+seven-field comparisons now prove zero repeated records against the current Online
+Retail lineage; expected product, customer, country, and five-field business-pattern
+continuity is disclosed separately and is not external independence. The dataset
+gate remains pending. The next authorized research action is only the outcome-blind
+36-context feasibility check; do not create a context manifest or prompts yet.
 Do not run Qwen, annotate new outputs, or report confirmation metrics before those
 checks and the subsequent outcome-blind precision review are complete. Any future
 result described as confirmatory must use

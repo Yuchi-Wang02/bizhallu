@@ -83,9 +83,10 @@ policies before new model answers are viewed.
   ZIP and workbook are acquired, hashed, and Git-ignored; the two-sheet structure,
   three raw-header aliases, and 502,938-row strict prior-period boundary are
   verified. Completeness, duplicate/grain behavior, cancellation/value rules,
-  and all 12 expected months are now profiled with documented controls. The
-  first gate still stays pending until historical record overlap and outcome-blind
-  36-context feasibility are proven.
+  and all 12 expected months are now profiled with documented controls. Canonical
+  eight-field and date-blind seven-field comparisons both found zero repeated
+  current-source records. The first gate still stays pending until outcome-blind
+  36-context feasibility is proven.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
@@ -96,9 +97,39 @@ The companion source audit at
 `reports/bizhallu_confirmation_dataset_source_audit.html` compares six routes,
 records official source and license evidence, and keeps Complete Journey as the
 preferred external-replication shortlist candidate. The selected source is now
-locally acquired, structurally inspected, and quality-profiled, but record
-independence remains unproven and no context manifest, prompt, generation,
-annotation target, or new metric was created.
+locally acquired, structurally inspected, quality-profiled, and separated from
+the current source at normalized record level. This remains same-retailer,
+same-lineage temporal replication, not external independence. No context manifest,
+prompt, generation, annotation target, or new metric was created.
+
+## Historical Record-Overlap Update: 2026-09-01
+
+The frozen strict prior window was compared with the complete current Online
+Retail source using domain-separated SHA-256 fingerprints over normalized
+business fields. The proof is multiplicity-aware: duplicate copies cannot be
+hidden by converting records to a simple set.
+
+- Primary eight-field canonical overlap: 0 unique fingerprints and 0 multiset
+  rows across 502,938 prior rows and 541,909 current rows.
+- Date-blind seven-field sensitivity overlap: 0 unique fingerprints and 0
+  multiset rows. The primary result therefore does not depend only on including
+  the disjoint timestamp.
+- The final prior record precedes the first current record by 12 hours 51
+  minutes.
+- A positive-control lineage comparison recovered all 541,909 current rows from
+  the 541,910-row Online Retail II 2010-2011 sheet; the latter contains one
+  additional source row. This validates canonicalization but does not establish
+  external independence.
+- There are 195,814 multiplicity-aware shared five-field business patterns.
+  Product, description, customer, and country entities also overlap, as expected
+  for the same retailer. These are disclosed as domain continuity, not counted
+  as repeated records.
+- Public artifacts expose aggregate counts and whole-inventory manifest hashes
+  only. Raw invoice values, customer values, and row fingerprints remain local.
+
+The historical-overlap sub-check is complete. The dataset gate and all seven
+execution gates remain pending because at least 36 outcome-blind disjoint
+evidence contexts have not yet been proven feasible.
 
 ## Audit Scope
 
@@ -1496,6 +1527,19 @@ entry point for GitHub Pages.
       line table remains Git-ignored. Historical overlap and 36-context
       feasibility are still pending, so all seven execution gates remain open.
 
+39. The strict prior window needed an explicit record-level comparison before
+    any context construction could begin.
+    - Canonical proof: all eight normalized business fields produced 0 shared
+      unique fingerprints and 0 multiplicity-aware overlap rows.
+    - Sensitivity proof: removing `invoice_date` still produced 0 shared records.
+    - Calibration: all 541,909 current rows were recovered from the Online Retail
+      II 2010-2011 sheet, which has one additional row.
+    - Continuity disclosure: 195,814 five-field business-pattern rows overlap;
+      this is expected same-retailer similarity, not record leakage.
+    - Boundary: no context, question, prompt, Qwen output, annotation, detector,
+      or new metric was created. Context feasibility remains the only unfinished
+      source-data blocker.
+
 ## Remaining Risks
 
 1. Current review auto-status is only a triage aid.
@@ -1544,9 +1588,9 @@ entry point for GitHub Pages.
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
    - Online Retail II is only provisionally selected. Acquisition, hashes,
-     structure, strict-window quality controls, and monthly reconciliation are
-     verified, but the window still needs zero-overlap proof and outcome-blind
-     36-context feasibility.
+      structure, strict-window quality controls, and monthly reconciliation are
+      verified, and canonical plus date-blind zero-overlap proof is complete.
+      Outcome-blind 36-context feasibility is still pending.
 
 ## Recommended Next Steps
 
@@ -1559,8 +1603,10 @@ entry point for GitHub Pages.
      supply management, and BA / DS / AI Analyst roles.
    - Use `docs/research_one_pager.html` for professor, capstone, and research
      advisor outreach.
-   - Use `docs/methodology_hardening.html` to disclose current evidence strength
-     and the future confirmation protocol.
+    - Use `docs/methodology_hardening.html` to disclose current evidence strength
+      and the future confirmation protocol.
+    - Use `docs/confirmation_dataset_overlap.html` to show aggregate-only
+      historical record separation and its same-retailer limitation.
    - Use `docs/evidence_verifier_pilot.html` to show the claim-evidence review
      schema without claiming independent verifier predictions or new metrics.
    - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
@@ -1582,10 +1628,9 @@ entry point for GitHub Pages.
    - Preserve the completed strict-window controls: three header aliases,
      exact-row deduplication, description-required product/value evidence,
      customer-level question blocking, and cancellation-aware net revenue.
-   - Next, prove zero normalized record overlap with the current Online Retail
-     source. Do not create contexts or prompts during that step.
-   - Only after overlap passes, prove at least 6 pilot, 15 development, and 15
-     confirmation contexts can be
+   - Preserve the completed overlap proof: zero canonical and date-blind record
+     overlap, with same-retailer entity and business-pattern continuity disclosed.
+   - Next, prove at least 6 pilot, 15 development, and 15 confirmation contexts can be
      assigned without viewing model outputs and with period/fingerprint
      separation before creating prompt files.
    - Keep the 12/30/30 counts as planning targets until a source-feasibility and

@@ -4,6 +4,7 @@
 [Interactive cases](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) |
 [Methods and results](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html) |
 [Methodology audit](https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html) |
+[Confirmation data proof](https://yuchi-wang02.github.io/bizhallu/confirmation_dataset_overlap.html) |
 [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
 [Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
 
@@ -181,6 +182,7 @@ confirmation protocol.
 | [`configs/confirmation_set_v1_protocol.json`](configs/confirmation_set_v1_protocol.json) | Prospective, context-separated confirmation design with outcome-blind sampling and seven execution gates |
 | [`reports/bizhallu_confirmation_dataset_source_audit.html`](reports/bizhallu_confirmation_dataset_source_audit.html) | Candidate-source decision, verified acquisition/structure evidence, and remaining source gates |
 | [`reports/bizhallu_confirmation_dataset_quality.html`](reports/bizhallu_confirmation_dataset_quality.html) | Strict-window completeness, grain, cancellation, revenue reconciliation, monthly coverage, and controls |
+| [`reports/bizhallu_confirmation_dataset_overlap.html`](reports/bizhallu_confirmation_dataset_overlap.html) | Aggregate-only canonical, date-blind, lineage-calibration, business-pattern, and entity-overlap proof |
 | [`reports/bizhallu_confirmation_set_v1_design.html`](reports/bizhallu_confirmation_set_v1_design.html) | Human-readable Confirmation Set v1 design; no new experiment result |
 | [`docs/github_upload_checklist.md`](docs/github_upload_checklist.md) | Public upload checklist and claim guardrails |
 | [`docs/github_upload_dry_run.md`](docs/github_upload_dry_run.md) | Current GitHub safety and file-inclusion review |
@@ -212,6 +214,7 @@ python src\validate_evidence_verifier_pilot.py
 python src\validate_methodology_hardening.py
 python src\validate_confirmation_dataset_acquisition.py
 python src\validate_confirmation_dataset_quality.py
+python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -223,6 +226,7 @@ Expected state:
 - `reports/bizhallu_evidence_verifier_pilot_validation.json`: `num_failures=0`
 - `reports/bizhallu_methodology_hardening_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_dataset_quality_validation.json`: `num_failures=0`
+- `reports/bizhallu_confirmation_dataset_overlap_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_dataset_source_audit_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_set_v1_design_validation.json`: `num_failures=0`
 - all validation files report `num_failures=0`
@@ -243,6 +247,8 @@ python src\build_evidence_verifier_pilot.py
 python src\build_methodology_hardening_report.py
 python src\profile_confirmation_dataset_quality.py
 python src\build_confirmation_dataset_quality_report.py
+python src\profile_confirmation_dataset_overlap.py
+python src\build_confirmation_dataset_overlap_report.py
 python src\build_confirmation_dataset_source_audit.py
 python src\build_confirmation_set_v1_design.py
 python src\build_research_one_pager.py
@@ -271,9 +277,11 @@ python src\build_full100_preflight_report.py
 - Confirmation Set v1 is a prospective design, not a completed experiment. Its
   12-question protocol pilot, 30-question development split, and 30-question
   sealed confirmation split are minimum planning targets. The 502,938-row
-  strict-window quality profile is complete with documented controls, but
-  historical record-overlap proof, context feasibility, an outcome-blind
-  precision review, and all seven execution gates remain pending.
+  strict-window quality profile is complete with documented controls. Canonical
+  eight-field and date-blind seven-field comparisons both found zero repeated
+  current-source records. Context feasibility, an outcome-blind precision
+  review, and all seven execution gates remain pending. This is same-retailer,
+  same-lineage temporal separation, not external independence.
 
 ## License and Data
 

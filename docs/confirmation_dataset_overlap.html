@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BizHallu Historical Record-Overlap Proof</title>
+  <style>
+    :root { --ink:#191b1f; --muted:#626a73; --line:#d8dde3; --soft:#f4f6f8; --paper:#fff; --green:#14633f; --green-bg:#eef8f2; --amber:#825006; --amber-bg:#fff8e7; --blue:#075ea8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; letter-spacing:0; }
+    a { color:var(--blue); text-decoration:none; }
+    header { border-bottom:1px solid var(--line); background:#fbfbfc; }
+    nav { width:min(1180px,calc(100% - 40px)); min-height:60px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    nav strong { color:var(--ink); font-size:15px; }
+    nav div { display:flex; gap:17px; font-size:13px; font-weight:700; }
+    main { width:min(1180px,calc(100% - 40px)); margin:0 auto; }
+    section { padding:44px 0; border-bottom:1px solid var(--line); }
+    .hero { padding:64px 0 48px; }
+    .eyebrow { margin:0 0 10px; color:var(--green); font-size:12px; font-weight:800; text-transform:uppercase; }
+    h1 { max-width:980px; margin:0; font-size:48px; line-height:1.08; letter-spacing:0; }
+    h2 { margin:0 0 12px; font-size:30px; line-height:1.2; letter-spacing:0; }
+    h3 { margin:0 0 8px; font-size:18px; letter-spacing:0; }
+    p { margin:7px 0; }
+    .lede { max-width:920px; margin-top:18px; color:var(--muted); font-size:19px; }
+    .metrics { margin-top:28px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+    .metrics div { min-width:0; padding:16px; border-right:1px solid var(--line); background:#fff; }
+    .metrics div:last-child { border-right:0; }
+    .metrics span { display:block; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }
+    .metrics strong { display:block; margin-top:5px; font-size:22px; overflow-wrap:anywhere; }
+    .callout { margin-top:20px; padding:16px 18px; border-left:4px solid var(--amber); background:var(--amber-bg); }
+    .callout.good { border-color:var(--green); background:var(--green-bg); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:20px; }
+    .panel { min-width:0; padding:18px; border:1px solid var(--line); border-radius:7px; }
+    .panel p { color:var(--muted); }
+    .table-wrap { margin-top:18px; overflow-x:auto; border:1px solid var(--line); border-radius:7px; }
+    table { width:100%; min-width:820px; border-collapse:collapse; }
+    th,td { padding:11px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:13px; overflow-wrap:anywhere; }
+    th { color:#3e454d; background:var(--soft); font-size:11px; text-transform:uppercase; white-space:nowrap; overflow-wrap:normal; }
+    tr:last-child td { border-bottom:0; }
+    td.num { white-space:nowrap; font-variant-numeric:tabular-nums; }
+    code { padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }
+    code.nowrap { white-space:nowrap; overflow-wrap:normal; word-break:normal; }
+    ul { display:grid; gap:8px; padding-left:20px; }
+    footer { padding:34px 0 50px; color:var(--muted); font-size:13px; }
+    @media (max-width:860px) { nav div { display:none; } .metrics,.grid { grid-template-columns:1fr 1fr; } .metrics div { border-bottom:1px solid var(--line); } }
+    @media (max-width:560px) { main,nav { width:min(100% - 24px,1180px); } h1 { font-size:38px; } h2 { font-size:26px; } .metrics,.grid { grid-template-columns:1fr; } .metrics div { border-right:0; } }
+  </style>
+</head>
+<body>
+  <header><nav><a href="./confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./confirmation_dataset_source_audit.html">Source audit</a><a href="./confirmation_dataset_quality.html">Quality profile</a><a href="./confirmation_set_v1_design.html">Study design</a></div></nav></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Confirmation Set v1 · Historical overlap gate</p>
+      <h1>The strict prior-period window contains zero repeated current-source records.</h1>
+      <p class="lede">All 502,938 prior-period rows were normalized on eight canonical business fields and compared with all 541,909 current Online Retail rows as both unique fingerprints and multiplicity-aware multisets. A second, date-blind sensitivity test also found zero overlap.</p>
+      <div class="metrics">
+        <div><span>Canonical overlap rows</span><strong>0</strong></div>
+        <div><span>Date-blind overlap rows</span><strong>0</strong></div>
+        <div><span>Boundary gap</span><strong>12 hours 51 minutes</strong></div>
+        <div><span>Lineage positive control</span><strong>541,909 / 541,909</strong></div>
+      </div>
+      <div class="callout good"><strong>Historical overlap check complete.</strong> The strict window is unseen at the normalized record level under the frozen canonicalization.</div>
+      <div class="callout"><strong>The dataset gate is still pending.</strong> This step does not prove 36-context feasibility, external independence, or confirmation performance.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Dataset and boundary</p>
+      <h2>Two disjoint business periods, checked at source-row multiplicity.</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Dataset</th><th>Rows</th><th>Unique fingerprints</th><th>Duplicate extras</th><th>Minimum date</th><th>Maximum date</th></tr></thead>
+        <tbody><tr><td>Strict prior window</td><td class="num">502,938</td><td class="num">496,394</td><td class="num">6,544</td><td><code class="nowrap">2009-12-01 07:45:00</code></td><td><code class="nowrap">2010-11-30 19:35:00</code></td></tr>
+<tr><td>Current Online Retail</td><td class="num">541,909</td><td class="num">536,641</td><td class="num">5,268</td><td><code class="nowrap">2010-12-01 08:26:00</code></td><td><code class="nowrap">2011-12-09 12:50:00</code></td></tr>
+<tr><td>Online Retail II 2010-2011 sheet</td><td class="num">541,910</td><td class="num">536,642</td><td class="num">5,268</td><td><code class="nowrap">2010-12-01 08:26:00</code></td><td><code class="nowrap">2011-12-09 12:50:00</code></td></tr></tbody>
+      </table></div>
+      <p>The final prior transaction occurs at <code>2010-11-30 19:35:00</code>; the current source begins at <code>2010-12-01 08:26:00</code>. The gap is 12 hours 51 minutes.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Three deliberately separate comparisons</p>
+      <h2>Record identity is not the same as business similarity.</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Comparison</th><th>Fields</th><th>Shared unique</th><th>Shared rows</th><th>Prior row rate</th><th>Current row rate</th><th>Interpretation</th></tr></thead>
+        <tbody><tr><td>Canonical record</td><td><code>8 fields, including date</code></td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td><td class="num">0.00%</td><td>Primary historical record-overlap gate</td></tr>
+<tr><td>Date-blind record</td><td><code>7 fields, excluding date</code></td><td class="num">0</td><td class="num">0</td><td class="num">0.00%</td><td class="num">0.00%</td><td>Sensitivity check against a date-only separation result</td></tr>
+<tr><td>Business pattern</td><td><code>product, description, quantity, price, country</code></td><td class="num">27,153</td><td class="num">195,814</td><td class="num">38.93%</td><td class="num">36.13%</td><td>Descriptive continuity only; not record leakage</td></tr></tbody>
+      </table></div>
+      <div class="callout"><strong>Why report the 195,814 shared business patterns?</strong> The same retailer naturally repeats products, quantities, prices, and countries across years. Publishing this continuity prevents a zero-record-overlap result from being misread as company, entity, or domain independence.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Normalization and fingerprinting</p>
+      <h2>The primary result does not depend on raw spreadsheet formatting.</h2>
+      <div class="grid">
+        <article class="panel"><h3>Canonical record</h3><p>Invoice, stock code, normalized description, quantity, timestamp, six-place unit price, nullable customer ID, and country.</p></article>
+        <article class="panel"><h3>Date-blind sensitivity</h3><p>The same comparison without timestamp. Its zero overlap shows the primary finding is not produced only by the frozen date cutoff.</p></article>
+        <article class="panel"><h3>Multiplicity-aware</h3><p>Overlap rows use the minimum count of each fingerprint in both sources. Duplicate copies cannot disappear behind a set comparison.</p></article>
+        <article class="panel"><h3>Private row evidence</h3><p>Length-prefixed, domain-separated SHA-256 fingerprints are recomputed locally. Public artifacts expose only aggregate counts and whole-inventory manifest hashes.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Lineage positive control</p>
+      <h2>The method recovers the known current-source lineage.</h2>
+      <p>The current 541,909-row workbook is a complete multiset subset of the 541,910-row Online Retail II 2010-2011 sheet. The sheet has exactly one additional source row; duplicate-extra counts are identical at 5,268.</p>
+      <div class="metrics">
+        <div><span>Current rows recovered</span><strong>541,909</strong></div>
+        <div><span>Current-only rows</span><strong>0</strong></div>
+        <div><span>II sheet-only rows</span><strong>1</strong></div>
+        <div><span>II coverage</span><strong>100.00%</strong></div>
+      </div>
+      <p>This is a calibration check for normalization, not evidence of external replication.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Same-retailer continuity</p>
+      <h2>Products, customers, and countries overlap even though source records do not.</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Entity field</th><th>Prior distinct</th><th>Current distinct</th><th>Shared distinct</th><th>Prior coverage</th><th>Current coverage</th></tr></thead>
+        <tbody><tr><td><code>invoice_no</code></td><td class="num">27,728</td><td class="num">25,900</td><td class="num">0</td><td class="num">0.00%</td><td class="num">0.00%</td></tr>
+<tr><td><code>stock_code</code></td><td class="num">4,621</td><td class="num">4,070</td><td class="num">3,387</td><td class="num">73.30%</td><td class="num">83.22%</td></tr>
+<tr><td><code>description</code></td><td class="num">4,624</td><td class="num">4,203</td><td class="num">3,183</td><td class="num">68.84%</td><td class="num">75.73%</td></tr>
+<tr><td><code>customer_id</code></td><td class="num">4,336</td><td class="num">4,372</td><td class="num">2,766</td><td class="num">63.79%</td><td class="num">63.27%</td></tr>
+<tr><td><code>country</code></td><td class="num">40</td><td class="num">38</td><td class="num">35</td><td class="num">87.50%</td><td class="num">92.11%</td></tr></tbody>
+      </table></div>
+      <div class="callout"><strong>Claim limit:</strong> zero record overlap supports a temporal internal replication only. It does not establish a new retailer, independent entity population, different source lineage, or unseen business domain.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Research boundary</p>
+      <h2>This proof advances one gate and creates no experiment result.</h2>
+      <ul>
+        <li>No evidence contexts, questions, split assignments, prompts, or model outputs were generated.</li>
+        <li>No annotation, verifier, detector, AUPRC, F1, or other confirmation metric was created or changed.</li>
+        <li>Public artifacts contain no invoice values, customer values, or row fingerprint values.</li>
+        <li>The next authorized step is only the outcome-blind feasibility check for at least 36 disjoint evidence contexts.</li>
+      </ul>
+    </section>
+
+    <footer>BizHallu Historical Record-Overlap Proof · Aggregate-only public evidence · Confirmation Set v1 remains design-only and not execution-ready.</footer>
+  </main>
+</body>
+</html>

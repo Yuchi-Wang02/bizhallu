@@ -56,6 +56,7 @@ def main() -> None:
         "dataset_acquisition_verified": dataset_audit["acquisition_verified"],
         "dataset_structure_profile_complete": dataset_audit["structure_profile_complete"],
         "dataset_quality_profile_complete": dataset_audit["quality_profile_complete"],
+        "dataset_historical_overlap_check_complete": dataset_audit["historical_overlap_check_complete"],
         "dataset_local_profile_complete": dataset_audit["local_profile_complete"],
         "strict_window_row_count": dataset_audit["strict_window_row_count"],
         "metadata_header_drift_detected": dataset_audit["metadata_header_drift_detected"],
@@ -65,6 +66,9 @@ def main() -> None:
         "strict_window_normalized_exact_duplicate_extra_rows": dataset_audit["normalized_exact_duplicate_extra_rows"],
         "strict_window_valid_net_revenue_line_count": dataset_audit["valid_net_revenue_line_count"],
         "strict_window_net_revenue_gbp": dataset_audit["net_revenue_gbp"],
+        "canonical_record_overlap_row_count": dataset_audit["canonical_record_overlap_row_count"],
+        "date_blind_record_overlap_row_count": dataset_audit["date_blind_record_overlap_row_count"],
+        "business_pattern_overlap_row_count": dataset_audit["business_pattern_overlap_row_count"],
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -87,7 +91,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Run only the normalized record-overlap proof against the current Online Retail lineage. If that passes, test outcome-blind 36-context feasibility before creating any context manifest, prompt, or generation file.",
+        "recommended_next_decision": "Run only the outcome-blind 36-context feasibility check before creating any context manifest, prompt, or generation file. Historical canonical and date-blind record overlap are already verified at zero.",
         "num_failures": 0,
         "failures": [],
     }
@@ -130,8 +134,8 @@ def main() -> None:
       section {{ padding:46px 0; border-bottom:1px solid var(--line); }}
       .hero {{ padding-top:66px; }}
       .eyebrow {{ margin:0 0 10px; color:var(--blue); font-size:12px; font-weight:850; text-transform:uppercase; }}
-      h1 {{ max-width:920px; margin:0; font-size:clamp(40px,6vw,68px); line-height:1.02; letter-spacing:0; }}
-      h2 {{ margin:0; font-size:clamp(28px,4vw,40px); line-height:1.12; letter-spacing:0; }}
+      h1 {{ max-width:920px; margin:0; font-size:56px; line-height:1.02; letter-spacing:0; }}
+      h2 {{ margin:0; font-size:38px; line-height:1.12; letter-spacing:0; }}
       h3 {{ margin:0; font-size:19px; line-height:1.25; letter-spacing:0; }}
       p, li, th, td {{ overflow-wrap:anywhere; }}
       .lede {{ max-width:900px; margin:20px 0 0; color:var(--muted); font-size:20px; }}
@@ -154,13 +158,13 @@ def main() -> None:
       ul, ol {{ display:grid; gap:9px; padding-left:22px; }}
       code {{ padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }}
       footer {{ padding:32px 0 48px; color:var(--muted); }}
-      @media (max-width:820px) {{ nav {{ display:none; }} .status,.grid {{ grid-template-columns:1fr; }} }}
+      @media (max-width:820px) {{ nav {{ display:none; }} .status,.grid {{ grid-template-columns:1fr; }} h1 {{ font-size:40px; }} h2 {{ font-size:30px; }} }}
     </style>
   </head>
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -173,7 +177,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, and its 502,938-row strict prior-period window has a completed quality profile with documented controls. Historical record overlap and context feasibility remain pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, its 502,938-row strict prior-period window has a completed quality profile, and both canonical and date-blind comparisons found zero historical record overlap. Context feasibility remains pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
       </section>
 
       <section>
@@ -195,7 +199,7 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Ingestion applies the frozen <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases before those controls. Use the source only after zero historical record overlap and outcome-blind 36-context feasibility are proven. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a></div>
+        <div class="callout good"><strong>Provisional near-term decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Ingestion applies the frozen <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases before those controls. Zero canonical and date-blind historical record overlap is verified; use the source only after outcome-blind 36-context feasibility is also proven. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a></div>
       </section>
 
       <section>
@@ -255,7 +259,7 @@ def main() -> None:
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Run only the normalized record-overlap proof against the current Online Retail lineage. If it passes, test outcome-blind 36-context feasibility and then run the precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Test outcome-blind 36-context feasibility, then run the precision review before freezing the context manifest. Historical record overlap is already verified at zero. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
       </section>
 
       <section>

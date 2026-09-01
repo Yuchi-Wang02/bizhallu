@@ -1,0 +1,13 @@
+{
+  "status": "confirmation_dataset_overlap_validation_passed",
+  "report_path": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+  "html_path": "reports/bizhallu_confirmation_dataset_overlap.html",
+  "local_proof_status": "validated",
+  "canonical_overlap_rows": 0,
+  "date_blind_overlap_rows": 0,
+  "business_pattern_overlap_rows": 195814,
+  "lineage_overlap_rows": 541909,
+  "existing_metrics_unchanged": true,
+  "num_failures": 0,
+  "failures": []
+}

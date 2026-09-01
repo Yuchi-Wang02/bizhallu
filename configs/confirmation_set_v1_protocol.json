@@ -15,26 +15,33 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+    "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
     "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
     "quality_report": "reports/bizhallu_confirmation_dataset_quality_report.json",
     "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
+    "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+    "overlap_html": "reports/bizhallu_confirmation_dataset_overlap.html",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_candidate_role": "prospective_temporal_internal_replication",
     "selected_candidate_gate_status": "pending",
     "official_acquisition_verified": true,
     "structure_and_date_window_verified": true,
     "quality_profile_verified": true,
+    "historical_record_overlap_verified": true,
+    "canonical_record_overlap_row_count": 0,
+    "date_blind_record_overlap_row_count": 0,
+    "business_pattern_overlap_row_count": 195814,
+    "lineage_positive_control_overlap_row_count": 541909,
     "strict_window_row_count": 502938,
     "strict_window_missing_description_rows": 2821,
     "strict_window_missing_customer_id_rows": 100207,
     "strict_window_normalized_exact_duplicate_extra_rows": 6544,
     "strict_window_valid_net_revenue_line_count": 492887,
     "strict_window_net_revenue_gbp": 9266060.76,
-    "recommended_sequence": "First prove zero normalized record overlap against the current Online Retail lineage. Only after that proof should the study test outcome-blind feasibility for at least 36 disjoint contexts; a separately scoped second-dataset replication remains required for broader generalization claims.",
+    "recommended_sequence": "Zero normalized record overlap against the current Online Retail lineage is now proven, including a date-blind sensitivity check. Next test outcome-blind feasibility for at least 36 disjoint contexts without creating prompts or model outputs; a separately scoped second-dataset replication remains required for broader generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -74,8 +81,8 @@
         ],
         "limitations": [
           "same retailer and source lineage as the exploratory study",
-          "the full workbook overlaps the current source and requires record-level fingerprint checks",
-          "quality controls are documented, but historical record independence and 36-context feasibility remain pending"
+          "the full workbook overlaps the current source, so the strict prior-period cutoff and frozen record-level fingerprint proof must remain in force",
+          "quality controls and zero strict-window record overlap are documented, but 36-context feasibility remains pending"
         ]
       },
       {
@@ -322,9 +329,8 @@
     {
       "gate": "dataset_source_selected_and_audited",
       "status": "pending",
-      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, and all 12 months verified for 502,938 rows",
+      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, all 12 months, and zero canonical plus date-blind historical record overlap verified for 502,938 rows",
       "blocking_requirements": [
-        "zero normalized record overlap proof against the current Online Retail lineage",
         "outcome-blind feasibility proof for at least 36 disjoint contexts"
       ]
     },

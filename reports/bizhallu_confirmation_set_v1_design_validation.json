@@ -9,6 +9,7 @@
   "dataset_acquisition_verified": true,
   "dataset_structure_and_date_window_verified": true,
   "dataset_quality_profile_verified": true,
+  "dataset_historical_overlap_verified": true,
   "strict_window_row_count": 502938,
   "dataset_gate_pending": true,
   "precision_review_pending": true,

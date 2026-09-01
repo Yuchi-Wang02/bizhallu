@@ -9,6 +9,10 @@ This directory is reserved for portfolio-ready written outputs:
 
 Current report-ready drafts:
 
+- `bizhallu_confirmation_dataset_overlap.html`
+- `bizhallu_confirmation_dataset_overlap_report.json`
+- `bizhallu_confirmation_dataset_overlap_validation.json`
+
 - `full100_detector_interpretation.html`
 - `full100_detector_interpretation_summary.json`
 - `full100_detector_interpretation_validation.json`

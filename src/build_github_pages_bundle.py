@@ -30,6 +30,7 @@ RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 RESEARCH_SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
 VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
+CONFIRMATION_OVERLAP_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_overlap_report.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -75,6 +76,26 @@ PAGE_COPIES = [
         REPORTS_DIR / "bizhallu_methodology_hardening.html",
         DOCS_DIR / "methodology_hardening.html",
         "methodology_hardening",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html",
+        DOCS_DIR / "confirmation_dataset_source_audit.html",
+        "confirmation_dataset_source_audit",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_dataset_quality.html",
+        DOCS_DIR / "confirmation_dataset_quality.html",
+        "confirmation_dataset_quality",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_dataset_overlap.html",
+        DOCS_DIR / "confirmation_dataset_overlap.html",
+        "confirmation_dataset_overlap",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html",
+        DOCS_DIR / "confirmation_set_v1_design.html",
+        "confirmation_set_v1_design",
     ),
     (
         REPORTS_DIR / "full100_detector_interpretation.html",
@@ -137,6 +158,10 @@ LINK_REWRITES = {
     "./bizhallu_portfolio_demo_v2.html": "./portfolio_demo_v2.html",
     "./bizhallu_methodology_hardening.html": "./methodology_hardening.html",
     "./bizhallu_research_one_pager.html": "./research_one_pager.html",
+    "./bizhallu_confirmation_dataset_source_audit.html": "./confirmation_dataset_source_audit.html",
+    "./bizhallu_confirmation_dataset_quality.html": "./confirmation_dataset_quality.html",
+    "./bizhallu_confirmation_dataset_overlap.html": "./confirmation_dataset_overlap.html",
+    "./bizhallu_confirmation_set_v1_design.html": "./confirmation_set_v1_design.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
     "./full100_label_confirmation_packet.html": "./label_confirmation_packet.html",
@@ -179,6 +204,7 @@ def render_index(
     research: dict[str, Any],
     verifier: dict[str, Any],
     methodology: dict[str, Any],
+    confirmation_overlap: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -197,6 +223,11 @@ def render_index(
     verifier_span_count = verifier.get("span_count", "n/a")
     verifier_contradicted_count = (verifier.get("review_status_counts") or {}).get("contradicted", "n/a")
     methodology_share_status = methodology.get("share_status", "n/a")
+    confirmation_overlap_rows = (
+        confirmation_overlap.get("record_overlap", {})
+        .get("canonical_eight_field", {})
+        .get("multiset_overlap_row_count", "n/a")
+    )
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -303,13 +334,13 @@ def render_index(
       h1 {{
         max-width: 800px;
         margin: 0;
-        font-size: clamp(42px, 7vw, 78px);
+        font-size: 64px;
         line-height: 0.98;
         letter-spacing: 0;
       }}
       h2 {{
         margin: 0;
-        font-size: clamp(30px, 4vw, 46px);
+        font-size: 40px;
         line-height: 1.08;
         letter-spacing: 0;
       }}
@@ -450,6 +481,8 @@ def render_index(
         main {{ width: min(100% - 28px, 720px); }}
         .hero {{ grid-template-columns: 1fr; min-height: auto; padding-top: 46px; }}
         .metric-grid, .card-grid {{ grid-template-columns: 1fr; }}
+        h1 {{ font-size: 44px; line-height: 1.03; }}
+        h2 {{ font-size: 32px; }}
       }}
     </style>
   </head>
@@ -560,6 +593,11 @@ def render_index(
             <h3>Methodology Hardening v1</h3>
             <p>Audit the 35-of-36 selected evaluation scope, cross-split evidence overlap, and the fresh confirmation protocol. Current share status: {methodology_share_status}.</p>
             <p><a href="./methodology_hardening.html">Open methodology audit</a></p>
+          </article>
+          <article class="card">
+            <h3>Confirmation data gate</h3>
+            <p>Inspect source acquisition, strict-window quality, and the aggregate-only proof of {confirmation_overlap_rows} repeated historical records. Context feasibility remains pending.</p>
+            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -685,10 +723,22 @@ def main() -> None:
     research = load_json(RESEARCH_SUMMARY_PATH)
     verifier = load_json(VERIFIER_SUMMARY_PATH)
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
+    confirmation_overlap = load_json(CONFIRMATION_OVERLAP_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
-    index_html = render_index(demo, demo_v2, career, risk, research, verifier, methodology, narrative, preflight)
+    index_html = render_index(
+        demo,
+        demo_v2,
+        career,
+        risk,
+        research,
+        verifier,
+        methodology,
+        confirmation_overlap,
+        narrative,
+        preflight,
+    )
     index_path = DOCS_DIR / "index.html"
     index_path.write_text(index_html, encoding="utf-8")
 
@@ -706,6 +756,7 @@ def main() -> None:
         "source_research_summary_path": repo_path(RESEARCH_SUMMARY_PATH),
         "source_verifier_summary_path": repo_path(VERIFIER_SUMMARY_PATH),
         "source_methodology_summary_path": repo_path(METHODOLOGY_SUMMARY_PATH),
+        "source_confirmation_overlap_path": repo_path(CONFIRMATION_OVERLAP_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -730,6 +781,10 @@ def main() -> None:
         "methodology_heldout_question_count": methodology.get("audit", {}).get("heldout_question_count"),
         "methodology_annotated_heldout_question_count": methodology.get("audit", {}).get("annotated_heldout_question_count"),
         "methodology_cross_split_evidence_group_count": methodology.get("audit", {}).get("exact_evidence_row_cross_split_group_count"),
+        "confirmation_historical_overlap_status": confirmation_overlap.get("status"),
+        "confirmation_canonical_overlap_row_count": confirmation_overlap.get("record_overlap", {}).get("canonical_eight_field", {}).get("multiset_overlap_row_count"),
+        "confirmation_date_blind_overlap_row_count": confirmation_overlap.get("record_overlap", {}).get("date_blind_seven_field_sensitivity", {}).get("multiset_overlap_row_count"),
+        "confirmation_context_feasibility_complete": confirmation_overlap.get("context_feasibility_check_complete"),
         "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
         "metric_selection_status": "exploratory_test_maxima",
         "automatic_claim_extraction": False,

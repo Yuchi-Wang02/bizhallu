@@ -15,6 +15,7 @@ PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_report.json"
 STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
 QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
+OVERLAP_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_summary.json"
@@ -47,6 +48,7 @@ def main() -> None:
     acquisition = load_json(ACQUISITION_PATH)
     structure = load_json(STRUCTURE_PATH)
     quality = load_json(QUALITY_PATH)
+    overlap = load_json(OVERLAP_PATH)
 
     decision = audit["decision"]
     candidates = audit["candidates"]
@@ -82,6 +84,7 @@ def main() -> None:
         "acquisition_verified": audit["acquisition_verified"],
         "structure_profile_complete": audit["structure_profile_complete"],
         "quality_profile_complete": audit["quality_profile_complete"],
+        "historical_overlap_check_complete": audit["historical_overlap_check_complete"],
         "local_profile_complete": audit["local_profile_complete"],
         "execution_ready": audit["execution_ready"],
         "no_new_results": audit["no_new_results"],
@@ -108,6 +111,11 @@ def main() -> None:
         "negative_quantity_rows_without_cancel_prefix": quality["business_rules"]["cancellation_prefix_crosscheck"]["no_cancel_prefix_and_negative_quantity"],
         "valid_net_revenue_line_count": quality["analysis_policy_reconciliation"]["valid_net_revenue_line_count"],
         "net_revenue_gbp": quality["analysis_policy_reconciliation"]["net_revenue"],
+        "overlap_report_path": repo_path(OVERLAP_PATH),
+        "canonical_record_overlap_row_count": overlap["record_overlap"]["canonical_eight_field"]["multiset_overlap_row_count"],
+        "date_blind_record_overlap_row_count": overlap["record_overlap"]["date_blind_seven_field_sensitivity"]["multiset_overlap_row_count"],
+        "business_pattern_overlap_row_count": overlap["descriptive_similarity"]["business_pattern_five_field"]["multiset_overlap_row_count"],
+        "lineage_positive_control_overlap_row_count": overlap["lineage_calibration"]["comparison"]["multiset_overlap_row_count"],
         "candidate_count": len(candidates),
         "external_shortlist_count": len(external_shortlist),
         "source_reference_count": len(references),
@@ -115,8 +123,8 @@ def main() -> None:
         "pending_criterion_ids": pending_criteria,
         "local_profile_check_count": len(checks),
         "next_authorized_action": (
-            "Run only the normalized record-overlap proof against the current Online Retail lineage. "
-            "Do not generate contexts or prompts yet."
+            "Run only the outcome-blind feasibility check for at least 36 disjoint evidence contexts. "
+            "Do not create the context manifest, prompts, or model outputs yet."
         ),
         "num_failures": 0,
         "failures": [],
@@ -222,11 +230,11 @@ def main() -> None:
     <main>
       <section class="hero">
         <p class="eyebrow">Confirmation Dataset Source Audit v1</p>
-        <h1>Source quality is profiled; independence is still unproven.</h1>
-        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. The dataset gate stays pending until normalized record overlap and outcome-blind context feasibility are checked.</p>
+        <h1>Source quality and historical record separation are verified.</h1>
+        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. Canonical and date-blind record comparisons both found zero overlap with the current source. The dataset gate stays pending until outcome-blind context feasibility is proven.</p>
         <div class="status">
           <div><span>Decision</span><strong>Provisional</strong></div>
-          <div><span>Quality</span><strong>Controlled</strong></div>
+          <div><span>Record overlap</span><strong>0 rows</strong></div>
           <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
         </div>
@@ -266,13 +274,13 @@ def main() -> None:
           <article class="panel"><h3>Cancellation control</h3><p>{esc(f"{summary['negative_quantity_rows_without_cancel_prefix']:,}")} negative-quantity rows lack the <code>C</code> prefix. Net revenue retains negative quantities instead of relying on invoice prefix alone.</p></article>
           <article class="panel"><h3>Reconciled net evidence</h3><p>{esc(f"{summary['valid_net_revenue_line_count']:,}")} valid net-revenue lines reconcile to GBP {esc(f"{summary['net_revenue_gbp']:,.2f}")} across all {esc(summary['month_count'])} expected months.</p></article>
         </div>
-        <div class="callout"><strong>Public boundary.</strong> The line-level table remains local and Git-ignored because it contains source invoice and customer identifiers. <a href="./bizhallu_confirmation_dataset_quality.html">Read the full quality profile.</a></div>
+        <div class="callout"><strong>Public boundary.</strong> The line-level table remains local and Git-ignored because it contains source invoice and customer identifiers. <a href="./bizhallu_confirmation_dataset_quality.html">Read the full quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the aggregate-only overlap proof.</a></div>
       </section>
 
       <section>
         <p class="eyebrow">Acceptance criteria</p>
         <h2>Analytical quality is controlled; independence and capacity remain open.</h2>
-        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, and monthly reconciliation. Record independence and the capacity for 36 disjoint contexts are not yet established.</p>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, and zero canonical plus date-blind historical record overlap. The capacity for 36 outcome-blind disjoint contexts is not yet established.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody>{criterion_rows}</tbody>
@@ -291,7 +299,7 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Local acquisition gate</p>
-        <h2>Seven checks are complete; two remain pending and privacy stays active.</h2>
+        <h2>Eight checks are complete; context feasibility remains pending and privacy stays active.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Check</th><th>Status</th><th>Requirement</th></tr></thead>
           <tbody>{check_rows}</tbody>
@@ -318,12 +326,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Prove record independence next; do not generate.</h2>
+        <h2>Prove context feasibility next; do not generate.</h2>
         <p>{esc(summary['next_authorized_action'])}</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, and strict-window quality verified {esc(audit['audit_date'])}; overlap and context feasibility remain pending.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, and historical record separation verified {esc(audit['audit_date'])}; context feasibility remains pending.</footer>
     </main>
   </body>
 </html>

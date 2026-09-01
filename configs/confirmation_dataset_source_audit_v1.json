@@ -1,37 +1,39 @@
 {
   "schema_version": "1.0",
-  "status": "quality_profile_verified_overlap_and_context_pending",
+  "status": "quality_and_overlap_verified_context_pending",
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "audit_date": "2026-09-01",
-  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, and monthly coverage are complete. Historical record-overlap and outcome-blind context-feasibility checks remain pending.",
+  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, monthly coverage, and normalized historical record-overlap proof are complete. Outcome-blind context feasibility remains pending.",
   "protocol_source": "configs/confirmation_set_v1_protocol.json",
   "no_new_results": true,
   "download_performed": true,
   "acquisition_verified": true,
   "structure_profile_complete": true,
   "quality_profile_complete": true,
+  "historical_overlap_check_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "decision": {
-    "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+    "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_role": "prospective_temporal_internal_replication",
     "dataset_gate_status": "pending",
-    "decision_summary": "Provisionally select the strict prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases, moves the study to earlier transaction rows, and is conditionally suitable for aggregate business analysis after documented quality controls. Record independence is not yet proven.",
+    "decision_summary": "Provisionally select the strict prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases, moves the study to earlier transaction rows, is conditionally suitable after documented quality controls, and has zero canonical plus date-blind normalized record overlap with the current source. Context feasibility is not yet proven.",
     "allowed_time_window": {
       "start_inclusive": "2009-12-01T00:00:00",
       "end_exclusive": "2010-12-01T00:00:00",
-      "reason": "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff prevents intentional calendar overlap before record-level fingerprint checks are run."
+      "reason": "The current BizHallu source begins on 2010-12-01. The strict end-exclusive cutoff creates a 12-hour-51-minute source boundary, and the completed canonical plus date-blind fingerprint checks verify zero repeated records across it."
     },
     "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
     "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
     "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
-    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until zero normalized record overlap and outcome-blind feasibility for at least 36 disjoint contexts are proven. Acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, and monthly coverage are complete."
+    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until outcome-blind feasibility for at least 36 disjoint contexts is proven. Acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, and zero normalized historical record overlap are complete."
   },
   "acquisition_evidence": {
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
     "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
+    "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
     "official_download_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
     "zip_size_bytes": 45622418,
     "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
@@ -151,7 +153,7 @@
       "candidate_id": "uci_online_retail_ii_prior_period",
       "name": "UCI Online Retail II, strict prior-period window",
       "role": "prospective_temporal_internal_replication",
-      "decision_status": "provisional_selected_quality_verified_overlap_context_pending",
+      "decision_status": "provisional_selected_quality_and_overlap_verified_context_pending",
       "official_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
       "source_identity": {
         "doi": "10.24432/C5CG6D",
@@ -185,7 +187,7 @@
         "2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone",
         "36 context feasibility is plausible but not yet measured"
       ],
-      "recommended_use": "Use the documented strict-window controls, then proceed to protocol-pilot, development, and sealed confirmation design only after zero historical record overlap and outcome-blind 36-context feasibility are proven."
+      "recommended_use": "Use the documented strict-window controls and completed zero-overlap proof, then proceed to protocol-pilot, development, and sealed confirmation design only after outcome-blind 36-context feasibility is proven."
     },
     {
       "candidate_id": "completejourney_external",
@@ -351,8 +353,8 @@
     },
     {
       "check_id": "historical_overlap",
-      "status": "pending",
-      "requirement": "Normalize shared fields and prove zero exact record fingerprints against the current Online Retail raw and cleaned lineages after the strict cutoff."
+      "status": "completed",
+      "requirement": "Normalize shared fields and prove zero canonical and date-blind record fingerprints against the current Online Retail lineage after the strict cutoff. The public proof reports aggregate counts only."
     },
     {
       "check_id": "monthly_coverage",
@@ -468,7 +470,8 @@
       "The official workbook was acquired and hashed locally; its raw files remain Git-ignored.",
       "The workbook contains 1,067,371 date-valid rows, and the strict prior-period window contains 502,938 rows after the date boundary is applied.",
       "Three raw header aliases are required before shared BizHallu business rules can be applied.",
-      "Official metadata and local structure checks support schema and license fit, while full completeness, duplicate/grain, business-rule, overlap, and context-count checks remain pending.",
+      "Official metadata, local structure, full field quality, duplicate/grain, business-rule, monthly coverage, and historical overlap checks are complete; context-count feasibility remains pending.",
+      "The strict prior window has zero canonical and zero date-blind normalized record overlap with the current source, while expected same-retailer product, customer, and country continuity remains.",
       "Complete Journey is the preferred external-replication shortlist candidate, not a selected or downloaded confirmation source."
     ],
     "disallowed": [

@@ -9,10 +9,11 @@
   "acquisition_verified": true,
   "structure_profile_complete": true,
   "quality_profile_complete": true,
+  "historical_overlap_check_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "no_new_results": true,
-  "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
+  "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
   "selected_candidate_id": "uci_online_retail_ii_prior_period",
   "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
   "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -39,6 +40,11 @@
   "negative_quantity_rows_without_cancel_prefix": 2057,
   "valid_net_revenue_line_count": 492887,
   "net_revenue_gbp": 9266060.76,
+  "overlap_report_path": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+  "canonical_record_overlap_row_count": 0,
+  "date_blind_record_overlap_row_count": 0,
+  "business_pattern_overlap_row_count": 195814,
+  "lineage_positive_control_overlap_row_count": 541909,
   "candidate_count": 6,
   "external_shortlist_count": 2,
   "source_reference_count": 10,
@@ -52,7 +58,7 @@
     "minimum_36_disjoint_contexts"
   ],
   "local_profile_check_count": 10,
-  "next_authorized_action": "Run only the normalized record-overlap proof against the current Online Retail lineage. Do not generate contexts or prompts yet.",
+  "next_authorized_action": "Run only the outcome-blind feasibility check for at least 36 disjoint evidence contexts. Do not create the context manifest, prompts, or model outputs yet.",
   "num_failures": 0,
   "failures": []
 }

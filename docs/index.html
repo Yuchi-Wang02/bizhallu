@@ -92,13 +92,13 @@
       h1 {
         max-width: 800px;
         margin: 0;
-        font-size: clamp(42px, 7vw, 78px);
+        font-size: 64px;
         line-height: 0.98;
         letter-spacing: 0;
       }
       h2 {
         margin: 0;
-        font-size: clamp(30px, 4vw, 46px);
+        font-size: 40px;
         line-height: 1.08;
         letter-spacing: 0;
       }
@@ -239,6 +239,8 @@
         main { width: min(100% - 28px, 720px); }
         .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 46px; }
         .metric-grid, .card-grid { grid-template-columns: 1fr; }
+        h1 { font-size: 44px; line-height: 1.03; }
+        h2 { font-size: 32px; }
       }
     </style>
   </head>
@@ -349,6 +351,11 @@
             <h3>Methodology Hardening v1</h3>
             <p>Audit the 35-of-36 selected evaluation scope, cross-split evidence overlap, and the fresh confirmation protocol. Current share status: share_with_caveats.</p>
             <p><a href="./methodology_hardening.html">Open methodology audit</a></p>
+          </article>
+          <article class="card">
+            <h3>Confirmation data gate</h3>
+            <p>Inspect source acquisition, strict-window quality, and the aggregate-only proof of 0 repeated historical records. Context feasibility remains pending.</p>
+            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
