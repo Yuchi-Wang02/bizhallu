@@ -8,7 +8,7 @@
   "workbook_total_data_rows": 1067371,
   "strict_window_row_count": 502938,
   "metadata_header_drift_detected": true,
-  "dataset_gate_status": "pending",
+  "dataset_gate_status": "complete",
   "execution_ready": false,
   "no_new_results": true,
   "local_artifact_verification_command": "python src/validate_confirmation_dataset_acquisition.py --require-local",

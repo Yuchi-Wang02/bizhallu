@@ -21,6 +21,7 @@ ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acq
 STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
 AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.json"
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
+FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 VALIDATION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_validation.json"
 
 EXPECTED_ZIP_SIZE = 45_622_418
@@ -131,7 +132,7 @@ def main() -> None:
     args = parser.parse_args()
 
     failures: list[dict[str, Any]] = []
-    required_public_paths = [ACQUISITION_PATH, STRUCTURE_PATH, AUDIT_PATH, PROTOCOL_PATH]
+    required_public_paths = [ACQUISITION_PATH, STRUCTURE_PATH, AUDIT_PATH, PROTOCOL_PATH, FEASIBILITY_PATH]
     for path in required_public_paths:
         if not path.exists():
             add_failure(failures, "required_public_artifact_missing", repo_path(path))
@@ -140,12 +141,14 @@ def main() -> None:
     structure = load_json(STRUCTURE_PATH) if STRUCTURE_PATH.exists() else {}
     audit = load_json(AUDIT_PATH) if AUDIT_PATH.exists() else {}
     protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
+    feasibility = load_json(FEASIBILITY_PATH) if FEASIBILITY_PATH.exists() else {}
 
     for path, payload in [
         (ACQUISITION_PATH, acquisition),
         (STRUCTURE_PATH, structure),
         (AUDIT_PATH, audit),
         (PROTOCOL_PATH, protocol),
+        (FEASIBILITY_PATH, feasibility),
     ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
             add_failure(failures, "local_absolute_path_in_public_artifact", repo_path(path))
@@ -298,7 +301,7 @@ def main() -> None:
     if observed_sheet_counts != expected_sheet_counts:
         add_failure(failures, "sheet_counts", observed_sheet_counts)
 
-    if audit.get("status") != "quality_and_overlap_verified_context_pending":
+    if audit.get("status") != "dataset_source_selected_and_audited_precision_review_pending":
         add_failure(failures, "audit_status", audit.get("status"))
     expected_audit_flags = {
         "download_performed": True,
@@ -306,7 +309,8 @@ def main() -> None:
         "structure_profile_complete": True,
         "quality_profile_complete": True,
         "historical_overlap_check_complete": True,
-        "local_profile_complete": False,
+        "context_feasibility_check_complete": True,
+        "local_profile_complete": True,
         "execution_ready": False,
         "no_new_results": True,
     }
@@ -331,15 +335,35 @@ def main() -> None:
             )
 
     strategy = protocol.get("dataset_strategy", {})
-    if strategy.get("selected_candidate_gate_status") != "pending":
+    if strategy.get("selected_candidate_gate_status") != "complete":
         add_failure(failures, "protocol_gate_status", strategy.get("selected_candidate_gate_status"))
     gates = protocol.get("execution_gates", [])
     dataset_gate = next(
         (item for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),
         {},
     )
-    if dataset_gate.get("status") != "pending":
-        add_failure(failures, "dataset_gate_closed_early", dataset_gate)
+    if dataset_gate.get("status") != "complete":
+        add_failure(failures, "dataset_gate_not_complete", dataset_gate)
+    expected_capacity = {
+        "status": "outcome_blind_context_feasibility_complete",
+        "observed_complete_period_count": 50,
+        "required_total_context_count": 36,
+        "maximum_slot_matching_count": 36,
+        "context_manifest_created": False,
+        "execution_ready": False,
+        "no_new_results": True,
+    }
+    observed_capacity = {
+        "status": feasibility.get("status"),
+        "observed_complete_period_count": feasibility.get("source_capacity", {}).get("observed_complete_period_count"),
+        "required_total_context_count": feasibility.get("capacity_proof", {}).get("required_total_context_count"),
+        "maximum_slot_matching_count": feasibility.get("capacity_proof", {}).get("maximum_slot_matching_count"),
+        "context_manifest_created": feasibility.get("context_manifest_created"),
+        "execution_ready": feasibility.get("execution_ready"),
+        "no_new_results": feasibility.get("no_new_results"),
+    }
+    if observed_capacity != expected_capacity:
+        add_failure(failures, "dataset_gate_capacity_evidence", observed_capacity)
     if protocol.get("execution_ready") is not False or protocol.get("no_new_results") is not True:
         add_failure(failures, "protocol_execution_boundary", {"execution_ready": protocol.get("execution_ready"), "no_new_results": protocol.get("no_new_results")})
 

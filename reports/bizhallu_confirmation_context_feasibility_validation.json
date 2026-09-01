@@ -1,0 +1,20 @@
+{
+  "status": "confirmation_context_feasibility_validation_passed",
+  "config_path": "configs/confirmation_context_feasibility_v1.json",
+  "report_path": "reports/bizhallu_confirmation_context_feasibility_report.json",
+  "html_path": "reports/bizhallu_confirmation_context_feasibility.html",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "context_feasibility_check_complete": true,
+  "observed_complete_period_count": 50,
+  "required_total_context_count": 36,
+  "maximum_slot_matching_count": 36,
+  "minimum_hall_capacity_slack": 14,
+  "eligible_family_count": 3,
+  "blocked_family_count": 1,
+  "local_proof_checked": true,
+  "context_manifest_created": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "num_failures": 0,
+  "failures": []
+}

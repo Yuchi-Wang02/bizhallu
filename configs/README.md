@@ -22,6 +22,7 @@ Current config files:
 - `detector_baseline_suite.json`
 - `methodology_protocol_v1.json`
 - `confirmation_dataset_source_audit_v1.json`
+- `confirmation_context_feasibility_v1.json`
 - `confirmation_set_v1_protocol.json`
 
 `detector_baseline_suite.json` defines the score fields used by the

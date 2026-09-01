@@ -79,14 +79,18 @@ policies before new model answers are viewed.
   bootstrap by evidence context.
 - Internal uncertainty, literature-grounded baselines, evidence-aware
   verification, and an optional frozen hybrid remain comparison families.
-- Seven execution gates are deliberately pending. The official Online Retail II
+- The first of seven execution gates is complete; six downstream gates remain
+  deliberately pending. The official Online Retail II
   ZIP and workbook are acquired, hashed, and Git-ignored; the two-sheet structure,
   three raw-header aliases, and 502,938-row strict prior-period boundary are
   verified. Completeness, duplicate/grain behavior, cancellation/value rules,
   and all 12 expected months are now profiled with documented controls. Canonical
   eight-field and date-blind seven-field comparisons both found zero repeated
-  current-source records. The first gate still stays pending until outcome-blind
-  36-context feasibility is proven.
+  current-source records. An outcome-blind feasibility profile found 50 observed
+  complete weeks and proved a 36-of-36 period-to-family matching across three
+  allowed families, with minimum Hall-capacity slack 14. Customer concentration
+  remains blocked because 100,207 Customer IDs are missing. No selected periods,
+  split, context manifest, prompts, or model outcomes were retained.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
@@ -99,8 +103,9 @@ records official source and license evidence, and keeps Complete Journey as the
 preferred external-replication shortlist candidate. The selected source is now
 locally acquired, structurally inspected, quality-profiled, and separated from
 the current source at normalized record level. This remains same-retailer,
-same-lineage temporal replication, not external independence. No context manifest,
-prompt, generation, annotation target, or new metric was created.
+  same-lineage temporal replication, not external independence. The next action is
+  only an outcome-blind precision review of the planned 6/15/15 context counts.
+  No context manifest, prompt, generation, annotation target, or new metric was created.
 
 ## Historical Record-Overlap Update: 2026-09-01
 

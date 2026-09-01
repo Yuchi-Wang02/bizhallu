@@ -41,7 +41,7 @@
       ul, ol { display:grid; gap:8px; padding-left:21px; margin:8px 0; }
       code { padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }
       .badge { display:inline-block; margin-top:5px; padding:3px 7px; border:1px solid var(--line); border-radius:5px; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }
-      .badge.pass_metadata, .badge.completed { color:var(--green); border-color:#93c8b4; background:#f3fbf7; }
+      .badge.pass_metadata, .badge.pass_outcome_blind_capacity_profile, .badge.completed { color:var(--green); border-color:#93c8b4; background:#f3fbf7; }
       .badge.pass_local_profile_with_controls { color:var(--amber); border-color:#d7bd88; background:#fff9ed; }
       .badge.conditional_pass, .badge.pending_context_feasibility, .badge.pending, .badge.active { color:var(--amber); border-color:#d7bd88; background:#fff9ed; }
       footer { padding:32px 0 48px; color:var(--muted); }
@@ -57,9 +57,9 @@
       <section class="hero">
         <p class="eyebrow">Confirmation Dataset Source Audit v1</p>
         <h1>Source quality and historical record separation are verified.</h1>
-        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. Canonical and date-blind record comparisons both found zero overlap with the current source. The dataset gate stays pending until outcome-blind context feasibility is proven.</p>
+        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. Canonical and date-blind record comparisons found zero overlap, and an outcome-blind capacity proof supports 36 unique complete-week context slots across three allowed families.</p>
         <div class="status">
-          <div><span>Decision</span><strong>Provisional</strong></div>
+          <div><span>Dataset gate</span><strong>Complete</strong></div>
           <div><span>Record overlap</span><strong>0 rows</strong></div>
           <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
@@ -73,8 +73,8 @@
         <div class="grid">
           <article class="panel"><h3>Selected window</h3><p><code>2009-12-01T00:00:00</code> inclusive through <code>2010-12-01T00:00:00</code> exclusive.</p></article>
           <article class="panel"><h3>Research role</h3><p>prospective_temporal_internal_replication. This is not an independent company or cross-domain replication.</p></article>
-          <article class="panel"><h3>Why it fits</h3><p>Provisionally select the strict prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases, moves the study to earlier transaction rows, is conditionally suitable after documented quality controls, and has zero canonical plus date-blind normalized record overlap with the current source. Context feasibility is not yet proven.</p></article>
-          <article class="panel"><h3>Why the gate stays pending</h3><p>Keep dataset_source_selected_and_audited pending until outcome-blind feasibility for at least 36 disjoint contexts is proven. Acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, and zero normalized historical record overlap are complete.</p></article>
+          <article class="panel"><h3>Why it fits</h3><p>Select the strict prior-period portion of UCI Online Retail II for a same-retailer temporal internal replication. It preserves the required business fields through three explicit header aliases, is conditionally suitable after documented quality controls, has zero canonical plus date-blind normalized record overlap with the current source, and supports 36 unique complete-week contexts across three allowed question families without using model outcomes.</p></article>
+          <article class="panel"><h3>Why execution stays blocked</h3><p>The dataset_source_selected_and_audited gate is complete because acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, zero normalized historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. This does not authorize context selection or experiment execution.</p></article>
         </div>
         <div class="callout good"><strong>External path remains open.</strong> Complete Journey is the preferred external-replication shortlist candidate after the corrected protocol is tested on the lower-risk prior-period source.</div>
       </section>
@@ -100,13 +100,13 @@
           <article class="panel"><h3>Cancellation control</h3><p>2,057 negative-quantity rows lack the <code>C</code> prefix. Net revenue retains negative quantities instead of relying on invoice prefix alone.</p></article>
           <article class="panel"><h3>Reconciled net evidence</h3><p>492,887 valid net-revenue lines reconcile to GBP 9,266,060.76 across all 12 expected months.</p></article>
         </div>
-        <div class="callout"><strong>Public boundary.</strong> The line-level table remains local and Git-ignored because it contains source invoice and customer identifiers. <a href="./bizhallu_confirmation_dataset_quality.html">Read the full quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the aggregate-only overlap proof.</a></div>
+        <div class="callout"><strong>Public boundary.</strong> The line-level table remains local and Git-ignored because it contains source invoice and customer identifiers. <a href="./bizhallu_confirmation_dataset_quality.html">Read the full quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the aggregate-only overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the aggregate-only capacity proof.</a></div>
       </section>
 
       <section>
         <p class="eyebrow">Acceptance criteria</p>
-        <h2>Analytical quality is controlled; independence and capacity remain open.</h2>
-        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, and zero canonical plus date-blind historical record overlap. The capacity for 36 outcome-blind disjoint contexts is not yet established.</p>
+        <h2>Analytical quality, record separation, and aggregate capacity are controlled.</h2>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, and capacity for 36 outcome-blind unique complete-week contexts. Context selection and final evidence-fingerprint checks remain later gates.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody><tr>
@@ -141,9 +141,9 @@
         </tr>
 <tr>
           <td><code>minimum_36_disjoint_contexts</code></td>
-          <td><span class="badge pending_context_feasibility">pending_context_feasibility</span></td>
+          <td><span class="badge pass_outcome_blind_capacity_profile">pass_outcome_blind_capacity_profile</span></td>
           <td>At least 36 disjoint evidence contexts can be formed without outcome-based filtering.</td>
-          <td>The prior-period window spans twelve calendar months and has transaction-level entities, but the required context counts and split-disjoint fingerprints have not yet been computed.</td>
+          <td>Fifty observed complete calendar weeks support 36 unique period-to-family slots across three allowed families. Generalized Hall capacity has minimum slack 14 and an independent maximum matching fills 36 of 36 slots; no assignment was retained.</td>
         </tr></tbody>
         </table></div>
       </section>
@@ -163,11 +163,11 @@
         </tr>
 <tr>
           <td><strong>UCI Online Retail II, strict prior-period window</strong><code>uci_online_retail_ii_prior_period</code></td>
-          <td>prospective_temporal_internal_replication<span class="badge decision">provisional_selected_quality_and_overlap_verified_context_pending</span></td>
+          <td>prospective_temporal_internal_replication<span class="badge decision">selected_source_audited_precision_review_pending</span></td>
           <td><ul><li>time: strong</li><li>entity: strong</li><li>quantity: strong</li><li>value: strong</li><li>returns_or_cancellations: strong</li></ul></td>
           <td><ul><li>same required business fields after deterministic Invoice, Price, and Customer ID header aliases</li><li>prior periods allow transaction-level temporal separation</li><li>small enough for the local Windows and 5070 Ti workflow</li><li>the strict prior-period window contains 502,938 date-valid rows before any outcome-based filtering</li></ul></td>
-          <td><ul><li>same retailer and source lineage, so this remains internal replication</li><li>the first workbook sheet extends through 2010-12-09, so 22,523 rows in that sheet and all 541,910 rows in the second sheet must remain outside the strict window</li><li>actual workbook headers differ from UCI&#x27;s canonical field names for InvoiceNo, UnitPrice, and CustomerID and require an explicit ingestion mapping</li><li>100,207 customer IDs and 2,821 descriptions are missing, so customer-level questions stay blocked and product/value evidence requires descriptions</li><li>6,544 normalized exact duplicate extra rows require exact-row deduplication before aggregation</li><li>2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone</li><li>36 context feasibility is plausible but not yet measured</li></ul></td>
-          <td>Use the documented strict-window controls and completed zero-overlap proof, then proceed to protocol-pilot, development, and sealed confirmation design only after outcome-blind 36-context feasibility is proven.</td>
+          <td><ul><li>same retailer and source lineage, so this remains internal replication</li><li>the first workbook sheet extends through 2010-12-09, so 22,523 rows in that sheet and all 541,910 rows in the second sheet must remain outside the strict window</li><li>actual workbook headers differ from UCI&#x27;s canonical field names for InvoiceNo, UnitPrice, and CustomerID and require an explicit ingestion mapping</li><li>100,207 customer IDs and 2,821 descriptions are missing, so customer-level questions stay blocked and product/value evidence requires descriptions</li><li>6,544 normalized exact duplicate extra rows require exact-row deduplication before aggregation</li><li>2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone</li><li>customer concentration remains blocked because 100,207 Customer IDs are missing; the verified 36-context capacity covers three other families</li></ul></td>
+          <td>Use the documented strict-window controls and completed aggregate capacity proof, then run the outcome-blind precision review before freezing any context manifest or seeded split.</td>
         </tr>
 <tr>
           <td><strong>84.51 Complete Journey via completejourney</strong><code>completejourney_external</code></td>
@@ -207,7 +207,7 @@
 
       <section>
         <p class="eyebrow">Local acquisition gate</p>
-        <h2>Eight checks are complete; context feasibility remains pending and privacy stays active.</h2>
+        <h2>Nine checks are complete; public privacy stays active.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Check</th><th>Status</th><th>Requirement</th></tr></thead>
           <tbody><tr><td>1</td><td><code>official_acquisition_and_hash</code></td><td><span class="badge completed">completed</span></td><td>Download online_retail_II.xlsx only from the official UCI source, record retrieval date, byte size, and SHA-256, and keep the workbook out of Git.</td></tr>
@@ -218,7 +218,7 @@
 <tr><td>6</td><td><code>business_rule_validity</code></td><td><span class="badge completed">completed</span></td><td>Profile negative, zero, and extreme Quantity and UnitPrice values; compare cancellation-prefix rows with negative-quantity rows.</td></tr>
 <tr><td>7</td><td><code>historical_overlap</code></td><td><span class="badge completed">completed</span></td><td>Normalize shared fields and prove zero canonical and date-blind record fingerprints against the current Online Retail lineage after the strict cutoff. The public proof reports aggregate counts only.</td></tr>
 <tr><td>8</td><td><code>monthly_coverage</code></td><td><span class="badge completed">completed</span></td><td>Report monthly row, invoice, customer, product, country, cancellation, and monetary totals to identify sparse or abnormal periods.</td></tr>
-<tr><td>9</td><td><code>context_feasibility</code></td><td><span class="badge pending">pending</span></td><td>Generate outcome-blind candidate context counts for each planned question family and prove at least 6 pilot, 15 development, and 15 confirmation contexts can be assigned with period and evidence-fingerprint separation.</td></tr>
+<tr><td>9</td><td><code>context_feasibility</code></td><td><span class="badge completed">completed</span></td><td>Outcome-blind capacity is verified for 6 pilot, 15 development, and 15 confirmation contexts using unique complete calendar weeks across three allowed families. Final evidence fingerprints remain a manifest-freeze check.</td></tr>
 <tr><td>10</td><td><code>public_privacy_boundary</code></td><td><span class="badge active">active</span></td><td>Keep raw customer and invoice identifiers out of public artifacts; use aggregates or study-local opaque identifiers.</td></tr></tbody>
         </table></div>
       </section>
@@ -292,12 +292,12 @@
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Prove context feasibility next; do not generate.</h2>
-        <p>Run only the outcome-blind feasibility check for at least 36 disjoint evidence contexts. Do not create the context manifest, prompts, or model outputs yet.</p>
+        <h2>Review precision next; do not generate.</h2>
+        <p>Run only the outcome-blind precision review for the planned 6 pilot, 15 development, and 15 confirmation contexts before freezing any context manifest or seeded split.</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, and historical record separation verified 2026-09-01; context feasibility remains pending.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, and aggregate context capacity verified 2026-09-01; experiment execution remains blocked.</footer>
     </main>
   </body>
 </html>

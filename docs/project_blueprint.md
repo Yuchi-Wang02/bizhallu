@@ -612,8 +612,11 @@ its generated design report is
 questions. These are minimum planning targets, not collected results. They may
 increase after an outcome-blind precision review, but cannot be reduced or
 rebalanced after generated answers are viewed. Exact historical full100
-evidence fingerprints are excluded. All seven execution gates remain pending,
-and the design introduces no new performance claim.
+  evidence fingerprints are excluded. The dataset-source gate is complete after
+  the aggregate-only capacity proof verified 50 observed complete weeks and a
+  36-of-36 unique period-to-family matching across three allowed families. Six
+  downstream gates remain pending, and the design introduces no new performance
+  claim or selected context manifest.
 
 Next one-step branch:
 

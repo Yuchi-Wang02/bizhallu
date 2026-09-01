@@ -12,6 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
+CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -44,19 +45,20 @@ REQUIRED_HTML_FRAGMENTS = [
     "cluster bootstrap",
     "Semantic Entropy",
     "TOHA",
-    "Every gate is intentionally pending.",
+    "One gate is complete; six remain pending.",
     "The current 0.835 / 0.779 values remain exploratory context.",
     "introduces no new detector metric",
-    "The official Online Retail II workbook is acquired and hashed",
+    "The dataset-source gate is complete",
     "502,938-row strict prior-period window has a completed quality profile",
     "conditionally suitable for aggregate business analysis",
-    "both canonical and date-blind comparisons found zero historical record overlap",
-    "Invoice",
+    "zero canonical and date-blind historical record overlap",
+    "aggregate capacity for 36 unique complete-week contexts",
     "Customer ID",
     "Read the source audit.",
     "Read the quality profile.",
     "Read the overlap proof.",
-    "Historical record overlap is already verified at zero.",
+    "Read the capacity proof.",
+    "Run only the outcome-blind precision review",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -94,6 +96,7 @@ def main() -> None:
         PROTOCOL_PATH,
         METHODOLOGY_SUMMARY_PATH,
         DATASET_AUDIT_SUMMARY_PATH,
+        CONTEXT_FEASIBILITY_PATH,
         HTML_PATH,
         SUMMARY_PATH,
     ]:
@@ -103,12 +106,14 @@ def main() -> None:
     protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
     methodology = load_json(METHODOLOGY_SUMMARY_PATH) if METHODOLOGY_SUMMARY_PATH.exists() else {}
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH) if DATASET_AUDIT_SUMMARY_PATH.exists() else {}
+    feasibility = load_json(CONTEXT_FEASIBILITY_PATH) if CONTEXT_FEASIBILITY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
 
     for path, payload in [
         (PROTOCOL_PATH, protocol),
         (DATASET_AUDIT_SUMMARY_PATH, dataset_audit),
+        (CONTEXT_FEASIBILITY_PATH, feasibility),
         (SUMMARY_PATH, summary),
     ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -177,7 +182,7 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "provisional_selection_quality_and_overlap_verified_context_pending":
+    if dataset_strategy.get("selection_status") != "selected_source_audited_precision_review_pending":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
@@ -196,13 +201,18 @@ def main() -> None:
         "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
         "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
         "overlap_html": "reports/bizhallu_confirmation_dataset_overlap.html",
+        "context_feasibility_config": "configs/confirmation_context_feasibility_v1.json",
+        "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
+        "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
+        "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
-        "selected_candidate_gate_status": "pending",
+        "selected_candidate_gate_status": "complete",
         "official_acquisition_verified": True,
         "structure_and_date_window_verified": True,
         "quality_profile_verified": True,
         "historical_record_overlap_verified": True,
+        "outcome_blind_context_feasibility_verified": True,
         "canonical_record_overlap_row_count": 0,
         "date_blind_record_overlap_row_count": 0,
         "business_pattern_overlap_row_count": 195814,
@@ -213,6 +223,17 @@ def main() -> None:
         "strict_window_normalized_exact_duplicate_extra_rows": 6544,
         "strict_window_valid_net_revenue_line_count": 492887,
         "strict_window_net_revenue_gbp": 9266060.76,
+        "complete_calendar_week_count": 51,
+        "observed_complete_week_count": 50,
+        "required_period_disjoint_context_count": 36,
+        "maximum_period_to_slot_matching_count": 36,
+        "minimum_hall_capacity_slack": 14,
+        "source_feasible_question_families": [
+            "net_revenue_reconciliation_by_period",
+            "product_return_rate_comparison",
+            "country_product_exposure",
+        ],
+        "blocked_question_families": ["customer_revenue_concentration"],
     }
     for key, expected in expected_selected_strategy.items():
         if dataset_strategy.get(key) != expected:
@@ -320,26 +341,50 @@ def main() -> None:
     if metric_policy.get("uncertainty_interval") != "cluster bootstrap by evidence_context_id":
         add_failure(failures, "uncertainty_interval", metric_policy.get("uncertainty_interval"))
 
+    family_statuses = {
+        item.get("family"): item.get("source_feasibility_status")
+        for item in protocol.get("question_design", {}).get("candidate_families", [])
+    }
+    expected_family_statuses = {
+        "net_revenue_reconciliation_by_period": "verified",
+        "customer_revenue_concentration": "blocked_by_preexisting_quality_control",
+        "product_return_rate_comparison": "verified",
+        "country_product_exposure": "verified",
+    }
+    if family_statuses != expected_family_statuses:
+        add_failure(failures, "question_family_source_feasibility", family_statuses)
+
     gates = protocol.get("execution_gates", [])
     if len(gates) != 7:
         add_failure(failures, "execution_gate_count", len(gates))
-    if any(item.get("status") != "pending" for item in gates):
-        add_failure(failures, "execution_gate_status", gates)
+    gate_statuses = {item.get("gate"): item.get("status") for item in gates}
+    expected_gate_statuses = {
+        "dataset_source_selected_and_audited": "complete",
+        "context_manifest_split_and_precision_review_frozen": "pending",
+        "question_templates_and_gold_calculations_validated": "pending",
+        "model_prompt_and_detector_configs_frozen": "pending",
+        "two_independent_human_reviewers_assigned": "pending",
+        "claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data": "pending",
+        "sealed_confirmation_run_authorized": "pending",
+    }
+    if gate_statuses != expected_gate_statuses:
+        add_failure(failures, "execution_gate_status", gate_statuses)
 
     expected_summary = {
         "status": "confirmation_set_v1_design_ready",
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
+        "dataset_selection_status": "selected_source_audited_precision_review_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
-        "dataset_gate_status": "pending",
+        "dataset_gate_status": "complete",
         "dataset_acquisition_verified": True,
         "dataset_structure_profile_complete": True,
         "dataset_quality_profile_complete": True,
         "dataset_historical_overlap_check_complete": True,
-        "dataset_local_profile_complete": False,
+        "dataset_context_feasibility_check_complete": True,
+        "dataset_local_profile_complete": True,
         "strict_window_row_count": 502938,
         "metadata_header_drift_detected": True,
         "dataset_quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
@@ -351,6 +396,12 @@ def main() -> None:
         "canonical_record_overlap_row_count": 0,
         "date_blind_record_overlap_row_count": 0,
         "business_pattern_overlap_row_count": 195814,
+        "context_feasibility_report_path": "reports/bizhallu_confirmation_context_feasibility_report.json",
+        "complete_calendar_week_count": 51,
+        "observed_complete_week_count": 50,
+        "required_context_count": 36,
+        "maximum_slot_matching_count": 36,
+        "minimum_hall_capacity_slack": 14,
         "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
@@ -367,7 +418,7 @@ def main() -> None:
         "claim_inventory_policy": "exhaustive_business_fact_claim_inventory",
         "binary_positive_statuses": ["contradicted", "unmatched"],
         "evaluation_track_count": 4,
-        "pending_gate_count": 7,
+        "pending_gate_count": 6,
         "current_study_classification": "exploratory_retrospective",
         "current_share_status": "share_with_caveats",
         "historical_exploratory_max_test_auprc": 0.835073,
@@ -389,18 +440,19 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_selection_provisional": dataset_strategy.get("selection_status") == "provisional_selection_quality_and_overlap_verified_context_pending",
+        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_precision_review_pending",
         "dataset_acquisition_verified": dataset_strategy.get("official_acquisition_verified") is True,
         "dataset_structure_and_date_window_verified": dataset_strategy.get("structure_and_date_window_verified") is True,
         "dataset_quality_profile_verified": dataset_strategy.get("quality_profile_verified") is True,
         "dataset_historical_overlap_verified": dataset_strategy.get("historical_record_overlap_verified") is True,
+        "dataset_context_feasibility_verified": dataset_strategy.get("outcome_blind_context_feasibility_verified") is True,
         "strict_window_row_count": dataset_strategy.get("strict_window_row_count"),
-        "dataset_gate_pending": next(
+        "dataset_gate_complete": next(
             (item.get("status") for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),
             None,
-        ) == "pending",
+        ) == "complete",
         "precision_review_pending": precision_review.get("status") == "pending",
-        "pending_gate_count": len(gates),
+        "pending_gate_count": sum(item.get("status") == "pending" for item in gates),
         "num_failures": len(failures),
         "failures": failures,
     }

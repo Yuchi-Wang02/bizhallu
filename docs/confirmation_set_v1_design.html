@@ -46,7 +46,7 @@
   <body>
     <header class="topbar">
       <a class="brand" href="./methodology_hardening.html">BizHallu</a>
-      <nav><a href="./methodology_hardening.html">Current audit</a><a href="./confirmation_dataset_source_audit.html">Source audit</a><a href="./confirmation_dataset_quality.html">Quality profile</a><a href="./confirmation_dataset_overlap.html">Overlap proof</a><a href="./research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./methodology_hardening.html">Current audit</a><a href="./confirmation_dataset_source_audit.html">Source audit</a><a href="./confirmation_dataset_quality.html">Quality profile</a><a href="./confirmation_dataset_overlap.html">Overlap proof</a><a href="./confirmation_context_feasibility.html">Capacity proof</a><a href="./research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -57,9 +57,9 @@
           <div><span>Current state</span><strong>Design only</strong></div>
           <div><span>Main questions</span><strong>60</strong></div>
           <div><span>Human reviewers</span><strong>2</strong></div>
-          <div><span>Execution gates</span><strong>7 pending</strong></div>
+          <div><span>Execution gates</span><strong>6 pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, its 502,938-row strict prior-period window has a completed quality profile, and both canonical and date-blind comparisons found zero historical record overlap. Context feasibility remains pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, and aggregate capacity for 36 unique complete-week contexts. Precision review, context selection, model output, and Confirmation Set v1 results do not exist yet.</div>
       </section>
 
       <section>
@@ -76,7 +76,7 @@
       <section>
         <p class="eyebrow">Dataset decision</p>
         <h2>Use a staged path instead of overstating one dataset.</h2>
-        <p>Zero normalized record overlap against the current Online Retail lineage is now proven, including a date-blind sensitivity check. Next test outcome-blind feasibility for at least 36 disjoint contexts without creating prompts or model outputs; a separately scoped second-dataset replication remains required for broader generalization claims.</p>
+        <p>The source audit gate is complete: quality controls, zero historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. Next run only the outcome-blind precision review before freezing any context manifest or seeded split; a separately scoped second-dataset replication remains required for broader generalization claims.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody><tr>
@@ -89,7 +89,7 @@
           <td><strong>same_source_prior_period</strong><span>prospective_temporal_internal_replication</span></td>
           <td>UCI Online Retail II restricted to 2009-12-01 inclusive through 2010-12-01 exclusive</td>
           <td><ul><li>preserves the current schema and accounting definitions</li><li>moves the study to unseen transaction rows and earlier business periods</li><li>supports a strict cutoff before the current Online Retail source begins</li></ul></td>
-          <td><ul><li>same retailer and source lineage as the exploratory study</li><li>the full workbook overlaps the current source, so the strict prior-period cutoff and frozen record-level fingerprint proof must remain in force</li><li>quality controls and zero strict-window record overlap are documented, but 36-context feasibility remains pending</li></ul></td>
+          <td><ul><li>same retailer and source lineage as the exploratory study</li><li>the full workbook overlaps the current source, so the strict prior-period cutoff and frozen record-level fingerprint proof must remain in force</li><li>the verified capacity is limited to three source-feasible families; customer concentration remains blocked by missing Customer ID coverage</li></ul></td>
         </tr>
 <tr>
           <td><strong>second_public_transaction_dataset</strong><span>external_replication</span></td>
@@ -104,7 +104,7 @@
           <td><ul><li>availability and permissions are not yet known</li><li>should not delay the near-term internal replication</li></ul></td>
         </tr></tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Ingestion applies the frozen <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases before those controls. Zero canonical and date-blind historical record overlap is verified; use the source only after outcome-blind 36-context feasibility is also proven. A broader generalization claim still requires the second-public-dataset arm. <a href="./confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./confirmation_dataset_overlap.html">Read the overlap proof.</a></div>
+        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 36-slot aggregate capacity are verified across three allowed families. Customer concentration remains blocked, and a broader generalization claim still requires the second-public-dataset arm. <a href="./confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./confirmation_context_feasibility.html">Read the capacity proof.</a></div>
       </section>
 
       <section>
@@ -128,8 +128,8 @@
       <section>
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
-        <div class="grid"><article class="panel"><h3>net_revenue_reconciliation_by_period</h3><p>accounting reconciliation of gross positive revenue, cancellations, and net revenue</p></article><article class="panel"><h3>customer_revenue_concentration</h3><p>customer exposure and concentration risk</p></article><article class="panel"><h3>product_return_rate_comparison</h3><p>returns and product-performance monitoring</p></article><article class="panel"><h3>country_product_exposure</h3><p>market and product concentration across business entities</p></article></div>
-        <p>These are candidate families, not frozen templates. Source feasibility, deterministic gold calculations, and evidence-table construction must pass before they become part of the context manifest.</p>
+        <div class="grid"><article class="panel"><h3>net_revenue_reconciliation_by_period</h3><p><strong>verified</strong></p><p>accounting reconciliation of gross positive revenue, cancellations, and net revenue</p></article><article class="panel"><h3>customer_revenue_concentration</h3><p><strong>blocked_by_preexisting_quality_control</strong></p><p>customer exposure and concentration risk</p><p>The source audit records 100207 missing Customer IDs. This family is excluded from the 36-context capacity target rather than introducing a complete-case denominator after inspecting capacity.</p></article><article class="panel"><h3>product_return_rate_comparison</h3><p><strong>verified</strong></p><p>returns and product-performance monitoring</p></article><article class="panel"><h3>country_product_exposure</h3><p><strong>verified</strong></p><p>market and product concentration across business entities</p></article></div>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review, deterministic gold calculations, and evidence-table construction must pass before any context enters a manifest.</p>
       </section>
 
       <section>
@@ -159,12 +159,12 @@
 
       <section>
         <p class="eyebrow">Execution gates</p>
-        <h2>Every gate is intentionally pending.</h2>
+        <h2>One gate is complete; six remain pending.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
-          <tbody><tr><td>1</td><td><code>dataset_source_selected_and_audited</code></td><td>pending</td></tr><tr><td>2</td><td><code>context_manifest_split_and_precision_review_frozen</code></td><td>pending</td></tr><tr><td>3</td><td><code>question_templates_and_gold_calculations_validated</code></td><td>pending</td></tr><tr><td>4</td><td><code>model_prompt_and_detector_configs_frozen</code></td><td>pending</td></tr><tr><td>5</td><td><code>two_independent_human_reviewers_assigned</code></td><td>pending</td></tr><tr><td>6</td><td><code>claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data</code></td><td>pending</td></tr><tr><td>7</td><td><code>sealed_confirmation_run_authorized</code></td><td>pending</td></tr></tbody>
+          <tbody><tr><td>1</td><td><code>dataset_source_selected_and_audited</code></td><td>complete</td></tr><tr><td>2</td><td><code>context_manifest_split_and_precision_review_frozen</code></td><td>pending</td></tr><tr><td>3</td><td><code>question_templates_and_gold_calculations_validated</code></td><td>pending</td></tr><tr><td>4</td><td><code>model_prompt_and_detector_configs_frozen</code></td><td>pending</td></tr><tr><td>5</td><td><code>two_independent_human_reviewers_assigned</code></td><td>pending</td></tr><tr><td>6</td><td><code>claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data</code></td><td>pending</td></tr><tr><td>7</td><td><code>sealed_confirmation_run_authorized</code></td><td>pending</td></tr></tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Test outcome-blind 36-context feasibility, then run the precision review before freezing the context manifest. Historical record overlap is already verified at zero. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Run only the outcome-blind precision review before freezing the context manifest and seeded split. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
       </section>
 
       <section>
@@ -173,6 +173,6 @@
         <p>The existing numbers are not Confirmation Set v1 baselines or targets. This design introduces no new detector metric and does not retroactively upgrade the current evidence level.</p>
       </section>
     </main>
-    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, execution blocked by seven explicit gates.</main></footer>
+    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, one gate complete, execution blocked by six pending gates.</main></footer>
   </body>
 </html>

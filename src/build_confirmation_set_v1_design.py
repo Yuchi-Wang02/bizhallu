@@ -12,6 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
+CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -34,6 +35,7 @@ def main() -> None:
     protocol = load_json(PROTOCOL_PATH)
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH)
+    feasibility = load_json(CONTEXT_FEASIBILITY_PATH)
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -57,6 +59,7 @@ def main() -> None:
         "dataset_structure_profile_complete": dataset_audit["structure_profile_complete"],
         "dataset_quality_profile_complete": dataset_audit["quality_profile_complete"],
         "dataset_historical_overlap_check_complete": dataset_audit["historical_overlap_check_complete"],
+        "dataset_context_feasibility_check_complete": dataset_audit["context_feasibility_check_complete"],
         "dataset_local_profile_complete": dataset_audit["local_profile_complete"],
         "strict_window_row_count": dataset_audit["strict_window_row_count"],
         "metadata_header_drift_detected": dataset_audit["metadata_header_drift_detected"],
@@ -69,6 +72,12 @@ def main() -> None:
         "canonical_record_overlap_row_count": dataset_audit["canonical_record_overlap_row_count"],
         "date_blind_record_overlap_row_count": dataset_audit["date_blind_record_overlap_row_count"],
         "business_pattern_overlap_row_count": dataset_audit["business_pattern_overlap_row_count"],
+        "context_feasibility_report_path": repo_path(CONTEXT_FEASIBILITY_PATH),
+        "complete_calendar_week_count": feasibility["source_capacity"]["complete_calendar_period_count"],
+        "observed_complete_week_count": feasibility["source_capacity"]["observed_complete_period_count"],
+        "required_context_count": feasibility["capacity_proof"]["required_total_context_count"],
+        "maximum_slot_matching_count": feasibility["capacity_proof"]["maximum_slot_matching_count"],
+        "minimum_hall_capacity_slack": feasibility["capacity_proof"]["minimum_hall_capacity_slack"],
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -91,7 +100,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Run only the outcome-blind 36-context feasibility check before creating any context manifest, prompt, or generation file. Historical canonical and date-blind record overlap are already verified at zero.",
+        "recommended_next_decision": "Run only the outcome-blind precision review for the planned 6/15/15 context counts before freezing any context manifest or seeded split. The dataset-source gate is complete, but six downstream gates remain pending.",
         "num_failures": 0,
         "failures": [],
     }
@@ -112,7 +121,11 @@ def main() -> None:
         for index, item in enumerate(gates, start=1)
     )
     family_panels = "".join(
-        f"<article class=\"panel\"><h3>{esc(item['family'])}</h3><p>{esc(item['business_value'])}</p></article>"
+        f"<article class=\"panel\"><h3>{esc(item['family'])}</h3>"
+        f"<p><strong>{esc(item['source_feasibility_status'])}</strong></p>"
+        f"<p>{esc(item['business_value'])}</p>"
+        + (f"<p>{esc(item['reason'])}</p>" if item.get("reason") else "")
+        + "</article>"
         for item in families
     )
 
@@ -164,7 +177,7 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -177,7 +190,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, its 502,938-row strict prior-period window has a completed quality profile, and both canonical and date-blind comparisons found zero historical record overlap. Context feasibility remains pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, and aggregate capacity for 36 unique complete-week contexts. Precision review, context selection, model output, and Confirmation Set v1 results do not exist yet.</div>
       </section>
 
       <section>
@@ -199,7 +212,7 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Ingestion applies the frozen <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases before those controls. Zero canonical and date-blind historical record overlap is verified; use the source only after outcome-blind 36-context feasibility is also proven. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a></div>
+        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 36-slot aggregate capacity are verified across three allowed families. Customer concentration remains blocked, and a broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a></div>
       </section>
 
       <section>
@@ -224,7 +237,7 @@ def main() -> None:
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
         <div class="grid">{family_panels}</div>
-        <p>These are candidate families, not frozen templates. Source feasibility, deterministic gold calculations, and evidence-table construction must pass before they become part of the context manifest.</p>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review, deterministic gold calculations, and evidence-table construction must pass before any context enters a manifest.</p>
       </section>
 
       <section>
@@ -254,12 +267,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Execution gates</p>
-        <h2>Every gate is intentionally pending.</h2>
+        <h2>One gate is complete; six remain pending.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Test outcome-blind 36-context feasibility, then run the precision review before freezing the context manifest. Historical record overlap is already verified at zero. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Run only the outcome-blind precision review before freezing the context manifest and seeded split. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
       </section>
 
       <section>
@@ -268,7 +281,7 @@ def main() -> None:
         <p>The existing numbers are not Confirmation Set v1 baselines or targets. This design introduces no new detector metric and does not retroactively upgrade the current evidence level.</p>
       </section>
     </main>
-    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, execution blocked by seven explicit gates.</main></footer>
+    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, one gate complete, execution blocked by six pending gates.</main></footer>
   </body>
 </html>
 """

@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "status": "quality_and_overlap_verified_context_pending",
+  "status": "dataset_source_selected_and_audited_precision_review_pending",
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "audit_date": "2026-09-01",
-  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, monthly coverage, and normalized historical record-overlap proof are complete. Outcome-blind context feasibility remains pending.",
+  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, monthly coverage, normalized historical record-overlap proof, and outcome-blind 36-context capacity proof are complete. Precision review and context-manifest freeze remain pending.",
   "protocol_source": "configs/confirmation_set_v1_protocol.json",
   "no_new_results": true,
   "download_performed": true,
@@ -12,14 +12,15 @@
   "structure_profile_complete": true,
   "quality_profile_complete": true,
   "historical_overlap_check_complete": true,
-  "local_profile_complete": false,
+  "context_feasibility_check_complete": true,
+  "local_profile_complete": true,
   "execution_ready": false,
   "decision": {
-    "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
+    "selection_status": "selected_source_audited_precision_review_pending",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_role": "prospective_temporal_internal_replication",
-    "dataset_gate_status": "pending",
-    "decision_summary": "Provisionally select the strict prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases, moves the study to earlier transaction rows, is conditionally suitable after documented quality controls, and has zero canonical plus date-blind normalized record overlap with the current source. Context feasibility is not yet proven.",
+    "dataset_gate_status": "complete",
+    "decision_summary": "Select the strict prior-period portion of UCI Online Retail II for a same-retailer temporal internal replication. It preserves the required business fields through three explicit header aliases, is conditionally suitable after documented quality controls, has zero canonical plus date-blind normalized record overlap with the current source, and supports 36 unique complete-week contexts across three allowed question families without using model outcomes.",
     "allowed_time_window": {
       "start_inclusive": "2009-12-01T00:00:00",
       "end_exclusive": "2010-12-01T00:00:00",
@@ -28,12 +29,15 @@
     "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
     "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
     "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
-    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until outcome-blind feasibility for at least 36 disjoint contexts is proven. Acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, and zero normalized historical record overlap are complete."
+    "gate_completion_rule": "The dataset_source_selected_and_audited gate is complete because acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, zero normalized historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. This does not authorize context selection or experiment execution."
   },
   "acquisition_evidence": {
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
     "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
     "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+    "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
+    "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
+    "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
     "official_download_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
     "zip_size_bytes": 45622418,
     "zip_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
@@ -111,8 +115,8 @@
     {
       "criterion_id": "minimum_36_disjoint_contexts",
       "description": "At least 36 disjoint evidence contexts can be formed without outcome-based filtering.",
-      "selected_candidate_status": "pending_context_feasibility",
-      "evidence": "The prior-period window spans twelve calendar months and has transaction-level entities, but the required context counts and split-disjoint fingerprints have not yet been computed."
+      "selected_candidate_status": "pass_outcome_blind_capacity_profile",
+      "evidence": "Fifty observed complete calendar weeks support 36 unique period-to-family slots across three allowed families. Generalized Hall capacity has minimum slack 14 and an independent maximum matching fills 36 of 36 slots; no assignment was retained."
     }
   ],
   "candidates": [
@@ -153,7 +157,7 @@
       "candidate_id": "uci_online_retail_ii_prior_period",
       "name": "UCI Online Retail II, strict prior-period window",
       "role": "prospective_temporal_internal_replication",
-      "decision_status": "provisional_selected_quality_and_overlap_verified_context_pending",
+      "decision_status": "selected_source_audited_precision_review_pending",
       "official_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
       "source_identity": {
         "doi": "10.24432/C5CG6D",
@@ -185,9 +189,9 @@
         "100,207 customer IDs and 2,821 descriptions are missing, so customer-level questions stay blocked and product/value evidence requires descriptions",
         "6,544 normalized exact duplicate extra rows require exact-row deduplication before aggregation",
         "2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone",
-        "36 context feasibility is plausible but not yet measured"
+        "customer concentration remains blocked because 100,207 Customer IDs are missing; the verified 36-context capacity covers three other families"
       ],
-      "recommended_use": "Use the documented strict-window controls and completed zero-overlap proof, then proceed to protocol-pilot, development, and sealed confirmation design only after outcome-blind 36-context feasibility is proven."
+      "recommended_use": "Use the documented strict-window controls and completed aggregate capacity proof, then run the outcome-blind precision review before freezing any context manifest or seeded split."
     },
     {
       "candidate_id": "completejourney_external",
@@ -363,8 +367,8 @@
     },
     {
       "check_id": "context_feasibility",
-      "status": "pending",
-      "requirement": "Generate outcome-blind candidate context counts for each planned question family and prove at least 6 pilot, 15 development, and 15 confirmation contexts can be assigned with period and evidence-fingerprint separation."
+      "status": "completed",
+      "requirement": "Outcome-blind capacity is verified for 6 pilot, 15 development, and 15 confirmation contexts using unique complete calendar weeks across three allowed families. Final evidence fingerprints remain a manifest-freeze check."
     },
     {
       "check_id": "public_privacy_boundary",
@@ -466,18 +470,19 @@
   ],
   "claim_policy": {
     "allowed": [
-      "A same-source prior-period candidate has been provisionally selected for local feasibility testing.",
+      "A same-source prior-period source has passed the dataset-source audit for a temporal internal replication.",
       "The official workbook was acquired and hashed locally; its raw files remain Git-ignored.",
       "The workbook contains 1,067,371 date-valid rows, and the strict prior-period window contains 502,938 rows after the date boundary is applied.",
       "Three raw header aliases are required before shared BizHallu business rules can be applied.",
-      "Official metadata, local structure, full field quality, duplicate/grain, business-rule, monthly coverage, and historical overlap checks are complete; context-count feasibility remains pending.",
+      "Official metadata, local structure, field quality, duplicate/grain, business-rule, monthly coverage, historical overlap, and aggregate context-capacity checks are complete.",
+      "Fifty observed complete weeks provide outcome-blind capacity for 36 unique context slots across three allowed families; no context assignment or split has been retained.",
       "The strict prior window has zero canonical and zero date-blind normalized record overlap with the current source, while expected same-retailer product, customer, and country continuity remains.",
       "Complete Journey is the preferred external-replication shortlist candidate, not a selected or downloaded confirmation source."
     ],
     "disallowed": [
       "Confirmation Set v1 has started.",
       "The selected source is execution-ready.",
-      "Thirty-six disjoint contexts have already been verified.",
+      "Thirty-six final contexts have already been selected or assigned.",
       "Online Retail II is an independent company or domain replication.",
       "Any new detector or confirmation metric has been produced."
     ]

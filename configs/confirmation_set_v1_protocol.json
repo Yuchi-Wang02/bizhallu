@@ -15,7 +15,7 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "provisional_selection_quality_and_overlap_verified_context_pending",
+    "selection_status": "selected_source_audited_precision_review_pending",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -24,13 +24,18 @@
     "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
     "overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
     "overlap_html": "reports/bizhallu_confirmation_dataset_overlap.html",
+    "context_feasibility_config": "configs/confirmation_context_feasibility_v1.json",
+    "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
+    "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
+    "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_candidate_role": "prospective_temporal_internal_replication",
-    "selected_candidate_gate_status": "pending",
+    "selected_candidate_gate_status": "complete",
     "official_acquisition_verified": true,
     "structure_and_date_window_verified": true,
     "quality_profile_verified": true,
     "historical_record_overlap_verified": true,
+    "outcome_blind_context_feasibility_verified": true,
     "canonical_record_overlap_row_count": 0,
     "date_blind_record_overlap_row_count": 0,
     "business_pattern_overlap_row_count": 195814,
@@ -41,7 +46,20 @@
     "strict_window_normalized_exact_duplicate_extra_rows": 6544,
     "strict_window_valid_net_revenue_line_count": 492887,
     "strict_window_net_revenue_gbp": 9266060.76,
-    "recommended_sequence": "Zero normalized record overlap against the current Online Retail lineage is now proven, including a date-blind sensitivity check. Next test outcome-blind feasibility for at least 36 disjoint contexts without creating prompts or model outputs; a separately scoped second-dataset replication remains required for broader generalization claims.",
+    "complete_calendar_week_count": 51,
+    "observed_complete_week_count": 50,
+    "required_period_disjoint_context_count": 36,
+    "maximum_period_to_slot_matching_count": 36,
+    "minimum_hall_capacity_slack": 14,
+    "source_feasible_question_families": [
+      "net_revenue_reconciliation_by_period",
+      "product_return_rate_comparison",
+      "country_product_exposure"
+    ],
+    "blocked_question_families": [
+      "customer_revenue_concentration"
+    ],
+    "recommended_sequence": "The source audit gate is complete: quality controls, zero historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. Next run only the outcome-blind precision review before freezing any context manifest or seeded split; a separately scoped second-dataset replication remains required for broader generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -70,7 +88,6 @@
         "role": "prospective_temporal_internal_replication",
         "candidate_contexts": [
           "net revenue reconciliation by period",
-          "customer revenue concentration",
           "product return-rate comparison",
           "country-product exposure"
         ],
@@ -82,7 +99,7 @@
         "limitations": [
           "same retailer and source lineage as the exploratory study",
           "the full workbook overlaps the current source, so the strict prior-period cutoff and frozen record-level fingerprint proof must remain in force",
-          "quality controls and zero strict-window record overlap are documented, but 36-context feasibility remains pending"
+          "the verified capacity is limited to three source-feasible families; customer concentration remains blocked by missing Customer ID coverage"
         ]
       },
       {
@@ -198,22 +215,27 @@
     ]
   },
   "question_design": {
-    "family_status": "candidate_families_require_source_feasibility_check",
+    "family_status": "source_feasibility_verified_precision_review_pending",
     "candidate_families": [
       {
         "family": "net_revenue_reconciliation_by_period",
+        "source_feasibility_status": "verified",
         "business_value": "accounting reconciliation of gross positive revenue, cancellations, and net revenue"
       },
       {
         "family": "customer_revenue_concentration",
-        "business_value": "customer exposure and concentration risk"
+        "source_feasibility_status": "blocked_by_preexisting_quality_control",
+        "business_value": "customer exposure and concentration risk",
+        "reason": "The source audit records 100207 missing Customer IDs. This family is excluded from the 36-context capacity target rather than introducing a complete-case denominator after inspecting capacity."
       },
       {
         "family": "product_return_rate_comparison",
+        "source_feasibility_status": "verified",
         "business_value": "returns and product-performance monitoring"
       },
       {
         "family": "country_product_exposure",
+        "source_feasibility_status": "verified",
         "business_value": "market and product concentration across business entities"
       }
     ],
@@ -328,11 +350,10 @@
   "execution_gates": [
     {
       "gate": "dataset_source_selected_and_audited",
-      "status": "pending",
-      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, all 12 months, and zero canonical plus date-blind historical record overlap verified for 502,938 rows",
-      "blocking_requirements": [
-        "outcome-blind feasibility proof for at least 36 disjoint contexts"
-      ]
+      "status": "complete",
+      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, all 12 months, zero canonical plus date-blind historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts verified",
+      "completion_evidence": "Three allowed families each have 50 eligible observed complete weeks for 12 required slots; generalized Hall capacity has minimum slack 14 and independent maximum matching fills 36 of 36 slots.",
+      "blocking_requirements": []
     },
     {
       "gate": "context_manifest_split_and_precision_review_frozen",

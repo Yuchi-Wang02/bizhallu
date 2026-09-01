@@ -67,6 +67,7 @@ python src\validate_methodology_hardening.py
 python src\validate_confirmation_dataset_acquisition.py
 python src\validate_confirmation_dataset_quality.py
 python src\validate_confirmation_dataset_overlap.py
+python src\validate_confirmation_context_feasibility.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -106,9 +107,9 @@ retrospective study. Use `configs/confirmation_set_v1_protocol.json` and
 `reports/bizhallu_confirmation_set_v1_design.html` as the source of truth for
 the prospective next study.
 
-Confirmation Set v1 is design-only and is not execution-ready. Its seven gates
-must remain pending until each requirement is actually satisfied. The official-source
-desk audit provisionally selects the strict prior-period window from UCI Online
+Confirmation Set v1 is design-only and is not execution-ready. Its dataset-source
+gate is complete; the other six gates must remain pending until each requirement
+is actually satisfied. The official-source desk audit selects the strict prior-period window from UCI Online
 Retail II. The official ZIP and workbook are acquired, hashed, and kept under the
 Git-ignored raw-data tree. The two-sheet structure, three required raw-header
 aliases, complete InvoiceDate range, and 502,938-row strict prior-period boundary
@@ -118,11 +119,16 @@ controls. The local 23-column line table remains Git-ignored because it contains
 source invoice and customer identifiers. Canonical eight-field and date-blind
 seven-field comparisons now prove zero repeated records against the current Online
 Retail lineage; expected product, customer, country, and five-field business-pattern
-continuity is disclosed separately and is not external independence. The dataset
-gate remains pending. The next authorized research action is only the outcome-blind
-36-context feasibility check; do not create a context manifest or prompts yet.
+continuity is disclosed separately and is not external independence. An
+outcome-blind capacity proof found 50 observed complete calendar weeks and a
+36-of-36 period-to-family matching across net-revenue reconciliation, product
+return comparison, and country-product exposure. Customer concentration stays
+blocked because 100,207 Customer IDs are missing. No matching assignment,
+context manifest, or split was retained. The next authorized research action is
+only the outcome-blind precision review for the planned 6/15/15 context counts;
+do not create a context manifest or prompts yet.
 Do not run Qwen, annotate new outputs, or report confirmation metrics before those
-checks and the subsequent outcome-blind precision review are complete. Any future
+checks are complete. Any future
 result described as confirmatory must use
 fresh or context-separated data, select annotation targets before answer-quality
 review, freeze primary detector and threshold policies before confirmation-set

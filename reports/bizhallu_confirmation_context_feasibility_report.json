@@ -1,0 +1,243 @@
+{
+  "schema_version": "1.0",
+  "status": "outcome_blind_context_feasibility_complete",
+  "study_name": "Confirmation Set v1",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "scope": "aggregate-only outcome-blind capacity proof for period-disjoint evidence contexts",
+  "explicitly_not_in_scope": [
+    "selected context IDs, context manifest, split assignment, or context-level evidence hashes",
+    "questions, prompts, model outputs, annotations, verifier decisions, or detector scores",
+    "confirmation AUPRC, F1, class prevalence, or any other new experiment metric"
+  ],
+  "config": {
+    "path": "configs/confirmation_context_feasibility_v1.json",
+    "sha256": "eb30a75561d04db3a7b4a48885a027ac81ac48f1afb0d73452ddb8a6d92ba536",
+    "status": "rules_frozen_profile_pending"
+  },
+  "input": {
+    "strict_window_table_path": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "strict_window_row_count": 502938,
+    "historical_overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json"
+  },
+  "context_definition": {
+    "period_definition": "complete_monday_through_sunday_calendar_week",
+    "first_complete_period_start": "2009-12-07",
+    "last_complete_period_start": "2010-11-22",
+    "period_length_days": 7,
+    "boundary_policy": "Exclude the partial opening and closing calendar weeks before any family eligibility calculation.",
+    "one_family_per_final_context_period": true,
+    "final_context_or_split_assignment_created": false
+  },
+  "source_capacity": {
+    "complete_calendar_period_count": 51,
+    "observed_complete_period_count": 50,
+    "empty_complete_period_count": 1,
+    "complete_period_source_row_count": 482166,
+    "excluded_boundary_source_row_count": 20772,
+    "source_rows_reconciled": true,
+    "excluded_rows_are_only_partial_boundary_weeks": true,
+    "support_distributions": {
+      "source_rows_per_observed_complete_period": {
+        "minimum": 3238,
+        "median": 8646.5,
+        "maximum": 19111
+      },
+      "valid_net_revenue_lines_per_observed_complete_period": {
+        "minimum": 3067,
+        "median": 8348.0,
+        "maximum": 18724
+      },
+      "cancellation_or_return_rows_per_observed_complete_period": {
+        "minimum": 48,
+        "median": 178.5,
+        "maximum": 496
+      },
+      "eligible_products_per_observed_complete_period": {
+        "minimum": 17,
+        "median": 72.0,
+        "maximum": 206
+      },
+      "eligible_countries_per_observed_complete_period": {
+        "minimum": 3,
+        "median": 9.0,
+        "maximum": 15
+      }
+    }
+  },
+  "family_capacity": {
+    "net_revenue_reconciliation_by_period": {
+      "eligible_period_count": 50,
+      "required_period_count": 12,
+      "capacity_slack": 38,
+      "all_observed_complete_periods_eligible": true
+    },
+    "product_return_rate_comparison": {
+      "eligible_period_count": 50,
+      "required_period_count": 12,
+      "capacity_slack": 38,
+      "all_observed_complete_periods_eligible": true
+    },
+    "country_product_exposure": {
+      "eligible_period_count": 50,
+      "required_period_count": 12,
+      "capacity_slack": 38,
+      "all_observed_complete_periods_eligible": true
+    },
+    "customer_revenue_concentration": {
+      "eligible_period_count": 0,
+      "required_period_count": 0,
+      "status": "blocked_by_preexisting_quality_control",
+      "missing_customer_id_rows": 100207
+    }
+  },
+  "capacity_proof": {
+    "required_protocol_pilot_context_count": 6,
+    "required_development_context_count": 15,
+    "required_confirmation_context_count": 15,
+    "required_total_context_count": 36,
+    "required_contexts_per_eligible_family": 12,
+    "generalized_hall_checks": [
+      {
+        "family_subset": [
+          "net_revenue_reconciliation_by_period"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 12,
+        "capacity_slack": 38,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "product_return_rate_comparison"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 12,
+        "capacity_slack": 38,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "country_product_exposure"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 12,
+        "capacity_slack": 38,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "net_revenue_reconciliation_by_period",
+          "product_return_rate_comparison"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 24,
+        "capacity_slack": 26,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "net_revenue_reconciliation_by_period",
+          "country_product_exposure"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 24,
+        "capacity_slack": 26,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "product_return_rate_comparison",
+          "country_product_exposure"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 24,
+        "capacity_slack": 26,
+        "passed": true
+      },
+      {
+        "family_subset": [
+          "net_revenue_reconciliation_by_period",
+          "product_return_rate_comparison",
+          "country_product_exposure"
+        ],
+        "available_unique_period_count": 50,
+        "required_unique_period_count": 36,
+        "capacity_slack": 14,
+        "passed": true
+      }
+    ],
+    "minimum_hall_capacity_slack": 14,
+    "maximum_slot_matching_count": 36,
+    "required_slot_count": 36,
+    "matching_assignment_retained_or_published": false,
+    "capacity_target_feasible": true
+  },
+  "evidence_separation": {
+    "complete_periods_are_calendar_disjoint": true,
+    "excluded_rows_are_only_partial_boundary_weeks": true,
+    "candidate_period_assigned_to_at_most_one_final_family": true,
+    "source_key_duplicate_count_within_complete_period_pool": 0,
+    "evidence_flag_duplicate_conflicts": {
+      "valid_net_revenue_lines_marked_exact_duplicate": 0,
+      "merchandise_lines_marked_exact_duplicate": 0
+    },
+    "historical_canonical_overlap_row_count": 0,
+    "historical_date_blind_overlap_row_count": 0,
+    "final_evidence_fingerprint_check_pending_manifest_freeze": true
+  },
+  "research_decision": {
+    "context_feasibility_check_complete": true,
+    "minimum_36_period_disjoint_context_capacity_verified": true,
+    "dataset_source_selected_and_audited_gate_eligible_for_completion": true,
+    "customer_family_excluded_from_capacity_target": true,
+    "context_manifest_and_split_assignment_pending": true,
+    "precision_review_pending": true,
+    "execution_ready": false,
+    "claim_limit": "This proves source capacity for a same-retailer temporal internal replication. It does not select contexts, validate question wording, create independent labels, or establish external generalization."
+  },
+  "critical_checks": {
+    "config_status_is_frozen_profile_pending": true,
+    "strict_table_hash_matches_frozen_input": true,
+    "strict_row_count_matches_frozen_input": true,
+    "complete_calendar_period_count_matches_config": true,
+    "source_rows_reconcile_to_complete_and_boundary_periods": true,
+    "excluded_rows_are_only_partial_boundary_weeks": true,
+    "source_keys_are_unique_within_complete_period_pool": true,
+    "evidence_flags_exclude_exact_duplicates": true,
+    "all_eligible_families_meet_individual_capacity": true,
+    "generalized_hall_capacity_passes": true,
+    "maximum_matching_fills_all_required_slots": true,
+    "customer_family_remains_blocked": true,
+    "historical_canonical_overlap_remains_zero": true,
+    "historical_date_blind_overlap_remains_zero": true,
+    "historical_metrics_remain_locked": true
+  },
+  "failed_critical_checks": [],
+  "local_proof": {
+    "path": "data/processed/confirmation_online_retail_ii/context_feasibility_local_proof.json",
+    "sha256": "ab906c2dc4b1d4ae20ed7c7301bee629e688a401e8de15a4e5c631d1d0d571d9",
+    "git_ignored": true,
+    "contains_period_profiles": true,
+    "matching_assignment_retained": false
+  },
+  "privacy": {
+    "contains_invoice_values": false,
+    "contains_customer_values": false,
+    "contains_product_or_country_candidate_values": false,
+    "contains_row_fingerprints": false,
+    "contains_candidate_period_list": false,
+    "contains_selected_context_or_split_ids": false,
+    "contains_only_aggregate_capacity_evidence": true
+  },
+  "context_feasibility_check_complete": true,
+  "context_manifest_created": false,
+  "split_assignment_created": false,
+  "question_created": false,
+  "prompt_created": false,
+  "model_run_performed": false,
+  "new_metrics_reported": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "next_authorized_action": "Run only the outcome-blind precision review for the 6/15/15 planning counts before freezing a context manifest."
+}

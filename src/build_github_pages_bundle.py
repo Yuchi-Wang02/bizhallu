@@ -31,6 +31,7 @@ RESEARCH_SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
 VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
 CONFIRMATION_OVERLAP_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_overlap_report.json"
+CONFIRMATION_FEASIBILITY_PATH = REPORTS_DIR / "bizhallu_confirmation_context_feasibility_report.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -91,6 +92,11 @@ PAGE_COPIES = [
         REPORTS_DIR / "bizhallu_confirmation_dataset_overlap.html",
         DOCS_DIR / "confirmation_dataset_overlap.html",
         "confirmation_dataset_overlap",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_context_feasibility.html",
+        DOCS_DIR / "confirmation_context_feasibility.html",
+        "confirmation_context_feasibility",
     ),
     (
         REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html",
@@ -161,6 +167,7 @@ LINK_REWRITES = {
     "./bizhallu_confirmation_dataset_source_audit.html": "./confirmation_dataset_source_audit.html",
     "./bizhallu_confirmation_dataset_quality.html": "./confirmation_dataset_quality.html",
     "./bizhallu_confirmation_dataset_overlap.html": "./confirmation_dataset_overlap.html",
+    "./bizhallu_confirmation_context_feasibility.html": "./confirmation_context_feasibility.html",
     "./bizhallu_confirmation_set_v1_design.html": "./confirmation_set_v1_design.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
@@ -205,6 +212,7 @@ def render_index(
     verifier: dict[str, Any],
     methodology: dict[str, Any],
     confirmation_overlap: dict[str, Any],
+    confirmation_feasibility: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -227,6 +235,15 @@ def render_index(
         confirmation_overlap.get("record_overlap", {})
         .get("canonical_eight_field", {})
         .get("multiset_overlap_row_count", "n/a")
+    )
+    confirmation_observed_weeks = confirmation_feasibility.get("source_capacity", {}).get(
+        "observed_complete_period_count", "n/a"
+    )
+    confirmation_required_contexts = confirmation_feasibility.get("capacity_proof", {}).get(
+        "required_total_context_count", "n/a"
+    )
+    confirmation_matching = confirmation_feasibility.get("capacity_proof", {}).get(
+        "maximum_slot_matching_count", "n/a"
     )
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
@@ -596,8 +613,9 @@ def render_index(
           </article>
           <article class="card">
             <h3>Confirmation data gate</h3>
-            <p>Inspect source acquisition, strict-window quality, and the aggregate-only proof of {confirmation_overlap_rows} repeated historical records. Context feasibility remains pending.</p>
-            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
+            <p>Inspect source acquisition, strict-window quality, {confirmation_overlap_rows} repeated historical records, and outcome-blind capacity: {confirmation_observed_weeks} observed complete weeks support a {confirmation_matching}/{confirmation_required_contexts} unique period-to-family matching across three allowed families.</p>
+            <p>No context assignment, split, prompt, model output, or new metric exists. The next gate is the outcome-blind precision review.</p>
+            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_context_feasibility.html">Capacity proof</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -724,6 +742,7 @@ def main() -> None:
     verifier = load_json(VERIFIER_SUMMARY_PATH)
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
     confirmation_overlap = load_json(CONFIRMATION_OVERLAP_PATH)
+    confirmation_feasibility = load_json(CONFIRMATION_FEASIBILITY_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
@@ -736,6 +755,7 @@ def main() -> None:
         verifier,
         methodology,
         confirmation_overlap,
+        confirmation_feasibility,
         narrative,
         preflight,
     )
@@ -757,6 +777,7 @@ def main() -> None:
         "source_verifier_summary_path": repo_path(VERIFIER_SUMMARY_PATH),
         "source_methodology_summary_path": repo_path(METHODOLOGY_SUMMARY_PATH),
         "source_confirmation_overlap_path": repo_path(CONFIRMATION_OVERLAP_PATH),
+        "source_confirmation_feasibility_path": repo_path(CONFIRMATION_FEASIBILITY_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -784,7 +805,13 @@ def main() -> None:
         "confirmation_historical_overlap_status": confirmation_overlap.get("status"),
         "confirmation_canonical_overlap_row_count": confirmation_overlap.get("record_overlap", {}).get("canonical_eight_field", {}).get("multiset_overlap_row_count"),
         "confirmation_date_blind_overlap_row_count": confirmation_overlap.get("record_overlap", {}).get("date_blind_seven_field_sensitivity", {}).get("multiset_overlap_row_count"),
-        "confirmation_context_feasibility_complete": confirmation_overlap.get("context_feasibility_check_complete"),
+        "confirmation_context_feasibility_status": confirmation_feasibility.get("status"),
+        "confirmation_context_feasibility_complete": confirmation_feasibility.get("context_feasibility_check_complete"),
+        "confirmation_observed_complete_period_count": confirmation_feasibility.get("source_capacity", {}).get("observed_complete_period_count"),
+        "confirmation_required_context_count": confirmation_feasibility.get("capacity_proof", {}).get("required_total_context_count"),
+        "confirmation_maximum_slot_matching_count": confirmation_feasibility.get("capacity_proof", {}).get("maximum_slot_matching_count"),
+        "confirmation_minimum_hall_capacity_slack": confirmation_feasibility.get("capacity_proof", {}).get("minimum_hall_capacity_slack"),
+        "confirmation_context_manifest_created": confirmation_feasibility.get("context_manifest_created"),
         "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
         "metric_selection_status": "exploratory_test_maxima",
         "automatic_claim_extraction": False,

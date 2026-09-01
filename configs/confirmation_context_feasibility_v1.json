@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0",
+  "status": "rules_frozen_profile_pending",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-01",
+  "purpose": "Test outcome-blind source capacity for 36 period-disjoint evidence contexts without selecting contexts, assigning splits, or creating questions, prompts, model outputs, labels, or metrics.",
+  "no_new_results": true,
+  "input": {
+    "strict_window_table": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "strict_window_row_count": 502938,
+    "historical_overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json"
+  },
+  "context_grain": {
+    "period_definition": "complete_monday_through_sunday_calendar_week",
+    "first_complete_period_start": "2009-12-07",
+    "last_complete_period_start": "2010-11-22",
+    "period_length_days": 7,
+    "expected_complete_calendar_period_count": 51,
+    "boundary_policy": "Exclude the partial opening and closing calendar weeks before any family eligibility calculation.",
+    "observed_data_policy": "A complete calendar period is a candidate only when at least one strict-window source row occurs in that period.",
+    "assignment_capacity": "Each final context period may be assigned to at most one question family. This makes periods disjoint across all contexts, which is stricter than only requiring disjoint periods across splits.",
+    "manifest_boundary": "This feasibility step may count eligible periods but must not save selected period identifiers, final context IDs, split assignments, or context-level evidence hashes in a public artifact."
+  },
+  "shared_evidence_rules": {
+    "exact_duplicates": "Use the frozen is_exact_duplicate flag; analytical evidence flags already exclude normalized exact-duplicate copies.",
+    "description": "Product and value evidence requires a nonblank normalized description through the frozen evidence flags.",
+    "unit_price": "Net-revenue and merchandise evidence require unit_price greater than zero through the frozen evidence flags.",
+    "cancellations_and_returns": "Retain negative quantities. Do not rely only on the invoice cancellation prefix.",
+    "customer_identifiers": "Do not publish source customer identifiers or use them to create public context labels.",
+    "historical_exclusion": "The completed historical overlap proof must show zero canonical and zero date-blind record overlap before this profile can pass."
+  },
+  "family_eligibility": [
+    {
+      "family": "net_revenue_reconciliation_by_period",
+      "status": "eligible_for_capacity_profile",
+      "business_scope": "weekly_global_reconciliation",
+      "evidence_filter": "is_valid_net_revenue_line",
+      "minimum_valid_net_revenue_lines": 100,
+      "minimum_positive_revenue_lines": 50,
+      "minimum_cancellation_or_return_rows": 5,
+      "requires_positive_gross_revenue": true,
+      "requires_negative_revenue": true,
+      "reconciliation_tolerance_gbp": 0.005,
+      "interpretation": "Supports deterministic gross-positive, negative, and net-revenue reconciliation."
+    },
+    {
+      "family": "product_return_rate_comparison",
+      "status": "eligible_for_capacity_profile",
+      "business_scope": "weekly_product_return_comparison",
+      "evidence_filter": "is_merchandise_net_revenue_line",
+      "product_entity": "stock_code",
+      "minimum_positive_units_per_product": 20,
+      "minimum_returned_units_per_product": 1,
+      "minimum_positive_invoices_per_product": 2,
+      "minimum_return_invoices_per_product": 1,
+      "minimum_eligible_products_per_period": 2,
+      "minimum_distinct_rounded_ratios_per_period": 2,
+      "ratio_rounding_decimals": 6,
+      "ratio_definition": "absolute negative quantity divided by positive quantity within the same complete week",
+      "claim_limit": "This is a recorded return-to-positive-sales unit ratio, not a customer-linked or original-sale-linked causal return rate."
+    },
+    {
+      "family": "country_product_exposure",
+      "status": "eligible_for_capacity_profile",
+      "business_scope": "weekly_country_product_exposure",
+      "evidence_filter": "is_merchandise_net_revenue_line",
+      "excluded_country_values": [
+        "Unspecified"
+      ],
+      "minimum_lines_per_country": 20,
+      "minimum_distinct_products_per_country": 5,
+      "requires_positive_country_net_revenue": true,
+      "minimum_eligible_countries_per_period": 2,
+      "interpretation": "Supports deterministic country-product concentration and exposure comparisons."
+    },
+    {
+      "family": "customer_revenue_concentration",
+      "status": "blocked_by_preexisting_quality_control",
+      "business_scope": "customer_concentration",
+      "reason": "The source audit records 100207 missing customer IDs and explicitly blocks customer-level questions. Feasibility cannot introduce a complete-case denominator after viewing source capacity.",
+      "eligible_period_count_policy": 0
+    }
+  ],
+  "capacity_target": {
+    "eligible_families": [
+      "net_revenue_reconciliation_by_period",
+      "product_return_rate_comparison",
+      "country_product_exposure"
+    ],
+    "protocol_pilot_contexts_per_family": 2,
+    "development_contexts_per_family": 5,
+    "confirmation_contexts_per_family": 5,
+    "required_contexts_per_eligible_family": 12,
+    "required_protocol_pilot_contexts": 6,
+    "required_development_contexts": 15,
+    "required_confirmation_contexts": 15,
+    "required_total_contexts": 36,
+    "proof_method": "Check generalized Hall capacity for every nonempty family subset and independently compute a maximum period-to-slot bipartite matching.",
+    "assignment_policy": "Capacity proof only. Do not retain or publish the matching assignment. The seeded split and context manifest remain pending."
+  },
+  "public_privacy": {
+    "allowed": [
+      "aggregate candidate-period counts",
+      "aggregate family eligibility counts",
+      "minimum, median, and maximum support statistics",
+      "Hall-capacity slack and maximum matching count",
+      "frozen thresholds and claim limits"
+    ],
+    "forbidden": [
+      "invoice values",
+      "customer values",
+      "product or country candidate values",
+      "row fingerprints",
+      "candidate period lists",
+      "selected context IDs",
+      "split assignments",
+      "questions, prompts, model outputs, labels, or detector metrics"
+    ]
+  },
+  "success_rule": "Pass only if all three eligible families satisfy their frozen rules, generalized Hall capacity and maximum matching both support 36 unique periods, the customer family remains blocked, historical overlap remains zero, and no manifest or experiment artifact is created.",
+  "next_if_passed": "Run only the outcome-blind precision review for the 6/15/15 planning counts before freezing a context manifest."
+}
