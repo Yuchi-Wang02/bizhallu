@@ -14,6 +14,7 @@ AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.js
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_report.json"
 STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
+QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_summary.json"
@@ -45,6 +46,7 @@ def main() -> None:
     protocol = load_json(PROTOCOL_PATH)
     acquisition = load_json(ACQUISITION_PATH)
     structure = load_json(STRUCTURE_PATH)
+    quality = load_json(QUALITY_PATH)
 
     decision = audit["decision"]
     candidates = audit["candidates"]
@@ -66,7 +68,7 @@ def main() -> None:
     pending_criteria = [
         item["criterion_id"]
         for item in criteria
-        if item["selected_candidate_status"] == "pending_local_profile"
+        if item["selected_candidate_status"].startswith("pending_")
     ]
 
     summary = {
@@ -79,6 +81,7 @@ def main() -> None:
         "download_performed": audit["download_performed"],
         "acquisition_verified": audit["acquisition_verified"],
         "structure_profile_complete": audit["structure_profile_complete"],
+        "quality_profile_complete": audit["quality_profile_complete"],
         "local_profile_complete": audit["local_profile_complete"],
         "execution_ready": audit["execution_ready"],
         "no_new_results": audit["no_new_results"],
@@ -97,6 +100,14 @@ def main() -> None:
         "strict_window_date_max": structure["date_scan"]["strict_window_date_max"],
         "metadata_header_drift_detected": structure["metadata_header_drift_detected"],
         "required_header_aliases": structure["metadata_header_drift"]["actual_to_canonical_changes"],
+        "quality_decision": quality["quality_decision"],
+        "month_count": quality["monthly_coverage"]["month_count"],
+        "missing_description_rows": quality["completeness"]["by_column"]["Description"]["missing_or_blank_count"],
+        "missing_customer_id_rows": quality["completeness"]["by_column"]["CustomerID"]["missing_or_blank_count"],
+        "normalized_exact_duplicate_extra_rows": quality["duplicates_and_grain"]["normalized_exact_row_profile"]["duplicate_extra_rows"],
+        "negative_quantity_rows_without_cancel_prefix": quality["business_rules"]["cancellation_prefix_crosscheck"]["no_cancel_prefix_and_negative_quantity"],
+        "valid_net_revenue_line_count": quality["analysis_policy_reconciliation"]["valid_net_revenue_line_count"],
+        "net_revenue_gbp": quality["analysis_policy_reconciliation"]["net_revenue"],
         "candidate_count": len(candidates),
         "external_shortlist_count": len(external_shortlist),
         "source_reference_count": len(references),
@@ -104,8 +115,8 @@ def main() -> None:
         "pending_criterion_ids": pending_criteria,
         "local_profile_check_count": len(checks),
         "next_authorized_action": (
-            "Run the full strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, "
-            "current-source overlap, and outcome-blind context-feasibility profile without creating prompts."
+            "Run only the normalized record-overlap proof against the current Online Retail lineage. "
+            "Do not generate contexts or prompts yet."
         ),
         "num_failures": 0,
         "failures": [],
@@ -197,7 +208,8 @@ def main() -> None:
       code {{ padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }}
       .badge {{ display:inline-block; margin-top:5px; padding:3px 7px; border:1px solid var(--line); border-radius:5px; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }}
       .badge.pass_metadata, .badge.completed {{ color:var(--green); border-color:#93c8b4; background:#f3fbf7; }}
-      .badge.conditional_pass, .badge.pending_local_profile, .badge.pending, .badge.active {{ color:var(--amber); border-color:#d7bd88; background:#fff9ed; }}
+      .badge.pass_local_profile_with_controls {{ color:var(--amber); border-color:#d7bd88; background:#fff9ed; }}
+      .badge.conditional_pass, .badge.pending_context_feasibility, .badge.pending, .badge.active {{ color:var(--amber); border-color:#d7bd88; background:#fff9ed; }}
       footer {{ padding:32px 0 48px; color:var(--muted); }}
       @media (max-width:820px) {{ nav {{ display:none; }} h1 {{ font-size:40px; }} h2 {{ font-size:28px; }} .status,.grid {{ grid-template-columns:1fr; }} main {{ width:min(100% - 24px,1180px); }} }}
     </style>
@@ -205,16 +217,16 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_confirmation_set_v1_design.html">BizHallu</a>
-      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
+      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
     </header>
     <main>
       <section class="hero">
         <p class="eyebrow">Confirmation Dataset Source Audit v1</p>
-        <h1>The official source is verified; execution remains blocked.</h1>
-        <p class="lede">UCI Online Retail II is now acquired, hashed, and structurally inspected. The strict prior-period boundary retains 502,938 date-valid rows, but the dataset gate stays pending until full quality, overlap, and context-feasibility checks pass.</p>
+        <h1>Source quality is profiled; independence is still unproven.</h1>
+        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. The dataset gate stays pending until normalized record overlap and outcome-blind context feasibility are checked.</p>
         <div class="status">
           <div><span>Decision</span><strong>Provisional</strong></div>
-          <div><span>Source</span><strong>Verified</strong></div>
+          <div><span>Quality</span><strong>Controlled</strong></div>
           <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
         </div>
@@ -246,9 +258,21 @@ def main() -> None:
       </section>
 
       <section>
+        <p class="eyebrow">Strict-window quality evidence</p>
+        <h2>Aggregate use is conditionally suitable after documented controls.</h2>
+        <div class="grid">
+          <article class="panel"><h3>Completeness</h3><p>{esc(f"{summary['missing_description_rows']:,}")} descriptions and {esc(f"{summary['missing_customer_id_rows']:,}")} customer IDs are missing. Customer-level questions remain blocked; product and valid-net evidence requires a description.</p></article>
+          <article class="panel"><h3>Duplicate control</h3><p>{esc(f"{summary['normalized_exact_duplicate_extra_rows']:,}")} normalized exact duplicate extra rows are removed before aggregation. <code>InvoiceNo + StockCode</code> is not treated as a unique key.</p></article>
+          <article class="panel"><h3>Cancellation control</h3><p>{esc(f"{summary['negative_quantity_rows_without_cancel_prefix']:,}")} negative-quantity rows lack the <code>C</code> prefix. Net revenue retains negative quantities instead of relying on invoice prefix alone.</p></article>
+          <article class="panel"><h3>Reconciled net evidence</h3><p>{esc(f"{summary['valid_net_revenue_line_count']:,}")} valid net-revenue lines reconcile to GBP {esc(f"{summary['net_revenue_gbp']:,.2f}")} across all {esc(summary['month_count'])} expected months.</p></article>
+        </div>
+        <div class="callout"><strong>Public boundary.</strong> The line-level table remains local and Git-ignored because it contains source invoice and customer identifiers. <a href="./bizhallu_confirmation_dataset_quality.html">Read the full quality profile.</a></div>
+      </section>
+
+      <section>
         <p class="eyebrow">Acceptance criteria</p>
-        <h2>Metadata and structure are verified; analytical fitness is not.</h2>
-        <p>Local evidence now confirms file integrity, workbook shape, date coverage, and deterministic header aliases. Completeness, duplicate behavior, business-rule validity, record independence, and context capacity still require the next profile.</p>
+        <h2>Analytical quality is controlled; independence and capacity remain open.</h2>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, and monthly reconciliation. Record independence and the capacity for 36 disjoint contexts are not yet established.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody>{criterion_rows}</tbody>
@@ -267,7 +291,7 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Local acquisition gate</p>
-        <h2>Three checks are complete; six remain pending and privacy stays active.</h2>
+        <h2>Seven checks are complete; two remain pending and privacy stays active.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Check</th><th>Status</th><th>Requirement</th></tr></thead>
           <tbody>{check_rows}</tbody>
@@ -294,12 +318,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Profile the verified window; do not generate.</h2>
+        <h2>Prove record independence next; do not generate.</h2>
         <p>{esc(summary['next_authorized_action'])}</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition and structure verified {esc(audit['audit_date'])}; analytical source QA remains pending.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, and strict-window quality verified {esc(audit['audit_date'])}; overlap and context feasibility remain pending.</footer>
     </main>
   </body>
 </html>

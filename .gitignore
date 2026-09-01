@@ -17,6 +17,7 @@ venv/
 data/raw/
 data/processed/retail_*.csv
 data/processed/*_summary.csv
+data/processed/confirmation_online_retail_ii/
 outputs/*.jsonl
 outputs/*.csv
 outputs/*.json

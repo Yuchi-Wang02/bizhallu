@@ -44,6 +44,9 @@ jobs:
       - name: Validate Confirmation Dataset acquisition artifacts
         run: python src/validate_confirmation_dataset_acquisition.py
 
+      - name: Validate Confirmation Dataset quality profile
+        run: python src/validate_confirmation_dataset_quality.py
+
       - name: Validate Confirmation Dataset Source Audit v1
         run: python src/validate_confirmation_dataset_source_audit.py
 

@@ -1,6 +1,6 @@
 # BizHallu Current State Audit
 
-Date: 2026-05-25
+Date: 2026-09-01
 
 ## Integrity Update: 2026-08-31
 
@@ -82,8 +82,10 @@ policies before new model answers are viewed.
 - Seven execution gates are deliberately pending. The official Online Retail II
   ZIP and workbook are acquired, hashed, and Git-ignored; the two-sheet structure,
   three raw-header aliases, and 502,938-row strict prior-period boundary are
-  verified. The first gate still stays pending until the remaining quality,
-  overlap, and 36-context feasibility checks are complete.
+  verified. Completeness, duplicate/grain behavior, cancellation/value rules,
+  and all 12 expected months are now profiled with documented controls. The
+  first gate still stays pending until historical record overlap and outcome-blind
+  36-context feasibility are proven.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
@@ -94,8 +96,9 @@ The companion source audit at
 `reports/bizhallu_confirmation_dataset_source_audit.html` compares six routes,
 records official source and license evidence, and keeps Complete Journey as the
 preferred external-replication shortlist candidate. The selected source is now
-locally acquired and structurally inspected, but no context manifest, prompt,
-generation, annotation target, or new metric was created.
+locally acquired, structurally inspected, and quality-profiled, but record
+independence remains unproven and no context manifest, prompt, generation,
+annotation target, or new metric was created.
 
 ## Audit Scope
 
@@ -1472,9 +1475,26 @@ entry point for GitHub Pages.
     - Date finding: the complete date scan has zero blank or invalid dates. The
       strict `2009-12-01` inclusive to `2010-12-01` exclusive window retains
       502,938 rows and ends at `2010-11-30 19:35:00`.
-    - Boundary: full missingness, duplicate/grain, cancellation, monthly coverage,
-      historical overlap, and context-feasibility checks remain pending. The
-      dataset gate and all six downstream execution gates remain open.
+    - Boundary at that checkpoint: full missingness, duplicate/grain,
+      cancellation, monthly coverage, historical overlap, and context-feasibility
+      checks remained pending. The dataset gate and all six downstream execution
+      gates remained open.
+
+38. The verified strict window needed a complete data-quality profile before any
+    independence or context work could be trusted.
+    - Completeness: all core transaction fields are complete; 2,821 descriptions
+      and 100,207 customer IDs are missing. Customer-level questions remain
+      blocked, and auditable product/value evidence requires a description.
+    - Grain: 6,544 normalized exact duplicate extra rows are controlled through
+      exact-row deduplication. `InvoiceNo + StockCode` is not treated as unique.
+    - Cancellation: 11,933 rows have negative quantity, including 2,057 without
+      the `C` invoice prefix. Net-revenue rules therefore retain negative
+      quantities and do not rely on prefix alone.
+    - Reconciliation: 492,887 valid net-revenue lines reconcile to GBP
+      9,266,060.76, and all 12 expected months are present.
+    - Boundary: the public report contains aggregates only; the 23-column local
+      line table remains Git-ignored. Historical overlap and 36-context
+      feasibility are still pending, so all seven execution gates remain open.
 
 ## Remaining Risks
 
@@ -1524,9 +1544,9 @@ entry point for GitHub Pages.
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
    - Online Retail II is only provisionally selected. Acquisition, hashes,
-     structure, and the strict date boundary are verified, but the window still
-     needs a full local quality profile, zero-overlap proof, and outcome-blind
-     36-context feasibility check.
+     structure, strict-window quality controls, and monthly reconciliation are
+     verified, but the window still needs zero-overlap proof and outcome-blind
+     36-context feasibility.
 
 ## Recommended Next Steps
 
@@ -1559,12 +1579,13 @@ entry point for GitHub Pages.
    until the provisionally selected strict window passes the remaining source QA.
    - Preserve the recorded official-file hashes and keep the workbook and local
      validation record under the Git-ignored raw-data tree.
-   - Apply the three recorded header aliases before shared BizHallu business
-     rules, and profile only the verified 502,938-row strict window.
-   - Prove zero normalized record overlap with the current Online Retail source.
-   - Audit missingness, duplicates, invoice-line grain, quantity and price
-     validity, cancellation semantics, monthly coverage, and public-ID handling.
-   - Prove at least 6 pilot, 15 development, and 15 confirmation contexts can be
+   - Preserve the completed strict-window controls: three header aliases,
+     exact-row deduplication, description-required product/value evidence,
+     customer-level question blocking, and cancellation-aware net revenue.
+   - Next, prove zero normalized record overlap with the current Online Retail
+     source. Do not create contexts or prompts during that step.
+   - Only after overlap passes, prove at least 6 pilot, 15 development, and 15
+     confirmation contexts can be
      assigned without viewing model outputs and with period/fingerprint
      separation before creating prompt files.
    - Keep the 12/30/30 counts as planning targets until a source-feasibility and

@@ -8,10 +8,11 @@
   "download_performed": true,
   "acquisition_verified": true,
   "structure_profile_complete": true,
+  "quality_profile_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "no_new_results": true,
-  "selection_status": "provisional_selection_pending_local_profile",
+  "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
   "selected_candidate_id": "uci_online_retail_ii_prior_period",
   "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
   "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -30,20 +31,28 @@
     "Price": "UnitPrice",
     "Customer ID": "CustomerID"
   },
+  "quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+  "month_count": 12,
+  "missing_description_rows": 2821,
+  "missing_customer_id_rows": 100207,
+  "normalized_exact_duplicate_extra_rows": 6544,
+  "negative_quantity_rows_without_cancel_prefix": 2057,
+  "valid_net_revenue_line_count": 492887,
+  "net_revenue_gbp": 9266060.76,
   "candidate_count": 6,
   "external_shortlist_count": 2,
   "source_reference_count": 10,
   "selected_criterion_status_counts": {
     "conditional_pass": 1,
+    "pass_local_profile_with_controls": 1,
     "pass_metadata": 3,
-    "pending_local_profile": 2
+    "pending_context_feasibility": 1
   },
   "pending_criterion_ids": [
-    "completeness_and_duplicates_auditable",
     "minimum_36_disjoint_contexts"
   ],
   "local_profile_check_count": 10,
-  "next_authorized_action": "Run the full strict-window field-quality, duplicate/grain, cancellation, monthly-coverage, current-source overlap, and outcome-blind context-feasibility profile without creating prompts.",
+  "next_authorized_action": "Run only the normalized record-overlap proof against the current Online Retail lineage. Do not generate contexts or prompts yet.",
   "num_failures": 0,
   "failures": []
 }

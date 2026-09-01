@@ -1,0 +1,16 @@
+{
+  "status": "confirmation_dataset_quality_validation_passed",
+  "quality_report_path": "reports/bizhallu_confirmation_dataset_quality_report.json",
+  "quality_html_path": "reports/bizhallu_confirmation_dataset_quality.html",
+  "candidate_id": "uci_online_retail_ii_prior_period",
+  "strict_window_row_count": 502938,
+  "month_count": 12,
+  "quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+  "historical_overlap_check_complete": false,
+  "context_feasibility_check_complete": false,
+  "execution_ready": false,
+  "no_new_results": true,
+  "local_artifact_verification_command": "python src/validate_confirmation_dataset_quality.py --require-local",
+  "num_failures": 0,
+  "failures": []
+}

@@ -179,6 +179,8 @@ confirmation protocol.
 | [`docs/evidence_aware_verifier_design.md`](docs/evidence_aware_verifier_design.md) | Next-stage verifier design and research comparison plan |
 | [`configs/methodology_protocol_v1.json`](configs/methodology_protocol_v1.json) | Machine-readable boundary between the current exploratory study and a future confirmation study |
 | [`configs/confirmation_set_v1_protocol.json`](configs/confirmation_set_v1_protocol.json) | Prospective, context-separated confirmation design with outcome-blind sampling and seven execution gates |
+| [`reports/bizhallu_confirmation_dataset_source_audit.html`](reports/bizhallu_confirmation_dataset_source_audit.html) | Candidate-source decision, verified acquisition/structure evidence, and remaining source gates |
+| [`reports/bizhallu_confirmation_dataset_quality.html`](reports/bizhallu_confirmation_dataset_quality.html) | Strict-window completeness, grain, cancellation, revenue reconciliation, monthly coverage, and controls |
 | [`reports/bizhallu_confirmation_set_v1_design.html`](reports/bizhallu_confirmation_set_v1_design.html) | Human-readable Confirmation Set v1 design; no new experiment result |
 | [`docs/github_upload_checklist.md`](docs/github_upload_checklist.md) | Public upload checklist and claim guardrails |
 | [`docs/github_upload_dry_run.md`](docs/github_upload_dry_run.md) | Current GitHub safety and file-inclusion review |
@@ -208,6 +210,9 @@ python src\validate_business_risk_lens.py
 python src\validate_research_one_pager.py
 python src\validate_evidence_verifier_pilot.py
 python src\validate_methodology_hardening.py
+python src\validate_confirmation_dataset_acquisition.py
+python src\validate_confirmation_dataset_quality.py
+python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
 
@@ -217,6 +222,8 @@ Expected state:
 - `reports/public_path_hygiene_validation.json`: `num_failures=0`
 - `reports/bizhallu_evidence_verifier_pilot_validation.json`: `num_failures=0`
 - `reports/bizhallu_methodology_hardening_validation.json`: `num_failures=0`
+- `reports/bizhallu_confirmation_dataset_quality_validation.json`: `num_failures=0`
+- `reports/bizhallu_confirmation_dataset_source_audit_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_set_v1_design_validation.json`: `num_failures=0`
 - all validation files report `num_failures=0`
 
@@ -234,6 +241,9 @@ clean-clone reproduction path.
 ```powershell
 python src\build_evidence_verifier_pilot.py
 python src\build_methodology_hardening_report.py
+python src\profile_confirmation_dataset_quality.py
+python src\build_confirmation_dataset_quality_report.py
+python src\build_confirmation_dataset_source_audit.py
 python src\build_confirmation_set_v1_design.py
 python src\build_research_one_pager.py
 python src\build_github_pages_bundle.py
@@ -260,9 +270,10 @@ python src\build_full100_preflight_report.py
   benchmark result.
 - Confirmation Set v1 is a prospective design, not a completed experiment. Its
   12-question protocol pilot, 30-question development split, and 30-question
-  sealed confirmation split are minimum planning targets. Dataset selection,
-  an outcome-blind precision review, and all seven execution gates remain
-  pending.
+  sealed confirmation split are minimum planning targets. The 502,938-row
+  strict-window quality profile is complete with documented controls, but
+  historical record-overlap proof, context feasibility, an outcome-blind
+  precision review, and all seven execution gates remain pending.
 
 ## License and Data
 

@@ -14,6 +14,8 @@ AUDIT_PATH = PROJECT_ROOT / "configs" / "confirmation_dataset_source_audit_v1.js
 PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 ACQUISITION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_acquisition_report.json"
 STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_structure_report.json"
+QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
+QUALITY_HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality.html"
 LOCAL_QUALITY_PATH = PROJECT_ROOT / "data" / "processed" / "data_quality_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
@@ -33,12 +35,13 @@ EXPECTED_CANDIDATE_IDS = {
 EXPECTED_CRITERION_STATUSES = {
     "pass_metadata": 3,
     "conditional_pass": 1,
-    "pending_local_profile": 2,
+    "pass_local_profile_with_controls": 1,
+    "pending_context_feasibility": 1,
 }
 
 REQUIRED_HTML_FRAGMENTS = [
     "Confirmation Dataset Source Audit v1",
-    "The official source is verified; execution remains blocked.",
+    "Source quality is profiled; independence is still unproven.",
     "Online Retail II",
     "2009-12-01T00:00:00",
     "2010-12-01T00:00:00",
@@ -48,8 +51,13 @@ REQUIRED_HTML_FRAGMENTS = [
     "135,080 missing customer IDs",
     "502,938",
     "Schema drift recorded.",
-    "Three checks are complete; six remain pending and privacy stays active.",
-    "Profile the verified window; do not generate.",
+    "Aggregate use is conditionally suitable after documented controls.",
+    "100,207 customer IDs",
+    "6,544 normalized exact duplicate extra rows",
+    "2,057 negative-quantity rows",
+    "GBP 9,266,060.76",
+    "Seven checks are complete; two remain pending and privacy stays active.",
+    "Prove record independence next; do not generate.",
     "The raw files remain local and Git-ignored.",
     ".panel { min-width:0;",
     "overflow-x:auto;",
@@ -100,6 +108,8 @@ def main() -> None:
         PROTOCOL_PATH,
         ACQUISITION_PATH,
         STRUCTURE_PATH,
+        QUALITY_PATH,
+        QUALITY_HTML_PATH,
         LOCAL_QUALITY_PATH,
         HTML_PATH,
         SUMMARY_PATH,
@@ -112,6 +122,7 @@ def main() -> None:
     protocol = load_json(PROTOCOL_PATH) if PROTOCOL_PATH.exists() else {}
     acquisition = load_json(ACQUISITION_PATH) if ACQUISITION_PATH.exists() else {}
     structure = load_json(STRUCTURE_PATH) if STRUCTURE_PATH.exists() else {}
+    quality = load_json(QUALITY_PATH) if QUALITY_PATH.exists() else {}
     local_quality = load_json(LOCAL_QUALITY_PATH) if LOCAL_QUALITY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
@@ -129,7 +140,7 @@ def main() -> None:
                     "html_tag_count",
                     {"tag": tag, "expected": expected_count, "actual": parser.tag_counts[tag]},
                 )
-        if parser.tag_counts["section"] < 8 or parser.tag_counts["table"] != 4:
+        if parser.tag_counts["section"] < 9 or parser.tag_counts["table"] != 4:
             add_failure(
                 failures,
                 "html_report_structure",
@@ -151,12 +162,13 @@ def main() -> None:
             add_failure(failures, "local_path_in_html", repo_path(HTML_PATH))
 
     expected_audit_boundary = {
-        "status": "acquisition_and_structure_verified_quality_profile_pending",
+        "status": "quality_profile_verified_overlap_and_context_pending",
         "audit_date": "2026-09-01",
         "no_new_results": True,
         "download_performed": True,
         "acquisition_verified": True,
         "structure_profile_complete": True,
+        "quality_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
     }
@@ -170,7 +182,7 @@ def main() -> None:
 
     decision = audit.get("decision", {})
     expected_decision = {
-        "selection_status": "provisional_selection_pending_local_profile",
+        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "pending",
@@ -219,7 +231,7 @@ def main() -> None:
         add_failure(failures, "selected_source_identity", selected_identity)
     if selected.get("official_source_url") != "https://archive.ics.uci.edu/dataset/502/online+retail":
         add_failure(failures, "selected_source_url", selected.get("official_source_url"))
-    if selected.get("decision_status") != "provisional_selected_pending_local_profile":
+    if selected.get("decision_status") != "provisional_selected_quality_verified_overlap_context_pending":
         add_failure(failures, "selected_decision_status", selected.get("decision_status"))
 
     criteria = audit.get("source_acceptance_criteria", [])
@@ -297,16 +309,24 @@ def main() -> None:
 
     strategy = protocol.get("dataset_strategy", {})
     expected_strategy = {
-        "selection_status": "provisional_selection_pending_local_profile",
+        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
+        "quality_report": "reports/bizhallu_confirmation_dataset_quality_report.json",
+        "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "pending",
         "official_acquisition_verified": True,
         "structure_and_date_window_verified": True,
+        "quality_profile_verified": True,
         "strict_window_row_count": 502938,
+        "strict_window_missing_description_rows": 2821,
+        "strict_window_missing_customer_id_rows": 100207,
+        "strict_window_normalized_exact_duplicate_extra_rows": 6544,
+        "strict_window_valid_net_revenue_line_count": 492887,
+        "strict_window_net_revenue_gbp": 9266060.76,
     }
     for key, expected in expected_strategy.items():
         if strategy.get(key) != expected:
@@ -334,7 +354,9 @@ def main() -> None:
         add_failure(failures, "dataset_gate_status", dataset_gate)
     if "official workbook acquired and hashed" not in dataset_gate.get("progress", ""):
         add_failure(failures, "dataset_gate_progress", dataset_gate)
-    if len(dataset_gate.get("blocking_requirements", [])) != 3:
+    if "structure, strict-window completeness" not in dataset_gate.get("progress", ""):
+        add_failure(failures, "dataset_gate_quality_progress", dataset_gate)
+    if len(dataset_gate.get("blocking_requirements", [])) != 2:
         add_failure(failures, "dataset_gate_blockers", dataset_gate)
     if protocol.get("execution_ready") is not False or protocol.get("no_new_results") is not True:
         add_failure(failures, "protocol_execution_boundary", protocol)
@@ -346,10 +368,11 @@ def main() -> None:
         "download_performed": True,
         "acquisition_verified": True,
         "structure_profile_complete": True,
+        "quality_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,
-        "selection_status": "provisional_selection_pending_local_profile",
+        "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
         "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -368,12 +391,19 @@ def main() -> None:
             "Price": "UnitPrice",
             "Customer ID": "CustomerID",
         },
+        "quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+        "month_count": 12,
+        "missing_description_rows": 2821,
+        "missing_customer_id_rows": 100207,
+        "normalized_exact_duplicate_extra_rows": 6544,
+        "negative_quantity_rows_without_cancel_prefix": 2057,
+        "valid_net_revenue_line_count": 492887,
+        "net_revenue_gbp": 9266060.76,
         "candidate_count": 6,
         "external_shortlist_count": 2,
         "source_reference_count": 10,
         "selected_criterion_status_counts": EXPECTED_CRITERION_STATUSES,
         "pending_criterion_ids": [
-            "completeness_and_duplicates_auditable",
             "minimum_36_disjoint_contexts",
         ],
         "local_profile_check_count": 10,
@@ -391,11 +421,11 @@ def main() -> None:
         "official_acquisition_and_hash": "completed",
         "workbook_structure": "completed",
         "strict_prior_period_filter": "completed",
-        "completeness": "pending",
-        "duplicates_and_grain": "pending",
-        "business_rule_validity": "pending",
+        "completeness": "completed",
+        "duplicates_and_grain": "completed",
+        "business_rule_validity": "completed",
         "historical_overlap": "pending",
-        "monthly_coverage": "pending",
+        "monthly_coverage": "completed",
         "context_feasibility": "pending",
         "public_privacy_boundary": "active",
     }
@@ -421,10 +451,53 @@ def main() -> None:
     if structure.get("date_scan", {}).get("strict_window_row_count") != 502938:
         add_failure(failures, "structure_report_window_count", structure.get("date_scan"))
 
+    expected_quality_evidence = {
+        "quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+        "strict_window_row_count": 502938,
+        "month_count": 12,
+        "missing_description_rows": 2821,
+        "missing_customer_id_rows": 100207,
+        "normalized_exact_duplicate_extra_rows": 6544,
+        "cancel_prefix_rows": 9877,
+        "negative_quantity_rows": 11933,
+        "negative_quantity_rows_without_cancel_prefix": 2057,
+        "valid_net_revenue_line_count": 492887,
+        "net_revenue_gbp": 9266060.76,
+        "local_strict_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    }
+    observed_quality_report = {
+        "quality_decision": quality.get("quality_decision"),
+        "strict_window_row_count": quality.get("source", {}).get("strict_window_row_count"),
+        "month_count": quality.get("monthly_coverage", {}).get("month_count"),
+        "missing_description_rows": quality.get("completeness", {}).get("by_column", {}).get("Description", {}).get("missing_or_blank_count"),
+        "missing_customer_id_rows": quality.get("completeness", {}).get("by_column", {}).get("CustomerID", {}).get("missing_or_blank_count"),
+        "normalized_exact_duplicate_extra_rows": quality.get("duplicates_and_grain", {}).get("normalized_exact_row_profile", {}).get("duplicate_extra_rows"),
+        "cancel_prefix_rows": quality.get("business_rules", {}).get("cancel_invoice_row_count"),
+        "negative_quantity_rows": quality.get("business_rules", {}).get("negative_quantity_row_count"),
+        "negative_quantity_rows_without_cancel_prefix": quality.get("business_rules", {}).get("cancellation_prefix_crosscheck", {}).get("no_cancel_prefix_and_negative_quantity"),
+        "valid_net_revenue_line_count": quality.get("analysis_policy_reconciliation", {}).get("valid_net_revenue_line_count"),
+        "net_revenue_gbp": quality.get("analysis_policy_reconciliation", {}).get("net_revenue"),
+        "local_strict_table_sha256": quality.get("local_strict_table", {}).get("sha256"),
+    }
+    if observed_quality_report != expected_quality_evidence:
+        add_failure(failures, "quality_report_evidence_drift", observed_quality_report)
+    observed_audit_quality = {
+        key: audit.get("quality_evidence", {}).get(key) for key in expected_quality_evidence
+    }
+    if observed_audit_quality != expected_quality_evidence:
+        add_failure(failures, "audit_quality_evidence_drift", observed_audit_quality)
+    if quality.get("quality_profile_complete") is not True:
+        add_failure(failures, "quality_profile_not_complete", quality.get("quality_profile_complete"))
+    if quality.get("historical_overlap_check_complete") is not False:
+        add_failure(failures, "quality_overlap_boundary", quality.get("historical_overlap_check_complete"))
+    if quality.get("context_feasibility_check_complete") is not False:
+        add_failure(failures, "quality_context_boundary", quality.get("context_feasibility_check_complete"))
+
     for artifact_path, payload in [
         (AUDIT_PATH, audit),
         (ACQUISITION_PATH, acquisition),
         (STRUCTURE_PATH, structure),
+        (QUALITY_PATH, quality),
         (SUMMARY_PATH, summary),
     ]:
         if contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -446,6 +519,7 @@ def main() -> None:
         "download_performed": True,
         "acquisition_verified": True,
         "structure_profile_complete": True,
+        "quality_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,

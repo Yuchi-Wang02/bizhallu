@@ -48,10 +48,13 @@ REQUIRED_HTML_FRAGMENTS = [
     "The current 0.835 / 0.779 values remain exploratory context.",
     "introduces no new detector metric",
     "The official Online Retail II workbook is acquired and hashed",
-    "502,938-row strict prior-period boundary",
+    "502,938-row strict prior-period window has a completed quality profile",
+    "conditionally suitable for aggregate business analysis",
+    "zero historical record overlap",
     "Invoice",
     "Customer ID",
     "Read the source audit.",
+    "Read the quality profile.",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -171,7 +174,7 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "provisional_selection_pending_local_profile":
+    if dataset_strategy.get("selection_status") != "provisional_selection_quality_verified_overlap_context_pending":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
@@ -186,12 +189,20 @@ def main() -> None:
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
+        "quality_report": "reports/bizhallu_confirmation_dataset_quality_report.json",
+        "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "pending",
         "official_acquisition_verified": True,
         "structure_and_date_window_verified": True,
+        "quality_profile_verified": True,
         "strict_window_row_count": 502938,
+        "strict_window_missing_description_rows": 2821,
+        "strict_window_missing_customer_id_rows": 100207,
+        "strict_window_normalized_exact_duplicate_extra_rows": 6544,
+        "strict_window_valid_net_revenue_line_count": 492887,
+        "strict_window_net_revenue_gbp": 9266060.76,
     }
     for key, expected in expected_selected_strategy.items():
         if dataset_strategy.get(key) != expected:
@@ -310,15 +321,22 @@ def main() -> None:
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "provisional_selection_pending_local_profile",
+        "dataset_selection_status": "provisional_selection_quality_verified_overlap_context_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "pending",
         "dataset_acquisition_verified": True,
         "dataset_structure_profile_complete": True,
+        "dataset_quality_profile_complete": True,
         "dataset_local_profile_complete": False,
         "strict_window_row_count": 502938,
         "metadata_header_drift_detected": True,
+        "dataset_quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+        "strict_window_missing_description_rows": 2821,
+        "strict_window_missing_customer_id_rows": 100207,
+        "strict_window_normalized_exact_duplicate_extra_rows": 6544,
+        "strict_window_valid_net_revenue_line_count": 492887,
+        "strict_window_net_revenue_gbp": 9266060.76,
         "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
@@ -357,9 +375,10 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_selection_provisional": dataset_strategy.get("selection_status") == "provisional_selection_pending_local_profile",
+        "dataset_selection_provisional": dataset_strategy.get("selection_status") == "provisional_selection_quality_verified_overlap_context_pending",
         "dataset_acquisition_verified": dataset_strategy.get("official_acquisition_verified") is True,
         "dataset_structure_and_date_window_verified": dataset_strategy.get("structure_and_date_window_verified") is True,
+        "dataset_quality_profile_verified": dataset_strategy.get("quality_profile_verified") is True,
         "strict_window_row_count": dataset_strategy.get("strict_window_row_count"),
         "dataset_gate_pending": next(
             (item.get("status") for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),

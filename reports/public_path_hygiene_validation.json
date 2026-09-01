@@ -1,6 +1,6 @@
 {
   "status": "public_path_hygiene_ready",
-  "checked_file_count": 85,
+  "checked_file_count": 87,
   "checked_files": [
     "configs/confirmation_dataset_source_audit_v1.json",
     "configs/confirmation_set_v1_protocol.json",
@@ -23,6 +23,8 @@
     "reports/bizhallu_career_package_validation.json",
     "reports/bizhallu_confirmation_dataset_acquisition_report.json",
     "reports/bizhallu_confirmation_dataset_acquisition_validation.json",
+    "reports/bizhallu_confirmation_dataset_quality_report.json",
+    "reports/bizhallu_confirmation_dataset_quality_validation.json",
     "reports/bizhallu_confirmation_dataset_source_audit_summary.json",
     "reports/bizhallu_confirmation_dataset_source_audit_validation.json",
     "reports/bizhallu_confirmation_dataset_structure_report.json",

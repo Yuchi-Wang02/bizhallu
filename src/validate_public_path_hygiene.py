@@ -22,7 +22,9 @@ def public_json_files() -> list[Path]:
     files.extend(sorted(REPORTS_DIR.glob("*.json")))
     files.extend(sorted(RESULTS_DIR.glob("*.json")))
     files.extend(sorted(CONFIGS_DIR.rglob("*.json")))
-    files.extend(sorted(PROCESSED_DATA_DIR.rglob("*.json")))
+    # Only root-level processed summaries are public. Nested processed folders
+    # hold Git-ignored local artifacts such as confirmation line-table checks.
+    files.extend(sorted(PROCESSED_DATA_DIR.glob("*.json")))
     return sorted({path for path in files if path.exists() and path != VALIDATION_PATH})
 
 

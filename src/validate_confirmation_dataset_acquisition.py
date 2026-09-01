@@ -298,12 +298,13 @@ def main() -> None:
     if observed_sheet_counts != expected_sheet_counts:
         add_failure(failures, "sheet_counts", observed_sheet_counts)
 
-    if audit.get("status") != "acquisition_and_structure_verified_quality_profile_pending":
+    if audit.get("status") != "quality_profile_verified_overlap_and_context_pending":
         add_failure(failures, "audit_status", audit.get("status"))
     expected_audit_flags = {
         "download_performed": True,
         "acquisition_verified": True,
         "structure_profile_complete": True,
+        "quality_profile_complete": True,
         "local_profile_complete": False,
         "execution_ready": False,
         "no_new_results": True,

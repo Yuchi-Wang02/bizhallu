@@ -10,6 +10,7 @@
   "download_performed": true,
   "acquisition_verified": true,
   "structure_profile_complete": true,
+  "quality_profile_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "no_new_results": true,

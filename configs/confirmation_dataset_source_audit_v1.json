@@ -1,23 +1,24 @@
 {
   "schema_version": "1.0",
-  "status": "acquisition_and_structure_verified_quality_profile_pending",
+  "status": "quality_profile_verified_overlap_and_context_pending",
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "audit_date": "2026-09-01",
-  "audit_scope": "Official-source metadata review plus local acquisition, immutable file hashing, workbook-structure inspection, and a complete InvoiceDate boundary scan. Full field quality, duplicate/grain, business-rule, overlap, and context-feasibility checks remain pending.",
+  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, and monthly coverage are complete. Historical record-overlap and outcome-blind context-feasibility checks remain pending.",
   "protocol_source": "configs/confirmation_set_v1_protocol.json",
   "no_new_results": true,
   "download_performed": true,
   "acquisition_verified": true,
   "structure_profile_complete": true,
+  "quality_profile_complete": true,
   "local_profile_complete": false,
   "execution_ready": false,
   "decision": {
-    "selection_status": "provisional_selection_pending_local_profile",
+    "selection_status": "provisional_selection_quality_verified_overlap_context_pending",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_role": "prospective_temporal_internal_replication",
     "dataset_gate_status": "pending",
-    "decision_summary": "Provisionally select the non-overlapping prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases while moving the study to unseen transaction rows and earlier business periods.",
+    "decision_summary": "Provisionally select the strict prior-period portion of UCI Online Retail II because it preserves the required business fields through three explicit header aliases, moves the study to earlier transaction rows, and is conditionally suitable for aggregate business analysis after documented quality controls. Record independence is not yet proven.",
     "allowed_time_window": {
       "start_inclusive": "2009-12-01T00:00:00",
       "end_exclusive": "2010-12-01T00:00:00",
@@ -26,7 +27,7 @@
     "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
     "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
     "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
-    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until full field quality, duplicate/grain, cancellation, monthly coverage, current-source overlap, and 36-context feasibility checks pass. Acquisition, hashing, workbook structure, and the strict date boundary are complete."
+    "gate_completion_rule": "Keep dataset_source_selected_and_audited pending until zero normalized record overlap and outcome-blind feasibility for at least 36 disjoint contexts are proven. Acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, and monthly coverage are complete."
   },
   "acquisition_evidence": {
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -56,6 +57,24 @@
       "Customer ID": "CustomerID"
     }
   },
+  "quality_evidence": {
+    "quality_report": "reports/bizhallu_confirmation_dataset_quality_report.json",
+    "quality_html": "reports/bizhallu_confirmation_dataset_quality.html",
+    "quality_validation": "reports/bizhallu_confirmation_dataset_quality_validation.json",
+    "quality_decision": "conditionally_suitable_for_aggregate_business_analysis_after_documented_controls",
+    "strict_window_row_count": 502938,
+    "month_count": 12,
+    "missing_description_rows": 2821,
+    "missing_customer_id_rows": 100207,
+    "normalized_exact_duplicate_extra_rows": 6544,
+    "cancel_prefix_rows": 9877,
+    "negative_quantity_rows": 11933,
+    "negative_quantity_rows_without_cancel_prefix": 2057,
+    "valid_net_revenue_line_count": 492887,
+    "net_revenue_gbp": 9266060.76,
+    "local_strict_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "public_boundary": "The line-level strict-window table remains Git-ignored because it contains source invoice and customer identifiers; public artifacts expose only aggregate quality evidence."
+  },
   "source_acceptance_criteria": [
     {
       "criterion_id": "row_level_deterministic_gold",
@@ -72,8 +91,8 @@
     {
       "criterion_id": "completeness_and_duplicates_auditable",
       "description": "Source completeness and duplicate handling can be audited.",
-      "selected_candidate_status": "pending_local_profile",
-      "evidence": "The workbook is downloadable and UCI flags missing values, but column-level nulls, duplicate rows, and invoice-line key behavior have not been measured locally."
+      "selected_candidate_status": "pass_local_profile_with_controls",
+      "evidence": "The 502,938-row strict window has 2,821 missing descriptions, 100,207 missing customer IDs, and 6,544 normalized exact duplicate extra rows. The frozen controls exclude missing descriptions from auditable product/value evidence, keep customer-level questions blocked, and remove only normalized exact duplicates before aggregation."
     },
     {
       "criterion_id": "permitted_research_use",
@@ -90,7 +109,7 @@
     {
       "criterion_id": "minimum_36_disjoint_contexts",
       "description": "At least 36 disjoint evidence contexts can be formed without outcome-based filtering.",
-      "selected_candidate_status": "pending_local_profile",
+      "selected_candidate_status": "pending_context_feasibility",
       "evidence": "The prior-period window spans twelve calendar months and has transaction-level entities, but the required context counts and split-disjoint fingerprints have not yet been computed."
     }
   ],
@@ -132,7 +151,7 @@
       "candidate_id": "uci_online_retail_ii_prior_period",
       "name": "UCI Online Retail II, strict prior-period window",
       "role": "prospective_temporal_internal_replication",
-      "decision_status": "provisional_selected_pending_local_profile",
+      "decision_status": "provisional_selected_quality_verified_overlap_context_pending",
       "official_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
       "source_identity": {
         "doi": "10.24432/C5CG6D",
@@ -161,10 +180,12 @@
         "same retailer and source lineage, so this remains internal replication",
         "the first workbook sheet extends through 2010-12-09, so 22,523 rows in that sheet and all 541,910 rows in the second sheet must remain outside the strict window",
         "actual workbook headers differ from UCI's canonical field names for InvoiceNo, UnitPrice, and CustomerID and require an explicit ingestion mapping",
-        "missing values are documented but the full field-level completeness profile is still pending",
+        "100,207 customer IDs and 2,821 descriptions are missing, so customer-level questions stay blocked and product/value evidence requires descriptions",
+        "6,544 normalized exact duplicate extra rows require exact-row deduplication before aggregation",
+        "2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone",
         "36 context feasibility is plausible but not yet measured"
       ],
-      "recommended_use": "Acquire from UCI, profile only the strict prior-period window, and use it for the protocol pilot, development, and sealed confirmation splits only if every local acceptance check passes."
+      "recommended_use": "Use the documented strict-window controls, then proceed to protocol-pilot, development, and sealed confirmation design only after zero historical record overlap and outcome-blind 36-context feasibility are proven."
     },
     {
       "candidate_id": "completejourney_external",
@@ -315,17 +336,17 @@
     },
     {
       "check_id": "completeness",
-      "status": "pending",
+      "status": "completed",
       "requirement": "Measure null and blank rates overall and by month for every required field, especially Description and CustomerID."
     },
     {
       "check_id": "duplicates_and_grain",
-      "status": "pending",
+      "status": "completed",
       "requirement": "Measure exact duplicate rows and candidate invoice-line key duplication; define rather than assume the analytical grain."
     },
     {
       "check_id": "business_rule_validity",
-      "status": "pending",
+      "status": "completed",
       "requirement": "Profile negative, zero, and extreme Quantity and UnitPrice values; compare cancellation-prefix rows with negative-quantity rows."
     },
     {
@@ -335,7 +356,7 @@
     },
     {
       "check_id": "monthly_coverage",
-      "status": "pending",
+      "status": "completed",
       "requirement": "Report monthly row, invoice, customer, product, country, cancellation, and monetary totals to identify sparse or abnormal periods."
     },
     {

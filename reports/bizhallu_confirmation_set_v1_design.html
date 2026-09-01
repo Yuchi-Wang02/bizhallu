@@ -46,7 +46,7 @@
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -59,7 +59,7 @@
           <div><span>Human reviewers</span><strong>2</strong></div>
           <div><span>Execution gates</span><strong>7 pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, and its 502,938-row strict prior-period boundary is structurally verified. Full analytical quality, overlap, and context-feasibility checks remain pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The official Online Retail II workbook is acquired and hashed, and its 502,938-row strict prior-period window has a completed quality profile with documented controls. Historical record overlap and context feasibility remain pending; no context manifest, model output, or Confirmation Set v1 result exists.</div>
       </section>
 
       <section>
@@ -76,7 +76,7 @@
       <section>
         <p class="eyebrow">Dataset decision</p>
         <h2>Use a staged path instead of overstating one dataset.</h2>
-        <p>Complete the remaining field-quality, duplicate/grain, cancellation, overlap, monthly-coverage, and context-feasibility checks on the verified strict prior-period window, then require a separately scoped second-dataset replication for broader generalization claims.</p>
+        <p>First prove zero normalized record overlap against the current Online Retail lineage. Only after that proof should the study test outcome-blind feasibility for at least 36 disjoint contexts; a separately scoped second-dataset replication remains required for broader generalization claims.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody><tr>
@@ -89,7 +89,7 @@
           <td><strong>same_source_prior_period</strong><span>prospective_temporal_internal_replication</span></td>
           <td>UCI Online Retail II restricted to 2009-12-01 inclusive through 2010-12-01 exclusive</td>
           <td><ul><li>preserves the current schema and accounting definitions</li><li>moves the study to unseen transaction rows and earlier business periods</li><li>supports a strict cutoff before the current Online Retail source begins</li></ul></td>
-          <td><ul><li>same retailer and source lineage as the exploratory study</li><li>the full workbook overlaps the current source and requires record-level fingerprint checks</li><li>local completeness and 36-context feasibility checks remain pending</li></ul></td>
+          <td><ul><li>same retailer and source lineage as the exploratory study</li><li>the full workbook overlaps the current source and requires record-level fingerprint checks</li><li>quality controls are documented, but historical record independence and 36-context feasibility remain pending</li></ul></td>
         </tr>
 <tr>
           <td><strong>second_public_transaction_dataset</strong><span>external_replication</span></td>
@@ -104,7 +104,7 @@
           <td><ul><li>availability and permissions are not yet known</li><li>should not delay the near-term internal replication</li></ul></td>
         </tr></tbody>
         </table></div>
-        <div class="callout good"><strong>Provisional near-term decision.</strong> Use Online Retail II only within the verified 2009-12-01 inclusive to 2010-12-01 exclusive window after the remaining field-quality, overlap, and context-feasibility checks pass. The raw workbook requires explicit <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a></div>
+        <div class="callout good"><strong>Provisional near-term decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Ingestion applies the frozen <code>Invoice</code>, <code>Price</code>, and <code>Customer ID</code> aliases before those controls. Use the source only after zero historical record overlap and outcome-blind 36-context feasibility are proven. A broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a></div>
       </section>
 
       <section>
@@ -164,7 +164,7 @@
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody><tr><td>1</td><td><code>dataset_source_selected_and_audited</code></td><td>pending</td></tr><tr><td>2</td><td><code>context_manifest_split_and_precision_review_frozen</code></td><td>pending</td></tr><tr><td>3</td><td><code>question_templates_and_gold_calculations_validated</code></td><td>pending</td></tr><tr><td>4</td><td><code>model_prompt_and_detector_configs_frozen</code></td><td>pending</td></tr><tr><td>5</td><td><code>two_independent_human_reviewers_assigned</code></td><td>pending</td></tr><tr><td>6</td><td><code>claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data</code></td><td>pending</td></tr><tr><td>7</td><td><code>sealed_confirmation_run_authorized</code></td><td>pending</td></tr></tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Complete the strict-window missingness, duplicate/grain, business-rule, monthly-coverage, current-source overlap, and outcome-blind context-feasibility profile. Then run the precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Run only the normalized record-overlap proof against the current Online Retail lineage. If it passes, test outcome-blind 36-context feasibility and then run the precision review before freezing the context manifest. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before those gates are complete.</div>
       </section>
 
       <section>
