@@ -117,9 +117,9 @@
 
     <main>
       <section class="hero">
-        <p class="eyebrow">Accounting and supply-management extension</p>
+        <p class="eyebrow">Accounting and product-performance lens</p>
         <h1>Use BizHallu to talk about business risk, not only hallucination metrics.</h1>
-        <p class="lede">The same Online Retail experiment can be framed around reconciliation, returns, product concentration, market exposure, and inventory priority. This keeps the project aligned with BA / DS / AI Analyst roles while using the validated 100-question setup.</p>
+        <p class="lede">The same Online Retail experiment can be framed around reconciliation, returns, product concentration, and revenue exposure. The source data does not contain cost, inventory, purchase-order, or vendor fields, so this page stays within claims the dataset can support.</p>
       </section>
 
       <section>
@@ -139,7 +139,7 @@
         <article class="metric">
           <span>Stock codes</span>
           <strong>4,070</strong>
-          <p>Product identifiers available for supply-management analysis.</p>
+          <p>Product identifiers available for product-performance analysis.</p>
         </article>
         <article class="metric">
           <span>Net revenue</span>
@@ -162,9 +162,9 @@
           <p>Existing deterministic question set, not a new model run.</p>
         </article>
         <article class="metric">
-          <span>Best test AUPRC</span>
+          <span>Exploratory max test AUPRC</span>
           <strong>0.835</strong>
-          <p>Current detector ranking result for span-level errors.</p>
+          <p>Highest observed test ranking result across candidate signals.</p>
         </article></div>
       </section>
 
@@ -201,7 +201,7 @@
 
             <article class="lens-card">
               <p class="eyebrow">Accounting + operations lens</p>
-              <h3>Returns impact and margin-risk triage</h3>
+              <h3>Returns impact and net-sales triage</h3>
               <p>Surface products or months where cancellations and returns change the business conclusion a stakeholder would draw from gross sales.</p>
               <ul>
                 <li><strong>Question types:</strong> return_impact_month, product_revenue_share_month</li>
@@ -228,8 +228,8 @@
 
             <article class="lens-card">
               <p class="eyebrow">Supply management lens</p>
-              <h3>Product concentration and inventory priority</h3>
-              <p>Identify which products dominate monthly merchandise revenue and would deserve procurement, stocking, or vendor attention.</p>
+              <h3>Product concentration and performance reporting</h3>
+              <p>Identify which products dominate monthly merchandise revenue and require careful concentration and performance reporting.</p>
               <ul>
                 <li><strong>Question types:</strong> top_product_month, top3_products_month, product_revenue_share_month</li>
                 <li><strong>Existing coverage:</strong> 42 existing questions in the current 100-question gold set</li>
@@ -296,8 +296,8 @@
         <p class="eyebrow">Next extension</p>
         <h2>Do this after the portfolio package, not before it.</h2>
         <div class="panel">
-          <p>These are the strongest follow-up questions because they connect the hallucination detector to accounting and supply-management decisions.</p>
-          <ol><li>Which products have high gross sales but poor net revenue after returns, and should they be reviewed for quality or demand issues?</li><li>Which monthly revenue changes are driven by returns rather than sales growth or decline?</li><li>Which top-3 products are most vulnerable to rank changes if return activity increases?</li><li>Which country contributes the largest non-UK revenue exposure after excluding one-off cancellations?</li><li>Which product categories should be prioritized for replenishment because they appear in recurring top-product answers?</li><li>Which answer claims should be verified against structured evidence before being sent to a stakeholder?</li><li>Which detector false negatives correspond to the highest business risk because the hallucinated span is a currency amount or rank?</li><li>Which detector false positives are acceptable as conservative review flags in accounting-style workflows?</li><li>How often does Qwen copy a real amount but bind it to the wrong product or rank?</li><li>Would an evidence-aware verifier catch errors that entropy and top-2 margin miss?</li></ol>
+          <p>These follow-up questions connect hallucination analysis to revenue reconciliation, returns, concentration, and evidence traceability without claiming unsupported inventory or margin decisions.</p>
+          <ol><li>Which products have high gross sales but materially lower net revenue after returns, and how large is the reconciliation gap?</li><li>Which monthly revenue changes are driven by returns rather than sales growth or decline?</li><li>Which top-3 products are most vulnerable to rank changes if return activity increases?</li><li>Which country contributes the largest non-UK revenue exposure after excluding one-off cancellations?</li><li>Which products repeatedly account for large shares of monthly merchandise revenue, creating concentration exposure?</li><li>Which answer claims should be verified against structured evidence before being sent to a stakeholder?</li><li>Which detector false negatives correspond to the highest business risk because the hallucinated span is a currency amount or rank?</li><li>Which detector false positives are acceptable as conservative review flags in accounting-style workflows?</li><li>How often does Qwen copy a real amount but bind it to the wrong product or rank?</li><li>Would an evidence-aware verifier catch errors that entropy and top-2 margin miss?</li></ol>
           <div class="callout">
             <strong>Implementation rule:</strong> keep Qwen3-0.6B and Online Retail as the core setup. Add a small 10-20 question business-risk extension before considering a larger benchmark or a new model family.
           </div>

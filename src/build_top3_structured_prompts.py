@@ -13,6 +13,7 @@ from build_prompts import (
     scope_notes,
     system_prompt,
 )
+from public_paths import repo_path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -174,8 +175,8 @@ def main() -> None:
             "hash row order, so the prompt tests rank binding without sorting the evidence table for the model."
         ),
         "outputs": {
-            "jsonl": str(PROMPTS_JSONL),
-            "sample_csv": str(PROMPTS_SAMPLE_CSV),
+            "jsonl": repo_path(PROMPTS_JSONL),
+            "sample_csv": repo_path(PROMPTS_SAMPLE_CSV),
         },
     }
     PROMPTS_REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8")

@@ -21,13 +21,14 @@ REQUIRED_FRAGMENTS = [
     "Research problem",
     "Dataset and task",
     "Pipeline from transaction evidence",
-    "Best AUPRC / F1",
+    "Exploratory test maxima",
     "0.835",
     "0.779",
     "Internal uncertainty has signal",
     "evidence-aware verifier",
-    "Open verifier pilot",
-    "v0 pilot",
+    "Open claim-evidence schema",
+    "Open methodology audit",
+    "Claim-Evidence Review Schema v0",
     "Possible JHU extensions",
     "Research backlog",
     "Semantic Entropy",
@@ -35,7 +36,12 @@ REQUIRED_FRAGMENTS = [
     "Real-time hallucinated entity detection",
     "Spilled Energy",
     "compare internal-state signals with evidence-aware verification",
-    "assistant-reviewed presentation labels",
+    "AI-assisted and provisional",
+    "pre-identified spans",
+    "exploratory test-set maxima",
+    "35 of 36 dev/test questions",
+    "outcome-informed high-priority queue",
+    "fresh context-separated confirmation protocol",
 ]
 
 FORBIDDEN_FRAGMENTS = [
@@ -97,8 +103,10 @@ def main() -> None:
         "verifier_pilot_contradicted_count": 7,
         "research_track_count": 3,
         "baseline_backlog_count": 4,
-        "next_stage_scope": "verifier pilot v0 over Demo v2 locked spans; no full100 rerun",
+        "next_stage_scope": "claim-evidence review schema v0 over Demo v2 spans; no independent verifier or full100 rerun",
         "label_lock_basis": "assistant_full_review",
+        "methodology_status": "methodology_hardening_v1_ready",
+        "methodology_share_status": "share_with_caveats",
     }
     for key, value in expected.items():
         if summary.get(key) != value:

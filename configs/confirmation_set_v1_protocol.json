@@ -1,0 +1,323 @@
+{
+  "schema_version": "1.0",
+  "status": "design_ready_not_execution_ready",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "study_role": "prospective_confirmation_design",
+  "purpose": "Create a prospectively sampled, context-separated evaluation that can test frozen detector and verifier families without reusing the current exploratory selection process.",
+  "execution_ready": false,
+  "no_new_results": true,
+  "current_result_boundary": {
+    "source": "reports/bizhallu_methodology_hardening_summary.json",
+    "classification": "exploratory_retrospective",
+    "exploratory_max_test_auprc": 0.835073,
+    "exploratory_max_test_f1": 0.779412,
+    "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
+  },
+  "dataset_strategy": {
+    "selection_status": "decision_pending",
+    "decision_must_precede_prompt_generation": true,
+    "recommended_sequence": "Run a prospective internal replication first, then require a second-dataset external replication for broader generalization claims.",
+    "options": [
+      {
+        "option_id": "same_dataset_new_contexts",
+        "source": "UCI Online Retail cleaned lineage already used by BizHallu",
+        "role": "prospective_internal_replication",
+        "candidate_contexts": [
+          "customer revenue concentration",
+          "product return-rate comparison",
+          "country-product exposure",
+          "invoice-level revenue reconciliation"
+        ],
+        "advantages": [
+          "lowest implementation cost",
+          "keeps the existing business and accounting definitions",
+          "allows context-grouped sampling before any new model output is viewed"
+        ],
+        "limitations": [
+          "same underlying dataset as the exploratory study",
+          "cannot support cross-dataset or unseen-domain generalization"
+        ]
+      },
+      {
+        "option_id": "second_public_transaction_dataset",
+        "source": "A second row-level transaction dataset selected after completeness, license, and metric-definition review",
+        "role": "external_replication",
+        "candidate_contexts": [
+          "revenue reconciliation",
+          "returns or cancellations",
+          "entity concentration",
+          "time-based performance comparison"
+        ],
+        "advantages": [
+          "stronger external-validity claim",
+          "tests whether findings transfer beyond one retail table"
+        ],
+        "limitations": [
+          "requires a new source audit and cleaning pipeline",
+          "metric definitions may not map exactly to Online Retail"
+        ]
+      },
+      {
+        "option_id": "jhu_domain_extension",
+        "source": "A future JHU course, capstone, operations, or healthcare dataset with permitted use",
+        "role": "domain_transfer_extension",
+        "candidate_contexts": [
+          "operations decision support",
+          "healthcare cost or utilization summaries",
+          "responsible AI audit workflows"
+        ],
+        "advantages": [
+          "strong alignment with program coursework and faculty outreach",
+          "tests the business-fact grounding framework outside retail"
+        ],
+        "limitations": [
+          "availability and permissions are not yet known",
+          "should not delay the near-term internal replication"
+        ]
+      }
+    ],
+    "source_acceptance_criteria": [
+      "row-level evidence supports deterministic gold calculations",
+      "time, entity, quantity, and value fields are documented",
+      "source completeness and duplicate handling can be audited",
+      "license or terms permit the intended local research use",
+      "no sensitive personal data is required for the public artifact",
+      "at least 36 disjoint evidence contexts can be formed without outcome-based filtering"
+    ]
+  },
+  "sampling_plan": {
+    "counts_are_planning_targets_not_collected_results": true,
+    "counts_are_minimum_targets_pending_precision_review": true,
+    "protocol_pilot": {
+      "context_count": 6,
+      "questions_per_context": 2,
+      "question_count": 12,
+      "included_in_confirmation_metrics": false,
+      "purpose": "Validate evidence schemas, prompts, claim boundaries, annotation instructions, and runtime only."
+    },
+    "development": {
+      "context_count": 15,
+      "questions_per_context": 2,
+      "question_count": 30,
+      "purpose": "Freeze detector thresholds, verifier rules, extraction settings, and any hybrid combination."
+    },
+    "confirmation": {
+      "context_count": 15,
+      "questions_per_context": 2,
+      "question_count": 30,
+      "purpose": "One sealed evaluation after all analytical decisions are frozen."
+    },
+    "main_question_count": 60,
+    "total_generation_target_including_pilot": 72,
+    "selection_timing": "All context and question identifiers are fixed before model generation.",
+    "outcome_blind_selection": true,
+    "class_balance_policy": "Do not force equal correct and hallucinated counts and do not drop answers based on correctness. Report natural prevalence.",
+    "technical_failure_policy": "Use a predefined retry rule for empty or interrupted generations; retain and report every selected question rather than replacing difficult outputs."
+  },
+  "precision_review": {
+    "status": "pending",
+    "effective_independent_unit": "evidence_context_id",
+    "minimum_development_contexts": 15,
+    "minimum_confirmation_contexts": 15,
+    "required_before_context_manifest_freeze": true,
+    "review_method": "Use outcome-blind prevalence and cluster-size scenarios to examine expected AUPRC uncertainty and paired-comparison precision. Do not use confirmation labels or detector outcomes.",
+    "decision_policy": "Increase context counts before generation if the planned cluster bootstrap or primary comparison is too unstable; never reduce or replace contexts after answer quality is observed."
+  },
+  "context_split_policy": {
+    "assignment_unit": "evidence_context_id",
+    "assignment_method": "seeded_stratified_hash_after_context_manifest_freeze",
+    "assignment_seed": 20260901,
+    "stratify_by": [
+      "question_family",
+      "business_scope"
+    ],
+    "context_id_components": [
+      "dataset_version",
+      "evidence_source_table",
+      "business_period",
+      "scope_entities",
+      "canonical_evidence_rows_sha256"
+    ],
+    "period_disjoint_across_all_new_study_splits": true,
+    "evidence_fingerprint_disjoint_across_all_splits": true,
+    "historical_exploratory_evidence_fingerprint_exclusion": true,
+    "historical_question_id_reuse": false,
+    "question_ids_assigned_after_split": true,
+    "forbidden_assignment_methods": [
+      "periodic row position",
+      "generated-answer auto-status",
+      "manual selection after viewing correctness",
+      "rebalancing based on detector outcomes"
+    ]
+  },
+  "question_design": {
+    "family_status": "candidate_families_require_source_feasibility_check",
+    "candidate_families": [
+      {
+        "family": "net_revenue_reconciliation_by_period",
+        "business_value": "accounting reconciliation of gross positive revenue, cancellations, and net revenue"
+      },
+      {
+        "family": "customer_revenue_concentration",
+        "business_value": "customer exposure and concentration risk"
+      },
+      {
+        "family": "product_return_rate_comparison",
+        "business_value": "returns and product-performance monitoring"
+      },
+      {
+        "family": "country_product_exposure",
+        "business_value": "market and product concentration across business entities"
+      }
+    ],
+    "requirements": [
+      "gold answers are produced by deterministic structured calculations",
+      "evidence rows are not sorted into answer order unless the condition explicitly tests sorted evidence",
+      "metric definitions and exclusions are included in every prompt",
+      "question templates are frozen before protocol-pilot generation",
+      "pilot questions are never promoted into confirmation metrics"
+    ]
+  },
+  "model_and_prompt_freeze": {
+    "model_candidate": "Qwen/Qwen3-0.6B",
+    "model_role": "same-model replication unless a separately labeled model-transfer arm is preregistered",
+    "decode_policy": "freeze model revision, tokenizer revision, prompt template, seed, decoding parameters, and max-new-token limit before the protocol pilot",
+    "multiple_generation_policy": "If Semantic Entropy is included, freeze sample count, temperature, seed list, and semantic clustering implementation before confirmation access.",
+    "confirmation_regeneration_allowed": false
+  },
+  "annotation_protocol": {
+    "reviewer_count": 2,
+    "reviewer_type": "independent_human_reviewers",
+    "assistant_role": "prepare packets, validate offsets, and support adjudication documentation; do not count as an independent human reviewer",
+    "blinding": [
+      "reviewers do not see detector scores",
+      "reviewers do not see each other's labels",
+      "confirmation labels remain sealed until predictions and analysis code are frozen"
+    ],
+    "claim_statuses": [
+      "supported",
+      "contradicted",
+      "unmatched",
+      "needs_review"
+    ],
+    "binary_mapping": {
+      "supported": 0,
+      "contradicted": 1,
+      "unmatched": 1,
+      "needs_review": "exclude_from_binary_metrics_after_adjudication_attempt_and_report_count"
+    },
+    "claim_inventory_policy": "Annotate every in-scope business-fact claim in every selected answer; do not use a high-priority or error-enriched span subset.",
+    "agreement_reporting": [
+      "binary label agreement before adjudication",
+      "Cohen's kappa for supported versus contradicted-or-unmatched labels before adjudication",
+      "span-boundary overlap agreement before adjudication",
+      "exact and overlap span F1 between reviewers before adjudication",
+      "disagreement counts by fact type",
+      "adjudicated final label counts"
+    ],
+    "adjudication": "A documented third pass resolves disagreements without access to detector outcomes.",
+    "annotation_sample_selection": "Question and response inventory is fixed before correctness review."
+  },
+  "evaluation_tracks": {
+    "oracle_span_diagnostics": {
+      "purpose": "Compare frozen detector families on adjudicated business-fact spans.",
+      "claim_limit": "Diagnostic span scoring only; not end-to-end detection."
+    },
+    "claim_extraction": {
+      "purpose": "Evaluate automatic identification of business-fact claim spans.",
+      "metrics": [
+        "exact span precision, recall, and F1",
+        "overlap span precision, recall, and F1",
+        "fact-type classification accuracy"
+      ]
+    },
+    "evidence_verification": {
+      "purpose": "Make independent supported, contradicted, unmatched, or needs-review decisions from generated claims and source evidence.",
+      "constraint": "Predictions cannot be copied or deterministically mapped from gold or presentation labels.",
+      "required_outputs": [
+        "categorical status",
+        "continuous unsupported-risk score on a frozen scale for AUPRC comparison",
+        "abstention indicator",
+        "matched evidence reference or explicit no-match reason"
+      ]
+    },
+    "end_to_end_audit": {
+      "purpose": "Combine automatic claim extraction with evidence verification and report abstentions and missed claims."
+    }
+  },
+  "detector_comparison": {
+    "primary_internal_candidate": "one_minus_min_top2_margin",
+    "primary_internal_candidate_basis": "chosen from the current exploratory study and requiring fresh confirmation",
+    "secondary_internal_candidate": "mean_token_entropy",
+    "energy_family_role": "report frozen prespecified energy signals without selecting a winner on confirmation",
+    "literature_backlog": [
+      "Semantic Entropy",
+      "TOHA",
+      "entity-level hallucination detection"
+    ],
+    "literature_inclusion_gate": "Decide feasibility and freeze included implementations before protocol-pilot generation.",
+    "evidence_aware_family": "independent claim-evidence consistency rules or model decisions developed only on pilot and development data",
+    "hybrid_family": "optional prespecified combination of internal and evidence-aware scores frozen on development",
+    "confirmation_policy": "Every frozen family is reported; no family is omitted because its confirmation result is weak."
+  },
+  "metric_policy": {
+    "primary_metric": "AUPRC",
+    "primary_unit": "adjudicated business-fact span for oracle-span diagnostics",
+    "secondary_metrics": [
+      "F1 at a development-frozen threshold",
+      "precision",
+      "recall",
+      "specificity",
+      "AUROC",
+      "coverage and abstention rate for evidence verification"
+    ],
+    "uncertainty_interval": "cluster bootstrap by evidence_context_id",
+    "cluster_count_policy": "The 15 development and 15 confirmation contexts are minimum planning targets; final counts must pass the pending outcome-blind precision review before generation.",
+    "prevalence_reporting": true,
+    "per_group_reporting": "Report question-family and fact-type slices with counts; label underpowered slices as descriptive.",
+    "multiple_comparison_policy": "Only the preregistered primary comparison supports a primary claim; all additional detector and subgroup comparisons are secondary or exploratory.",
+    "test_access_policy": "Do not inspect confirmation labels, tune thresholds, select families, modify prompts, or revise verifier rules after confirmation evaluation begins."
+  },
+  "execution_gates": [
+    {
+      "gate": "dataset_source_selected_and_audited",
+      "status": "pending"
+    },
+    {
+      "gate": "context_manifest_split_and_precision_review_frozen",
+      "status": "pending"
+    },
+    {
+      "gate": "question_templates_and_gold_calculations_validated",
+      "status": "pending"
+    },
+    {
+      "gate": "model_prompt_and_detector_configs_frozen",
+      "status": "pending"
+    },
+    {
+      "gate": "two_independent_human_reviewers_assigned",
+      "status": "pending"
+    },
+    {
+      "gate": "claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data",
+      "status": "pending"
+    },
+    {
+      "gate": "sealed_confirmation_run_authorized",
+      "status": "pending"
+    }
+  ],
+  "claim_policy": {
+    "before_execution": "Confirmation Set v1 is a prospective design, not a completed experiment.",
+    "after_internal_replication": "Claims remain limited to the selected model, dataset lineage, question families, and context split.",
+    "after_external_replication": "Cross-dataset claims require a separately validated second-dataset result.",
+    "prohibited": [
+      "production-ready detector",
+      "publication-grade benchmark before independent labels and sealed evaluation",
+      "whole-answer correctness",
+      "external generalization from same-dataset internal replication"
+    ]
+  }
+}

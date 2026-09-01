@@ -15,6 +15,11 @@
     "q_0069"
   ],
   "label_lock_basis": "assistant_full_review",
+  "provisional_annotation_count": 205,
+  "presentation_reviewed_span_count": 15,
+  "independent_human_annotation": false,
+  "automatic_claim_extraction": false,
+  "metric_selection_status": "exploratory_test_maxima",
   "resume_bullet_count": 5,
   "faq_count": 10,
   "guardrail_count": 5,

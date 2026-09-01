@@ -90,16 +90,18 @@ def main() -> None:
         )
 
     required_fragments = [
-        "Best AUPRC",
+        "Exploratory max test AUPRC",
         "0.835",
-        "Best F1",
+        "Exploratory max test F1",
         "0.779",
         "Best energy F1",
         "0.773",
         "57",
         "not pure Spilled Energy",
-        "Labels locked after assistant full review",
+        "205 provisional / 15 additionally reviewed",
         "Dev selected, test reported",
+        "not a confirmatory model-selection result",
+        "pre-identified spans",
     ]
     for fragment in required_fragments:
         if fragment not in html_text:
@@ -110,6 +112,7 @@ def main() -> None:
         "Best overall held-out test F1 is 0.773",
         "Review detector errors.",
         "presentation-level confirmation required",
+        "Labels locked after assistant full review",
     ]
     for fragment in stale_fragments:
         if fragment in html_text:

@@ -7,6 +7,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_PATH = PROJECT_ROOT / "data" / "raw" / "Online Retail.xlsx"
@@ -73,7 +75,7 @@ def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def _raw_profile(raw: pd.DataFrame, normalized: pd.DataFrame) -> dict:
     return {
-        "source_file": str(RAW_PATH),
+        "source_file": repo_path(RAW_PATH),
         "raw_shape": list(raw.shape),
         "columns": list(raw.columns),
         "date_min": str(raw["InvoiceDate"].min()),

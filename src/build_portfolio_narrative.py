@@ -160,15 +160,15 @@ def main() -> None:
     )
     one_minute_pitch = [
         "BizHallu is my AI reliability project for business analysis. I used UCI Online Retail data to generate deterministic retail analytics questions with known gold answers.",
-        "I ran Qwen3-0.6B locally, captured token-level traces, and labeled exact business fact spans such as product names, ranks, countries, months, currency amounts, and percentages.",
+        "I ran Qwen3-0.6B locally, captured token-level traces, and built AI-assisted provisional labels for exact business fact spans such as product names, ranks, countries, months, currency amounts, and percentages.",
         "The core finding is that the model often sounds analytical while binding evidence incorrectly. It may copy a real amount from the table, but assign it to the wrong rank or product.",
-        "Simple internal uncertainty signals help, with held-out test AUPRC 0.835, but they still miss confident ranking and amount-binding errors. That is why business-context validation matters.",
+        "Simple internal uncertainty signals help: the exploratory maximum test AUPRC is 0.835, but candidate winners were selected after test comparison and confident ranking and amount-binding errors remain. That is why a fresh confirmation design and business-context validation matter.",
     ]
     resume_bullets = [
-        "Built BizHallu, a business-analysis hallucination detection benchmark using UCI Online Retail, Qwen3-0.6B, deterministic gold answers, span labels, and split-safe detector evaluation.",
+        "Built BizHallu, a portfolio-scale business-analysis AI reliability study using UCI Online Retail, Qwen3-0.6B, deterministic gold answers, provisional span labels, and internal-state detector evaluation.",
         "Generated 100 evidence-grounded retail analytics questions across 7 business question types and ran a local CUDA Qwen3-0.6B full100 generation pipeline with 100 saved token traces.",
-        "Annotated 205 held-out business fact spans across 35 dev/test questions and aligned all spans to token-level logit and energy-style traces for detector scoring.",
-        "Evaluated 12 simple and energy-family detector baselines with dev-selected thresholds and held-out test reporting; best test AUPRC reached 0.835 and best test F1 reached 0.779.",
+        "Built an AI-assisted provisional annotation set of 205 business-fact spans across 35 dev/test answers and aligned all pre-identified spans to token-level logit and energy-style traces.",
+        "Evaluated 12 simple and energy-family candidate signals with dev-selected thresholds; exploratory test maxima reached 0.835 AUPRC and 0.779 F1 from different signals.",
         "Created a portfolio demo showing how LLMs can copy real values while binding them to the wrong product rank, highlighting why evidence-aware business AI validation is needed.",
     ]
     linkedin_blurb = (
@@ -179,7 +179,7 @@ def main() -> None:
         "Motivation: business users need answers grounded in transaction evidence, not just fluent explanations.",
         "Dataset and task: UCI Online Retail, 100 deterministic questions, 7 business question types.",
         "Model and traces: Qwen3-0.6B local generation with token-level uncertainty and energy-ready fields.",
-        "Labels: 205 held-out spans across 35 dev/test questions, including correct and hallucinated key facts.",
+        "Labels: 205 AI-assisted provisional spans across 35 dev/test answers; 15 selected presentation spans received additional assistant review.",
         "Results: simple uncertainty leads, energy-family controls are close but not a clean pure Spilled Energy win.",
         "Demo cases: q_0064 and q_0069 show wrong rank/product/amount bindings in top-3 product analysis.",
         "Takeaway: span-level detection is useful, but future methods need stronger evidence-aware checking.",
@@ -189,7 +189,7 @@ def main() -> None:
         "Say the selected presentation labels are locked with lock_basis=assistant_full_review, not independent human annotation.",
         "Say the strongest energy-family result is a probability-mass control, not pure adjacent-step Spilled Energy.",
         "Use q_0064 and q_0069 as primary examples because they connect business relevance, detector failure, and clear evidence.",
-        "Avoid claiming production readiness; the current artifact is a rigorous portfolio-scale benchmark and demo.",
+        "Avoid claiming production readiness or a human-labeled benchmark; the current artifact is a portfolio-scale exploratory study and demo.",
     ]
     next_steps = [
         "Convert the narrative into a concise slide deck for interviews and JHU BAAI networking.",
@@ -237,9 +237,9 @@ def main() -> None:
         ("Gold questions", fmt_int(summary["question_count"]), "Deterministic retail analytics questions."),
         ("Question types", fmt_int(summary["question_type_count"]), "Top product, top country, top 3, share, returns, comparisons, monthly change."),
         ("Qwen generations", fmt_int(summary["qwen_record_count"]), "Local Qwen3-0.6B answers with saved traces."),
-        ("Annotated spans", fmt_int(summary["annotated_span_count"]), "Held-out business fact spans aligned to token traces."),
-        ("Best test AUPRC", fmt_float(summary["best_test_auprc"]), f"{summary['best_test_auprc_baseline']} on held-out test spans."),
-        ("Best test F1", fmt_float(summary["best_test_f1"]), f"{summary['best_test_f1_baseline']} with dev-selected threshold."),
+        ("Provisional aligned spans", fmt_int(summary["annotated_span_count"]), "AI-assisted, pre-identified business-fact spans aligned to token traces."),
+        ("Exploratory max test AUPRC", fmt_float(summary["best_test_auprc"]), f"{summary['best_test_auprc_baseline']} after candidate comparison."),
+        ("Exploratory max test F1", fmt_float(summary["best_test_f1"]), f"{summary['best_test_f1_baseline']} is a different signal with a dev-selected threshold."),
         ("Error rows", fmt_int(summary["error_row_count"]), "Held-out FP/FN rows used for interpretation."),
         ("Locked demo spans", fmt_int(summary["locked_primary_span_count"]), "Primary presentation spans in q_0064 and q_0069."),
     ]
@@ -433,7 +433,7 @@ def main() -> None:
         <aside class="snapshot">
           <div class="panel"><span>Positioning</span><strong>{esc(positioning_statement)}</strong></div>
           <div class="panel"><span>Current stage</span><strong>{esc(summary['status'])}</strong></div>
-          <div class="panel"><span>Label lock basis</span><strong>{esc(summary['label_lock_basis'])}</strong></div>
+          <div class="panel"><span>Presentation review</span><strong>15 selected spans / {esc(summary['label_lock_basis'])}</strong></div>
           <div class="panel"><span>Primary demo cases</span><strong>{esc(', '.join(primary_question_ids))}</strong></div>
         </aside>
       </section>
@@ -471,9 +471,9 @@ def main() -> None:
             {render_bullets([
                 f"Generated {question_report['record_count']} deterministic questions across {len(question_report['question_type_counts'])} business question types.",
                 f"Ran {qwen_report['model_id']} locally on {qwen_report['device']} with seed {qwen_report['base_seed']}.",
-                f"Annotated {annotation_report['total_span_count']} held-out spans across {annotation_report['annotated_question_count']} dev/test questions.",
+                f"Built AI-assisted provisional labels for {annotation_report['total_span_count']} spans across {annotation_report['annotated_question_count']} dev/test answers.",
                 f"Aligned {alignment_report['aligned_span_count']} spans to token traces with simple uncertainty and energy-ready score fields.",
-                "Selected thresholds on dev spans and reported metrics on held-out test spans.",
+                "Selected thresholds on dev spans, then compared candidate-signal metrics on test spans as an exploratory analysis.",
             ])}
           </article>
           <article class="panel">
@@ -482,7 +482,7 @@ def main() -> None:
                 "Whole-answer labels are too coarse because one answer can mix correct and wrong facts.",
                 "Business users often rely on a single rank, amount, or comparison direction.",
                 "The label schema separates correct_key_fact, hallucinated_key_fact, and unsupported_claim.",
-                "The portfolio demo uses locked spans so the public examples are traceable to source rows.",
+                "Fifteen selected presentation spans received additional assistant review and remain traceable to source rows.",
             ])}
           </article>
         </div>
@@ -493,9 +493,10 @@ def main() -> None:
           <p class="eyebrow">Results</p>
           <h2>Internal signals help, but confident evidence-binding errors remain.</h2>
           <p>
-            The detector result is credible because it is split-safe: thresholds are chosen on dev spans,
-            then reused unchanged on held-out test spans. The strongest current signal comes from simple
-            token uncertainty, not from a clean pure Spilled Energy win.
+            Detector thresholds are chosen on dev spans and reused unchanged on test spans. However,
+            the headline AUPRC and F1 signals were selected after comparing test results, so these values
+            are exploratory maxima rather than a confirmatory held-out model-selection estimate. The
+            strongest observed signal comes from simple token uncertainty, not a clean pure Spilled Energy win.
           </p>
         </div>
         <div class="three-col">
@@ -519,7 +520,7 @@ def main() -> None:
           <article class="panel">
             <h3>Observed failure patterns</h3>
             {render_bullets([
-                f"Simple best-AUPRC baseline produced {interpretation['simple_best_auprc_error_counts']['false_negative']} false negatives and {interpretation['simple_best_auprc_error_counts']['false_positive']} false positives on held-out test error review rows.",
+                f"The exploratory best-AUPRC signal produced {interpretation['simple_best_auprc_error_counts']['false_negative']} false negatives and {interpretation['simple_best_auprc_error_counts']['false_positive']} false positives on test error-review rows.",
                 f"Energy best-F1 baseline produced {interpretation['energy_best_f1_error_counts']['false_negative']} false negatives and {interpretation['energy_best_f1_error_counts']['false_positive']} false positives.",
                 "Currency amounts and top-3 product rows are the most important miss patterns.",
                 "Correct numeric and context spans can be over-flagged, so detector claims must remain qualified.",

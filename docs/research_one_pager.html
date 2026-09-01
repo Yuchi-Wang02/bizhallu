@@ -141,17 +141,18 @@
           <p class="lede">BizHallu studies evidence-grounding failures in LLM-generated business analysis: cases where the answer sounds fluent and may use real values, but binds them to the wrong product, rank, amount, comparison, or conclusion.</p>
           <div class="links">
             <a href="./portfolio_demo_v2.html">Open demo v2</a>
-            <a href="./evidence_verifier_pilot.html">Open verifier pilot</a>
+            <a href="./evidence_verifier_pilot.html">Open claim-evidence schema</a>
+            <a href="./methodology_hardening.html">Open methodology audit</a>
             <a href="./business_risk_lens.html">Open business risk lens</a>
             <a href="./detector_interpretation.html">Open detector interpretation</a>
           </div>
         </div>
         <aside class="snapshot">
           <div><span class="label">Gold questions</span><strong>100</strong></div>
-          <div><span class="label">Aligned spans</span><strong>205</strong></div>
-          <div><span class="label">Held-out test spans</span><strong>103</strong></div>
-          <div><span class="label">Best AUPRC / F1</span><strong>0.835 / 0.779</strong></div>
-          <div><span class="label">Label basis</span><strong>assistant_full_review</strong></div>
+          <div><span class="label">Provisional aligned spans</span><strong>205</strong></div>
+          <div><span class="label">Test spans scored</span><strong>103</strong></div>
+          <div><span class="label">Exploratory test maxima</span><strong>0.835 AUPRC / 0.779 F1</strong></div>
+          <div><span class="label">Presentation review</span><strong>15 selected spans</strong></div>
         </aside>
       </section>
 
@@ -173,19 +174,19 @@
       <section>
         <p class="eyebrow">Method</p>
         <h2>Pipeline from transaction evidence to span-level detector metrics.</h2>
-        <div class="panel"><ul><li>Clean UCI Online Retail transactions into auditable business evidence tables.</li><li>Generate deterministic business questions and gold answers across seven retail analytics question types.</li><li>Run local Qwen3-0.6B generations and preserve token-level probability, entropy, margin, and energy-style traces.</li><li>Review exact business-fact spans and align each span to generated tokens.</li><li>Evaluate split-safe detector baselines with dev-selected thresholds and held-out test metrics.</li></ul></div>
+        <div class="panel"><ul><li>Clean UCI Online Retail transactions into auditable business evidence tables.</li><li>Generate deterministic business questions and gold answers across seven retail analytics question types.</li><li>Run local Qwen3-0.6B generations and preserve token-level probability, entropy, margin, and energy-style traces.</li><li>Build AI-assisted provisional business-fact span labels and align pre-identified spans to generated tokens.</li><li>Select thresholds on dev spans, then compare candidate-signal metrics on the test spans as an exploratory analysis.</li></ul></div>
         <div class="metric-grid">
           <article class="metric"><span class="label">Questions</span><strong>100</strong><p>Deterministic business questions across seven question types.</p></article>
           <article class="metric"><span class="label">Demo cases</span><strong>9</strong><p>Presentation-locked cases available in demo v2.</p></article>
           <article class="metric"><span class="label">Business lenses</span><strong>4</strong><p>Accounting, operations, product, and market-risk framings.</p></article>
-          <article class="metric"><span class="label">Test spans</span><strong>103</strong><p>Held-out span-level detector evaluation units.</p></article>
+          <article class="metric"><span class="label">Test spans</span><strong>103</strong><p>Pre-identified span-level detector evaluation units.</p></article>
         </div>
       </section>
 
       <section>
         <p class="eyebrow">Findings</p>
         <h2>Internal uncertainty has signal, but it is not the same as evidence verification.</h2>
-        <div class="panel"><ul><li>Best held-out span-level AUPRC is 0.835 from one_minus_min_top2_margin.</li><li>Best held-out span-level F1 is 0.779 from mean_token_entropy.</li><li>Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.</li><li>Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.</li></ul></div>
+        <div class="panel"><ul><li>The exploratory maximum test AUPRC is 0.835 from one_minus_min_top2_margin.</li><li>The exploratory maximum test F1 is 0.779 from mean_token_entropy; it is a different signal.</li><li>Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.</li><li>Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.</li></ul></div>
         <div class="callout"><strong>Main research seed:</strong> internal uncertainty signals can rank some risky spans, but confident wrong evidence bindings remain difficult. The next research step is to compare internal-state signals with evidence-aware verification for business-fact grounding.</div>
       </section>
 
@@ -199,7 +200,7 @@
           </article>
           <article class="panel">
             <h3>Extension paths</h3>
-            <ul><li>Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.</li><li>Operations analytics: verify product, inventory, vendor, or demand claims before they influence prioritization decisions.</li><li>Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.</li><li>Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.</li></ul>
+            <ul><li>Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.</li><li>Operations analytics: verify product-performance, return-impact, and revenue-exposure claims before they influence prioritization decisions.</li><li>Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.</li><li>Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.</li></ul>
           </article>
         </div>
       </section>
@@ -210,22 +211,23 @@
         <div class="grid">
           <article class="panel">
             <h3>Comparison tracks</h3>
-            <ul><li>Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.</li><li>Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.</li><li>Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers; current v0 covers Demo v2 locked spans only.</li></ul>
+            <ul><li>Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.</li><li>Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.</li><li>Evidence-aware verification: future independent claim-evidence decisions against structured source rows and deterministic gold answers; the current v0 is only a label-derived review schema.</li></ul>
           </article>
           <article class="panel">
             <h3>Baseline candidates</h3>
             <ul><li>Semantic Entropy: useful for testing semantic consistency across sampled answers; requires multiple generations per question.</li><li>TOHA: relevant as an attention-graph topology baseline; implementation depends on reliable access to attention tensors and runnable reference code.</li><li>Real-time hallucinated entity detection: relevant for product, country, month, and stock-code spans; needs entity extraction and entity-level evidence matching.</li><li>Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.</li></ul>
           </article>
         </div>
-        <div class="callout"><strong>Implementation caution:</strong> the current evidence-aware verifier is a v0 pilot over 15 Demo v2 locked spans, including 7 contradicted bindings. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
+        <div class="callout"><strong>Implementation caution:</strong> Claim-Evidence Review Schema v0 covers 15 selected Demo v2 spans, including 7 label-derived contradicted statuses. It does not make independent verifier predictions. Define and freeze an independent decision rule before reporting a verifier comparison.</div>
       </section>
 
       <section>
         <p class="eyebrow">Scope guardrails</p>
         <h2>How to describe this accurately.</h2>
         <div class="panel">
-          <p>BizHallu is a portfolio-scale, span-level AI reliability artifact. It should not be described as a production detector, a large independent human-labeled benchmark, or a whole-answer correctness benchmark.</p>
-          <p>Best wording: <code>assistant-reviewed presentation labels</code>, <code>span-level business-fact evaluation</code>, and <code>diagnostic detector baselines</code>.</p>
+          <p>BizHallu is a portfolio-scale, span-level AI reliability artifact. The 205 labels are AI-assisted and provisional; 15 selected presentation spans received an additional assistant review. There is no independent human annotation or inter-annotator agreement.</p>
+          <p>The current evaluation scores pre-identified spans and does not automatically extract claims from unseen answers. The 0.835 AUPRC and 0.779 F1 values are exploratory test-set maxima from different candidate signals, not a confirmatory held-out model-selection estimate.</p>
+          <p>The score package covers 35 of 36 dev/test questions selected through an outcome-informed high-priority queue. The question-level split also shares months and exact evidence-row payloads across splits. Methodology Hardening v1 documents these limits and specifies a fresh context-separated confirmation protocol.</p>
         </div>
       </section>
     </main>

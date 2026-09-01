@@ -58,7 +58,7 @@
         color: white;
         font-size: 12px;
       }
-      nav { display: flex; gap: 8px; }
+      nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
       nav a {
         min-height: 36px;
         padding: 8px 12px;
@@ -114,6 +114,7 @@
         color: var(--muted);
         font-size: 21px;
       }
+      .identity { color: var(--ink) !important; font-size: 15px !important; font-weight: 750; }
       .actions {
         display: flex;
         flex-wrap: wrap;
@@ -233,7 +234,8 @@
       }
       @media (max-width: 900px) {
         .topbar { padding: 0 20px; }
-        nav { display: none; }
+        nav { gap: 4px; }
+        nav a { padding: 7px; font-size: 12px; }
         main { width: min(100% - 28px, 720px); }
         .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 46px; }
         .metric-grid, .card-grid { grid-template-columns: 1fr; }
@@ -245,33 +247,31 @@
       <a class="brand" href="#top"><span>BH</span>BizHallu</a>
       <nav aria-label="Page sections">
         <a href="#demo">Demo</a>
-        <a href="#results">Results</a>
-        <a href="#repo">Repo</a>
-        <a href="#claims">Claims</a>
+        <a href="./detector_interpretation.html">Methods</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero">
         <div>
-          <p class="eyebrow">GitHub Pages portfolio bundle</p>
-          <h1>Auditing hallucinated business facts in LLM retail analysis.</h1>
+          <p class="eyebrow">Business analytics + AI reliability</p>
+          <h1>When the number is real but the business claim is wrong.</h1>
           <p>I build business analytics systems that do not just generate answers, but audit whether the answer is grounded in the underlying transaction evidence.</p>
+          <p class="identity">Built by Yuchi Wang · Accounting and supply management background · Johns Hopkins Carey MS Business Analytics and Artificial Intelligence</p>
           <div class="actions">
-            <a class="button primary" href="./portfolio_demo_v2.html">Open demo v2</a>
-            <a class="button secondary" href="./portfolio_demo.html">Open original demo</a>
-            <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
-            <a class="button secondary" href="./career_package.html">Open career package</a>
-            <a class="button secondary" href="./research_one_pager.html">Open research one-pager</a>
-            <a class="button secondary" href="./evidence_verifier_pilot.html">Open verifier pilot</a>
-            <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
+            <a class="button primary" href="./portfolio_demo_v2.html?case=q_0064">Explore the failure case</a>
+            <a class="button secondary" href="./detector_interpretation.html">View methods and results</a>
+            <a class="button secondary" href="./methodology_hardening.html">Audit the evidence</a>
+            <a class="button secondary" href="./research_one_pager.html">Research direction</a>
           </div>
         </div>
         <aside class="snapshot" aria-label="Project snapshot">
-          <div class="snapshot-row"><span class="label">Current stage</span><strong>github_pages_ready</strong></div>
           <div class="snapshot-row"><span class="label">Model</span><strong>Qwen/Qwen3-0.6B</strong></div>
+          <div class="snapshot-row"><span class="label">Experiment</span><strong>100 questions / 205 provisional spans</strong></div>
+          <div class="snapshot-row"><span class="label">Presentation review</span><strong>15 selected spans</strong></div>
           <div class="snapshot-row"><span class="label">Primary cases</span><strong>q_0064 / q_0069</strong></div>
-          <div class="snapshot-row"><span class="label">Label basis</span><strong>assistant_full_review</strong></div>
         </aside>
       </section>
 
@@ -285,29 +285,29 @@
         <div class="card-grid">
           <article class="card">
             <h3>Recruiter</h3>
-            <p>Start with demo v2 for the core case and the career package for resume-ready language.</p>
-            <p><a href="./portfolio_demo_v2.html">Demo v2</a> / <a href="./career_package.html">Career package</a></p>
+            <p>Start with Demo v2 to see the evidence, generated answer, selected fact labels, and detector outcomes.</p>
+            <p><a href="./portfolio_demo_v2.html?case=q_0064">Open q_0064</a></p>
           </article>
           <article class="card">
             <h3>Professor</h3>
-            <p>Start with the research one-pager, then use the verifier pilot to see the next evidence-aware comparison direction.</p>
-            <p><a href="./research_one_pager.html">Research one-pager</a> / <a href="./evidence_verifier_pilot.html">Verifier pilot</a></p>
+            <p>Start with the research one-pager, then inspect the source-backed methodology audit before discussing the next comparison.</p>
+            <p><a href="./research_one_pager.html">Research one-pager</a> / <a href="./methodology_hardening.html">Methodology audit</a></p>
           </article>
           <article class="card">
             <h3>Technical interviewer</h3>
-            <p>Start with detector interpretation to inspect split-safe metrics and baseline tradeoffs.</p>
+            <p>Start with detector interpretation to inspect dev-thresholding, exploratory test selection, and baseline tradeoffs.</p>
             <p><a href="./detector_interpretation.html">Detector interpretation</a></p>
           </article>
           <article class="card">
             <h3>Business interviewer</h3>
-            <p>Start with the business risk lens to connect hallucinated spans to accounting and operations risk.</p>
+            <p>Start with the business risk lens to connect incorrect bindings to reconciliation, returns, and revenue-exposure risk.</p>
             <p><a href="./business_risk_lens.html">Business risk lens</a></p>
           </article>
         </div>
         <div class="card-grid">
           <article class="card">
             <h3>Interactive demo v2</h3>
-            <p>Filter 9 locked cases by fact type, label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
+            <p>Filter 9 selected cases by fact type, presentation label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
             <p><a href="./portfolio_demo_v2.html">Open demo v2</a></p>
           </article>
           <article class="card">
@@ -327,7 +327,7 @@
           </article>
           <article class="card">
             <h3>Business risk lens</h3>
-            <p>Connect the same experiment to 4 accounting and supply-management views: reconciliation, returns, concentration, and exposure.</p>
+            <p>Connect the same experiment to 4 evidence-supported business views: reconciliation, returns, concentration, and exposure.</p>
             <p><a href="./business_risk_lens.html">Open business lens</a></p>
           </article>
           <article class="card">
@@ -336,14 +336,19 @@
             <p><a href="./research_one_pager.html">Open one-pager</a></p>
           </article>
           <article class="card">
-            <h3>Evidence-aware verifier pilot</h3>
-            <p>Review 15 locked Demo v2 spans as claim-evidence rows, including 7 contradicted business-fact bindings.</p>
-            <p><a href="./evidence_verifier_pilot.html">Open verifier pilot</a></p>
+            <h3>Claim-evidence review schema</h3>
+            <p>Review 15 selected Demo v2 spans as claim-evidence rows, including 7 label-derived contradicted statuses. This is not an independent verifier.</p>
+            <p><a href="./evidence_verifier_pilot.html">Open review schema</a></p>
           </article>
           <article class="card">
             <h3>Detector interpretation</h3>
             <p>Read how AUPRC, F1, simple uncertainty signals, and energy-family baselines should be interpreted.</p>
             <p><a href="./detector_interpretation.html">Open interpretation</a></p>
+          </article>
+          <article class="card">
+            <h3>Methodology Hardening v1</h3>
+            <p>Audit the 35-of-36 selected evaluation scope, cross-split evidence overlap, and the fresh confirmation protocol. Current share status: share_with_caveats.</p>
+            <p><a href="./methodology_hardening.html">Open methodology audit</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -354,13 +359,13 @@
       </section>
 
       <section id="results" class="section">
-        <p class="eyebrow">Validated experiment summary</p>
-        <h2>Small enough to audit, complete enough to show real evaluation discipline.</h2>
+        <p class="eyebrow">Exploratory experiment summary</p>
+        <h2>Useful evidence, with model-selection and annotation limits kept visible.</h2>
         <div class="metric-grid">
           <article class="metric"><span class="label">Gold questions</span><strong>100</strong><p>Deterministic business questions generated from Online Retail evidence.</p></article>
-          <article class="metric"><span class="label">Annotated spans</span><strong>205</strong><p>Held-out high-priority business fact spans aligned to token traces.</p></article>
-          <article class="metric"><span class="label">Best test AUPRC</span><strong>0.835</strong><p>Best split-safe ranking metric from the simple detector family.</p></article>
-          <article class="metric"><span class="label">Best test F1</span><strong>0.779</strong><p>Best split-safe threshold metric; energy-family best F1 is 0.773.</p></article>
+          <article class="metric"><span class="label">AI-assisted provisional spans</span><strong>205</strong><p>Pre-identified business facts aligned to token traces.</p></article>
+          <article class="metric"><span class="label">Exploratory max test AUPRC</span><strong>0.835</strong><p>Highest observed test ranking value across candidate signals.</p></article>
+          <article class="metric"><span class="label">Exploratory max test F1</span><strong>0.779</strong><p>A different winning signal; energy-family maximum is 0.773.</p></article>
         </div>
         <div class="callout">
           <strong>Central finding</strong>
@@ -372,7 +377,7 @@
         </div>
       </section>
 
-      <section id="repo" class="section">
+      <section id="about" class="section">
         <p class="eyebrow">Repository map</p>
         <h2>What belongs in GitHub and what stays local.</h2>
         <div class="card-grid">
@@ -396,7 +401,11 @@
         <h2>The strongest public version is honest about scope.</h2>
         <ul>
           <li>Say the project evaluates span-level business facts, not full report truthfulness.</li>
-          <li>Say labels are locked for presentation with <code>assistant_full_review</code>; do not claim a large human-labeled benchmark.</li>
+          <li>Say 205 labels are AI-assisted and provisional; only 15 selected spans received additional assistant review.</li>
+          <li>Say scores apply to pre-identified spans; automatic claim extraction is outside the current scope.</li>
+          <li>Say 0.835 AUPRC and 0.779 F1 are exploratory test maxima from different signals selected after test comparison.</li>
+          <li>Say the 205 spans come from 35 of 36 dev/test answers selected by an outcome-informed high-priority queue.</li>
+          <li>Say the question-level split shares months and exact evidence payloads across splits; it is not an unseen-context test.</li>
           <li>Say the data source is UCI Online Retail and the model run is local <code>Qwen/Qwen3-0.6B</code>.</li>
           <li>Use q_0064 and q_0069 as the main case studies because they show realistic business-risk errors.</li>
           <li>Frame the project as business analytics and AI reliability, not as a generic sales dashboard.</li>

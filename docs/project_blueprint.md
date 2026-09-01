@@ -100,8 +100,20 @@ bizhallu/
 
 - `full100_draft_*` remains in filenames for artifact lineage. It refers to the
   working annotation/evaluation files used during development.
-- Public pages should refer to selected demo labels as
-  assistant-reviewed / presentation-locked span labels.
+- Public pages should distinguish the 205 AI-assisted provisional labels from
+  the 15 selected presentation spans that received additional assistant review.
+- Public detector values 0.835 AUPRC and 0.779 F1 are exploratory test maxima
+  from different candidate signals selected after test comparison.
+- The score package covers 35 of 36 dev/test questions selected through an
+  outcome-informed high-priority queue. The current split is periodic within
+  question type, and identical gold evidence-row payloads can cross splits.
+- `configs/methodology_protocol_v1.json` is the source of truth for separating
+  the current exploratory study from a future context-separated confirmation
+  study.
+- The evaluation scores pre-identified spans and does not include automatic
+  claim extraction.
+- The stable `evidence_verifier_pilot.html` URL now serves Claim-Evidence
+  Review Schema v0; its statuses are label-derived, not verifier predictions.
 - Do not describe the project as a large human-labeled benchmark, a
   production-ready detector, or a whole-answer correctness benchmark.
 
@@ -411,6 +423,10 @@ The project is feasible on the current machine:
 - The GitHub Pages bundle is complete and validated under `docs/`. It rewrites
   report-relative links into public `docs/` links and records
   `github_pages_ready` in the root preflight.
+- Methodology Hardening v1 is generated and validated. It quantifies the 35/36
+  outcome-informed evaluation scope, dev/test period overlap, and nine exact
+  evidence-row fingerprint groups that cross question splits without changing
+  the locked detector results.
 
 Main risk:
 
@@ -526,10 +542,12 @@ draft spans into a wide score table with 5 simple score fields and 7
 energy-suite score fields, validates both dev and test contain positive and
 negative spans, and still reports no final metrics.
 
-The full100 simple and energy split-safe evaluations are complete. Best
-held-out test AUPRC overall is 0.835 from the simple
-`one_minus_min_top2_margin` baseline. Best held-out test F1 overall is 0.779
-from the simple `mean_token_entropy` baseline. The best energy-family F1 is
+The full100 simple and energy evaluations are complete. The exploratory
+maximum test AUPRC is 0.835 from the simple
+`one_minus_min_top2_margin` baseline. The exploratory maximum test F1 is 0.779
+from the simple `mean_token_entropy` baseline. These winners were identified
+after comparing test results and come from different signals. The strongest
+observed energy-family F1 is
 0.773 from `mean_spilled_probability_mass_after_top2`. The comparison flags
 four pure adjacent-step energy rows as all-positive-like.
 
@@ -568,7 +586,7 @@ results, demo cases, personal-branding text, and presentation guardrails.
 The GitHub Pages bundle is generated and validated. It records
 `github_pages_ready`, exposes `docs/index.html` as the public entry point, and
 copies the demo, demo v2, career package, business risk lens, narrative,
-research one-pager, evidence-aware verifier pilot, detector interpretation,
+research one-pager, claim-evidence review schema, detector interpretation,
 label-lock report, and confirmation packet into
 `docs/` with checked local links.
 
@@ -577,14 +595,25 @@ screen TL;DR, role statement, 5-minute review path, and reproducibility levels.
 `AGENTS.md` records claim guardrails for future agent work. Public JSON path
 hygiene is enforced by `src/validate_public_path_hygiene.py`. The GitHub Pages
 bundle also includes `docs/research_one_pager.html` for professor and research
-advisor outreach and `docs/evidence_verifier_pilot.html` for the first
-evidence-aware verifier prototype.
+advisor outreach and `docs/evidence_verifier_pilot.html` for the label-derived
+Claim-Evidence Review Schema v0.
 
 The current research extension should remain dual-track. Evidence-aware
 verification is the near-term business-facing design direction, but internal
 uncertainty and literature-grounded methods remain comparison candidates rather
 than rejected paths. The current verifier pilot is limited to Demo v2 locked
 spans and should be treated as protocol scaffolding, not a new benchmark.
+
+Confirmation Set v1 now defines the next research branch prospectively. Its
+machine-readable protocol is `configs/confirmation_set_v1_protocol.json`, and
+its generated design report is
+`reports/bizhallu_confirmation_set_v1_design.html`. The planned inventory is a
+12-question protocol pilot plus 30 development and 30 sealed confirmation
+questions. These are minimum planning targets, not collected results. They may
+increase after an outcome-blind precision review, but cannot be reduced or
+rebalanced after generated answers are viewed. Exact historical full100
+evidence fingerprints are excluded. All seven execution gates remain pending,
+and the design introduces no new performance claim.
 
 Next one-step branch:
 
@@ -595,7 +624,12 @@ Next one-step branch:
   supply management, and BA / DS / AI Analyst positioning
 - use `docs/research_one_pager.html` for professor, capstone, and research
   advisor conversations
+- use `docs/methodology_hardening.html` for the current evidence audit and the
+  machine-checked confirmation-study boundary
 - use `docs/evidence_verifier_pilot.html` to show the v0 evidence-aware
   verifier family and `docs/evidence_aware_verifier_design.md` to plan any
   expansion beyond Demo v2
-- defer new model runs until the public package remains clean after validation
+- select and audit the Confirmation Set v1 dataset source before writing new
+  prompts or running the model
+- keep new model runs blocked until the context manifest, split, prompts,
+  detector policies, reviewer plan, and sealed-run authorization are frozen

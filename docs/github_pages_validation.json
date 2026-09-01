@@ -1,8 +1,8 @@
 {
   "manifest_path": "docs/github_pages_manifest.json",
   "ready_for_github_pages": true,
-  "required_file_count": 17,
-  "checked_html_file_count": 11,
+  "required_file_count": 18,
+  "checked_html_file_count": 12,
   "current_stage": "github_pages_ready",
   "primary_question_ids": [
     "q_0064",

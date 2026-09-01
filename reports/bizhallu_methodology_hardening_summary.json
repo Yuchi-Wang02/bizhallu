@@ -1,0 +1,511 @@
+{
+  "status": "methodology_hardening_v1_ready",
+  "share_status": "share_with_caveats",
+  "html_path": "reports/bizhallu_methodology_hardening.html",
+  "protocol_path": "configs/methodology_protocol_v1.json",
+  "study_classification": "exploratory_retrospective",
+  "locked_public_results": {
+    "exploratory_max_test_auprc": 0.835073,
+    "exploratory_max_test_auprc_signal": "one_minus_min_top2_margin",
+    "exploratory_max_test_f1": 0.779412,
+    "exploratory_max_test_f1_signal": "mean_token_entropy",
+    "aligned_span_count": 205,
+    "test_span_count": 103
+  },
+  "audit": {
+    "question_count": 100,
+    "split_counts": {
+      "dev": 18,
+      "test": 18,
+      "train": 64
+    },
+    "heldout_question_count": 36,
+    "annotated_heldout_question_count": 35,
+    "annotated_heldout_split_counts": {
+      "dev": 17,
+      "test": 18
+    },
+    "missing_heldout_question_ids": [
+      "q_0048"
+    ],
+    "missing_heldout_questions": [
+      {
+        "question_id": "q_0048",
+        "split": "dev",
+        "question_type": "country_comparison_month",
+        "question": "In August 2011, did Netherlands or EIRE generate more net revenue, and by how much?"
+      }
+    ],
+    "annotated_span_count": 205,
+    "span_split_counts": {
+      "dev": 102,
+      "test": 103
+    },
+    "span_label_counts": {
+      "correct_key_fact": 83,
+      "hallucinated_key_fact": 121,
+      "unsupported_claim": 1
+    },
+    "periods_by_split": {
+      "dev": [
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-08",
+        "2011-09",
+        "2011-10"
+      ],
+      "test": [
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-09",
+        "2011-10",
+        "2011-11"
+      ],
+      "train": [
+        "2010-12",
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12"
+      ]
+    },
+    "period_overlap": {
+      "dev_test": [
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-09",
+        "2011-10"
+      ],
+      "train_dev": [
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-08",
+        "2011-09",
+        "2011-10"
+      ],
+      "train_test": [
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-09",
+        "2011-10",
+        "2011-11"
+      ]
+    },
+    "exact_evidence_row_cross_split_group_count": 9,
+    "exact_evidence_row_cross_split_question_count": 28,
+    "exact_evidence_row_cross_split_groups": [
+      {
+        "fingerprint_sha256": "4692b6766627b40961f870fe7e8f28ae2e0529a84915e78720aac4ce59f741ed",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0006",
+            "split": "train",
+            "question_type": "top_country_month",
+            "periods": [
+              "2011-06"
+            ]
+          },
+          {
+            "question_id": "q_0014",
+            "split": "dev",
+            "question_type": "top_country_month",
+            "periods": [
+              "2011-06"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "eca7f3ec5bd30aa1b0e4e2194db312114920b9932109063e589d25dfcee097d8",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "test"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0009",
+            "split": "dev",
+            "question_type": "top_country_month",
+            "periods": [
+              "2011-09"
+            ]
+          },
+          {
+            "question_id": "q_0015",
+            "split": "test",
+            "question_type": "top_country_month",
+            "periods": [
+              "2011-09"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "4a4475b083170179515ab4d4d4607bea6813c2dafd60c08968fb34e0ba20a575",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0020",
+            "split": "dev",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-03"
+            ]
+          },
+          {
+            "question_id": "q_0063",
+            "split": "dev",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-03"
+            ]
+          },
+          {
+            "question_id": "q_0075",
+            "split": "train",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-03"
+            ]
+          },
+          {
+            "question_id": "q_0085",
+            "split": "train",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-03"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "c9f021e5ec4f2480efbf30573b419e272bb0dc37c86df2ca4c9f258604e1e8dd",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "test"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0021",
+            "split": "test",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-04"
+            ]
+          },
+          {
+            "question_id": "q_0064",
+            "split": "test",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-04"
+            ]
+          },
+          {
+            "question_id": "q_0076",
+            "split": "dev",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-04"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "12f8478dfb51e358fa1a3603c6d2591e98f7d5ec42bc841dc076bd709c43aa00",
+        "row_count": 8,
+        "splits": [
+          "test",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0022",
+            "split": "train",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-05"
+            ]
+          },
+          {
+            "question_id": "q_0065",
+            "split": "train",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-05"
+            ]
+          },
+          {
+            "question_id": "q_0077",
+            "split": "test",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-05"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "88790eb00f09ea1768f96be2736ce5dadbe83e6c6eca53b1f356cba5f922c8c6",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0023",
+            "split": "train",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-06"
+            ]
+          },
+          {
+            "question_id": "q_0066",
+            "split": "train",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-06"
+            ]
+          },
+          {
+            "question_id": "q_0078",
+            "split": "train",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-06"
+            ]
+          },
+          {
+            "question_id": "q_0086",
+            "split": "dev",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-06"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "bbf5b3e6860ad28f44f62a4d9c8520915f046f83d0319cabead39dc40c6070b2",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0025",
+            "split": "dev",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-08"
+            ]
+          },
+          {
+            "question_id": "q_0068",
+            "split": "dev",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-08"
+            ]
+          },
+          {
+            "question_id": "q_0080",
+            "split": "train",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-08"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "451a40a768b99d512216ee79166e044275aca49a35c285fcd3ec8c6813f2c353",
+        "row_count": 8,
+        "splits": [
+          "dev",
+          "test"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0026",
+            "split": "test",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-09"
+            ]
+          },
+          {
+            "question_id": "q_0069",
+            "split": "test",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-09"
+            ]
+          },
+          {
+            "question_id": "q_0081",
+            "split": "dev",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-09"
+            ]
+          },
+          {
+            "question_id": "q_0087",
+            "split": "test",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-09"
+            ]
+          }
+        ]
+      },
+      {
+        "fingerprint_sha256": "41b64219a1ae334283c9ac4db21047e2b827228d8122c44821aa4053efb00d87",
+        "row_count": 8,
+        "splits": [
+          "test",
+          "train"
+        ],
+        "questions": [
+          {
+            "question_id": "q_0027",
+            "split": "train",
+            "question_type": "top_product_month",
+            "periods": [
+              "2011-10"
+            ]
+          },
+          {
+            "question_id": "q_0070",
+            "split": "train",
+            "question_type": "top3_products_month",
+            "periods": [
+              "2011-10"
+            ]
+          },
+          {
+            "question_id": "q_0082",
+            "split": "test",
+            "question_type": "product_revenue_share_month",
+            "periods": [
+              "2011-10"
+            ]
+          }
+        ]
+      }
+    ],
+    "exact_filter_cross_split_group_count": 0,
+    "exact_filter_cross_split_groups": [],
+    "question_type_split_counts": {
+      "country_comparison_month": {
+        "train": 12,
+        "dev": 4,
+        "test": 4
+      },
+      "monthly_revenue_change": {
+        "train": 6,
+        "dev": 2,
+        "test": 2
+      },
+      "product_revenue_share_month": {
+        "train": 10,
+        "dev": 3,
+        "test": 3
+      },
+      "return_impact_month": {
+        "train": 8,
+        "dev": 2,
+        "test": 2
+      },
+      "top3_products_month": {
+        "train": 9,
+        "dev": 2,
+        "test": 2
+      },
+      "top_country_month": {
+        "train": 10,
+        "dev": 3,
+        "test": 3
+      },
+      "top_product_month": {
+        "train": 9,
+        "dev": 2,
+        "test": 2
+      }
+    },
+    "source_code_checks": {
+      "heldout_priority_depends_on_auto_status": true,
+      "initial_batch_is_heldout_high_priority": true,
+      "split_uses_within_type_position_modulo_five": true
+    }
+  },
+  "finding_count": 5,
+  "high_severity_finding_count": 4,
+  "findings": [
+    {
+      "severity": "high",
+      "name": "Outcome-informed annotation subset",
+      "evidence": "Score rows cover 35 of 36 dev/test questions. The queue code prioritizes held-out answers when generated-answer auto-status is not likely_correct.",
+      "implication": "The 205-span evaluation is conditional on a high-priority error-enriched subset; it is not a representative estimate over all generated business answers."
+    },
+    {
+      "severity": "high",
+      "name": "Post-hoc headline signal selection",
+      "evidence": "Each signal threshold was selected on dev, but the public AUPRC and F1 winners were identified after comparing candidate signals on test.",
+      "implication": "The observed maxima are useful exploratory summaries, not unbiased confirmation-set estimates."
+    },
+    {
+      "severity": "high",
+      "name": "Context overlap across splits",
+      "evidence": "Dev and test share 5 business periods. There are 9 exact gold evidence-row fingerprint groups crossing splits, involving 28 questions.",
+      "implication": "The split is question-level, not evidence-context independent; results do not establish generalization to unseen months or evidence payloads."
+    },
+    {
+      "severity": "high",
+      "name": "Provisional labels without independent agreement",
+      "evidence": "The 205 spans are AI-assisted provisional labels. Fifteen selected spans received additional assistant review; no independent human annotation or IAA is available.",
+      "implication": "Label reliability is not yet independently estimated."
+    },
+    {
+      "severity": "medium",
+      "name": "Oracle span boundary",
+      "evidence": "Detector signals are scored on pre-identified business-fact spans.",
+      "implication": "The current experiment evaluates span scoring, not automatic claim extraction or an end-to-end audit system."
+    }
+  ],
+  "confirmation_protocol_status": "design_only_not_yet_executed",
+  "primary_confirmation_metric": "AUPRC",
+  "public_interpretation": "The current metrics are reproducible exploratory results on an outcome-informed, question-level split with provisional labels. They motivate, but do not replace, a fresh context-separated confirmation study.",
+  "num_failures": 0,
+  "failures": []
+}

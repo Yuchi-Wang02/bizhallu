@@ -15,7 +15,9 @@
   "extension_count": 4,
   "research_track_count": 3,
   "baseline_backlog_count": 4,
-  "next_stage_scope": "verifier pilot v0 over Demo v2 locked spans; no full100 rerun",
+  "next_stage_scope": "claim-evidence review schema v0 over Demo v2 spans; no independent verifier or full100 rerun",
+  "methodology_status": "methodology_hardening_v1_ready",
+  "methodology_share_status": "share_with_caveats",
   "label_lock_basis": "assistant_full_review",
   "num_failures": 0,
   "failures": []

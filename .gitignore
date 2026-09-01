@@ -8,6 +8,11 @@ venv/
 .ipynb_checkpoints/
 .pytest_cache/
 
+# Microsoft Office temporary lock files
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
 # Large or generated artifacts kept outside a future GitHub repo by default
 data/raw/
 data/processed/retail_*.csv

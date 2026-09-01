@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "status": "methodology_protocol_v1_locked",
+  "project": "BizHallu",
+  "purpose": "Separate the current exploratory retrospective study from a future confirmatory evaluation.",
+  "current_study": {
+    "classification": "exploratory_retrospective",
+    "evaluation_unit": "pre_identified_business_fact_span",
+    "question_count": 100,
+    "heldout_question_count": 36,
+    "annotated_heldout_question_count": 35,
+    "missing_heldout_question_ids": [
+      "q_0048"
+    ],
+    "annotated_span_count": 205,
+    "test_span_count": 103,
+    "annotation_basis": "ai_assisted_provisional",
+    "presentation_review_scope": "15 selected spans received additional assistant review",
+    "independent_human_annotation": false,
+    "automatic_claim_extraction": false,
+    "sample_selection": "heldout_high_priority_queue_conditioned_on_generated_answer_auto_status",
+    "split_assignment": "within_question_type_periodic_position_mod_5",
+    "threshold_selection": "per_signal_threshold_selected_on_dev_by_max_f1",
+    "headline_signal_selection": "post_hoc_maximum_after_comparing_test_results"
+  },
+  "locked_public_results": {
+    "exploratory_max_test_auprc": 0.835073,
+    "exploratory_max_test_auprc_signal": "one_minus_min_top2_margin",
+    "exploratory_max_test_f1": 0.779412,
+    "exploratory_max_test_f1_signal": "mean_token_entropy",
+    "aligned_span_count": 205,
+    "test_span_count": 103
+  },
+  "current_claim_policy": {
+    "allowed": [
+      "exploratory maximum test AUPRC across candidate signals",
+      "exploratory maximum test F1 across candidate signals",
+      "AI-assisted provisional span labels",
+      "evaluation of pre-identified business-fact spans",
+      "results conditional on the selected high-priority question subset"
+    ],
+    "disallowed": [
+      "confirmatory generalization estimate",
+      "unbiased held-out model-selection result",
+      "representative error rate across all business questions",
+      "independent human-labeled benchmark",
+      "end-to-end automatic hallucination detection",
+      "production-ready detector"
+    ]
+  },
+  "future_confirmation_protocol": {
+    "status": "design_only_not_yet_executed",
+    "objective": "Compare frozen internal-state, literature-grounded, and evidence-aware detector families on fresh context-separated data.",
+    "data_policy": {
+      "preferred": "fresh business contexts, model outputs, or a second dataset not used for exploratory signal selection",
+      "fallback": "regenerate a context-grouped split where the same evidence context cannot cross train, dev, and confirmation sets",
+      "group_key": "evidence source plus business period plus canonical evidence-row payload",
+      "sample_selection": "select annotation targets before reviewing generated-answer correctness",
+      "confirmation_set_access": "keep labels and detector comparisons sealed until extraction rules, signals, thresholds, and analysis code are frozen"
+    },
+    "evaluation_tracks": {
+      "oracle_span_diagnostics": "score frozen detector families on independently annotated fact spans",
+      "claim_extraction": "measure claim-span extraction precision, recall, and boundary overlap separately",
+      "end_to_end_verification": "evaluate extracted claim plus evidence decision without using gold span locations"
+    },
+    "annotation_policy": {
+      "reviewers": "two independent reviewers for the confirmation subset",
+      "blinding": "reviewers do not see detector scores or each other's labels",
+      "agreement": "report binary label agreement and span-boundary agreement before adjudication",
+      "adjudication": "resolve disagreements with a documented third pass",
+      "schema": [
+        "supported",
+        "contradicted",
+        "unmatched",
+        "needs_review"
+      ]
+    },
+    "detector_policy": {
+      "primary_metric": "AUPRC",
+      "secondary_metrics": [
+        "F1 at a development-frozen threshold",
+        "precision",
+        "recall",
+        "specificity",
+        "calibration where applicable"
+      ],
+      "primary_internal_candidate": "one_minus_min_top2_margin",
+      "candidate_status": "selected from the exploratory study and requiring confirmation on fresh data",
+      "comparison_families": [
+        "internal uncertainty: entropy, top-2 margin, and energy-style signals",
+        "literature-grounded: Semantic Entropy, TOHA, and entity-level detection where feasible",
+        "evidence-aware: independent claim-evidence consistency decisions"
+      ],
+      "test_policy": "do not choose detector families, thresholds, prompts, or verifier rules from confirmation-set results"
+    },
+    "reporting_policy": {
+      "report_all_frozen_primary_results": true,
+      "separate_exploratory_and_confirmatory_tables": true,
+      "publish_failures_and_abstentions": true,
+      "retain_dataset_model_and_scope_limits": true
+    }
+  }
+}

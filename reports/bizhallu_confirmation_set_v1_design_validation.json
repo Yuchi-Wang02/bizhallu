@@ -1,0 +1,13 @@
+{
+  "status": "confirmation_set_v1_design_validation_passed",
+  "protocol_path": "configs/confirmation_set_v1_protocol.json",
+  "html_path": "reports/bizhallu_confirmation_set_v1_design.html",
+  "summary_path": "reports/bizhallu_confirmation_set_v1_design_summary.json",
+  "execution_ready": false,
+  "no_new_results": true,
+  "dataset_decision_pending": true,
+  "precision_review_pending": true,
+  "pending_gate_count": 7,
+  "num_failures": 0,
+  "failures": []
+}

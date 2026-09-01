@@ -15,7 +15,11 @@
     "energy_threshold": 0.000225,
     "best_test_auprc": 0.835073,
     "best_test_f1": 0.779412,
-    "guardrail": "Assistant-reviewed presentation labels; span-level demo, not a human benchmark or production detector."
+    "annotation_status": "15 selected spans with additional assistant presentation review",
+    "independent_human_annotation": false,
+    "automatic_claim_extraction": false,
+    "metric_selection_status": "exploratory_test_maxima",
+    "guardrail": "Selected presentation spans only; no independent human annotation, automatic claim extraction, or production detector claim."
   },
   "filters": {
     "fact_types": [
@@ -39,17 +43,20 @@
       {
         "id": "simple",
         "label": "Top-2 margin",
-        "score_field": "one_minus_min_top2_margin"
+        "score_field": "one_minus_min_top2_margin",
+        "description": "Flags spans when the model's top two token choices were close at the least-certain token."
       },
       {
         "id": "entropy",
         "label": "Entropy",
-        "score_field": "mean_token_entropy"
+        "score_field": "mean_token_entropy",
+        "description": "Flags spans with higher average uncertainty across their generated tokens."
       },
       {
         "id": "energy",
         "label": "Energy-family",
-        "score_field": "mean_spilled_probability_mass_after_top2"
+        "score_field": "mean_spilled_probability_mass_after_top2",
+        "description": "Uses probability mass outside the top two token choices; this is an energy-family control, not a semantic verifier."
       }
     ]
   },

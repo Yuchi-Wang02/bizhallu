@@ -1,7 +1,10 @@
 {
   "status": "evidence_verifier_pilot_ready",
   "scope": "demo_v2_locked_spans_only",
-  "title": "BizHallu Evidence-Aware Verifier Pilot",
+  "title": "BizHallu Claim-Evidence Review Schema v0",
+  "artifact_type": "claim_evidence_review_schema",
+  "independent_verifier_predictions": false,
+  "status_derivation": "direct_mapping_from_selected_presentation_labels",
   "source_demo_v2_data_path": "reports/bizhallu_demo_v2_data.json",
   "rows_csv_path": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
   "rows_json_path": "reports/bizhallu_evidence_verifier_pilot_rows.json",
@@ -19,21 +22,21 @@
     "q_0093",
     "q_0098"
   ],
-  "verifier_label_counts": {
+  "review_status_counts": {
     "contradicted": 7,
     "supported": 8
   },
-  "locked_span_label_counts": {
+  "presentation_label_counts": {
     "correct_key_fact": 8,
     "hallucinated_key_fact": 7
   },
-  "allowed_verifier_labels": [
+  "allowed_review_statuses": [
     "contradicted",
     "needs_review",
     "supported",
     "unmatched"
   ],
-  "detector_miss_counts": {
+  "detector_comparison_counts": {
     "contradicted_spans": 7,
     "any_detector_missed_contradicted": 7,
     "all_detectors_missed_contradicted": 7,
@@ -45,7 +48,8 @@
   "best_test_f1": 0.779412,
   "label_lock_basis": "assistant_full_review",
   "label_lock_status": "presentation_labels_locked",
-  "guardrail": "Prototype over Demo v2 locked spans only; not a production checker, not a new benchmark result, and not a replacement for existing metrics.",
+  "metric_selection_note": "AUPRC and F1 are exploratory test-set maxima from different candidate signals; thresholds were selected on dev, but signal winners were identified after test comparison.",
+  "guardrail": "Schema over selected Demo v2 spans only; statuses are label-derived, not independent verifier predictions, not a production checker, and not a new benchmark result.",
   "num_failures": 0,
   "failures": []
 }

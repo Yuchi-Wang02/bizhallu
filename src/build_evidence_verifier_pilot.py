@@ -1,9 +1,10 @@
-"""Build the BizHallu evidence-aware verifier pilot v0.
+"""Build the BizHallu Claim-Evidence Review Schema v0.
 
 This is intentionally small: it only covers the public Demo v2 locked spans and
 does not recompute model generations, span labels, detector scores, or headline
-metrics. The purpose is to create a reviewable detector-family prototype for
-claim-evidence consistency, not a production verifier.
+metrics. Review statuses are derived from the existing presentation labels; they
+are not independent verifier predictions. The artifact is a protocol scaffold
+for a future claim-evidence detector comparison.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ ROWS_JSON_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_rows.json"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 HTML_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot.html"
 
-ALLOWED_VERIFIER_LABELS = {"supported", "contradicted", "unmatched", "needs_review"}
+ALLOWED_REVIEW_STATUSES = {"supported", "contradicted", "unmatched", "needs_review"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -96,37 +97,39 @@ def evidence_matches(span_text: str, fact_type: str, evidence_rows: list[dict[st
     return matches
 
 
-def verifier_label_from_locked_label(locked_label: str) -> str:
-    if locked_label == "correct_key_fact":
+def review_status_from_presentation_label(presentation_label: str) -> str:
+    if presentation_label == "correct_key_fact":
         return "supported"
-    if locked_label == "hallucinated_key_fact":
+    if presentation_label == "hallucinated_key_fact":
         return "contradicted"
-    if locked_label == "unsupported_claim":
+    if presentation_label == "unsupported_claim":
         return "unmatched"
     return "needs_review"
 
 
-def verifier_reason(row: dict[str, Any]) -> str:
-    label = row["verifier_label"]
+def review_reason(row: dict[str, Any]) -> str:
+    label = row["review_status"]
     fact_type = row["fact_type"]
     if label == "supported":
         return (
-            "Supported by the locked presentation review and consistent with the "
-            "gold answer or prompt evidence for this business-fact span."
+            "Derived from the selected presentation label correct_key_fact; the "
+            "schema records the evidence fields available for later independent checking."
         )
     if label == "contradicted" and fact_type == "ranking":
         return (
-            "Contradicted in context: ranking markers are checked with the generated "
-            "product or amount binding, not as standalone numbers."
+            "Derived from the selected presentation label hallucinated_key_fact. "
+            "Ranking markers must eventually be checked with the associated product "
+            "and amount binding, not as standalone numbers."
         )
     if label == "contradicted":
         return (
-            "Contradicted in context: the generated claim is not supported by the "
-            "gold answer for the product, rank, amount, or conclusion binding."
+            "Derived from the selected presentation label hallucinated_key_fact. "
+            "A future verifier must independently test the product, rank, amount, "
+            "or conclusion binding against source evidence."
         )
     if label == "unmatched":
-        return "No matching support was found in the public demo gold/evidence fields."
-    return "The pilot rules are insufficient for this span, so it remains review-only."
+        return "Derived from unsupported_claim; no independent matching decision is made here."
+    return "The presentation label does not map to a fixed review status, so this row remains review-only."
 
 
 def build_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -135,7 +138,7 @@ def build_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
         generated_text = case.get("generated_text", "")
         evidence_rows = case.get("prompt_evidence_rows", [])
         for span in case.get("spans", []):
-            verifier_label = verifier_label_from_locked_label(str(span.get("label", "")))
+            review_status = review_status_from_presentation_label(str(span.get("label", "")))
             claim_text = extract_claim_line(
                 generated_text,
                 str(span.get("span_text", "")),
@@ -154,8 +157,10 @@ def build_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
                 "span_start_char": span.get("span_start_char"),
                 "span_end_char": span.get("span_end_char"),
                 "fact_type": span.get("fact_type"),
-                "locked_span_label": span.get("label"),
-                "verifier_label": verifier_label,
+                "presentation_label": span.get("label"),
+                "review_status": review_status,
+                "review_status_source": "derived_from_presentation_label",
+                "independent_verifier_prediction": False,
                 "claim_text": claim_text,
                 "gold_short_answer": case.get("gold_short_answer"),
                 "gold_contains_span_text": normalize_text(span.get("span_text", ""))
@@ -181,13 +186,13 @@ def build_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
                 ),
                 "review_note": span.get("review_note"),
             }
-            row["verifier_reason"] = verifier_reason(row)
+            row["review_reason"] = review_reason(row)
             rows.append(row)
     return rows
 
 
-def detector_miss_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
-    contradicted = [row for row in rows if row["verifier_label"] == "contradicted"]
+def detector_comparison_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    contradicted = [row for row in rows if row["review_status"] == "contradicted"]
     return {
         "contradicted_spans": len(contradicted),
         "any_detector_missed_contradicted": sum(1 for row in contradicted if row["detector_any_missed"]),
@@ -219,21 +224,21 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
           <article class="metric">
             <span class="label">{escape(label)}</span>
             <strong>{count}</strong>
-            <p>Demo v2 locked spans with this evidence-aware pilot label.</p>
+            <p>Status derived from the existing selected presentation label.</p>
           </article>
         """
-        for label, count in sorted(summary["verifier_label_counts"].items())
+        for label, count in sorted(summary["review_status_counts"].items())
     )
     rows_html = "\n".join(
         f"""
           <tr>
             <td><code>{escape(str(row["question_id"]))}</code></td>
             <td>{escape(str(row["fact_type"]))}</td>
-            <td><span class="pill {escape(str(row["verifier_label"]))}">{escape(str(row["verifier_label"]))}</span></td>
+            <td><span class="pill {escape(str(row["review_status"]))}">{escape(str(row["review_status"]))}</span></td>
             <td>{escape(str(row["span_text"]))}</td>
             <td>{escape(str(row["claim_text"]))}</td>
             <td>{escape(str(row["simple_outcome"]))} / {escape(str(row["entropy_outcome"]))} / {escape(str(row["energy_outcome"]))}</td>
-            <td>{escape(str(row["verifier_reason"]))}</td>
+            <td>{escape(str(row["review_reason"]))}</td>
           </tr>
         """
         for row in rows
@@ -244,7 +249,7 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BizHallu Evidence-Aware Verifier Pilot</title>
+    <title>BizHallu Claim-Evidence Review Schema v0</title>
     <style>
       :root {{
         --bg: #f6f7f9;
@@ -304,12 +309,13 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
   <body>
     <main>
       <header>
-        <p class="eyebrow">Evidence-aware verifier pilot</p>
-        <h1>Comparing internal uncertainty with claim-evidence consistency.</h1>
+        <p class="eyebrow">Claim-evidence review schema v0</p>
+        <h1>Preparing an honest comparison between uncertainty and evidence checking.</h1>
         <p class="lede">
-          This v0 pilot covers Demo v2 locked spans only. It reframes the same
-          public cases as evidence-aware verifier rows so the next research step
-          can compare internal-state signals with explicit business-fact grounding.
+          This v0 schema covers 15 selected Demo v2 presentation spans. It organizes
+          claims, compact evidence, and detector outcomes for a future comparison.
+          Its review statuses are inherited from existing presentation labels, not
+          produced by an independent verifier.
         </p>
         <div class="actions">
           <a class="button" href="./portfolio_demo_v2.html">Open Demo v2</a>
@@ -319,13 +325,13 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
       </header>
 
       <section class="section">
-        <p class="eyebrow">Demo v2 locked spans only</p>
-        <h2>A small verifier family prototype, not a new benchmark result.</h2>
+        <p class="eyebrow">Selected Demo v2 spans only</p>
+        <h2>A review protocol scaffold, not an implemented verifier.</h2>
         <div class="metric-grid">
           <article class="metric"><span class="label">Cases</span><strong>{summary["case_count"]}</strong><p>Public Demo v2 cases.</p></article>
-          <article class="metric"><span class="label">Spans</span><strong>{summary["span_count"]}</strong><p>Presentation-locked business-fact spans.</p></article>
-          <article class="metric"><span class="label">Held-out AUPRC</span><strong>{summary["best_test_auprc"]:.3f}</strong><p>Existing internal detector result; unchanged.</p></article>
-          <article class="metric"><span class="label">Held-out F1</span><strong>{summary["best_test_f1"]:.3f}</strong><p>Existing internal detector result; unchanged.</p></article>
+          <article class="metric"><span class="label">Spans</span><strong>{summary["span_count"]}</strong><p>Selected presentation spans; no independent annotation.</p></article>
+          <article class="metric"><span class="label">Exploratory test max AUPRC</span><strong>{summary["best_test_auprc"]:.3f}</strong><p>Existing internal-signal summary; unchanged.</p></article>
+          <article class="metric"><span class="label">Exploratory test max F1</span><strong>{summary["best_test_f1"]:.3f}</strong><p>Different winning signal; unchanged.</p></article>
         </div>
         <div class="metric-grid">
           {label_cards}
@@ -333,39 +339,38 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
         <div class="callout">
           <strong>Guardrail</strong>
           <p>
-            This verifier pilot is not a production checker and not a new
-            benchmark result. It does not claim superiority over internal
-            detectors. It
-            creates reviewable rows for the next comparison between internal
-            uncertainty and evidence-aware verification.
+            This schema is not a production checker, an independent verifier, or
+            a new benchmark result. The supported/contradicted statuses are direct
+            mappings from existing presentation labels and must not be evaluated
+            as verifier predictions.
           </p>
         </div>
       </section>
 
       <section class="section">
-        <p class="eyebrow">Pilot interpretation</p>
-        <h2>What this adds to the current detector story.</h2>
+        <p class="eyebrow">Protocol interpretation</p>
+        <h2>What this prepares for the next detector comparison.</h2>
         <ul>
           <li>Internal uncertainty asks whether the model appeared uncertain while generating a token span.</li>
-          <li>Evidence-aware verification asks whether the generated business claim is supported by the evidence or gold answer.</li>
+          <li>A future evidence-aware verifier should independently decide whether a generated claim is supported by source evidence.</li>
           <li>Confident wrong evidence binding is the key failure mode: a span can reuse real values but attach them to the wrong product, rank, or conclusion.</li>
-          <li>The current pilot marks {summary["detector_miss_counts"]["all_detectors_missed_contradicted"]} contradicted spans where all three displayed internal detectors missed the error.</li>
+          <li>Among the presentation-labeled incorrect bindings, {summary["detector_comparison_counts"]["all_detectors_missed_contradicted"]} were missed by all three displayed internal signals. The schema did not independently detect them.</li>
         </ul>
       </section>
 
       <section class="section">
-        <p class="eyebrow">Verifier rows</p>
-        <h2>Each row is a business-fact span with evidence-aware pilot status.</h2>
+        <p class="eyebrow">Review rows</p>
+        <h2>Each row connects a selected span to evidence fields and detector outcomes.</h2>
         <table>
           <thead>
             <tr>
               <th>Question</th>
               <th>Fact type</th>
-              <th>Verifier label</th>
+              <th>Derived review status</th>
               <th>Span</th>
               <th>Generated claim line</th>
               <th>Detector outcomes</th>
-              <th>Verifier reason</th>
+              <th>Protocol note</th>
             </tr>
           </thead>
           <tbody>
@@ -382,15 +387,18 @@ def render_html(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
 def main() -> None:
     data = load_json(DEMO_V2_DATA_PATH)
     rows = build_rows(data)
-    label_counts = Counter(row["verifier_label"] for row in rows)
-    locked_counts = Counter(row["locked_span_label"] for row in rows)
+    status_counts = Counter(row["review_status"] for row in rows)
+    presentation_counts = Counter(row["presentation_label"] for row in rows)
     question_ids = sorted({str(row["question_id"]) for row in rows})
     meta = data.get("meta", {})
 
     summary = {
         "status": "evidence_verifier_pilot_ready",
         "scope": "demo_v2_locked_spans_only",
-        "title": "BizHallu Evidence-Aware Verifier Pilot",
+        "title": "BizHallu Claim-Evidence Review Schema v0",
+        "artifact_type": "claim_evidence_review_schema",
+        "independent_verifier_predictions": False,
+        "status_derivation": "direct_mapping_from_selected_presentation_labels",
         "source_demo_v2_data_path": repo_path(DEMO_V2_DATA_PATH),
         "rows_csv_path": repo_path(ROWS_CSV_PATH),
         "rows_json_path": repo_path(ROWS_JSON_PATH),
@@ -398,17 +406,23 @@ def main() -> None:
         "case_count": len(question_ids),
         "span_count": len(rows),
         "question_ids": question_ids,
-        "verifier_label_counts": dict(sorted(label_counts.items())),
-        "locked_span_label_counts": dict(sorted(locked_counts.items())),
-        "allowed_verifier_labels": sorted(ALLOWED_VERIFIER_LABELS),
-        "detector_miss_counts": detector_miss_counts(rows),
+        "review_status_counts": dict(sorted(status_counts.items())),
+        "presentation_label_counts": dict(sorted(presentation_counts.items())),
+        "allowed_review_statuses": sorted(ALLOWED_REVIEW_STATUSES),
+        "detector_comparison_counts": detector_comparison_counts(rows),
         "best_test_auprc": meta.get("best_test_auprc"),
         "best_test_f1": meta.get("best_test_f1"),
         "label_lock_basis": meta.get("label_lock_basis"),
         "label_lock_status": meta.get("label_lock_status"),
+        "metric_selection_note": (
+            "AUPRC and F1 are exploratory test-set maxima from different candidate "
+            "signals; thresholds were selected on dev, but signal winners were "
+            "identified after test comparison."
+        ),
         "guardrail": (
-            "Prototype over Demo v2 locked spans only; not a production checker, "
-            "not a new benchmark result, and not a replacement for existing metrics."
+            "Schema over selected Demo v2 spans only; statuses are label-derived, "
+            "not independent verifier predictions, not a production checker, and "
+            "not a new benchmark result."
         ),
         "num_failures": 0,
         "failures": [],

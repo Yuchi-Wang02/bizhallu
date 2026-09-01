@@ -6,6 +6,8 @@ from typing import Any
 
 import pandas as pd
 
+from public_paths import repo_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
@@ -717,8 +719,8 @@ def main() -> None:
         "difficulty_counts": sample["difficulty"].value_counts().sort_index().to_dict(),
         "split_counts": split_counts,
         "outputs": {
-            "jsonl": str(OUTPUT_JSONL),
-            "sample_csv": str(OUTPUT_SAMPLE_CSV),
+            "jsonl": repo_path(OUTPUT_JSONL),
+            "sample_csv": repo_path(OUTPUT_SAMPLE_CSV),
         },
     }
     OUTPUT_REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8")

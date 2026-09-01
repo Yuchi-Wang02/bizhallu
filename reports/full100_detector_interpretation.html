@@ -159,19 +159,20 @@
     <main>
       <section class="hero">
         <div>
-          <p class="eyebrow">Full100 held-out interpretation</p>
+          <p class="eyebrow">Full100 exploratory test interpretation</p>
           <h1>Internal uncertainty helps, but it is not a business fact checker.</h1>
           <p class="lede">
-            On the draft held-out span set, simple token uncertainty gives the strongest current signal.
+            On the provisional test-span set, simple token uncertainty gives the strongest observed maxima.
             The best energy-family result is a probability-mass control, while pure adjacent-step Spilled
-            Energy rows can collapse into almost-all-positive behavior.
+            Energy rows can collapse into almost-all-positive behavior. Candidate winners were selected
+            after test comparison, so this is not a confirmatory model-selection result.
           </p>
         </div>
         <aside class="snapshot" aria-label="Report snapshot">
-          <div><span class="label">Scope</span><strong>35 held-out questions</strong></div>
+          <div><span class="label">Scope</span><strong>35 dev/test answers / pre-identified spans</strong></div>
           <div><span class="label">Test spans</span><strong>61 positive / 42 negative</strong></div>
           <div><span class="label">Threshold policy</span><strong>Dev selected, test reported</strong></div>
-          <div><span class="label">Claim status</span><strong>Labels locked after assistant full review</strong></div>
+          <div><span class="label">Annotation status</span><strong>205 provisional / 15 additionally reviewed</strong></div>
         </aside>
       </section>
 
@@ -183,15 +184,15 @@
         <div class="metric-grid">
 
           <article class="metric-card">
-            <span>Best AUPRC</span>
+            <span>Exploratory max test AUPRC</span>
             <strong>0.835</strong>
-            <p>one_minus_min_top2_margin ranks wrong spans best on held-out test.</p>
+            <p>one_minus_min_top2_margin is the highest observed test ranking result across candidate signals.</p>
           </article>
 
           <article class="metric-card">
-            <span>Best F1</span>
+            <span>Exploratory max test F1</span>
             <strong>0.779</strong>
-            <p>mean_token_entropy gives the best dev-thresholded test F1.</p>
+            <p>mean_token_entropy is a different winning signal with a dev-selected threshold.</p>
           </article>
 
           <article class="metric-card">
@@ -203,7 +204,7 @@
           <article class="metric-card">
             <span>Error rows</span>
             <strong>57</strong>
-            <p>Held-out test false positives and false negatives across two selected baselines.</p>
+            <p>Test false positives and false negatives for two retrospectively selected signals.</p>
           </article>
         </div>
       </section>
@@ -255,8 +256,8 @@
           <article class="panel">
             <h3>Simple best-AUPRC: one_minus_min_top2_margin</h3>
             <p>
-              This row is more selective: 7 false positives and
-              20 false negatives on held-out test spans.
+              This retrospectively selected row is more selective: 7 false positives and
+              20 false negatives on test spans.
             </p>
             <ul class="error-list">
               <li><span>Top false-negative fact type</span><strong>currency_amount: 9</strong></li>
@@ -267,8 +268,8 @@
           <article class="panel">
             <h3>Energy best-F1: mean_spilled_probability_mass_after_top2</h3>
             <p>
-              This row catches more positives: 20 false positives and
-              10 false negatives on held-out test spans.
+              This retrospectively selected row catches more positives: 20 false positives and
+              10 false negatives on test spans.
             </p>
             <ul class="error-list">
               <li><span>Top false-positive fact type</span><strong>currency_amount: 8</strong></li>
@@ -319,8 +320,8 @@
             <span>Simple uncertainty has real signal.</span>
             <span>AUPRC 0.835; F1 0.779</span>
             <span>Not causal or semantic.</span>
-            <span>Lead result.</span>
-            <span>Draft</span>
+            <span>Exploratory result with selection caveat.</span>
+            <span>Exploratory</span>
           </div>
           <div class="row" role="row">
             <span>Pure Spilled Energy is not the winner.</span>
@@ -342,10 +343,11 @@
       <section class="next">
         <div>
           <p class="eyebrow">Next step</p>
-          <h2>Review the confirmation packet before locking claims.</h2>
+          <h2>Use the selected examples without overstating the annotation set.</h2>
           <p class="lede">
-            Before public claims, review the 15 selected confirmation items and fix any source annotation issues.
-            Then use this page as the detector-results section of the portfolio story.
+            Fifteen selected presentation spans received additional assistant review. The remaining 205-span
+            package is AI-assisted and provisional, with no independent human annotation or inter-annotator
+            agreement. Use this page as an exploratory detector-results section, not a benchmark claim.
           </p>
         </div>
         <a class="button" href="./full100_label_confirmation_packet.html">Open packet</a>

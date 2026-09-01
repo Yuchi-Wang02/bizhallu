@@ -174,7 +174,7 @@
         <aside class="snapshot" aria-label="Demo snapshot">
           <div><span class="label">Dataset</span><strong>UCI Online Retail</strong></div>
           <div><span class="label">Model</span><strong>Qwen3-0.6B</strong></div>
-          <div><span class="label">Label state</span><strong>Presentation labels locked by assistant_full_review</strong></div>
+          <div><span class="label">Presentation review</span><strong>7 selected spans with additional assistant review</strong></div>
           <div><span class="label">Primary cases</span><strong>q_0064, q_0069</strong></div>
         </aside>
       </section>
@@ -182,8 +182,8 @@
         <div class="metric-grid">
           <article class="metric-card"><span>Gold questions</span><strong>100</strong><p>Deterministic business questions from cleaned transaction data.</p></article>
           <article class="metric-card"><span>Locked demo spans</span><strong>7</strong><p>Primary spans selected from the label lock package.</p></article>
-          <article class="metric-card"><span>Best test AUPRC</span><strong>0.835</strong><p>one_minus_min_top2_margin ranks wrong spans best.</p></article>
-          <article class="metric-card"><span>Best test F1</span><strong>0.779</strong><p>mean_token_entropy gives the best dev-thresholded F1.</p></article>
+          <article class="metric-card"><span>Exploratory max test AUPRC</span><strong>0.835</strong><p>one_minus_min_top2_margin is the highest observed ranking result across candidate signals.</p></article>
+          <article class="metric-card"><span>Exploratory max test F1</span><strong>0.779</strong><p>mean_token_entropy is a different winning signal; thresholds were selected on dev.</p></article>
         </div>
       </section>
       <section>
@@ -547,7 +547,7 @@
         <div>
           <p class="eyebrow">Portfolio next step</p>
           <h2>Turn this static demo into a concise project story.</h2>
-          <p>The strongest narrative is: Qwen can sound analytic while binding evidence incorrectly; simple internal signals help, but business-context checking is still needed. Source label lock: assistant_full_review.</p>
+          <p>The strongest narrative is: Qwen can sound analytic while binding evidence incorrectly; simple internal signals help, but business-context checking is still needed. These seven selected spans received additional assistant review and are not an independent human benchmark.</p>
         </div>
         <a class="button" href="./detector_interpretation.html">Open detector interpretation</a>
       </section>

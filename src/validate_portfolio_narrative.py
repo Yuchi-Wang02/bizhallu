@@ -130,6 +130,9 @@ def main() -> None:
         "Qwen3-0.6B",
         "205",
         "100",
+        "AI-assisted provisional",
+        "exploratory max",
+        "15 selected spans",
     ]
     html_lower = html_text.lower()
     for fragment in required_fragments:
@@ -140,6 +143,8 @@ def main() -> None:
         "pending human review",
         "requires human confirmation",
         "presentation-level confirmation required",
+        "rigorous portfolio-scale benchmark",
+        "Annotated 205 held-out",
     ]
     for fragment in stale_fragments:
         if fragment in html_lower:

@@ -23,9 +23,11 @@ REQUIRED_HTML_FRAGMENTS = [
     "Resume bullets",
     "60-second version",
     "5-minute version",
-    "assistant-reviewed presentation labels",
-    "not a production detector",
-    "large independent human-labeled benchmark",
+    "AI-assisted provisional",
+    "15 selected presentation spans",
+    "exploratory maximum",
+    "not production estimates",
+    "no independent human annotation",
     "0.835",
     "0.779",
     "q_0064",
@@ -46,6 +48,7 @@ FORBIDDEN_FRAGMENTS = [
     "evaluates whole-answer correctness",
     "pending human review",
     "requires human confirmation",
+    "Reviewed 35 held-out dev/test questions, labeled 205",
 ]
 
 
@@ -103,6 +106,11 @@ def main() -> None:
         "best_test_auprc": 0.835073,
         "best_test_f1": 0.779412,
         "label_lock_basis": "assistant_full_review",
+        "provisional_annotation_count": 205,
+        "presentation_reviewed_span_count": 15,
+        "independent_human_annotation": False,
+        "automatic_claim_extraction": False,
+        "metric_selection_status": "exploratory_test_maxima",
         "resume_bullet_count": 5,
         "faq_count": 10,
     }
@@ -123,6 +131,8 @@ def main() -> None:
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ VALIDATION_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_validation.json"
 
 REQUIRED_HTML_FRAGMENTS = [
     "Interactive demo v2",
-    "Filter hallucinated business facts",
+    "See when a real number is bound to the wrong business claim",
     "Open JSON data bundle",
     "detectorFilter",
     "factTypeFilter",
@@ -26,7 +26,12 @@ REQUIRED_HTML_FRAGMENTS = [
     "outcomeFilter",
     "q_0064",
     "q_0069",
-    "assistant-reviewed presentation labels",
+    "not an independent human benchmark",
+    "do not discover claims automatically",
+    "Exploratory max test AUPRC",
+    "Incorrect binding",
+    "detectorHelp",
+    "URLSearchParams",
 ]
 
 FORBIDDEN_FRAGMENTS = [
@@ -34,6 +39,8 @@ FORBIDDEN_FRAGMENTS = [
     "requires human confirmation",
     "large human-labeled benchmark",
     "production-ready detector",
+    "Split-safe detector ranking result",
+    "Dev-thresholded held-out result",
 ]
 
 
@@ -107,6 +114,9 @@ def main() -> None:
         "locked_span_count": 15,
         "primary_case_count": 2,
         "label_lock_basis": "assistant_full_review",
+        "independent_human_annotation": False,
+        "automatic_claim_extraction": False,
+        "metric_selection_status": "exploratory_test_maxima",
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
@@ -127,6 +137,8 @@ def main() -> None:
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -598,7 +598,7 @@ def main() -> None:
         <aside class="snapshot" aria-label="Demo snapshot">
           <div><span class="label">Dataset</span><strong>UCI Online Retail</strong></div>
           <div><span class="label">Model</span><strong>Qwen3-0.6B</strong></div>
-          <div><span class="label">Label state</span><strong>Presentation labels locked by assistant_full_review</strong></div>
+          <div><span class="label">Presentation review</span><strong>7 selected spans with additional assistant review</strong></div>
           <div><span class="label">Primary cases</span><strong>{', '.join(PRIMARY_QUESTION_IDS)}</strong></div>
         </aside>
       </section>
@@ -606,8 +606,8 @@ def main() -> None:
         <div class="metric-grid">
           <article class="metric-card"><span>Gold questions</span><strong>100</strong><p>Deterministic business questions from cleaned transaction data.</p></article>
           <article class="metric-card"><span>Locked demo spans</span><strong>{summary['locked_primary_span_count']}</strong><p>Primary spans selected from the label lock package.</p></article>
-          <article class="metric-card"><span>Best test AUPRC</span><strong>{summary['best_test_auprc']:.3f}</strong><p>{esc(summary['best_test_auprc_baseline'])} ranks wrong spans best.</p></article>
-          <article class="metric-card"><span>Best test F1</span><strong>{summary['best_test_f1']:.3f}</strong><p>{esc(summary['best_test_f1_baseline'])} gives the best dev-thresholded F1.</p></article>
+          <article class="metric-card"><span>Exploratory max test AUPRC</span><strong>{summary['best_test_auprc']:.3f}</strong><p>{esc(summary['best_test_auprc_baseline'])} is the highest observed ranking result across candidate signals.</p></article>
+          <article class="metric-card"><span>Exploratory max test F1</span><strong>{summary['best_test_f1']:.3f}</strong><p>{esc(summary['best_test_f1_baseline'])} is a different winning signal; thresholds were selected on dev.</p></article>
         </div>
       </section>
       <section>
@@ -622,7 +622,7 @@ def main() -> None:
         <div>
           <p class="eyebrow">Portfolio next step</p>
           <h2>Turn this static demo into a concise project story.</h2>
-          <p>The strongest narrative is: Qwen can sound analytic while binding evidence incorrectly; simple internal signals help, but business-context checking is still needed. Source label lock: assistant_full_review.</p>
+          <p>The strongest narrative is: Qwen can sound analytic while binding evidence incorrectly; simple internal signals help, but business-context checking is still needed. These seven selected spans received additional assistant review and are not an independent human benchmark.</p>
         </div>
         <a class="button" href="./full100_detector_interpretation.html">Open detector interpretation</a>
       </section>

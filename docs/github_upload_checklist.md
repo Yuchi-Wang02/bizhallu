@@ -28,6 +28,8 @@ Avoid claiming:
 - whole-answer correctness
 - production-ready hallucination detection
 - that Spilled Energy beat all simple baselines in this run
+- a representative or confirmatory estimate from the current 35-question
+  outcome-informed subset
 
 ## 2. Files To Include
 
@@ -78,6 +80,8 @@ The current `.gitignore` is set up to exclude the main large local artifacts.
 Run:
 
 ```powershell
+python src\build_methodology_hardening_report.py
+python src\validate_methodology_hardening.py
 python src\build_github_pages_bundle.py
 python src\validate_github_pages_bundle.py
 python src\build_full100_preflight_report.py
@@ -86,8 +90,9 @@ python src\build_full100_preflight_report.py
 Expected results:
 
 - `docs/github_pages_validation.json`: `ready_for_github_pages=true`
+- `reports/bizhallu_methodology_hardening_validation.json`: `num_failures=0`
 - `results/full100_preflight_validation.json`: `current_stage=github_pages_ready`
-- both validation files have `num_failures=0`
+- all validation files have `num_failures=0`
 
 ## 5. GitHub Pages Settings
 
@@ -104,6 +109,8 @@ After pushing to GitHub:
    - `portfolio_demo.html` opens
    - `career_package.html` opens
    - `business_risk_lens.html` opens
+   - `methodology_hardening.html` opens
+   - `research_one_pager.html` opens
    - `portfolio_narrative.html` opens
    - links to detector interpretation and label lock report work
    - the interview deck downloads from `assets/bizhallu_ai_reliability_deck.pptx`
@@ -124,5 +131,5 @@ The root README should quickly answer:
 One-minute version:
 
 ```text
-I built BizHallu to test whether LLM-generated retail analysis is grounded in the actual transaction evidence. The project creates deterministic business questions from Online Retail data, runs Qwen3-0.6B locally, labels hallucinated and correct business fact spans, aligns those spans to token-level traces, and evaluates simple and energy-style detector baselines. The strongest public result is a span-level AI reliability workflow for business analytics, not just a sales dashboard.
+I built BizHallu to test whether LLM-generated retail analysis is grounded in the actual transaction evidence. The project creates deterministic business questions from Online Retail data, runs Qwen3-0.6B locally, builds AI-assisted provisional labels for pre-identified business-fact spans, aligns those spans to token-level traces, and evaluates simple and energy-style detector signals. The current metrics are exploratory results on a selected high-priority subset; the strongest public result is the auditable span-level AI reliability workflow and the method for hardening it into a future confirmation study.
 ```

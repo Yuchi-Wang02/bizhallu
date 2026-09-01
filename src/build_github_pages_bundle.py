@@ -29,6 +29,7 @@ CAREER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 RESEARCH_SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
 VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
+METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -69,6 +70,11 @@ PAGE_COPIES = [
         REPORTS_DIR / "bizhallu_evidence_verifier_pilot.html",
         DOCS_DIR / "evidence_verifier_pilot.html",
         "evidence_verifier_pilot",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_methodology_hardening.html",
+        DOCS_DIR / "methodology_hardening.html",
+        "methodology_hardening",
     ),
     (
         REPORTS_DIR / "full100_detector_interpretation.html",
@@ -129,6 +135,8 @@ LINK_REWRITES = {
     ),
     "./bizhallu_portfolio_demo.html": "./portfolio_demo.html",
     "./bizhallu_portfolio_demo_v2.html": "./portfolio_demo_v2.html",
+    "./bizhallu_methodology_hardening.html": "./methodology_hardening.html",
+    "./bizhallu_research_one_pager.html": "./research_one_pager.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
     "./full100_label_confirmation_packet.html": "./label_confirmation_packet.html",
@@ -170,6 +178,7 @@ def render_index(
     risk: dict[str, Any],
     research: dict[str, Any],
     verifier: dict[str, Any],
+    methodology: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -186,7 +195,8 @@ def render_index(
     risk_lens_count = risk.get("lens_count", "n/a")
     research_extension_count = research.get("extension_count", "n/a")
     verifier_span_count = verifier.get("span_count", "n/a")
-    verifier_contradicted_count = (verifier.get("verifier_label_counts") or {}).get("contradicted", "n/a")
+    verifier_contradicted_count = (verifier.get("review_status_counts") or {}).get("contradicted", "n/a")
+    methodology_share_status = methodology.get("share_status", "n/a")
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -259,7 +269,7 @@ def render_index(
         color: white;
         font-size: 12px;
       }}
-      nav {{ display: flex; gap: 8px; }}
+      nav {{ display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }}
       nav a {{
         min-height: 36px;
         padding: 8px 12px;
@@ -315,6 +325,7 @@ def render_index(
         color: var(--muted);
         font-size: 21px;
       }}
+      .identity {{ color: var(--ink) !important; font-size: 15px !important; font-weight: 750; }}
       .actions {{
         display: flex;
         flex-wrap: wrap;
@@ -434,7 +445,8 @@ def render_index(
       }}
       @media (max-width: 900px) {{
         .topbar {{ padding: 0 20px; }}
-        nav {{ display: none; }}
+        nav {{ gap: 4px; }}
+        nav a {{ padding: 7px; font-size: 12px; }}
         main {{ width: min(100% - 28px, 720px); }}
         .hero {{ grid-template-columns: 1fr; min-height: auto; padding-top: 46px; }}
         .metric-grid, .card-grid {{ grid-template-columns: 1fr; }}
@@ -446,33 +458,31 @@ def render_index(
       <a class="brand" href="#top"><span>BH</span>BizHallu</a>
       <nav aria-label="Page sections">
         <a href="#demo">Demo</a>
-        <a href="#results">Results</a>
-        <a href="#repo">Repo</a>
-        <a href="#claims">Claims</a>
+        <a href="./detector_interpretation.html">Methods</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero">
         <div>
-          <p class="eyebrow">GitHub Pages portfolio bundle</p>
-          <h1>Auditing hallucinated business facts in LLM retail analysis.</h1>
+          <p class="eyebrow">Business analytics + AI reliability</p>
+          <h1>When the number is real but the business claim is wrong.</h1>
           <p>{positioning}</p>
+          <p class="identity">Built by Yuchi Wang · Accounting and supply management background · Johns Hopkins Carey MS Business Analytics and Artificial Intelligence</p>
           <div class="actions">
-            <a class="button primary" href="./portfolio_demo_v2.html">Open demo v2</a>
-            <a class="button secondary" href="./portfolio_demo.html">Open original demo</a>
-            <a class="button secondary" href="./portfolio_narrative.html">Read portfolio narrative</a>
-            <a class="button secondary" href="./career_package.html">Open career package</a>
-            <a class="button secondary" href="./research_one_pager.html">Open research one-pager</a>
-            <a class="button secondary" href="./evidence_verifier_pilot.html">Open verifier pilot</a>
-            <a class="button secondary" href="./assets/bizhallu_ai_reliability_deck.pptx">Download interview deck</a>
+            <a class="button primary" href="./portfolio_demo_v2.html?case=q_0064">Explore the failure case</a>
+            <a class="button secondary" href="./detector_interpretation.html">View methods and results</a>
+            <a class="button secondary" href="./methodology_hardening.html">Audit the evidence</a>
+            <a class="button secondary" href="./research_one_pager.html">Research direction</a>
           </div>
         </div>
         <aside class="snapshot" aria-label="Project snapshot">
-          <div class="snapshot-row"><span class="label">Current stage</span><strong>{current_stage}</strong></div>
           <div class="snapshot-row"><span class="label">Model</span><strong>{model_id}</strong></div>
+          <div class="snapshot-row"><span class="label">Experiment</span><strong>{question_count} questions / {span_count} provisional spans</strong></div>
+          <div class="snapshot-row"><span class="label">Presentation review</span><strong>15 selected spans</strong></div>
           <div class="snapshot-row"><span class="label">Primary cases</span><strong>{primary_text}</strong></div>
-          <div class="snapshot-row"><span class="label">Label basis</span><strong>{lock_basis}</strong></div>
         </aside>
       </section>
 
@@ -486,29 +496,29 @@ def render_index(
         <div class="card-grid">
           <article class="card">
             <h3>Recruiter</h3>
-            <p>Start with demo v2 for the core case and the career package for resume-ready language.</p>
-            <p><a href="./portfolio_demo_v2.html">Demo v2</a> / <a href="./career_package.html">Career package</a></p>
+            <p>Start with Demo v2 to see the evidence, generated answer, selected fact labels, and detector outcomes.</p>
+            <p><a href="./portfolio_demo_v2.html?case=q_0064">Open q_0064</a></p>
           </article>
           <article class="card">
             <h3>Professor</h3>
-            <p>Start with the research one-pager, then use the verifier pilot to see the next evidence-aware comparison direction.</p>
-            <p><a href="./research_one_pager.html">Research one-pager</a> / <a href="./evidence_verifier_pilot.html">Verifier pilot</a></p>
+            <p>Start with the research one-pager, then inspect the source-backed methodology audit before discussing the next comparison.</p>
+            <p><a href="./research_one_pager.html">Research one-pager</a> / <a href="./methodology_hardening.html">Methodology audit</a></p>
           </article>
           <article class="card">
             <h3>Technical interviewer</h3>
-            <p>Start with detector interpretation to inspect split-safe metrics and baseline tradeoffs.</p>
+            <p>Start with detector interpretation to inspect dev-thresholding, exploratory test selection, and baseline tradeoffs.</p>
             <p><a href="./detector_interpretation.html">Detector interpretation</a></p>
           </article>
           <article class="card">
             <h3>Business interviewer</h3>
-            <p>Start with the business risk lens to connect hallucinated spans to accounting and operations risk.</p>
+            <p>Start with the business risk lens to connect incorrect bindings to reconciliation, returns, and revenue-exposure risk.</p>
             <p><a href="./business_risk_lens.html">Business risk lens</a></p>
           </article>
         </div>
         <div class="card-grid">
           <article class="card">
             <h3>Interactive demo v2</h3>
-            <p>Filter {demo_v2_cases} locked cases by fact type, label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
+            <p>Filter {demo_v2_cases} selected cases by fact type, presentation label, and detector outcome. This is the fastest way to inspect evidence-grounding failures.</p>
             <p><a href="./portfolio_demo_v2.html">Open demo v2</a></p>
           </article>
           <article class="card">
@@ -528,7 +538,7 @@ def render_index(
           </article>
           <article class="card">
             <h3>Business risk lens</h3>
-            <p>Connect the same experiment to {risk_lens_count} accounting and supply-management views: reconciliation, returns, concentration, and exposure.</p>
+            <p>Connect the same experiment to {risk_lens_count} evidence-supported business views: reconciliation, returns, concentration, and exposure.</p>
             <p><a href="./business_risk_lens.html">Open business lens</a></p>
           </article>
           <article class="card">
@@ -537,14 +547,19 @@ def render_index(
             <p><a href="./research_one_pager.html">Open one-pager</a></p>
           </article>
           <article class="card">
-            <h3>Evidence-aware verifier pilot</h3>
-            <p>Review {verifier_span_count} locked Demo v2 spans as claim-evidence rows, including {verifier_contradicted_count} contradicted business-fact bindings.</p>
-            <p><a href="./evidence_verifier_pilot.html">Open verifier pilot</a></p>
+            <h3>Claim-evidence review schema</h3>
+            <p>Review {verifier_span_count} selected Demo v2 spans as claim-evidence rows, including {verifier_contradicted_count} label-derived contradicted statuses. This is not an independent verifier.</p>
+            <p><a href="./evidence_verifier_pilot.html">Open review schema</a></p>
           </article>
           <article class="card">
             <h3>Detector interpretation</h3>
             <p>Read how AUPRC, F1, simple uncertainty signals, and energy-family baselines should be interpreted.</p>
             <p><a href="./detector_interpretation.html">Open interpretation</a></p>
+          </article>
+          <article class="card">
+            <h3>Methodology Hardening v1</h3>
+            <p>Audit the 35-of-36 selected evaluation scope, cross-split evidence overlap, and the fresh confirmation protocol. Current share status: {methodology_share_status}.</p>
+            <p><a href="./methodology_hardening.html">Open methodology audit</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -555,13 +570,13 @@ def render_index(
       </section>
 
       <section id="results" class="section">
-        <p class="eyebrow">Validated experiment summary</p>
-        <h2>Small enough to audit, complete enough to show real evaluation discipline.</h2>
+        <p class="eyebrow">Exploratory experiment summary</p>
+        <h2>Useful evidence, with model-selection and annotation limits kept visible.</h2>
         <div class="metric-grid">
           <article class="metric"><span class="label">Gold questions</span><strong>{question_count}</strong><p>Deterministic business questions generated from Online Retail evidence.</p></article>
-          <article class="metric"><span class="label">Annotated spans</span><strong>{span_count}</strong><p>Held-out high-priority business fact spans aligned to token traces.</p></article>
-          <article class="metric"><span class="label">Best test AUPRC</span><strong>{best_auprc}</strong><p>Best split-safe ranking metric from the simple detector family.</p></article>
-          <article class="metric"><span class="label">Best test F1</span><strong>{best_f1}</strong><p>Best split-safe threshold metric; energy-family best F1 is {energy_f1}.</p></article>
+          <article class="metric"><span class="label">AI-assisted provisional spans</span><strong>{span_count}</strong><p>Pre-identified business facts aligned to token traces.</p></article>
+          <article class="metric"><span class="label">Exploratory max test AUPRC</span><strong>{best_auprc}</strong><p>Highest observed test ranking value across candidate signals.</p></article>
+          <article class="metric"><span class="label">Exploratory max test F1</span><strong>{best_f1}</strong><p>A different winning signal; energy-family maximum is {energy_f1}.</p></article>
         </div>
         <div class="callout">
           <strong>Central finding</strong>
@@ -573,7 +588,7 @@ def render_index(
         </div>
       </section>
 
-      <section id="repo" class="section">
+      <section id="about" class="section">
         <p class="eyebrow">Repository map</p>
         <h2>What belongs in GitHub and what stays local.</h2>
         <div class="card-grid">
@@ -597,7 +612,11 @@ def render_index(
         <h2>The strongest public version is honest about scope.</h2>
         <ul>
           <li>Say the project evaluates span-level business facts, not full report truthfulness.</li>
-          <li>Say labels are locked for presentation with <code>{lock_basis}</code>; do not claim a large human-labeled benchmark.</li>
+          <li>Say 205 labels are AI-assisted and provisional; only 15 selected spans received additional assistant review.</li>
+          <li>Say scores apply to pre-identified spans; automatic claim extraction is outside the current scope.</li>
+          <li>Say 0.835 AUPRC and 0.779 F1 are exploratory test maxima from different signals selected after test comparison.</li>
+          <li>Say the 205 spans come from 35 of 36 dev/test answers selected by an outcome-informed high-priority queue.</li>
+          <li>Say the question-level split shares months and exact evidence payloads across splits; it is not an unseen-context test.</li>
           <li>Say the data source is UCI Online Retail and the model run is local <code>{model_id}</code>.</li>
           <li>Use q_0064 and q_0069 as the main case studies because they show realistic business-risk errors.</li>
           <li>Frame the project as business analytics and AI reliability, not as a generic sales dashboard.</li>
@@ -665,10 +684,11 @@ def main() -> None:
     risk = load_json(RISK_SUMMARY_PATH)
     research = load_json(RESEARCH_SUMMARY_PATH)
     verifier = load_json(VERIFIER_SUMMARY_PATH)
+    methodology = load_json(METHODOLOGY_SUMMARY_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
-    index_html = render_index(demo, demo_v2, career, risk, research, verifier, narrative, preflight)
+    index_html = render_index(demo, demo_v2, career, risk, research, verifier, methodology, narrative, preflight)
     index_path = DOCS_DIR / "index.html"
     index_path.write_text(index_html, encoding="utf-8")
 
@@ -685,6 +705,7 @@ def main() -> None:
         "source_risk_summary_path": repo_path(RISK_SUMMARY_PATH),
         "source_research_summary_path": repo_path(RESEARCH_SUMMARY_PATH),
         "source_verifier_summary_path": repo_path(VERIFIER_SUMMARY_PATH),
+        "source_methodology_summary_path": repo_path(METHODOLOGY_SUMMARY_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -703,7 +724,16 @@ def main() -> None:
         "business_risk_lens_count": risk.get("lens_count"),
         "research_extension_count": research.get("extension_count"),
         "verifier_pilot_span_count": verifier.get("span_count"),
-        "verifier_pilot_contradicted_count": (verifier.get("verifier_label_counts") or {}).get("contradicted"),
+        "verifier_pilot_contradicted_count": (verifier.get("review_status_counts") or {}).get("contradicted"),
+        "methodology_status": methodology.get("status"),
+        "methodology_share_status": methodology.get("share_status"),
+        "methodology_heldout_question_count": methodology.get("audit", {}).get("heldout_question_count"),
+        "methodology_annotated_heldout_question_count": methodology.get("audit", {}).get("annotated_heldout_question_count"),
+        "methodology_cross_split_evidence_group_count": methodology.get("audit", {}).get("exact_evidence_row_cross_split_group_count"),
+        "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
+        "metric_selection_status": "exploratory_test_maxima",
+        "automatic_claim_extraction": False,
+        "independent_human_annotation": False,
         "pages": page_records,
         "assets": asset_records,
         "num_failures": 0,

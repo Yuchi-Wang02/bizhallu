@@ -93,6 +93,8 @@ Expected:
 After pushing:
 
 ```powershell
+python src\build_methodology_hardening_report.py
+python src\validate_methodology_hardening.py
 python src\build_github_pages_bundle.py
 python src\validate_github_pages_bundle.py
 python src\build_full100_preflight_report.py
@@ -105,6 +107,8 @@ Then check:
 - <https://yuchi-wang02.github.io/bizhallu/portfolio_demo.html>
 - <https://yuchi-wang02.github.io/bizhallu/career_package.html>
 - <https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html>
+- <https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html>
+- <https://yuchi-wang02.github.io/bizhallu/research_one_pager.html>
 - <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx>
 
 ## Public Claim Guardrails
@@ -113,8 +117,11 @@ Say:
 
 - span-level business fact evaluation
 - UCI Online Retail + local Qwen3-0.6B
-- assistant-reviewed presentation labels
+- 205 AI-assisted provisional labels and 15 additionally assistant-reviewed
+  presentation spans
 - internal uncertainty is useful but incomplete
+- the current metrics are exploratory and conditional on a 35-question
+  outcome-informed high-priority subset
 
 Do not claim:
 
@@ -122,3 +129,4 @@ Do not claim:
 - whole-answer correctness
 - production-ready hallucination detection
 - that energy-family methods beat all simple baselines in this run
+- context-independent or confirmatory generalization from the current split

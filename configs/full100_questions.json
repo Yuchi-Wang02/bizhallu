@@ -135,7 +135,7 @@
     "hard": 38
   },
   "generation_command": {
-    "python": "C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe",
+    "python": "python",
     "script": "src\\run_qwen_batch.py",
     "arguments": [
       "--question-config",
@@ -148,8 +148,8 @@
       "42"
     ],
     "required_environment": {
-      "HF_HOME": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache",
-      "HUGGINGFACE_HUB_CACHE": "C:\\Users\\yuchi\\Downloads\\p1\\hf_cache\\hub"
+      "HF_HOME": "<set_to_local_hf_cache>",
+      "HUGGINGFACE_HUB_CACHE": "<set_to_local_hf_cache>/hub"
     }
   },
   "planned_outputs": {

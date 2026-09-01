@@ -11,6 +11,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = PROJECT_ROOT / "docs"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 RESULTS_DIR = PROJECT_ROOT / "results"
+CONFIGS_DIR = PROJECT_ROOT / "configs"
+PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 VALIDATION_PATH = REPORTS_DIR / "public_path_hygiene_validation.json"
 
 
@@ -22,6 +24,8 @@ def public_json_files() -> list[Path]:
     files.extend(sorted(REPORTS_DIR.glob("*_data.json")))
     files.extend(sorted(REPORTS_DIR.glob("*_rows.json")))
     files.extend(sorted(RESULTS_DIR.glob("*.json")))
+    files.extend(sorted(CONFIGS_DIR.rglob("*.json")))
+    files.extend(sorted(PROCESSED_DATA_DIR.rglob("*.json")))
     return sorted({path for path in files if path.exists() and path != VALIDATION_PATH})
 
 

@@ -150,8 +150,8 @@
         <aside class="snapshot">
           <div><span class="label">Gold questions</span><strong>100</strong></div>
           <div><span class="label">Question types</span><strong>7</strong></div>
-          <div><span class="label">Aligned spans</span><strong>205</strong></div>
-          <div><span class="label">Best test AUPRC / F1</span><strong>0.835 / 0.779</strong></div>
+          <div><span class="label">Provisional aligned spans</span><strong>205</strong></div>
+          <div><span class="label">Exploratory test maxima</span><strong>0.835 AUPRC / 0.779 F1</strong></div>
           <div><span class="label">Primary demo cases</span><strong>q_0064 / q_0069</strong></div>
         </aside>
       </section>
@@ -160,7 +160,7 @@
         <p class="eyebrow">One-page project brief</p>
         <h2>What a recruiter or interviewer should understand first.</h2>
         <div class="grid">
-          <article class="panel"><ul><li>Problem: business users increasingly ask LLMs to summarize revenue, rankings, returns, and product performance, but fluent answers can still bind transaction evidence incorrectly.</li><li>Approach: BizHallu turns UCI Online Retail records into deterministic business questions, runs local Qwen3-0.6B generations, labels exact business-fact spans, aligns spans to token traces, and evaluates split-safe detector baselines.</li><li>Result: on 103 held-out test spans, the best ranking signal reached 0.835 AUPRC and the best dev-thresholded F1 reached 0.779.</li><li>Business value: the project demonstrates an auditable workflow for checking whether generated analytics claims are grounded in evidence before a stakeholder relies on them.</li><li>Limitation: this is a portfolio-scale span-level evaluation with assistant-reviewed presentation labels, not a production detector or a large independent human-labeled benchmark.</li></ul></article>
+          <article class="panel"><ul><li>Problem: business users increasingly ask LLMs to summarize revenue, rankings, returns, and product performance, but fluent answers can still bind transaction evidence incorrectly.</li><li>Approach: BizHallu turns UCI Online Retail records into deterministic business questions, runs local Qwen3-0.6B generations, builds AI-assisted provisional business-fact span labels, aligns pre-identified spans to token traces, and evaluates internal-state detector signals.</li><li>Result: across 103 test spans, the exploratory maximum AUPRC was 0.835 and the exploratory maximum F1 was 0.779; the maxima come from different signals selected after test comparison.</li><li>Business value: the project demonstrates an auditable workflow for checking whether generated analytics claims are grounded in evidence before a stakeholder relies on them.</li><li>Limitation: the 205 labels are AI-assisted and provisional, only 15 selected presentation spans received additional assistant review, claim extraction is not automated, and the detector results are not production estimates.</li></ul></article>
           <article class="panel">
             <h3>Public artifacts</h3>
             <p>These links are safe to share in a resume, GitHub profile, LinkedIn post, or interview follow-up.</p>
@@ -175,11 +175,11 @@
         <div class="grid">
           <article class="panel">
             <h3>60-second version</h3>
-            <ol><li>BizHallu is my business analytics AI reliability project.</li><li>I used UCI Online Retail transactions to create deterministic questions with known gold answers, then asked Qwen3-0.6B to write concise business analysis.</li><li>Instead of judging whole answers, I labeled exact spans such as product names, ranks, countries, months, amounts, and percentages.</li><li>The strongest result is that internal uncertainty has useful signal, but it still misses confident evidence-binding errors, especially top-3 product rank and amount mistakes.</li><li>That makes the project relevant to BA, DS, and AI analyst roles because it connects data cleaning, experiment design, metrics, and business-risk interpretation.</li></ol>
+            <ol><li>BizHallu is my business analytics AI reliability project.</li><li>I used UCI Online Retail transactions to create deterministic questions with known gold answers, then asked Qwen3-0.6B to write concise business analysis.</li><li>Instead of judging whole answers, I built an AI-assisted provisional label set for exact spans such as product names, ranks, countries, months, amounts, and percentages.</li><li>The strongest result is that internal uncertainty has useful signal, but it still misses confident evidence-binding errors, especially top-3 product rank and amount mistakes.</li><li>That makes the project relevant to BA, DS, and AI analyst roles because it connects data cleaning, experiment design, metrics, and business-risk interpretation.</li></ol>
           </article>
           <article class="panel">
             <h3>5-minute version</h3>
-            <ol><li>Start with the business problem: a stakeholder may ask an LLM which product, country, or month performed best, and a fluent answer can still be wrong.</li><li>Explain the data pipeline: Online Retail records are cleaned into deterministic evidence tables and gold answers, so each question can be audited.</li><li>Explain the model run: Qwen3-0.6B is small enough to run locally, which makes the project reproducible and transparent.</li><li>Explain the label unit: the evaluation unit is a business fact span, not a whole answer, because one answer can mix correct and hallucinated claims.</li><li>Explain the metrics: thresholds are selected on dev spans and reused on test spans, so the reported AUPRC/F1 avoid train-test leakage.</li><li>Show q_0064 or q_0069: the model uses plausible values but binds them to the wrong rank or product, which is exactly the business-risk failure mode.</li><li>Close with the next step: add evidence-aware claim verification to complement internal uncertainty signals.</li></ol>
+            <ol><li>Start with the business problem: a stakeholder may ask an LLM which product, country, or month performed best, and a fluent answer can still be wrong.</li><li>Explain the data pipeline: Online Retail records are cleaned into deterministic evidence tables and gold answers, so each question can be audited.</li><li>Explain the model run: Qwen3-0.6B is small enough to run locally, which makes the project reproducible and transparent.</li><li>Explain the label unit: the evaluation unit is a pre-identified business fact span, not a whole answer; automatic claim extraction is not part of the current pipeline.</li><li>Explain the metrics honestly: thresholds are selected on dev spans, but the headline AUPRC/F1 signals were chosen after test comparison, so the values are exploratory maxima rather than confirmatory held-out estimates.</li><li>Show q_0064 or q_0069: the model uses plausible values but binds them to the wrong rank or product, which is exactly the business-risk failure mode.</li><li>Close with the next step: add evidence-aware claim verification to complement internal uncertainty signals.</li></ol>
           </article>
         </div>
       </section>
@@ -190,11 +190,11 @@
         <div class="grid">
           <article class="panel">
             <h3>Resume bullets</h3>
-            <ul><li>Built BizHallu, an AI reliability project for business analytics that evaluates whether LLM-generated retail claims are grounded in transaction evidence.</li><li>Generated 100 deterministic Online Retail questions across 7 business-analysis types and ran local Qwen3-0.6B inference with saved token-level traces.</li><li>Reviewed 35 held-out dev/test questions, labeled 205 business-fact spans, and aligned every span to uncertainty and energy-style detector scores.</li><li>Implemented split-safe detector evaluation with dev-selected thresholds and held-out test reporting; best test AUPRC reached 0.835 and best test F1 reached 0.779.</li><li>Published a GitHub Pages portfolio demo, detector interpretation page, and interview deck that connect AI evaluation with accounting and supply-management risk.</li></ul>
+            <ul><li>Built BizHallu, an AI reliability project for business analytics that evaluates whether LLM-generated retail claims are grounded in transaction evidence.</li><li>Generated 100 deterministic Online Retail questions across 7 business-analysis types and ran local Qwen3-0.6B inference with saved token-level traces.</li><li>Built an AI-assisted provisional annotation workflow for 205 business-fact spans across 35 dev/test answers and aligned every pre-identified span to uncertainty and energy-style detector scores.</li><li>Selected detector thresholds on dev spans and compared candidate signals on 103 test spans; exploratory maxima reached 0.835 AUPRC and 0.779 F1 from different signals.</li><li>Published a GitHub Pages demo, methods page, and interview deck that connect AI evaluation with revenue reconciliation, returns, and product-concentration risk.</li></ul>
           </article>
           <article class="panel">
             <h3>LinkedIn / GitHub profile</h3>
-            <p>I built BizHallu to study hallucinations in business analytics as concrete evidence-grounding failures: wrong products, ranks, amounts, countries, and conclusions. The project uses Online Retail transactions, local Qwen3-0.6B generations, span-level labels, token alignment, and split-safe detector metrics to show why business AI systems need auditable validation, not just fluent answers.</p>
+            <p>I built BizHallu to study hallucinations in business analytics as concrete evidence-grounding failures: wrong products, ranks, amounts, countries, and conclusions. The project uses Online Retail transactions, local Qwen3-0.6B generations, AI-assisted provisional span labels, token alignment, and internal-state detector signals to show why business AI systems need auditable validation, not just fluent answers.</p>
             <p><strong>Short profile line:</strong> Business analytics + AI reliability. I build evidence-grounded evaluation workflows for LLM-generated analysis, with a focus on finance, supply management, and decision-support use cases.</p>
           </article>
         </div>
@@ -226,7 +226,7 @@
         </article>
         <article class="faq-item">
           <h3>What is the strongest technical decision?</h3>
-          <p>The split-safe evaluation policy: thresholds are selected on dev spans and reused on test spans, which keeps the result more defensible than tuning directly on test.</p>
+          <p>Thresholds are selected on dev spans and reused on test spans. However, the headline signal for each metric was chosen after comparing test results, so I present 0.835 and 0.779 as exploratory maxima and would use a fresh confirmation set for a confirmatory claim.</p>
         </article>
         <article class="faq-item">
           <h3>What is the strongest business insight?</h3>
@@ -234,15 +234,15 @@
         </article>
         <article class="faq-item">
           <h3>How does your accounting and supply-management background show up?</h3>
-          <p>The project focuses on net revenue, returns, product performance, country exposure, and rank-based decisions. These connect directly to reconciliation, inventory priority, and performance reporting.</p>
+          <p>The project focuses on net revenue, returns, product performance, country exposure, and rank-based reporting. These connect to accounting reconciliation and supply-management thinking about product concentration, while avoiding inventory, cost, or vendor claims that the dataset cannot support.</p>
         </article>
         <article class="faq-item">
           <h3>What would you build next?</h3>
-          <p>An evidence-aware verifier baseline that compares generated claims directly against structured evidence rows, then measures whether it catches confident wrong bindings missed by uncertainty-only signals.</p>
+          <p>First, define an independent claim-extraction and claim-evidence decision protocol. Then compare that evidence-aware verifier with entropy, top-2 margin, energy-style signals, and selected literature baselines on a fresh evaluation design.</p>
         </article>
         <article class="faq-item">
           <h3>How should the label scope be described?</h3>
-          <p>Use assistant-reviewed presentation labels and locked demo spans. Do not call it a large independent human-labeled benchmark.</p>
+          <p>Describe 205 AI-assisted provisional span labels and 15 selected presentation spans with additional assistant review. There is no independent human annotation or inter-annotator agreement.</p>
         </article></div>
       </section>
 
@@ -250,7 +250,7 @@
         <p class="eyebrow">Claim guardrails</p>
         <h2>Keep the public story strong by keeping it precise.</h2>
         <div class="panel">
-          <ul><li>Say span-level business fact evaluation, not whole-answer correctness.</li><li>Say assistant-reviewed presentation labels, not large human-labeled benchmark.</li><li>Say diagnostic detector baselines, not production-ready detection.</li><li>Say simple uncertainty is strongest in this run; do not imply energy baselines won overall.</li><li>Say the project is built for portfolio-scale auditability and interview discussion.</li></ul>
+          <ul><li>Say span-level business fact evaluation, not whole-answer correctness.</li><li>Say 205 AI-assisted provisional labels and 15 additionally assistant-reviewed presentation spans, not a human-labeled benchmark.</li><li>Say diagnostic detector baselines, not production-ready detection.</li><li>Say simple uncertainty is strongest in this run; do not imply energy baselines won overall.</li><li>Say the 0.835 AUPRC and 0.779 F1 values are exploratory test maxima from different signals.</li></ul>
         </div>
       </section>
     </main>

@@ -1,13 +1,14 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "0f29f151108c5075de34d56a929827a7ddf52614da31a30121c831d461a1cc91",
+  "index_sha256": "a97c09ce25289507e50ba10d6568a2e9603b38a458493e03e711790e42bd9e99",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
   "source_risk_summary_path": "reports/bizhallu_business_risk_lens_summary.json",
   "source_research_summary_path": "reports/bizhallu_research_one_pager_summary.json",
   "source_verifier_summary_path": "reports/bizhallu_evidence_verifier_pilot_summary.json",
+  "source_methodology_summary_path": "reports/bizhallu_methodology_hardening_summary.json",
   "source_narrative_summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "results/full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -30,70 +31,87 @@
   "research_extension_count": 4,
   "verifier_pilot_span_count": 15,
   "verifier_pilot_contradicted_count": 7,
+  "methodology_status": "methodology_hardening_v1_ready",
+  "methodology_share_status": "share_with_caveats",
+  "methodology_heldout_question_count": 36,
+  "methodology_annotated_heldout_question_count": 35,
+  "methodology_cross_split_evidence_group_count": 9,
+  "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
+  "metric_selection_status": "exploratory_test_maxima",
+  "automatic_claim_extraction": false,
+  "independent_human_annotation": false,
   "pages": [
     {
       "role": "interactive_demo",
       "source": "reports/bizhallu_portfolio_demo.html",
       "dest": "docs/portfolio_demo.html",
-      "source_sha256": "d58da03fd9c153d8af5c1b5204c0c67a0111370e2827fad74917e8ef50f190b7",
-      "dest_sha256": "252272112c2447846b1fb9b15a39808eea9b8dc5d6dfcc854f80735637323c09",
-      "dest_size_bytes": 25377
+      "source_sha256": "62a131ed5416ed25daf9935ff96ffb796b1f8c5fb85addfe74d5dcb1b3632d15",
+      "dest_sha256": "2a261ada475facabc4f16bc262e93115f6fd92c3b0d610ba91afa6ae58593c88",
+      "dest_size_bytes": 25541
     },
     {
       "role": "interactive_demo_v2",
       "source": "reports/bizhallu_portfolio_demo_v2.html",
       "dest": "docs/portfolio_demo_v2.html",
-      "source_sha256": "53ce97bb1e574530778b4068d47dace396d08a191feaa643777acd50f9021bc0",
-      "dest_sha256": "53ce97bb1e574530778b4068d47dace396d08a191feaa643777acd50f9021bc0",
-      "dest_size_bytes": 48212
+      "source_sha256": "9fe40535fe521ede036917ea7f94edcf9184e6200adeeabdd388e041440f88fa",
+      "dest_sha256": "9fe40535fe521ede036917ea7f94edcf9184e6200adeeabdd388e041440f88fa",
+      "dest_size_bytes": 50015
     },
     {
       "role": "portfolio_narrative",
       "source": "reports/bizhallu_portfolio_narrative.html",
       "dest": "docs/portfolio_narrative.html",
-      "source_sha256": "e0e0fbb33ea89157ff0d8413b6959716a83300d81d81ea251cb3ad2ec191dcf2",
-      "dest_sha256": "ba6c19f0eeb83041e15b6c0a9a783f52713bd7f7e3b29b86e55d78a374047ac4",
-      "dest_size_bytes": 26686
+      "source_sha256": "6e5927be79b4a7baea425ba0ad1cef9207114b55445afc738596d4f26c5dcda8",
+      "dest_sha256": "6a808f5186e7ed51ae2c2bc3d8f0d9a08bf65dc6cd8724b9399baa65040f6251",
+      "dest_size_bytes": 27261
     },
     {
       "role": "career_package",
       "source": "reports/bizhallu_career_package.html",
       "dest": "docs/career_package.html",
-      "source_sha256": "9c59c03ea7e312d71492f575f2482a5460657cf0fd2a2e9711650f8159f42435",
-      "dest_sha256": "9c59c03ea7e312d71492f575f2482a5460657cf0fd2a2e9711650f8159f42435",
-      "dest_size_bytes": 17228
+      "source_sha256": "07d8bf8c4b367ab2e9b8fa7c65089ac523986de384f4f8ba8d4d3f41441a6bf1",
+      "dest_sha256": "07d8bf8c4b367ab2e9b8fa7c65089ac523986de384f4f8ba8d4d3f41441a6bf1",
+      "dest_size_bytes": 17965
     },
     {
       "role": "business_risk_lens",
       "source": "reports/bizhallu_business_risk_lens.html",
       "dest": "docs/business_risk_lens.html",
-      "source_sha256": "d2916d40daf9a718f0fff547a50938d1735b879416da056f5ed64aa72200738b",
-      "dest_sha256": "d2916d40daf9a718f0fff547a50938d1735b879416da056f5ed64aa72200738b",
-      "dest_size_bytes": 17834
+      "source_sha256": "61f3605026726189a0754b0bbc604e79e9b0edcea139dba0bc4d96536ea65811",
+      "dest_sha256": "61f3605026726189a0754b0bbc604e79e9b0edcea139dba0bc4d96536ea65811",
+      "dest_size_bytes": 17913
     },
     {
       "role": "research_one_pager",
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "b0dd1493baa067e821f4d31747cebbfaf496dc9c6c21071fa11628ed6bc69f7a",
-      "dest_sha256": "b0dd1493baa067e821f4d31747cebbfaf496dc9c6c21071fa11628ed6bc69f7a",
-      "dest_size_bytes": 14133
+      "source_sha256": "d031e7df1ee87664858f0dd17a518aabb8f949f0b0de58b371e40be8239a0dbb",
+      "dest_sha256": "c2be336e08815228ba4883837b371a6331e5f796e25e52a424ecab11f82961d3",
+      "dest_size_bytes": 14906
     },
     {
       "role": "evidence_verifier_pilot",
       "source": "reports/bizhallu_evidence_verifier_pilot.html",
       "dest": "docs/evidence_verifier_pilot.html",
-      "source_sha256": "2acff5bec6bc30d091ca68e047d04609938537b8f15e5f144a7eac8969df4764",
-      "dest_sha256": "2acff5bec6bc30d091ca68e047d04609938537b8f15e5f144a7eac8969df4764",
-      "dest_size_bytes": 16230
+      "source_sha256": "18422b27722c2993bfafac4929555900d7737c667e0b7b507abee51180acf235",
+      "dest_sha256": "18422b27722c2993bfafac4929555900d7737c667e0b7b507abee51180acf235",
+      "dest_size_bytes": 16900
+    },
+    {
+      "role": "methodology_hardening",
+      "source": "reports/bizhallu_methodology_hardening.html",
+      "dest": "docs/methodology_hardening.html",
+      "source_sha256": "4b244a3c51f7ecf6c2c48097ae77f956ac30bb4c6025f58fd59e96ac48fe6763",
+      "dest_sha256": "8ce09155cc6971b0778f20f389f97a049fc0cc1ae66e737a88505927ea5351d4",
+      "dest_size_bytes": 13564
     },
     {
       "role": "detector_interpretation",
       "source": "reports/full100_detector_interpretation.html",
       "dest": "docs/detector_interpretation.html",
-      "source_sha256": "50c60113e53bad15b27b5f5bccf310e383538edcd7ebfa9fcdd324001a43322f",
-      "dest_sha256": "68dd01444978756df75b2ac91bf6c242cb1830a3c0277a59e524f509e969a4d4",
-      "dest_size_bytes": 14911
+      "source_sha256": "b170e78c6ae2a383c89d0fec51f07a936788cf01fe36e9598c891ce9493fcf33",
+      "dest_sha256": "f383b1969f46e82c225ece60032c6033395a48afab61bb2bcb60612e0a5ed963",
+      "dest_size_bytes": 15355
     },
     {
       "role": "label_lock_report",
@@ -125,41 +143,41 @@
       "role": "interactive_demo_v2_data_json",
       "source": "reports/bizhallu_demo_v2_data.json",
       "dest": "docs/assets/bizhallu_demo_v2_data.json",
-      "source_sha256": "e755653f2d9ebd61c717c2fbeb59b5c2cd8722c76b79cbd71032acb516785ff5",
-      "dest_sha256": "e755653f2d9ebd61c717c2fbeb59b5c2cd8722c76b79cbd71032acb516785ff5",
-      "dest_size_bytes": 39913
+      "source_sha256": "39e5ada4ceefe4c75372027ec8db6e81ee82bc9bc5223163f400282fc09d4127",
+      "dest_sha256": "39e5ada4ceefe4c75372027ec8db6e81ee82bc9bc5223163f400282fc09d4127",
+      "dest_size_bytes": 40535
     },
     {
       "role": "evidence_verifier_pilot_rows_csv",
       "source": "reports/bizhallu_evidence_verifier_pilot_rows.csv",
       "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.csv",
-      "source_sha256": "79908c10174689f3f7901e89d13570df5310fd5f04beee7ba9f18de10a3d956b",
-      "dest_sha256": "79908c10174689f3f7901e89d13570df5310fd5f04beee7ba9f18de10a3d956b",
-      "dest_size_bytes": 14390
+      "source_sha256": "6daa8a201a879625c5575f5bedf24b00ab040f26407156bcc89768e315d18860",
+      "dest_sha256": "6daa8a201a879625c5575f5bedf24b00ab040f26407156bcc89768e315d18860",
+      "dest_size_bytes": 15537
     },
     {
       "role": "evidence_verifier_pilot_rows_json",
       "source": "reports/bizhallu_evidence_verifier_pilot_rows.json",
       "dest": "docs/assets/bizhallu_evidence_verifier_pilot_rows.json",
-      "source_sha256": "cb4d0e3e978fef7645f896eab9fb217e1a5ed569922981705258381d5c20f5fa",
-      "dest_sha256": "cb4d0e3e978fef7645f896eab9fb217e1a5ed569922981705258381d5c20f5fa",
-      "dest_size_bytes": 24200
+      "source_sha256": "521336a239f636bcda161cf4b80e7d1f4e19a59eca99e4a1e7e47825ff836c39",
+      "dest_sha256": "521336a239f636bcda161cf4b80e7d1f4e19a59eca99e4a1e7e47825ff836c39",
+      "dest_size_bytes": 26361
     },
     {
       "role": "presentation_deck_pptx",
       "source": "reports/bizhallu_ai_reliability_deck.pptx",
       "dest": "docs/assets/bizhallu_ai_reliability_deck.pptx",
-      "source_sha256": "0674e32dea1a168094c813a2811e087f29a53e1cfba4db13b6df5ab4573c8266",
-      "dest_sha256": "0674e32dea1a168094c813a2811e087f29a53e1cfba4db13b6df5ab4573c8266",
-      "dest_size_bytes": 55904
+      "source_sha256": "27ea33073d2a899ea3fd6232a90877aceb1057d041dbcd147e99497120b8ec3c",
+      "dest_sha256": "27ea33073d2a899ea3fd6232a90877aceb1057d041dbcd147e99497120b8ec3c",
+      "dest_size_bytes": 57409
     },
     {
       "role": "presentation_deck_contact_sheet_png",
       "source": "reports/bizhallu_ai_reliability_deck_contact_sheet.png",
       "dest": "docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png",
-      "source_sha256": "94d1d7cce5f76e2fa0c166d05cc9a11cae494a04689dd5c3ca7a1921f6c3eecd",
-      "dest_sha256": "94d1d7cce5f76e2fa0c166d05cc9a11cae494a04689dd5c3ca7a1921f6c3eecd",
-      "dest_size_bytes": 532912
+      "source_sha256": "87409f078a1a44f15d9acc00c24f7bc4e55963d8073809d0ecbd1e11b0ee19fe",
+      "dest_sha256": "87409f078a1a44f15d9acc00c24f7bc4e55963d8073809d0ecbd1e11b0ee19fe",
+      "dest_size_bytes": 279421
     }
   ],
   "num_failures": 0,

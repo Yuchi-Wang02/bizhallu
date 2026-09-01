@@ -187,7 +187,7 @@
         <aside class="snapshot">
           <div class="panel"><span>Positioning</span><strong>I build business analytics systems that do not just generate answers, but audit whether the answer is grounded in the underlying transaction evidence.</strong></div>
           <div class="panel"><span>Current stage</span><strong>portfolio_narrative_ready</strong></div>
-          <div class="panel"><span>Label lock basis</span><strong>assistant_full_review</strong></div>
+          <div class="panel"><span>Presentation review</span><strong>15 selected spans / assistant_full_review</strong></div>
           <div class="panel"><span>Primary demo cases</span><strong>q_0064, q_0069</strong></div>
         </aside>
       </section>
@@ -237,21 +237,21 @@
         </article>
 
         <article class="metric-card">
-          <span>Annotated spans</span>
+          <span>Provisional aligned spans</span>
           <strong>205</strong>
-          <p>Held-out business fact spans aligned to token traces.</p>
+          <p>AI-assisted, pre-identified business-fact spans aligned to token traces.</p>
         </article>
 
         <article class="metric-card">
-          <span>Best test AUPRC</span>
+          <span>Exploratory max test AUPRC</span>
           <strong>0.835</strong>
-          <p>one_minus_min_top2_margin on held-out test spans.</p>
+          <p>one_minus_min_top2_margin after candidate comparison.</p>
         </article>
 
         <article class="metric-card">
-          <span>Best test F1</span>
+          <span>Exploratory max test F1</span>
           <strong>0.779</strong>
-          <p>mean_token_entropy with dev-selected threshold.</p>
+          <p>mean_token_entropy is a different signal with a dev-selected threshold.</p>
         </article>
 
         <article class="metric-card">
@@ -269,11 +269,11 @@
         <div class="two-col" style="margin-top:16px;">
           <article class="panel">
             <h3>Experimental design</h3>
-            <ul><li>Generated 100 deterministic questions across 7 business question types.</li><li>Ran Qwen/Qwen3-0.6B locally on cuda:0 with seed 42.</li><li>Annotated 205 held-out spans across 35 dev/test questions.</li><li>Aligned 205 spans to token traces with simple uncertainty and energy-ready score fields.</li><li>Selected thresholds on dev spans and reported metrics on held-out test spans.</li></ul>
+            <ul><li>Generated 100 deterministic questions across 7 business question types.</li><li>Ran Qwen/Qwen3-0.6B locally on cuda:0 with seed 42.</li><li>Built AI-assisted provisional labels for 205 spans across 35 dev/test answers.</li><li>Aligned 205 spans to token traces with simple uncertainty and energy-ready score fields.</li><li>Selected thresholds on dev spans, then compared candidate-signal metrics on test spans as an exploratory analysis.</li></ul>
           </article>
           <article class="panel">
             <h3>Why span-level labels matter</h3>
-            <ul><li>Whole-answer labels are too coarse because one answer can mix correct and wrong facts.</li><li>Business users often rely on a single rank, amount, or comparison direction.</li><li>The label schema separates correct_key_fact, hallucinated_key_fact, and unsupported_claim.</li><li>The portfolio demo uses locked spans so the public examples are traceable to source rows.</li></ul>
+            <ul><li>Whole-answer labels are too coarse because one answer can mix correct and wrong facts.</li><li>Business users often rely on a single rank, amount, or comparison direction.</li><li>The label schema separates correct_key_fact, hallucinated_key_fact, and unsupported_claim.</li><li>Fifteen selected presentation spans received additional assistant review and remain traceable to source rows.</li></ul>
           </article>
         </div>
       </section>
@@ -283,9 +283,10 @@
           <p class="eyebrow">Results</p>
           <h2>Internal signals help, but confident evidence-binding errors remain.</h2>
           <p>
-            The detector result is credible because it is split-safe: thresholds are chosen on dev spans,
-            then reused unchanged on held-out test spans. The strongest current signal comes from simple
-            token uncertainty, not from a clean pure Spilled Energy win.
+            Detector thresholds are chosen on dev spans and reused unchanged on test spans. However,
+            the headline AUPRC and F1 signals were selected after comparing test results, so these values
+            are exploratory maxima rather than a confirmatory held-out model-selection estimate. The
+            strongest observed signal comes from simple token uncertainty, not a clean pure Spilled Energy win.
           </p>
         </div>
         <div class="three-col">
@@ -308,11 +309,11 @@
         <div class="two-col" style="margin-top:16px;">
           <article class="panel">
             <h3>Observed failure patterns</h3>
-            <ul><li>Simple best-AUPRC baseline produced 20 false negatives and 7 false positives on held-out test error review rows.</li><li>Energy best-F1 baseline produced 10 false negatives and 20 false positives.</li><li>Currency amounts and top-3 product rows are the most important miss patterns.</li><li>Correct numeric and context spans can be over-flagged, so detector claims must remain qualified.</li></ul>
+            <ul><li>The exploratory best-AUPRC signal produced 20 false negatives and 7 false positives on test error-review rows.</li><li>Energy best-F1 baseline produced 10 false negatives and 20 false positives.</li><li>Currency amounts and top-3 product rows are the most important miss patterns.</li><li>Correct numeric and context spans can be over-flagged, so detector claims must remain qualified.</li></ul>
           </article>
           <article class="panel">
             <h3>Interpretation</h3>
-            <ul><li>Simple uncertainty is the strongest current held-out signal: it leads both overall AUPRC and overall F1.</li><li>The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.</li><li>AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.</li><li>Top-3 product questions remain the clearest confident-error failure mode.</li><li>Correct numeric and context facts are still over-flagged, so detector claims must stay qualified.</li></ul>
+            <ul><li>Simple uncertainty has the strongest observed test maxima in this exploratory comparison: it leads both AUPRC and F1, using different signals.</li><li>The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.</li><li>AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.</li><li>Top-3 product questions remain the clearest confident-error failure mode.</li><li>Correct numeric and context facts are still over-flagged, so detector claims must stay qualified.</li></ul>
           </article>
         </div>
       </section>
@@ -428,7 +429,7 @@
         <div class="two-col">
           <article class="script-box">
             <strong>One-minute pitch</strong>
-            <ol><li>BizHallu is my AI reliability project for business analysis. I used UCI Online Retail data to generate deterministic retail analytics questions with known gold answers.</li><li>I ran Qwen3-0.6B locally, captured token-level traces, and labeled exact business fact spans such as product names, ranks, countries, months, currency amounts, and percentages.</li><li>The core finding is that the model often sounds analytical while binding evidence incorrectly. It may copy a real amount from the table, but assign it to the wrong rank or product.</li><li>Simple internal uncertainty signals help, with held-out test AUPRC 0.835, but they still miss confident ranking and amount-binding errors. That is why business-context validation matters.</li></ol>
+            <ol><li>BizHallu is my AI reliability project for business analysis. I used UCI Online Retail data to generate deterministic retail analytics questions with known gold answers.</li><li>I ran Qwen3-0.6B locally, captured token-level traces, and built AI-assisted provisional labels for exact business fact spans such as product names, ranks, countries, months, currency amounts, and percentages.</li><li>The core finding is that the model often sounds analytical while binding evidence incorrectly. It may copy a real amount from the table, but assign it to the wrong rank or product.</li><li>Simple internal uncertainty signals help: the exploratory maximum test AUPRC is 0.835, but candidate winners were selected after test comparison and confident ranking and amount-binding errors remain. That is why a fresh confirmation design and business-context validation matter.</li></ol>
           </article>
           <article class="script-box">
             <strong>LinkedIn / portfolio blurb</strong>
@@ -438,17 +439,17 @@
         <div class="two-col" style="margin-top:16px;">
           <article class="panel">
             <h3>Resume bullets</h3>
-            <ul><li>Built BizHallu, a business-analysis hallucination detection benchmark using UCI Online Retail, Qwen3-0.6B, deterministic gold answers, span labels, and split-safe detector evaluation.</li><li>Generated 100 evidence-grounded retail analytics questions across 7 business question types and ran a local CUDA Qwen3-0.6B full100 generation pipeline with 100 saved token traces.</li><li>Annotated 205 held-out business fact spans across 35 dev/test questions and aligned all spans to token-level logit and energy-style traces for detector scoring.</li><li>Evaluated 12 simple and energy-family detector baselines with dev-selected thresholds and held-out test reporting; best test AUPRC reached 0.835 and best test F1 reached 0.779.</li><li>Created a portfolio demo showing how LLMs can copy real values while binding them to the wrong product rank, highlighting why evidence-aware business AI validation is needed.</li></ul>
+            <ul><li>Built BizHallu, a portfolio-scale business-analysis AI reliability study using UCI Online Retail, Qwen3-0.6B, deterministic gold answers, provisional span labels, and internal-state detector evaluation.</li><li>Generated 100 evidence-grounded retail analytics questions across 7 business question types and ran a local CUDA Qwen3-0.6B full100 generation pipeline with 100 saved token traces.</li><li>Built an AI-assisted provisional annotation set of 205 business-fact spans across 35 dev/test answers and aligned all pre-identified spans to token-level logit and energy-style traces.</li><li>Evaluated 12 simple and energy-family candidate signals with dev-selected thresholds; exploratory test maxima reached 0.835 AUPRC and 0.779 F1 from different signals.</li><li>Created a portfolio demo showing how LLMs can copy real values while binding them to the wrong product rank, highlighting why evidence-aware business AI validation is needed.</li></ul>
           </article>
           <article class="panel">
             <h3>Slide outline</h3>
-            <ol><li>Motivation: business users need answers grounded in transaction evidence, not just fluent explanations.</li><li>Dataset and task: UCI Online Retail, 100 deterministic questions, 7 business question types.</li><li>Model and traces: Qwen3-0.6B local generation with token-level uncertainty and energy-ready fields.</li><li>Labels: 205 held-out spans across 35 dev/test questions, including correct and hallucinated key facts.</li><li>Results: simple uncertainty leads, energy-family controls are close but not a clean pure Spilled Energy win.</li><li>Demo cases: q_0064 and q_0069 show wrong rank/product/amount bindings in top-3 product analysis.</li><li>Takeaway: span-level detection is useful, but future methods need stronger evidence-aware checking.</li></ol>
+            <ol><li>Motivation: business users need answers grounded in transaction evidence, not just fluent explanations.</li><li>Dataset and task: UCI Online Retail, 100 deterministic questions, 7 business question types.</li><li>Model and traces: Qwen3-0.6B local generation with token-level uncertainty and energy-ready fields.</li><li>Labels: 205 AI-assisted provisional spans across 35 dev/test answers; 15 selected presentation spans received additional assistant review.</li><li>Results: simple uncertainty leads, energy-family controls are close but not a clean pure Spilled Energy win.</li><li>Demo cases: q_0064 and q_0069 show wrong rank/product/amount bindings in top-3 product analysis.</li><li>Takeaway: span-level detection is useful, but future methods need stronger evidence-aware checking.</li></ol>
           </article>
         </div>
         <div class="two-col" style="margin-top:16px;">
           <article class="panel">
             <h3>Presentation guardrails</h3>
-            <ul><li>Report this as span-level hallucination detection, not whole-answer correctness.</li><li>Say the selected presentation labels are locked with lock_basis=assistant_full_review, not independent human annotation.</li><li>Say the strongest energy-family result is a probability-mass control, not pure adjacent-step Spilled Energy.</li><li>Use q_0064 and q_0069 as primary examples because they connect business relevance, detector failure, and clear evidence.</li><li>Avoid claiming production readiness; the current artifact is a rigorous portfolio-scale benchmark and demo.</li></ul>
+            <ul><li>Report this as span-level hallucination detection, not whole-answer correctness.</li><li>Say the selected presentation labels are locked with lock_basis=assistant_full_review, not independent human annotation.</li><li>Say the strongest energy-family result is a probability-mass control, not pure adjacent-step Spilled Energy.</li><li>Use q_0064 and q_0069 as primary examples because they connect business relevance, detector failure, and clear evidence.</li><li>Avoid claiming production readiness or a human-labeled benchmark; the current artifact is a portfolio-scale exploratory study and demo.</li></ul>
           </article>
           <article class="panel">
             <h3>Next build steps</h3>

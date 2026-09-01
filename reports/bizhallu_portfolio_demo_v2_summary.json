@@ -12,6 +12,10 @@
   "fact_type_count": 5,
   "label_count": 2,
   "detector_count": 3,
+  "annotation_status": "15 selected spans with additional assistant presentation review",
+  "independent_human_annotation": false,
+  "automatic_claim_extraction": false,
+  "metric_selection_status": "exploratory_test_maxima",
   "by_label": {
     "correct_key_fact": 8,
     "hallucinated_key_fact": 7

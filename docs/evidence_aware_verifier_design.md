@@ -1,5 +1,14 @@
 # Evidence-Aware Verifier Design
 
+## Current Public v0 Status
+
+The current artifact at `evidence_verifier_pilot.html` is Claim-Evidence Review
+Schema v0, not an implemented verifier. Its `supported`, `contradicted`,
+`unmatched`, and `needs_review` statuses are derived directly from the selected
+presentation labels. It organizes fields and comparison questions for the
+future design below but makes no independent predictions and reports no
+verifier performance.
+
 ## Purpose
 
 This document defines the next research extension for BizHallu without changing
@@ -69,8 +78,10 @@ Each verifier row should contain:
 | `fact_type` | Existing fact type when available |
 | `claim_text` | Minimal claim containing the span |
 | `evidence_keys` | Evidence rows or gold fields used for verification |
-| `verifier_label` | `supported`, `contradicted`, `unmatched`, or `needs_review` |
-| `verifier_reason` | Short explanation grounded in evidence |
+| `review_status` | Label-derived `supported`, `contradicted`, `unmatched`, or `needs_review` in v0; a future verifier must generate an independent prediction field |
+| `review_reason` | Protocol note explaining the current derivation and future check |
+| `review_status_source` | Explicit provenance; v0 is `derived_from_presentation_label` |
+| `independent_verifier_prediction` | `false` for every v0 row |
 | `comparison_target` | Current span label or detector outcome being compared |
 
 Label meanings:

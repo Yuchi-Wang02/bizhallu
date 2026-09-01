@@ -1,0 +1,12 @@
+{
+  "status": "methodology_hardening_validation_passed",
+  "html_path": "reports/bizhallu_methodology_hardening.html",
+  "summary_path": "reports/bizhallu_methodology_hardening_summary.json",
+  "protocol_path": "configs/methodology_protocol_v1.json",
+  "recomputed_question_count": 100,
+  "recomputed_annotated_span_count": 205,
+  "recomputed_cross_split_evidence_group_count": 9,
+  "ready_to_share_with_caveats": true,
+  "num_failures": 0,
+  "failures": []
+}

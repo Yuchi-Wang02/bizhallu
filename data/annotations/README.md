@@ -1,9 +1,10 @@
 # Annotation Artifacts
 
-This directory stores span-level annotation artifacts for BizHallu. Public
-portfolio pages should describe the selected demo labels as
-assistant-reviewed / presentation-locked span labels, not as a large
-independent human-labeled benchmark.
+This directory stores span-level annotation artifacts for BizHallu. The
+205-span full100 working file is AI-assisted and provisional. Fifteen selected
+presentation spans received an additional assistant review and are recorded in
+the label-lock package. No independent human annotation or inter-annotator
+agreement has been completed.
 
 Do not store generated model answers here. Generated text belongs in `outputs/`;
 annotations should reference records by `question_id`, `prompt_id`, and
@@ -23,7 +24,8 @@ Current files:
 
 Public wording:
 
-- Say: assistant-reviewed presentation labels.
+- Say: 205 AI-assisted provisional business-fact span labels.
+- Say: 15 selected presentation spans received additional assistant review.
 - Say: span-level business-fact evaluation.
 - Do not say: large human-labeled benchmark.
 - Do not say: whole-answer correctness benchmark.

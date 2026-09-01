@@ -116,17 +116,17 @@ def main() -> None:
             "ai_risk": "A model may get the direction right while scaling the amount incorrectly, or may mix gross revenue with net revenue.",
         },
         {
-            "title": "Returns impact and margin-risk triage",
+            "title": "Returns impact and net-sales triage",
             "owner": "Accounting + operations lens",
             "question_types": ["return_impact_month", "product_revenue_share_month"],
             "business_value": "Surface products or months where cancellations and returns change the business conclusion a stakeholder would draw from gross sales.",
             "ai_risk": "A generated answer can copy a plausible percentage or amount while failing to reconcile it to the source table.",
         },
         {
-            "title": "Product concentration and inventory priority",
+            "title": "Product concentration and performance reporting",
             "owner": "Supply management lens",
             "question_types": ["top_product_month", "top3_products_month", "product_revenue_share_month"],
-            "business_value": "Identify which products dominate monthly merchandise revenue and would deserve procurement, stocking, or vendor attention.",
+            "business_value": "Identify which products dominate monthly merchandise revenue and require careful concentration and performance reporting.",
             "ai_risk": "Top-3 product questions are the clearest confident-error failure mode because rank, product, and amount must stay bound together.",
         },
         {
@@ -151,11 +151,11 @@ def main() -> None:
         )
 
     next_questions = [
-        "Which products have high gross sales but poor net revenue after returns, and should they be reviewed for quality or demand issues?",
+        "Which products have high gross sales but materially lower net revenue after returns, and how large is the reconciliation gap?",
         "Which monthly revenue changes are driven by returns rather than sales growth or decline?",
         "Which top-3 products are most vulnerable to rank changes if return activity increases?",
         "Which country contributes the largest non-UK revenue exposure after excluding one-off cancellations?",
-        "Which product categories should be prioritized for replenishment because they appear in recurring top-product answers?",
+        "Which products repeatedly account for large shares of monthly merchandise revenue, creating concentration exposure?",
         "Which answer claims should be verified against structured evidence before being sent to a stakeholder?",
         "Which detector false negatives correspond to the highest business risk because the hallucinated span is a currency amount or rank?",
         "Which detector false positives are acceptable as conservative review flags in accounting-style workflows?",
@@ -187,12 +187,12 @@ def main() -> None:
     metric_cards = [
         ("Raw rows", fmt_int(summary["data_rows_raw"]), "Original Online Retail records before cleaning."),
         ("Countries", fmt_int(summary["country_count"]), "Country values available for market comparison."),
-        ("Stock codes", fmt_int(summary["stock_code_count"]), "Product identifiers available for supply-management analysis."),
+        ("Stock codes", fmt_int(summary["stock_code_count"]), "Product identifiers available for product-performance analysis."),
         ("Net revenue", fmt_money(summary["net_revenue"]), "Cleaned net revenue after returns and cancellations."),
         ("Merchandise net revenue", fmt_money(summary["merchandise_net_revenue"]), "Primary product-level metric used in the project."),
         ("Return/cancellation rows", fmt_int(summary["cancellation_or_return_rows"]), "Rows that make reconciliation and risk framing necessary."),
         ("Gold questions", fmt_int(summary["question_count"]), "Existing deterministic question set, not a new model run."),
-        ("Best test AUPRC", f"{summary['best_test_auprc']:.3f}", "Current detector ranking result for span-level errors."),
+        ("Exploratory max test AUPRC", f"{summary['best_test_auprc']:.3f}", "Highest observed test ranking result across candidate signals."),
     ]
     metric_html = "".join(
         f"""
@@ -328,9 +328,9 @@ def main() -> None:
 
     <main>
       <section class="hero">
-        <p class="eyebrow">Accounting and supply-management extension</p>
+        <p class="eyebrow">Accounting and product-performance lens</p>
         <h1>Use BizHallu to talk about business risk, not only hallucination metrics.</h1>
-        <p class="lede">The same Online Retail experiment can be framed around reconciliation, returns, product concentration, market exposure, and inventory priority. This keeps the project aligned with BA / DS / AI Analyst roles while using the validated 100-question setup.</p>
+        <p class="lede">The same Online Retail experiment can be framed around reconciliation, returns, product concentration, and revenue exposure. The source data does not contain cost, inventory, purchase-order, or vendor fields, so this page stays within claims the dataset can support.</p>
       </section>
 
       <section>
@@ -360,7 +360,7 @@ def main() -> None:
         <p class="eyebrow">Next extension</p>
         <h2>Do this after the portfolio package, not before it.</h2>
         <div class="panel">
-          <p>These are the strongest follow-up questions because they connect the hallucination detector to accounting and supply-management decisions.</p>
+          <p>These follow-up questions connect hallucination analysis to revenue reconciliation, returns, concentration, and evidence traceability without claiming unsupported inventory or margin decisions.</p>
           <ol>{"".join(f"<li>{esc(item)}</li>" for item in next_questions)}</ol>
           <div class="callout">
             <strong>Implementation rule:</strong> keep Qwen3-0.6B and Online Retail as the core setup. Add a small 10-20 question business-risk extension before considering a larger benchmark or a new model family.

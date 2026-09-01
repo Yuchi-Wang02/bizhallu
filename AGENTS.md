@@ -13,13 +13,31 @@ Use this public positioning:
 - Do not claim this is a production-ready hallucination detector.
 - Do not claim this is a large independent human-labeled benchmark.
 - Do not claim whole-answer correctness; metrics are span-level.
-- Use `assistant-reviewed presentation labels` or `presentation-locked labels`.
-- Preserve `lock_basis=assistant_full_review` unless the label package is explicitly reworked.
-- Preserve published metrics exactly unless they are recomputed from source artifacts:
-  - best held-out test AUPRC: `0.835073`
-  - best held-out test F1: `0.779412`
+- Describe the annotation package precisely:
+  - `205 AI-assisted provisional business-fact span labels` cover 35 dev/test answers.
+  - `15 selected presentation spans received an additional assistant review`.
+  - No independent human annotation or inter-annotator agreement has been completed.
+- Preserve `lock_basis=assistant_full_review` only for the 15 selected presentation spans
+  unless the label package is explicitly reworked.
+- Preserve published metric values exactly unless they are recomputed from source artifacts:
+  - exploratory maximum test AUPRC across candidate signals: `0.835073`
+  - exploratory maximum test F1 across candidate signals: `0.779412`
   - aligned business-fact spans: `205`
-  - held-out test spans: `103`
+  - test spans scored: `103`
+- The AUPRC and F1 maxima come from different signals. Thresholds were selected on
+  dev, but the headline signal for each metric was selected after comparing test
+  results. Do not describe these maxima as preregistered, confirmatory, or an
+  unbiased held-out model-selection estimate.
+- The 205-span score package covers 35 of 36 dev/test questions. Those 35 were
+  selected through a high-priority queue conditioned on generated-answer
+  auto-status. Describe current metrics as conditional on an outcome-informed,
+  error-enriched subset rather than representative of all generated answers.
+- The current question split is periodic within question type, not grouped by
+  month or evidence context. Dev and test share business periods, and exact gold
+  evidence-row payloads cross splits. Do not claim context-independent or
+  unseen-period generalization.
+- State that the current evaluation scores pre-identified business-fact spans.
+  Automatic claim extraction from unseen responses is outside the current scope.
 
 ## Public Artifact Rules
 
@@ -45,6 +63,8 @@ python src\validate_career_package.py
 python src\validate_business_risk_lens.py
 python src\validate_research_one_pager.py
 python src\validate_evidence_verifier_pilot.py
+python src\validate_methodology_hardening.py
+python src\validate_confirmation_set_v1_design.py
 ```
 
 When local full100 artifacts are available, also run:
@@ -55,7 +75,11 @@ python src\build_full100_preflight_report.py
 
 ## Preferred Next Technical Direction
 
-The next research extension should keep two tracks open. A small evidence-aware verifier pilot now exists over Demo v2 locked spans because it is closest to business analytics use cases, but internal-state and literature-grounded hallucination baselines remain comparison candidates rather than rejected paths.
+The next research extension should keep two tracks open. The current public
+`Claim-Evidence Review Schema v0` organizes the 15 Demo v2 spans for comparison,
+but its statuses are derived from existing presentation labels. It is not an
+independent evidence-aware detector. Internal-state and literature-grounded
+hallucination baselines remain comparison candidates rather than rejected paths.
 
 Preferred framing:
 
@@ -67,4 +91,24 @@ Research comparison tracks:
 - Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.
 - Evidence-aware verification: claim-evidence consistency checks against structured evidence rows and deterministic gold answers.
 
-Do not expand the verifier beyond Demo v2 or report new verifier metrics until the comparison protocol is fixed and validated.
+Do not call the current schema an implemented verifier, use its label-derived
+statuses as predictions, expand it beyond Demo v2, or report verifier metrics until
+an independent claim-evidence decision rule and comparison protocol are fixed and
+validated.
+
+Use `configs/methodology_protocol_v1.json` and the generated Methodology
+Hardening v1 report as the source of truth for the limitations of the current
+retrospective study. Use `configs/confirmation_set_v1_protocol.json` and
+`reports/bizhallu_confirmation_set_v1_design.html` as the source of truth for
+the prospective next study.
+
+Confirmation Set v1 is design-only and is not execution-ready. Its seven gates
+must remain pending until each requirement is actually satisfied. The next
+authorized research action is to select and audit a dataset source, followed by
+an outcome-blind precision review of the planned context counts; do not create
+new prompts, run Qwen, annotate new outputs, or report confirmation metrics before
+those decisions are recorded. Any future result described as confirmatory must use
+fresh or context-separated data, select annotation targets before answer-quality
+review, freeze primary detector and threshold policies before confirmation-set
+access, use two independent human reviewers, and report claim extraction
+separately from verification.

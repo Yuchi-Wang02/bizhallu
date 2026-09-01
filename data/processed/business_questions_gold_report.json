@@ -122,7 +122,7 @@
     }
   ],
   "outputs": {
-    "jsonl": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold.jsonl",
-    "sample_csv": "C:\\Users\\yuchi\\Downloads\\p1\\bizhallu\\data\\processed\\business_questions_gold_sample.csv"
+    "jsonl": "data/processed/business_questions_gold.jsonl",
+    "sample_csv": "data/processed/business_questions_gold_sample.csv"
   }
 }

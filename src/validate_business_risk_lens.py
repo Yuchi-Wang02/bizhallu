@@ -16,10 +16,10 @@ SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 VALIDATION_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_validation.json"
 
 REQUIRED_FRAGMENTS = [
-    "Accounting and supply-management extension",
+    "Accounting and product-performance lens",
     "Net revenue reconciliation",
-    "Returns impact and margin-risk triage",
-    "Product concentration and inventory priority",
+    "Returns impact and net-sales triage",
+    "Product concentration and performance reporting",
     "Country exposure and market comparison",
     "10-20 question business-risk extension",
     "no new model run",
@@ -28,6 +28,8 @@ REQUIRED_FRAGMENTS = [
 FORBIDDEN_FRAGMENTS = [
     "production-ready",
     "large human-labeled benchmark",
+    "procurement, stocking, or vendor attention",
+    "prioritized for replenishment",
 ]
 
 
@@ -97,6 +99,8 @@ def main() -> None:
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))
+    if failures:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

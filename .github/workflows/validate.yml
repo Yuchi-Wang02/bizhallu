@@ -35,5 +35,11 @@ jobs:
       - name: Validate research one-pager
         run: python src/validate_research_one_pager.py
 
-      - name: Validate evidence-aware verifier pilot
+      - name: Validate claim-evidence review schema
         run: python src/validate_evidence_verifier_pilot.py
+
+      - name: Validate methodology hardening report
+        run: python src/validate_methodology_hardening.py
+
+      - name: Validate Confirmation Set v1 design
+        run: python src/validate_confirmation_set_v1_design.py

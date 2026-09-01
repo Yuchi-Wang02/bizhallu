@@ -148,7 +148,7 @@ def main() -> None:
     }
 
     takeaways = [
-        "Simple uncertainty is the strongest current held-out signal: it leads both overall AUPRC and overall F1.",
+        "Simple uncertainty has the strongest observed test maxima in this exploratory comparison: it leads both AUPRC and F1, using different signals.",
         "The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.",
         "AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.",
         "Top-3 product questions remain the clearest confident-error failure mode.",
@@ -160,9 +160,11 @@ def main() -> None:
         "scope": {
             "dataset": "UCI Online Retail",
             "model": "Qwen3-0.6B",
-            "evaluation_scope": "35 high-priority held-out dev/test questions; metrics reported on 103 held-out test spans",
+            "evaluation_scope": "35 dev/test answers with 205 AI-assisted provisional spans; metrics summarized on 103 test spans",
             "threshold_policy": "Thresholds selected on dev spans and reused unchanged on test spans.",
-            "label_status": "Presentation labels locked after assistant full review.",
+            "metric_selection_policy": "Headline signals selected after comparing test results; values are exploratory maxima, not confirmatory held-out model-selection estimates.",
+            "label_status": "205 AI-assisted provisional labels; 15 selected presentation spans received additional assistant review.",
+            "claim_extraction_scope": "Scores pre-identified spans; automatic claim extraction is not evaluated.",
         },
         "best_overall_by_test_auprc": compact_baseline(best_auprc),
         "best_overall_by_test_f1": compact_baseline(best_f1),
@@ -188,14 +190,14 @@ def main() -> None:
     metric_cards = "\n".join(
         [
             metric_card(
-                "Best AUPRC",
+                "Exploratory max test AUPRC",
                 fmt_metric(best_auprc["test_auprc"]),
-                f"{best_auprc['baseline']} ranks wrong spans best on held-out test.",
+                f"{best_auprc['baseline']} is the highest observed test ranking result across candidate signals.",
             ),
             metric_card(
-                "Best F1",
+                "Exploratory max test F1",
                 fmt_metric(best_f1["test_f1"]),
-                f"{best_f1['baseline']} gives the best dev-thresholded test F1.",
+                f"{best_f1['baseline']} is a different winning signal with a dev-selected threshold.",
             ),
             metric_card(
                 "Best energy F1",
@@ -205,7 +207,7 @@ def main() -> None:
             metric_card(
                 "Error rows",
                 fmt_int(error_report["error_row_count"]),
-                "Held-out test false positives and false negatives across two selected baselines.",
+                "Test false positives and false negatives for two retrospectively selected signals.",
             ),
         ]
     )
@@ -371,19 +373,20 @@ def main() -> None:
     <main>
       <section class="hero">
         <div>
-          <p class="eyebrow">Full100 held-out interpretation</p>
+          <p class="eyebrow">Full100 exploratory test interpretation</p>
           <h1>Internal uncertainty helps, but it is not a business fact checker.</h1>
           <p class="lede">
-            On the draft held-out span set, simple token uncertainty gives the strongest current signal.
+            On the provisional test-span set, simple token uncertainty gives the strongest observed maxima.
             The best energy-family result is a probability-mass control, while pure adjacent-step Spilled
-            Energy rows can collapse into almost-all-positive behavior.
+            Energy rows can collapse into almost-all-positive behavior. Candidate winners were selected
+            after test comparison, so this is not a confirmatory model-selection result.
           </p>
         </div>
         <aside class="snapshot" aria-label="Report snapshot">
-          <div><span class="label">Scope</span><strong>35 held-out questions</strong></div>
+          <div><span class="label">Scope</span><strong>35 dev/test answers / pre-identified spans</strong></div>
           <div><span class="label">Test spans</span><strong>{esc(best_auprc['test_positive_count'])} positive / {esc(best_auprc['test_negative_count'])} negative</strong></div>
           <div><span class="label">Threshold policy</span><strong>Dev selected, test reported</strong></div>
-          <div><span class="label">Claim status</span><strong>Labels locked after assistant full review</strong></div>
+          <div><span class="label">Annotation status</span><strong>205 provisional / 15 additionally reviewed</strong></div>
         </aside>
       </section>
 
@@ -444,8 +447,8 @@ def main() -> None:
           <article class="panel">
             <h3>Simple best-AUPRC: {esc(simple_best_auprc['baseline'])}</h3>
             <p>
-              This row is more selective: {simple_error['false_positive']} false positives and
-              {simple_error['false_negative']} false negatives on held-out test spans.
+              This retrospectively selected row is more selective: {simple_error['false_positive']} false positives and
+              {simple_error['false_negative']} false negatives on test spans.
             </p>
             <ul class="error-list">
               <li><span>Top false-negative fact type</span><strong>{esc(grouped['simple_false_negative_fact_types'][0]['group_value'])}: {grouped['simple_false_negative_fact_types'][0]['count']}</strong></li>
@@ -456,8 +459,8 @@ def main() -> None:
           <article class="panel">
             <h3>Energy best-F1: {esc(energy_best_f1['baseline'])}</h3>
             <p>
-              This row catches more positives: {energy_error['false_positive']} false positives and
-              {energy_error['false_negative']} false negatives on held-out test spans.
+              This retrospectively selected row catches more positives: {energy_error['false_positive']} false positives and
+              {energy_error['false_negative']} false negatives on test spans.
             </p>
             <ul class="error-list">
               <li><span>Top false-positive fact type</span><strong>{esc(grouped['energy_false_positive_fact_types'][0]['group_value'])}: {grouped['energy_false_positive_fact_types'][0]['count']}</strong></li>
@@ -502,8 +505,8 @@ def main() -> None:
             <span>Simple uncertainty has real signal.</span>
             <span>AUPRC {fmt_metric(best_auprc['test_auprc'])}; F1 {fmt_metric(best_f1['test_f1'])}</span>
             <span>Not causal or semantic.</span>
-            <span>Lead result.</span>
-            <span>Draft</span>
+            <span>Exploratory result with selection caveat.</span>
+            <span>Exploratory</span>
           </div>
           <div class="row" role="row">
             <span>Pure Spilled Energy is not the winner.</span>
@@ -525,10 +528,11 @@ def main() -> None:
       <section class="next">
         <div>
           <p class="eyebrow">Next step</p>
-          <h2>Review the confirmation packet before locking claims.</h2>
+          <h2>Use the selected examples without overstating the annotation set.</h2>
           <p class="lede">
-            Before public claims, review the 15 selected confirmation items and fix any source annotation issues.
-            Then use this page as the detector-results section of the portfolio story.
+            Fifteen selected presentation spans received additional assistant review. The remaining 205-span
+            package is AI-assisted and provisional, with no independent human annotation or inter-annotator
+            agreement. Use this page as an exploratory detector-results section, not a benchmark claim.
           </p>
         </div>
         <a class="button" href="./full100_label_confirmation_packet.html">Open packet</a>

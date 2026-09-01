@@ -8,6 +8,7 @@ import re
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from public_paths import contains_local_path, repo_path
 
@@ -21,21 +22,23 @@ TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 REQUIRED_INDEX_FRAGMENTS = [
     "BizHallu GitHub Pages",
     "Open demo v2",
-    "Open career package",
-    "Open research one-pager",
-    "Open verifier pilot",
+    "Career package",
+    "Research direction",
+    "Open review schema",
     "Business risk lens",
     "Research one-pager",
-    "Evidence-aware verifier pilot",
-    "Read portfolio narrative",
-    "Download interview deck",
+    "Claim-evidence review schema",
+    "Methodology Hardening v1",
+    "Open methodology audit",
+    "35 of 36 dev/test answers",
+    "not an unseen-context test",
+    "Open narrative",
+    "Download PPTX",
     "Preview slides",
-    "github_pages_ready",
     "q_0064",
     "q_0069",
     "0.835",
     "0.779",
-    "assistant_full_review",
     "span-level",
     "business analytics and AI reliability",
     "GitHub Pages bundle",
@@ -45,6 +48,11 @@ REQUIRED_INDEX_FRAGMENTS = [
     "Technical interviewer",
     "Business interviewer",
     "claim-evidence rows",
+    "When the number is real but the business claim is wrong",
+    "Built by Yuchi Wang",
+    "Exploratory max test AUPRC",
+    "AI-assisted provisional spans",
+    "not an independent verifier",
 ]
 
 REQUIRED_PAGE_FILES = [
@@ -56,6 +64,7 @@ REQUIRED_PAGE_FILES = [
     "business_risk_lens.html",
     "research_one_pager.html",
     "evidence_verifier_pilot.html",
+    "methodology_hardening.html",
     "detector_interpretation.html",
     "label_lock_report.html",
     "label_confirmation_packet.html",
@@ -137,7 +146,7 @@ def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
     for href in local_links(path):
         if not href or href.startswith("#") or is_external_link(href):
             continue
-        target_text = href.split("#", 1)[0]
+        target_text = urlsplit(href).path
         if not target_text:
             continue
         target = (path.parent / target_text).resolve()
@@ -268,6 +277,15 @@ def main() -> None:
         "research_extension_count": 4,
         "verifier_pilot_span_count": 15,
         "verifier_pilot_contradicted_count": 7,
+        "methodology_status": "methodology_hardening_v1_ready",
+        "methodology_share_status": "share_with_caveats",
+        "methodology_heldout_question_count": 36,
+        "methodology_annotated_heldout_question_count": 35,
+        "methodology_cross_split_evidence_group_count": 9,
+        "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
+        "metric_selection_status": "exploratory_test_maxima",
+        "automatic_claim_extraction": False,
+        "independent_human_annotation": False,
     }
     for key, expected in expected_manifest_values.items():
         if manifest.get(key) != expected:

@@ -1,4 +1,4 @@
-"""Validate the BizHallu evidence-aware verifier pilot public artifacts."""
+"""Validate the BizHallu Claim-Evidence Review Schema v0 artifacts."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 HTML_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot.html"
 VALIDATION_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_validation.json"
 
-ALLOWED_LABELS = {"supported", "contradicted", "unmatched", "needs_review"}
+ALLOWED_STATUSES = {"supported", "contradicted", "unmatched", "needs_review"}
 EXPECTED_METRICS = {
     "best_test_auprc": 0.835073,
     "best_test_f1": 0.779412,
@@ -29,10 +29,13 @@ EXPECTED_METRICS = {
 }
 
 REQUIRED_HTML_FRAGMENTS = [
-    "Evidence-Aware Verifier Pilot",
-    "Demo v2 locked spans only",
+    "Claim-Evidence Review Schema v0",
+    "Selected Demo v2 spans only",
+    "not an implemented verifier",
+    "produced by an independent verifier",
+    "as verifier predictions",
     "not a production checker",
-    "not a new benchmark result",
+    "a new benchmark result",
     "supported",
     "contradicted",
     "0.835",
@@ -124,20 +127,41 @@ def main() -> None:
     if len(set(span_ids)) != len(span_ids):
         failures.append({"name": "unique_span_ids", "reason": "span_id values are not unique"})
 
-    labels = {str(row.get("verifier_label")) for row in rows if isinstance(row, dict)}
-    unknown_labels = sorted(labels - ALLOWED_LABELS)
-    if unknown_labels:
+    statuses = {str(row.get("review_status")) for row in rows if isinstance(row, dict)}
+    unknown_statuses = sorted(statuses - ALLOWED_STATUSES)
+    if unknown_statuses:
         failures.append(
             {
-                "name": "verifier_label_set",
-                "allowed": sorted(ALLOWED_LABELS),
-                "unknown": unknown_labels,
-                "reason": "verifier labels must stay in the pilot label set",
+                "name": "review_status_set",
+                "allowed": sorted(ALLOWED_STATUSES),
+                "unknown": unknown_statuses,
+                "reason": "derived review statuses must stay in the documented set",
             }
         )
 
+    for row in rows:
+        if not isinstance(row, dict):
+            failures.append({"name": "row_shape", "reason": "every schema row must be an object"})
+            continue
+        if row.get("review_status_source") != "derived_from_presentation_label":
+            failures.append(
+                {
+                    "name": "review_status_source",
+                    "span_id": row.get("span_id"),
+                    "reason": "every status must disclose that it is label-derived",
+                }
+            )
+        if row.get("independent_verifier_prediction") is not False:
+            failures.append(
+                {
+                    "name": "independent_prediction_flag",
+                    "span_id": row.get("span_id"),
+                    "reason": "schema rows must not claim independent verifier predictions",
+                }
+            )
+
     expected_label_counts = {"supported": 8, "contradicted": 7}
-    actual_label_counts = summary.get("verifier_label_counts", {})
+    actual_label_counts = summary.get("review_status_counts", {})
     for label, expected_count in expected_label_counts.items():
         if actual_label_counts.get(label) != expected_count:
             failures.append(
@@ -146,7 +170,7 @@ def main() -> None:
                     "label": label,
                     "expected": expected_count,
                     "actual": actual_label_counts.get(label),
-                    "reason": "Demo v2 locked labels should map to stable verifier pilot counts",
+                    "reason": "selected presentation labels should map to stable review-status counts",
                 }
             )
 
@@ -156,6 +180,21 @@ def main() -> None:
                 "name": "summary_status",
                 "expected": "evidence_verifier_pilot_ready",
                 "actual": summary.get("status"),
+            }
+        )
+    if summary.get("artifact_type") != "claim_evidence_review_schema":
+        failures.append(
+            {
+                "name": "artifact_type",
+                "expected": "claim_evidence_review_schema",
+                "actual": summary.get("artifact_type"),
+            }
+        )
+    if summary.get("independent_verifier_predictions") is not False:
+        failures.append(
+            {
+                "name": "independent_prediction_summary",
+                "reason": "summary must disclose that statuses are not verifier predictions",
             }
         )
     for key, expected in EXPECTED_METRICS.items():
@@ -186,14 +225,14 @@ def main() -> None:
 
     validation = {
         "status": "evidence_verifier_pilot_validation_ready" if not failures else "evidence_verifier_pilot_validation_failed",
-        "ready_for_public_verifier_pilot": not failures,
+        "ready_for_public_review_schema": not failures,
         "rows_csv_path": repo_path(ROWS_CSV_PATH),
         "rows_json_path": repo_path(ROWS_JSON_PATH),
         "summary_path": repo_path(SUMMARY_PATH),
         "html_path": repo_path(HTML_PATH),
         "row_count": len(rows),
         "case_count": summary.get("case_count"),
-        "verifier_label_counts": summary.get("verifier_label_counts"),
+        "review_status_counts": summary.get("review_status_counts"),
         "num_failures": len(failures),
         "failures": failures,
     }

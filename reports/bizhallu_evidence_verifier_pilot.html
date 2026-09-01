@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BizHallu Evidence-Aware Verifier Pilot</title>
+    <title>BizHallu Claim-Evidence Review Schema v0</title>
     <style>
       :root {
         --bg: #f6f7f9;
@@ -63,12 +63,13 @@
   <body>
     <main>
       <header>
-        <p class="eyebrow">Evidence-aware verifier pilot</p>
-        <h1>Comparing internal uncertainty with claim-evidence consistency.</h1>
+        <p class="eyebrow">Claim-evidence review schema v0</p>
+        <h1>Preparing an honest comparison between uncertainty and evidence checking.</h1>
         <p class="lede">
-          This v0 pilot covers Demo v2 locked spans only. It reframes the same
-          public cases as evidence-aware verifier rows so the next research step
-          can compare internal-state signals with explicit business-fact grounding.
+          This v0 schema covers 15 selected Demo v2 presentation spans. It organizes
+          claims, compact evidence, and detector outcomes for a future comparison.
+          Its review statuses are inherited from existing presentation labels, not
+          produced by an independent verifier.
         </p>
         <div class="actions">
           <a class="button" href="./portfolio_demo_v2.html">Open Demo v2</a>
@@ -78,66 +79,65 @@
       </header>
 
       <section class="section">
-        <p class="eyebrow">Demo v2 locked spans only</p>
-        <h2>A small verifier family prototype, not a new benchmark result.</h2>
+        <p class="eyebrow">Selected Demo v2 spans only</p>
+        <h2>A review protocol scaffold, not an implemented verifier.</h2>
         <div class="metric-grid">
           <article class="metric"><span class="label">Cases</span><strong>9</strong><p>Public Demo v2 cases.</p></article>
-          <article class="metric"><span class="label">Spans</span><strong>15</strong><p>Presentation-locked business-fact spans.</p></article>
-          <article class="metric"><span class="label">Held-out AUPRC</span><strong>0.835</strong><p>Existing internal detector result; unchanged.</p></article>
-          <article class="metric"><span class="label">Held-out F1</span><strong>0.779</strong><p>Existing internal detector result; unchanged.</p></article>
+          <article class="metric"><span class="label">Spans</span><strong>15</strong><p>Selected presentation spans; no independent annotation.</p></article>
+          <article class="metric"><span class="label">Exploratory test max AUPRC</span><strong>0.835</strong><p>Existing internal-signal summary; unchanged.</p></article>
+          <article class="metric"><span class="label">Exploratory test max F1</span><strong>0.779</strong><p>Different winning signal; unchanged.</p></article>
         </div>
         <div class="metric-grid">
           
           <article class="metric">
             <span class="label">contradicted</span>
             <strong>7</strong>
-            <p>Demo v2 locked spans with this evidence-aware pilot label.</p>
+            <p>Status derived from the existing selected presentation label.</p>
           </article>
         
 
           <article class="metric">
             <span class="label">supported</span>
             <strong>8</strong>
-            <p>Demo v2 locked spans with this evidence-aware pilot label.</p>
+            <p>Status derived from the existing selected presentation label.</p>
           </article>
         
         </div>
         <div class="callout">
           <strong>Guardrail</strong>
           <p>
-            This verifier pilot is not a production checker and not a new
-            benchmark result. It does not claim superiority over internal
-            detectors. It
-            creates reviewable rows for the next comparison between internal
-            uncertainty and evidence-aware verification.
+            This schema is not a production checker, an independent verifier, or
+            a new benchmark result. The supported/contradicted statuses are direct
+            mappings from existing presentation labels and must not be evaluated
+            as verifier predictions.
           </p>
         </div>
       </section>
 
       <section class="section">
-        <p class="eyebrow">Pilot interpretation</p>
-        <h2>What this adds to the current detector story.</h2>
+        <p class="eyebrow">Protocol interpretation</p>
+        <h2>What this prepares for the next detector comparison.</h2>
         <ul>
           <li>Internal uncertainty asks whether the model appeared uncertain while generating a token span.</li>
-          <li>Evidence-aware verification asks whether the generated business claim is supported by the evidence or gold answer.</li>
+          <li>A future evidence-aware verifier should independently decide whether a generated claim is supported by source evidence.</li>
           <li>Confident wrong evidence binding is the key failure mode: a span can reuse real values but attach them to the wrong product, rank, or conclusion.</li>
-          <li>The current pilot marks 7 contradicted spans where all three displayed internal detectors missed the error.</li>
+          <li>Among the presentation-labeled incorrect bindings, 7 were missed by all three displayed internal signals. The schema did not independently detect them.</li>
         </ul>
       </section>
 
       <section class="section">
-        <p class="eyebrow">Verifier rows</p>
-        <h2>Each row is a business-fact span with evidence-aware pilot status.</h2>
+        <p class="eyebrow">Review rows</p>
+        <h2>Each row connects a selected span to evidence fields and detector outcomes.</h2>
         <table>
           <thead>
             <tr>
               <th>Question</th>
               <th>Fact type</th>
-              <th>Verifier label</th>
+              <th>Derived review status</th>
               <th>Span</th>
               <th>Generated claim line</th>
               <th>Detector outcomes</th>
-              <th>Verifier reason</th>
+              <th>Protocol note</th>
             </tr>
           </thead>
           <tbody>
@@ -149,7 +149,7 @@
             <td>GBP 14,280.90</td>
             <td>1. **REGENCY CAKESTAND 3 TIER** (rank 1) with a net revenue of GBP 14,280.90.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -160,7 +160,7 @@
             <td>PARTY BUNTING</td>
             <td>2. **PARTY BUNTING** (rank 2) with a net revenue of GBP 10,323.87.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -171,7 +171,7 @@
             <td>3.</td>
             <td>3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: ranking markers are checked with the generated product or amount binding, not as standalone numbers.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. Ranking markers must eventually be checked with the associated product and amount binding, not as standalone numbers.</td>
           </tr>
         
 
@@ -182,7 +182,7 @@
             <td>GBP 4,173.18</td>
             <td>3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: the generated claim is not supported by the gold answer for the product, rank, amount, or conclusion binding.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. A future verifier must independently test the product, rank, amount, or conclusion binding against source evidence.</td>
           </tr>
         
 
@@ -193,7 +193,7 @@
             <td>2.</td>
             <td>2. **PAPER CHAIN KIT 50&#x27;S CHRISTMAS** (rank 2) with a net revenue of GBP 5997.25.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: ranking markers are checked with the generated product or amount binding, not as standalone numbers.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. Ranking markers must eventually be checked with the associated product and amount binding, not as standalone numbers.</td>
           </tr>
         
 
@@ -204,7 +204,7 @@
             <td>3.</td>
             <td>3. **REGENCY CAKESTAND 3 TIER** (rank 3) with a net revenue of GBP 9315.03.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: ranking markers are checked with the generated product or amount binding, not as standalone numbers.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. Ranking markers must eventually be checked with the associated product and amount binding, not as standalone numbers.</td>
           </tr>
         
 
@@ -215,7 +215,7 @@
             <td>GBP 9315.03</td>
             <td>3. **REGENCY CAKESTAND 3 TIER** (rank 3) with a net revenue of GBP 9315.03.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: the generated claim is not supported by the gold answer for the product, rank, amount, or conclusion binding.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. A future verifier must independently test the product, rank, amount, or conclusion binding against source evidence.</td>
           </tr>
         
 
@@ -226,7 +226,7 @@
             <td>5,586.83 GBP</td>
             <td>France generated more net revenue (25,017.64 GBP) than Germany (30,604.27 GBP), with France earning a net revenue of -8,453.41 GBP. The difference in net revenue is 5,586.83 GBP.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -237,7 +237,7 @@
             <td>decreased</td>
             <td>From May 2011 to June 2011, net revenue decreased by **GBP 3,121.37**, representing a **-4.14%** change. The absolute change is **-GBP 3,121.37**, and the percentage change is **-4.14%**.</td>
             <td>cleared / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -248,7 +248,7 @@
             <td>-4.14%</td>
             <td>From May 2011 to June 2011, net revenue decreased by **GBP 3,121.37**, representing a **-4.14%** change. The absolute change is **-GBP 3,121.37**, and the percentage change is **-4.14%**.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -259,7 +259,7 @@
             <td>increase</td>
             <td>The net revenue for November 2011 was 145,614.50 GBP, which represents a **29.75%** increase from October 2011&#x27;s 106,936.83 GBP. The absolute change is **38,677.67 GBP**, and the percentage change is calculated by dividing the absolute change by the previous month&#x27;s net revenue.</td>
             <td>cleared / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -270,7 +270,7 @@
             <td>3.</td>
             <td>3. **VINTAGE UNION JACK BUNTING** (21621) with a net revenue of GBP 5214.33.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: ranking markers are checked with the generated product or amount binding, not as standalone numbers.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. Ranking markers must eventually be checked with the associated product and amount binding, not as standalone numbers.</td>
           </tr>
         
 
@@ -281,7 +281,7 @@
             <td>3.</td>
             <td>3. **SPOTTY BUNTING** (rank 3), with a net revenue of GBP 7,864.43.</td>
             <td>missed / missed / missed</td>
-            <td>Contradicted in context: ranking markers are checked with the generated product or amount binding, not as standalone numbers.</td>
+            <td>Derived from the selected presentation label hallucinated_key_fact. Ranking markers must eventually be checked with the associated product and amount binding, not as standalone numbers.</td>
           </tr>
         
 
@@ -292,7 +292,7 @@
             <td>£44,600.65</td>
             <td>In April 2011, cancellations and returns reduced gross positive revenue by £44,600.65, resulting in a final net revenue of £44,600.65.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
 
@@ -303,7 +303,7 @@
             <td>GBP 38,838.51</td>
             <td>In September 2011, cancellations and returns reduced gross positive revenue by GBP 38,838.51, resulting in a net revenue of GBP 101,759.68.</td>
             <td>false alarm / false alarm / false alarm</td>
-            <td>Supported by the locked presentation review and consistent with the gold answer or prompt evidence for this business-fact span.</td>
+            <td>Derived from the selected presentation label correct_key_fact; the schema records the evidence fields available for later independent checking.</td>
           </tr>
         
           </tbody>

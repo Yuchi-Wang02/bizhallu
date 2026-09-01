@@ -17,7 +17,7 @@
     "q_0065",
     "q_0072"
   ],
-  "planned_command": "& C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe src/run_qwen_batch.py --prompts-path outputs/qwen_top3_structured_prompts.jsonl --question-config configs/top3_structured_pilot3_questions.json --output-prefix qwen_top3_structured_pilot3 --greedy --max-new-tokens 140",
+  "planned_command": "python src/run_qwen_batch.py --prompts-path outputs/qwen_top3_structured_prompts.jsonl --question-config configs/top3_structured_pilot3_questions.json --output-prefix qwen_top3_structured_pilot3 --greedy --max-new-tokens 140",
   "planned_outputs": {
     "generations": "outputs/qwen_top3_structured_pilot3_generations.jsonl",
     "token_traces": "outputs/qwen_top3_structured_pilot3_token_traces.jsonl",

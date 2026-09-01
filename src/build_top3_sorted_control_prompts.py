@@ -7,6 +7,7 @@ from typing import Any
 
 from build_prompts import QUESTIONS_PATH, markdown_table, system_prompt
 from build_top3_structured_prompts import format_currency, load_questions, structured_user_prompt
+from public_paths import repo_path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -152,7 +153,7 @@ def write_pilot_config() -> None:
         },
         "question_ids": PILOT3_QUESTION_IDS,
         "planned_command": (
-            "& C:\\Users\\yuchi\\anaconda3\\envs\\torch\\python.exe src/run_qwen_batch.py "
+            "python src/run_qwen_batch.py "
             "--prompts-path outputs/qwen_top3_sorted_control_prompts.jsonl "
             "--question-config configs/top3_sorted_control_pilot3_questions.json "
             "--output-prefix qwen_top3_sorted_control_pilot3 --greedy --max-new-tokens 140"
@@ -193,11 +194,11 @@ def main() -> None:
             "so the condition should not be used for final fairness claims."
         ),
         "outputs": {
-            "jsonl": str(PROMPTS_JSONL),
-            "sample_csv": str(PROMPTS_SAMPLE_CSV),
-            "pilot3_config": str(PILOT3_CONFIG),
+            "jsonl": repo_path(PROMPTS_JSONL),
+            "sample_csv": repo_path(PROMPTS_SAMPLE_CSV),
+            "pilot3_config": repo_path(PILOT3_CONFIG),
         },
-        "source_questions_path": str(QUESTIONS_PATH),
+        "source_questions_path": repo_path(QUESTIONS_PATH),
     }
     PROMPTS_REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=True))

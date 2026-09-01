@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BizHallu Methodology Hardening v1</title>
+    <style>
+      :root { --bg:#f5f6f8; --surface:#fff; --ink:#1d1d1f; --muted:#5f6368; --line:#d9dde3; --blue:#075ea8; --red:#a42b2b; --green:#126b4f; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; line-height:1.55; }
+      a { color:var(--blue); text-decoration:none; }
+      .topbar { min-height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 28px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.94); position:sticky; top:0; z-index:5; }
+      .brand { color:var(--ink); font-weight:850; }
+      nav { display:flex; gap:16px; font-size:14px; font-weight:700; }
+      main { width:min(1120px,calc(100% - 36px)); margin:0 auto; }
+      section { padding:44px 0; border-bottom:1px solid var(--line); }
+      .hero { padding-top:64px; }
+      .eyebrow { margin:0 0 10px; color:var(--blue); font-size:12px; font-weight:850; text-transform:uppercase; }
+      h1 { max-width:920px; margin:0; font-size:clamp(38px,6vw,68px); line-height:1.02; letter-spacing:0; }
+      h2 { margin:0; font-size:clamp(28px,4vw,40px); line-height:1.12; letter-spacing:0; }
+      h3 { margin:0; font-size:20px; letter-spacing:0; }
+      p, li, td, th { overflow-wrap:anywhere; }
+      .lede { max-width:900px; margin:20px 0 0; color:var(--muted); font-size:20px; }
+      .status { margin-top:26px; padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; }
+      .status span { display:block; color:var(--muted); font-size:12px; font-weight:800; text-transform:uppercase; }
+      .status strong { display:block; margin-top:6px; font-size:24px; }
+      .callout { margin-top:22px; padding:20px; border-left:4px solid var(--red); background:#fff8f7; }
+      .callout.good { border-left-color:var(--green); background:#f4fbf7; }
+      .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:22px; }
+      .panel { padding:22px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+      .panel p { color:var(--muted); }
+      .table-wrap { width:100%; margin-top:22px; overflow-x:auto; border:1px solid var(--line); background:var(--surface); }
+      table { width:100%; min-width:780px; border-collapse:collapse; background:var(--surface); font-size:14px; }
+      th, td { padding:14px; text-align:left; vertical-align:top; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+      tr:last-child td { border-bottom:0; }
+      th:last-child, td:last-child { border-right:0; }
+      th { background:#eef1f4; font-size:12px; text-transform:uppercase; }
+      .severity { display:block; margin-top:5px; color:var(--red); font-size:11px; font-weight:800; text-transform:uppercase; }
+      ul, ol { display:grid; gap:9px; padding-left:22px; }
+      li { color:var(--muted); }
+      code { padding:2px 5px; background:#eef1f4; border-radius:4px; font-family:"SFMono-Regular",Consolas,monospace; }
+      footer { padding:32px 0 46px; color:var(--muted); }
+      @media (max-width:820px) { nav { display:none; } .status,.grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../site/index.html">BizHallu</a>
+      <nav><a href="./bizhallu_portfolio_demo_v2.html">Demo</a><a href="./full100_detector_interpretation.html">Results</a><a href="./bizhallu_research_one_pager.html">Research</a></nav>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Methodology Hardening v1</p>
+        <h1>What the current result proves, and what it does not.</h1>
+        <p class="lede">This audit preserves the published experiment while separating reproducible exploratory evidence from the design of a future confirmation study.</p>
+        <div class="status">
+          <div><span>Study class</span><strong>Exploratory</strong></div>
+          <div><span>Annotated questions</span><strong>35 / 36</strong></div>
+          <div><span>Provisional spans</span><strong>205</strong></div>
+          <div><span>Share status</span><strong>With caveats</strong></div>
+        </div>
+        <div class="callout"><strong>Bottom line.</strong> The 0.835 AUPRC and 0.779 F1 values are real outputs of the committed pipeline, but they are exploratory maxima on an error-enriched subset with context overlap and provisional labels. They should motivate a fresh confirmation study, not be presented as its result.</div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Evidence audit</p>
+        <h2>Five boundaries now made explicit</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Finding</th><th>Observed evidence</th><th>Interpretation</th></tr></thead>
+          <tbody><tr>
+            <td><strong>Outcome-informed annotation subset</strong><span class="severity">high</span></td>
+            <td>Score rows cover 35 of 36 dev/test questions. The queue code prioritizes held-out answers when generated-answer auto-status is not likely_correct.</td>
+            <td>The 205-span evaluation is conditional on a high-priority error-enriched subset; it is not a representative estimate over all generated business answers.</td>
+          </tr>
+<tr>
+            <td><strong>Post-hoc headline signal selection</strong><span class="severity">high</span></td>
+            <td>Each signal threshold was selected on dev, but the public AUPRC and F1 winners were identified after comparing candidate signals on test.</td>
+            <td>The observed maxima are useful exploratory summaries, not unbiased confirmation-set estimates.</td>
+          </tr>
+<tr>
+            <td><strong>Context overlap across splits</strong><span class="severity">high</span></td>
+            <td>Dev and test share 5 business periods. There are 9 exact gold evidence-row fingerprint groups crossing splits, involving 28 questions.</td>
+            <td>The split is question-level, not evidence-context independent; results do not establish generalization to unseen months or evidence payloads.</td>
+          </tr>
+<tr>
+            <td><strong>Provisional labels without independent agreement</strong><span class="severity">high</span></td>
+            <td>The 205 spans are AI-assisted provisional labels. Fifteen selected spans received additional assistant review; no independent human annotation or IAA is available.</td>
+            <td>Label reliability is not yet independently estimated.</td>
+          </tr>
+<tr>
+            <td><strong>Oracle span boundary</strong><span class="severity">medium</span></td>
+            <td>Detector signals are scored on pre-identified business-fact spans.</td>
+            <td>The current experiment evaluates span scoring, not automatic claim extraction or an end-to-end audit system.</td>
+          </tr></tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Selection and split diagnosis</p>
+        <h2>The current test is held out for thresholds, not for the full research decision.</h2>
+        <div class="grid">
+          <article class="panel"><h3>What is valid</h3><p>Each candidate signal uses a threshold chosen on dev spans and reuses that fixed threshold on test spans. Character offsets, token alignment, and score rows are reproducibly validated.</p></article>
+          <article class="panel"><h3>What remains exploratory</h3><p>The headline signal was selected after viewing test results, and the annotated subset was chosen through an answer-quality triage queue. This prevents confirmatory interpretation.</p></article>
+          <article class="panel"><h3>Missing held-out item</h3><p><code>q_0048</code> is the sole dev/test question without detector score rows. It asks which of Netherlands or EIRE generated more net revenue in August 2011.</p></article>
+          <article class="panel"><h3>Context overlap</h3><p>Dev and test share 5 months: 2011-04, 2011-05, 2011-06, 2011-09, 2011-10. Split assignment is periodic within question type, not grouped by evidence context.</p></article>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Evidence hash</th><th>Splits</th><th>Question IDs</th><th>Period</th></tr></thead>
+          <tbody><tr>
+            <td><code>4692b67666</code></td>
+            <td>dev, train</td>
+            <td>q_0006, q_0014</td>
+            <td>2011-06</td>
+          </tr>
+<tr>
+            <td><code>eca7f3ec5b</code></td>
+            <td>dev, test</td>
+            <td>q_0009, q_0015</td>
+            <td>2011-09</td>
+          </tr>
+<tr>
+            <td><code>4a4475b083</code></td>
+            <td>dev, train</td>
+            <td>q_0020, q_0063, q_0075, q_0085</td>
+            <td>2011-03</td>
+          </tr>
+<tr>
+            <td><code>c9f021e5ec</code></td>
+            <td>dev, test</td>
+            <td>q_0021, q_0064, q_0076</td>
+            <td>2011-04</td>
+          </tr>
+<tr>
+            <td><code>12f8478dfb</code></td>
+            <td>test, train</td>
+            <td>q_0022, q_0065, q_0077</td>
+            <td>2011-05</td>
+          </tr>
+<tr>
+            <td><code>88790eb00f</code></td>
+            <td>dev, train</td>
+            <td>q_0023, q_0066, q_0078, q_0086</td>
+            <td>2011-06</td>
+          </tr>
+<tr>
+            <td><code>bbf5b3e686</code></td>
+            <td>dev, train</td>
+            <td>q_0025, q_0068, q_0080</td>
+            <td>2011-08</td>
+          </tr>
+<tr>
+            <td><code>451a40a768</code></td>
+            <td>dev, test</td>
+            <td>q_0026, q_0069, q_0081, q_0087</td>
+            <td>2011-09</td>
+          </tr>
+<tr>
+            <td><code>41b64219a1</code></td>
+            <td>test, train</td>
+            <td>q_0027, q_0070, q_0082</td>
+            <td>2011-10</td>
+          </tr></tbody>
+        </table></div>
+        <p>These are exact fingerprints of the gold <code>evidence.rows</code> payload. They are not claims that prompts are byte-identical; they show that the same underlying evidence table can support questions assigned to different splits.</p>
+      </section>
+
+      <section>
+        <p class="eyebrow">Public claim boundary</p>
+        <h2>Use the result, but name its evidence level.</h2>
+        <div class="grid">
+          <article class="panel"><h3>Accurate wording</h3><ul><li>exploratory maximum test AUPRC across candidate signals</li><li>exploratory maximum test F1 across candidate signals</li><li>AI-assisted provisional span labels</li><li>evaluation of pre-identified business-fact spans</li><li>results conditional on the selected high-priority question subset</li></ul></article>
+          <article class="panel"><h3>Claims not supported yet</h3><ul><li>confirmatory generalization estimate</li><li>unbiased held-out model-selection result</li><li>representative error rate across all business questions</li><li>independent human-labeled benchmark</li><li>end-to-end automatic hallucination detection</li><li>production-ready detector</li></ul></article>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Protocol v1</p>
+        <h2>Design the next run before seeing its answers.</h2>
+        <ol>
+          <li><strong>Fresh contexts.</strong> fresh business contexts, model outputs, or a second dataset not used for exploratory signal selection.</li>
+          <li><strong>Context-separated splits.</strong> Group by evidence source plus business period plus canonical evidence-row payload; never place identical evidence payloads across development and confirmation.</li>
+          <li><strong>Independent labels.</strong> two independent reviewers for the confirmation subset; report binary label agreement and span-boundary agreement before adjudication.</li>
+          <li><strong>Freeze decisions.</strong> Primary metric is AUPRC; detector families, thresholds, extraction rules, prompts, and verifier logic are fixed before confirmation-set access.</li>
+          <li><strong>Separate tasks.</strong> Report oracle-span diagnostics, claim extraction, and end-to-end verification as different evaluations.</li>
+        </ol>
+        <div class="callout good"><strong>Research direction.</strong> The next study compares internal uncertainty, literature-grounded baselines, and an independently implemented evidence-aware verifier. It does not assume one family will win.</div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Locked current record</p>
+        <h2>No result was recomputed in this phase.</h2>
+        <div class="status">
+          <div><span>Max test AUPRC</span><strong>0.835</strong></div>
+          <div><span>Max test F1</span><strong>0.779</strong></div>
+          <div><span>Test spans</span><strong>103</strong></div>
+          <div><span>Independent IAA</span><strong>Not done</strong></div>
+        </div>
+      </section>
+    </main>
+    <footer><main>Generated from committed question, score, source-code, interpretation, and protocol artifacts. Protocol: <code>configs/methodology_protocol_v1.json</code>.</main></footer>
+  </body>
+</html>

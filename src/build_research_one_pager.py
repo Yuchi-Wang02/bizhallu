@@ -16,6 +16,7 @@ INTERPRETATION_SUMMARY_PATH = REPORTS_DIR / "full100_detector_interpretation_sum
 DEMO_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
+METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
 
 HTML_PATH = REPORTS_DIR / "bizhallu_research_one_pager.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
@@ -45,6 +46,7 @@ def main() -> None:
     demo = load_json(DEMO_SUMMARY_PATH)
     risk = load_json(RISK_SUMMARY_PATH)
     verifier = load_json(VERIFIER_SUMMARY_PATH)
+    methodology = load_json(METHODOLOGY_SUMMARY_PATH)
 
     best_auprc = interpretation["best_overall_by_test_auprc"]
     best_f1 = interpretation["best_overall_by_test_f1"]
@@ -60,20 +62,20 @@ def main() -> None:
         "Clean UCI Online Retail transactions into auditable business evidence tables.",
         "Generate deterministic business questions and gold answers across seven retail analytics question types.",
         "Run local Qwen3-0.6B generations and preserve token-level probability, entropy, margin, and energy-style traces.",
-        "Review exact business-fact spans and align each span to generated tokens.",
-        "Evaluate split-safe detector baselines with dev-selected thresholds and held-out test metrics.",
+        "Build AI-assisted provisional business-fact span labels and align pre-identified spans to generated tokens.",
+        "Select thresholds on dev spans, then compare candidate-signal metrics on the test spans as an exploratory analysis.",
     ]
 
     key_findings = [
-        f"Best held-out span-level AUPRC is {metric(best_auprc['test_auprc'])} from {best_auprc['baseline']}.",
-        f"Best held-out span-level F1 is {metric(best_f1['test_f1'])} from {best_f1['baseline']}.",
+        f"The exploratory maximum test AUPRC is {metric(best_auprc['test_auprc'])} from {best_auprc['baseline']}.",
+        f"The exploratory maximum test F1 is {metric(best_f1['test_f1'])} from {best_f1['baseline']}; it is a different signal.",
         "Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.",
         "Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.",
     ]
 
     jhu_extensions = [
         "Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.",
-        "Operations analytics: verify product, inventory, vendor, or demand claims before they influence prioritization decisions.",
+        "Operations analytics: verify product-performance, return-impact, and revenue-exposure claims before they influence prioritization decisions.",
         "Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.",
         "Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.",
     ]
@@ -81,7 +83,7 @@ def main() -> None:
     research_tracks = [
         "Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.",
         "Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.",
-        "Evidence-aware verification: claim-evidence consistency checks against structured source rows and deterministic gold answers; current v0 covers Demo v2 locked spans only.",
+        "Evidence-aware verification: future independent claim-evidence decisions against structured source rows and deterministic gold answers; the current v0 is only a label-derived review schema.",
     ]
 
     baseline_backlog = [
@@ -103,12 +105,14 @@ def main() -> None:
         "demo_case_count": demo["case_count"],
         "business_risk_lens_count": risk["lens_count"],
         "verifier_pilot_span_count": verifier["span_count"],
-        "verifier_pilot_contradicted_count": verifier["verifier_label_counts"]["contradicted"],
+        "verifier_pilot_contradicted_count": verifier["review_status_counts"]["contradicted"],
         "research_question_count": len(research_questions),
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "verifier pilot v0 over Demo v2 locked spans; no full100 rerun",
+        "next_stage_scope": "claim-evidence review schema v0 over Demo v2 spans; no independent verifier or full100 rerun",
+        "methodology_status": methodology["status"],
+        "methodology_share_status": methodology["share_status"],
         "label_lock_basis": narrative["label_lock_basis"],
         "num_failures": 0,
         "failures": [],
@@ -257,17 +261,18 @@ def main() -> None:
           <p class="lede">BizHallu studies evidence-grounding failures in LLM-generated business analysis: cases where the answer sounds fluent and may use real values, but binds them to the wrong product, rank, amount, comparison, or conclusion.</p>
           <div class="links">
             <a href="./portfolio_demo_v2.html">Open demo v2</a>
-            <a href="./evidence_verifier_pilot.html">Open verifier pilot</a>
+            <a href="./evidence_verifier_pilot.html">Open claim-evidence schema</a>
+            <a href="./bizhallu_methodology_hardening.html">Open methodology audit</a>
             <a href="./business_risk_lens.html">Open business risk lens</a>
             <a href="./detector_interpretation.html">Open detector interpretation</a>
           </div>
         </div>
         <aside class="snapshot">
           <div><span class="label">Gold questions</span><strong>{summary["question_count"]}</strong></div>
-          <div><span class="label">Aligned spans</span><strong>{summary["annotated_span_count"]}</strong></div>
-          <div><span class="label">Held-out test spans</span><strong>{summary["heldout_test_span_count"]}</strong></div>
-          <div><span class="label">Best AUPRC / F1</span><strong>{metric(summary["best_test_auprc"])} / {metric(summary["best_test_f1"])}</strong></div>
-          <div><span class="label">Label basis</span><strong>{esc(summary["label_lock_basis"])}</strong></div>
+          <div><span class="label">Provisional aligned spans</span><strong>{summary["annotated_span_count"]}</strong></div>
+          <div><span class="label">Test spans scored</span><strong>{summary["heldout_test_span_count"]}</strong></div>
+          <div><span class="label">Exploratory test maxima</span><strong>{metric(summary["best_test_auprc"])} AUPRC / {metric(summary["best_test_f1"])} F1</strong></div>
+          <div><span class="label">Presentation review</span><strong>15 selected spans</strong></div>
         </aside>
       </section>
 
@@ -294,7 +299,7 @@ def main() -> None:
           <article class="metric"><span class="label">Questions</span><strong>{summary["question_count"]}</strong><p>Deterministic business questions across seven question types.</p></article>
           <article class="metric"><span class="label">Demo cases</span><strong>{summary["demo_case_count"]}</strong><p>Presentation-locked cases available in demo v2.</p></article>
           <article class="metric"><span class="label">Business lenses</span><strong>{summary["business_risk_lens_count"]}</strong><p>Accounting, operations, product, and market-risk framings.</p></article>
-          <article class="metric"><span class="label">Test spans</span><strong>{summary["heldout_test_span_count"]}</strong><p>Held-out span-level detector evaluation units.</p></article>
+          <article class="metric"><span class="label">Test spans</span><strong>{summary["heldout_test_span_count"]}</strong><p>Pre-identified span-level detector evaluation units.</p></article>
         </div>
       </section>
 
@@ -333,15 +338,16 @@ def main() -> None:
             {render_list(baseline_backlog)}
           </article>
         </div>
-        <div class="callout"><strong>Implementation caution:</strong> the current evidence-aware verifier is a v0 pilot over {esc(summary["verifier_pilot_span_count"])} Demo v2 locked spans, including {esc(summary["verifier_pilot_contradicted_count"])} contradicted bindings. Do not rerun full100, relabel spans, or add new metric claims until the comparison protocol is locked.</div>
+        <div class="callout"><strong>Implementation caution:</strong> Claim-Evidence Review Schema v0 covers {esc(summary["verifier_pilot_span_count"])} selected Demo v2 spans, including {esc(summary["verifier_pilot_contradicted_count"])} label-derived contradicted statuses. It does not make independent verifier predictions. Define and freeze an independent decision rule before reporting a verifier comparison.</div>
       </section>
 
       <section>
         <p class="eyebrow">Scope guardrails</p>
         <h2>How to describe this accurately.</h2>
         <div class="panel">
-          <p>BizHallu is a portfolio-scale, span-level AI reliability artifact. It should not be described as a production detector, a large independent human-labeled benchmark, or a whole-answer correctness benchmark.</p>
-          <p>Best wording: <code>assistant-reviewed presentation labels</code>, <code>span-level business-fact evaluation</code>, and <code>diagnostic detector baselines</code>.</p>
+          <p>BizHallu is a portfolio-scale, span-level AI reliability artifact. The 205 labels are AI-assisted and provisional; 15 selected presentation spans received an additional assistant review. There is no independent human annotation or inter-annotator agreement.</p>
+          <p>The current evaluation scores pre-identified spans and does not automatically extract claims from unseen answers. The 0.835 AUPRC and 0.779 F1 values are exploratory test-set maxima from different candidate signals, not a confirmatory held-out model-selection estimate.</p>
+          <p>The score package covers 35 of 36 dev/test questions selected through an outcome-informed high-priority queue. The question-level split also shares months and exact evidence-row payloads across splits. Methodology Hardening v1 documents these limits and specifies a fresh context-separated confirmation protocol.</p>
         </div>
       </section>
     </main>

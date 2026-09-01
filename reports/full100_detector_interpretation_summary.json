@@ -3,9 +3,11 @@
   "scope": {
     "dataset": "UCI Online Retail",
     "model": "Qwen3-0.6B",
-    "evaluation_scope": "35 high-priority held-out dev/test questions; metrics reported on 103 held-out test spans",
+    "evaluation_scope": "35 dev/test answers with 205 AI-assisted provisional spans; metrics summarized on 103 test spans",
     "threshold_policy": "Thresholds selected on dev spans and reused unchanged on test spans.",
-    "label_status": "Presentation labels locked after assistant full review."
+    "metric_selection_policy": "Headline signals selected after comparing test results; values are exploratory maxima, not confirmatory held-out model-selection estimates.",
+    "label_status": "205 AI-assisted provisional labels; 15 selected presentation spans received additional assistant review.",
+    "claim_extraction_scope": "Scores pre-identified spans; automatic claim extraction is not evaluated."
   },
   "best_overall_by_test_auprc": {
     "family": "simple",
@@ -249,7 +251,7 @@
     ]
   },
   "takeaways": [
-    "Simple uncertainty is the strongest current held-out signal: it leads both overall AUPRC and overall F1.",
+    "Simple uncertainty has the strongest observed test maxima in this exploratory comparison: it leads both AUPRC and F1, using different signals.",
     "The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.",
     "AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.",
     "Top-3 product questions remain the clearest confident-error failure mode.",

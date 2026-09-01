@@ -193,16 +193,20 @@ def build_demo_data() -> dict[str, Any]:
             "energy_threshold": energy_threshold,
             "best_test_auprc": interpretation_summary["best_overall_by_test_auprc"]["test_auprc"],
             "best_test_f1": interpretation_summary["best_overall_by_test_f1"]["test_f1"],
-            "guardrail": "Assistant-reviewed presentation labels; span-level demo, not a human benchmark or production detector.",
+            "annotation_status": "15 selected spans with additional assistant presentation review",
+            "independent_human_annotation": False,
+            "automatic_claim_extraction": False,
+            "metric_selection_status": "exploratory_test_maxima",
+            "guardrail": "Selected presentation spans only; no independent human annotation, automatic claim extraction, or production detector claim.",
         },
         "filters": {
             "fact_types": sorted({span["fact_type"] for span in all_spans}),
             "labels": sorted({span["label"] for span in all_spans}),
             "outcomes": ["caught", "missed", "false alarm", "cleared"],
             "detectors": [
-                {"id": "simple", "label": "Top-2 margin", "score_field": SIMPLE_FIELD},
-                {"id": "entropy", "label": "Entropy", "score_field": ENTROPY_FIELD},
-                {"id": "energy", "label": "Energy-family", "score_field": ENERGY_FIELD},
+                {"id": "simple", "label": "Top-2 margin", "score_field": SIMPLE_FIELD, "description": "Flags spans when the model's top two token choices were close at the least-certain token."},
+                {"id": "entropy", "label": "Entropy", "score_field": ENTROPY_FIELD, "description": "Flags spans with higher average uncertainty across their generated tokens."},
+                {"id": "energy", "label": "Energy-family", "score_field": ENERGY_FIELD, "description": "Uses probability mass outside the top two token choices; this is an energy-family control, not a semantic verifier."},
             ],
         },
         "cases": cases,
@@ -211,7 +215,7 @@ def build_demo_data() -> dict[str, Any]:
 
 
 def build_html(data: dict[str, Any]) -> str:
-    data_json = json.dumps(data, ensure_ascii=True)
+    data_json = json.dumps(data, ensure_ascii=True).replace("<", "\\u003c")
     escaped_title = html.escape(data["meta"]["title"], quote=True)
     return f"""<!doctype html>
 <html lang="en">
@@ -335,6 +339,7 @@ def build_html(data: dict[str, Any]) -> str:
         background: white;
         color: var(--ink);
       }}
+      .detector-help {{ margin: -2px 2px 0; color: var(--muted); font-size: 13px; }}
       .panel {{ padding: 22px; }}
       .metric-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }}
       .metric {{ padding: 16px; }}
@@ -391,7 +396,7 @@ def build_html(data: dict[str, Any]) -> str:
       }}
       @media (max-width: 980px) {{
         .topbar {{ padding: 0 20px; }}
-        .nav {{ display: none; }}
+        .nav {{ flex-wrap: wrap; justify-content: flex-end; gap: 8px; font-size: 12px; }}
         main {{ width: min(100% - 28px, 760px); }}
         .layout, .answer-grid, .toolbar, .metric-grid {{ grid-template-columns: 1fr; }}
         .sidebar {{ position: static; }}
@@ -402,17 +407,17 @@ def build_html(data: dict[str, Any]) -> str:
     <header class="topbar">
       <a class="brand" href="./index.html"><span>BH</span>BizHallu</a>
       <nav class="nav">
-        <a href="./career_package.html">Career package</a>
-        <a href="./portfolio_demo.html">Original demo</a>
-        <a href="./detector_interpretation.html">Metrics</a>
+        <a href="./detector_interpretation.html">Methods</a>
+        <a href="./research_one_pager.html">Research</a>
+        <a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a>
       </nav>
     </header>
 
     <main>
       <section class="hero">
         <p class="eyebrow">Interactive demo v2</p>
-        <h1>Filter hallucinated business facts by case, label, fact type, and detector outcome.</h1>
-        <p class="lede">This page uses only public, assistant-reviewed presentation labels and presentation-locked artifacts. It shows why evidence-aware checking matters when internal uncertainty misses confident wrong business bindings.</p>
+        <h1>See when a real number is bound to the wrong business claim.</h1>
+        <p class="lede">Explore 15 selected presentation spans across nine cases. The labels received additional assistant review; they are not an independent human benchmark. Detector scores apply to pre-identified spans and do not discover claims automatically.</p>
         <div class="links">
           <a href="./assets/bizhallu_demo_v2_data.json">Open JSON data bundle</a>
           <a href="./portfolio_narrative.html">Read project narrative</a>
@@ -429,6 +434,7 @@ def build_html(data: dict[str, Any]) -> str:
             <label>Label<select id="labelFilter"></select></label>
             <label>Outcome<select id="outcomeFilter"></select></label>
           </div>
+          <p class="detector-help" id="detectorHelp"></p>
           <article class="panel" id="casePanel"></article>
           <article class="panel" id="spanPanel"></article>
           <article class="panel" id="evidencePanel"></article>
@@ -438,7 +444,10 @@ def build_html(data: dict[str, Any]) -> str:
 
     <script>
       const DEMO_DATA = {data_json};
-      let currentCaseId = DEMO_DATA.cases[0].question_id;
+      const requestedCaseId = new URLSearchParams(window.location.search).get("case");
+      let currentCaseId = DEMO_DATA.cases.some((item) => item.question_id === requestedCaseId)
+        ? requestedCaseId
+        : DEMO_DATA.cases[0].question_id;
 
       function escapeHtml(value) {{
         return String(value ?? "").replace(/[&<>"']/g, (char) => ({{
@@ -456,6 +465,22 @@ def build_html(data: dict[str, Any]) -> str:
         if (number === 0) return "0";
         if (Math.abs(number) < 0.001) return number.toExponential(2);
         return number.toFixed(3);
+      }}
+
+      function labelText(value) {{
+        return {{
+          correct_key_fact: "Supported",
+          hallucinated_key_fact: "Incorrect binding"
+        }}[value] || value;
+      }}
+
+      function outcomeText(value) {{
+        return {{
+          caught: "Flagged incorrect binding",
+          missed: "Missed incorrect binding",
+          "false alarm": "Flagged supported fact",
+          cleared: "Cleared supported fact"
+        }}[value] || value;
       }}
 
       function activeDetector() {{
@@ -490,7 +515,7 @@ def build_html(data: dict[str, Any]) -> str:
           if (span.span_start_char < cursor) continue;
           html += escapeHtml(text.slice(cursor, span.span_start_char));
           const cls = span.label === "correct_key_fact" ? "ok" : "bad";
-          html += `<mark class="${{cls}}" title="${{escapeHtml(span.fact_type)}} / ${{escapeHtml(span.label)}}">${{escapeHtml(text.slice(span.span_start_char, span.span_end_char))}}</mark>`;
+          html += `<mark class="${{cls}}" title="${{escapeHtml(span.fact_type)}} / ${{escapeHtml(labelText(span.label))}}">${{escapeHtml(text.slice(span.span_start_char, span.span_end_char))}}</mark>`;
           cursor = span.span_end_char;
         }}
         html += escapeHtml(text.slice(cursor));
@@ -501,20 +526,25 @@ def build_html(data: dict[str, Any]) -> str:
         const detector = document.getElementById("detectorFilter");
         detector.innerHTML = DEMO_DATA.filters.detectors.map((item) => `<option value="${{item.id}}">${{escapeHtml(item.label)}}</option>`).join("");
         document.getElementById("factTypeFilter").innerHTML = `<option value="all">All fact types</option>` + DEMO_DATA.filters.fact_types.map((item) => `<option value="${{escapeHtml(item)}}">${{escapeHtml(item)}}</option>`).join("");
-        document.getElementById("labelFilter").innerHTML = `<option value="all">All labels</option>` + DEMO_DATA.filters.labels.map((item) => `<option value="${{escapeHtml(item)}}">${{escapeHtml(item)}}</option>`).join("");
-        document.getElementById("outcomeFilter").innerHTML = `<option value="all">All outcomes</option>` + DEMO_DATA.filters.outcomes.map((item) => `<option value="${{escapeHtml(item)}}">${{escapeHtml(item)}}</option>`).join("");
+        document.getElementById("labelFilter").innerHTML = `<option value="all">All labels</option>` + DEMO_DATA.filters.labels.map((item) => `<option value="${{escapeHtml(item)}}">${{escapeHtml(labelText(item))}}</option>`).join("");
+        document.getElementById("outcomeFilter").innerHTML = `<option value="all">All outcomes</option>` + DEMO_DATA.filters.outcomes.map((item) => `<option value="${{escapeHtml(item)}}">${{escapeHtml(outcomeText(item))}}</option>`).join("");
         for (const id of ["detectorFilter", "factTypeFilter", "labelFilter", "outcomeFilter"]) {{
           document.getElementById(id).addEventListener("change", render);
         }}
+      }}
+
+      function renderDetectorHelp() {{
+        const detector = DEMO_DATA.filters.detectors.find((item) => item.id === activeDetector());
+        document.getElementById("detectorHelp").textContent = detector?.description || "";
       }}
 
       function renderMetrics() {{
         const meta = DEMO_DATA.meta;
         const items = [
           ["Cases", meta.case_count, "Locked questions in the demo bundle."],
-          ["Locked spans", meta.span_count, "Presentation-selected fact spans."],
-          ["Best test AUPRC", Number(meta.best_test_auprc).toFixed(3), "Split-safe detector ranking result."],
-          ["Best test F1", Number(meta.best_test_f1).toFixed(3), "Dev-thresholded held-out result."]
+          ["Reviewed demo spans", meta.span_count, "Selected spans with additional assistant review."],
+          ["Exploratory max test AUPRC", Number(meta.best_test_auprc).toFixed(3), "Highest observed value across candidate signals."],
+          ["Exploratory max test F1", Number(meta.best_test_f1).toFixed(3), "A different winning signal; not a confirmation estimate."]
         ];
         document.getElementById("metrics").innerHTML = items.map(([label, value, text]) => `
           <article class="metric"><span>${{escapeHtml(label)}}</span><strong>${{escapeHtml(value)}}</strong><p>${{escapeHtml(text)}}</p></article>
@@ -531,6 +561,9 @@ def build_html(data: dict[str, Any]) -> str:
         document.querySelectorAll(".case-button").forEach((button) => {{
           button.addEventListener("click", () => {{
             currentCaseId = button.dataset.case;
+            const url = new URL(window.location.href);
+            url.searchParams.set("case", currentCaseId);
+            window.history.replaceState({{}}, "", url);
             render();
           }});
         }});
@@ -564,10 +597,9 @@ def build_html(data: dict[str, Any]) -> str:
           const outcomeClass = outcome === "caught" || outcome === "cleared" ? "ok" : outcome === "missed" ? "bad" : "warn";
           return `
             <tr>
-              <td><span class="pill ${{labelClass}}">${{escapeHtml(span.label)}}</span><span class="small">${{escapeHtml(span.fact_type)}}</span></td>
-              <td>${{escapeHtml(span.span_text)}}<span class="small">${{escapeHtml(span.annotation_id)}}</span></td>
-              <td><span class="pill ${{outcomeClass}}">${{escapeHtml(outcome)}}</span><span class="small">score ${{scoreText(detectorScore(span))}}</span></td>
-              <td>${{escapeHtml(span.detector_role_text)}}<span class="small">${{escapeHtml(span.publish_use)}} / ${{escapeHtml(span.presentation_use)}}</span></td>
+              <td><span class="pill ${{labelClass}}">${{escapeHtml(labelText(span.label))}}</span><span class="small">${{escapeHtml(span.fact_type)}}</span></td>
+              <td>${{escapeHtml(span.span_text)}}</td>
+              <td><span class="pill ${{outcomeClass}}">${{escapeHtml(outcomeText(outcome))}}</span><span class="small">score ${{scoreText(detectorScore(span))}}</span></td>
               <td>${{escapeHtml(span.review_note)}}</td>
             </tr>
           `;
@@ -576,8 +608,8 @@ def build_html(data: dict[str, Any]) -> str:
           <h3>Filtered locked spans</h3>
           <p>${{spans.length}} span(s) match the current filters. Outcomes use the selected detector in the toolbar.</p>
           <table>
-            <thead><tr><th>Label</th><th>Span</th><th>Detector outcome</th><th>Role</th><th>Review note</th></tr></thead>
-            <tbody>${{rows || '<tr><td colspan="5">No spans match these filters.</td></tr>'}}</tbody>
+            <thead><tr><th>Presentation label</th><th>Span</th><th>Selected detector</th><th>Why this label was selected</th></tr></thead>
+            <tbody>${{rows || '<tr><td colspan="4">No spans match these filters.</td></tr>'}}</tbody>
           </table>
         `;
       }}
@@ -599,7 +631,8 @@ def build_html(data: dict[str, Any]) -> str:
         renderCaseList();
         const caseRow = DEMO_DATA.cases.find((item) => item.question_id === currentCaseId) || DEMO_DATA.cases[0];
         const spans = filteredSpans(caseRow);
-        renderCase(caseRow, spans.length ? spans : caseRow.spans);
+        renderDetectorHelp();
+        renderCase(caseRow, spans);
         renderSpans(spans);
         renderEvidence(caseRow);
       }}
@@ -631,6 +664,10 @@ def main() -> None:
         "fact_type_count": len(data["filters"]["fact_types"]),
         "label_count": len(data["filters"]["labels"]),
         "detector_count": len(data["filters"]["detectors"]),
+        "annotation_status": data["meta"]["annotation_status"],
+        "independent_human_annotation": data["meta"]["independent_human_annotation"],
+        "automatic_claim_extraction": data["meta"]["automatic_claim_extraction"],
+        "metric_selection_status": data["meta"]["metric_selection_status"],
         "by_label": dict(Counter(span["label"] for span in all_spans)),
         "by_simple_outcome": dict(Counter(span["simple_outcome"] for span in all_spans)),
         "by_entropy_outcome": dict(Counter(span["entropy_outcome"] for span in all_spans)),

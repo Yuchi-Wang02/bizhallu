@@ -2,6 +2,92 @@
 
 Date: 2026-05-25
 
+## Integrity Update: 2026-08-31
+
+This update supersedes older public-facing wording later in this historical
+audit. The underlying numeric artifacts are unchanged, but their interpretation
+is now more precise:
+
+- The 205-span package is an AI-assisted provisional annotation set across 35
+  dev/test answers. Only 15 selected presentation spans received an additional
+  assistant review. No independent human annotation or inter-annotator
+  agreement has been completed.
+- The 0.835 test AUPRC and 0.779 test F1 values are exploratory maxima from
+  different candidate signals. Thresholds were selected on dev spans, but the
+  winning signal for each headline metric was chosen after comparing test
+  results. They are not confirmatory held-out model-selection estimates.
+- Detector scores are computed for pre-identified business-fact spans. The
+  current system does not automatically extract claims from unseen answers.
+- `evidence_verifier_pilot.html` is retained as a stable URL, but its public
+  artifact is now called Claim-Evidence Review Schema v0. Its statuses are
+  direct mappings from selected presentation labels, not independent verifier
+  predictions.
+
+Older sections remain as an execution history and may use the earlier
+"held-out" or "verifier pilot" shorthand. Use this update, `README.md`, and the
+current generated Pages bundle for public claims.
+
+## Methodology Hardening Update: 2026-08-31
+
+A source-backed audit now adds four boundaries that were not explicit enough
+in the earlier project narrative:
+
+- The detector score package covers 35 of 36 dev/test questions. The 35-question
+  batch was selected through a high-priority queue conditioned on generated-
+  answer auto-status, so the 205-span evaluation is outcome-informed and likely
+  error-enriched.
+- The question split is deterministic and periodic within question type. It is
+  not randomized or grouped by business month/evidence context.
+- Dev and test share five business periods. Nine exact gold evidence-row
+  fingerprint groups cross splits and involve 28 questions, so this experiment
+  does not establish generalization to unseen evidence contexts.
+- Dev-only threshold selection remains a valid implementation detail, but the
+  headline detector for AUPRC and F1 was chosen after test comparison. The
+  public numbers remain exploratory maxima.
+
+`configs/methodology_protocol_v1.json` now separates this retrospective study
+from a future confirmation study. The generated Methodology Hardening v1 report
+recomputes these counts from committed artifacts, and its validator fails if
+the sample, overlap, or locked-result facts drift.
+
+## Confirmation Set v1 Design Update: 2026-09-01
+
+The next study now has a prospective, machine-readable design, but execution has
+not started. `configs/confirmation_set_v1_protocol.json` fixes the intended
+sampling, context separation, annotation, evaluation-track, metric, and claim
+policies before new model answers are viewed.
+
+- The planning target is 72 generations: a 12-question protocol pilot, 30
+  development questions, and 30 sealed confirmation questions. The protocol
+  pilot is permanently excluded from confirmation metrics, so the main study
+  contains 60 questions.
+- Sampling is outcome-blind at the `evidence_context_id` level. The design does
+  not force a 50/50 correct-error balance and does not replace outputs after
+  answer quality is observed.
+- All new-study splits must use disjoint business periods and canonical
+  evidence fingerprints. Exact evidence fingerprints from the historical
+  full100 exploratory study are also excluded.
+- Two independent human reviewers are required. Assistant support may prepare
+  packets and validate offsets but does not count as an independent reviewer.
+- Every in-scope business-fact claim in every selected answer is annotated; no
+  high-priority or error-enriched span subset is allowed. In the binary oracle
+  task, both `contradicted` and `unmatched` are positive unsupported claims.
+- Oracle-span diagnostics, automatic claim extraction, evidence verification,
+  and end-to-end auditing are reported as four separate evaluation tracks.
+- AUPRC is the primary oracle-span metric. Thresholded F1 is secondary and must
+  reuse a development-frozen threshold; uncertainty intervals use a cluster
+  bootstrap by evidence context.
+- Internal uncertainty, literature-grounded baselines, evidence-aware
+  verification, and an optional frozen hybrid remain comparison families.
+- Seven execution gates are deliberately pending. The next authorized action is
+  dataset-source selection and audit, followed by an outcome-blind precision
+  review of the minimum context counts, not prompt generation or a new model run.
+
+The generated report at
+`reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
+metric. The current 0.835 AUPRC and 0.779 F1 remain historical exploratory
+maxima and are not targets or results for Confirmation Set v1.
+
 ## Audit Scope
 
 This audit reviews the current BizHallu project state after data preparation,
@@ -934,8 +1020,10 @@ The first full100 split-safe evaluation covers the simple detector family:
 - `results/full100_draft_simple_split_report.json` records dev-selected
   thresholds and held-out test summaries.
 - `results/full100_draft_simple_split_validation.json` reports 0 failures.
-- Best held-out test AUPRC is 0.835 from `one_minus_min_top2_margin`.
-- Best held-out test F1 is 0.779 from `mean_token_entropy`.
+- Exploratory maximum test AUPRC is 0.835 from
+  `one_minus_min_top2_margin`.
+- Exploratory maximum test F1 is 0.779 from `mean_token_entropy`; this is a
+  different candidate signal.
 - The highest-AUPRC simple baseline has test precision 0.854, recall 0.672,
   specificity 0.833, and accuracy 0.738.
 
@@ -953,9 +1041,9 @@ The second full100 split-safe evaluation covers the energy detector family:
 - `results/full100_draft_energy_split_report.json` records dev-selected
   thresholds and held-out test summaries.
 - `results/full100_draft_energy_split_validation.json` reports 0 failures.
-- Best energy-family held-out test AUPRC is 0.830 from
+- Exploratory maximum energy-family test AUPRC is 0.830 from
   `max_selected_step_energy_gap`.
-- Best energy-family held-out test F1 is 0.773 from
+- Exploratory maximum energy-family test F1 is 0.773 from
   `mean_spilled_probability_mass_after_top2`.
 - Pure adjacent-step energy delta/abs-delta rows are weak or degenerate under
   the dev-F1 threshold policy: 4 energy rows are flagged as all-positive-like.
@@ -977,10 +1065,10 @@ The family comparison puts simple and energy test rows into one audit table:
   overall best AUPRC/F1 rows and interpretation guardrails.
 - `results/full100_draft_detector_family_comparison_validation.json` reports 0
   failures.
-- Best overall held-out test AUPRC is 0.835 from simple
+- Exploratory maximum test AUPRC is 0.835 from simple
   `one_minus_min_top2_margin`.
-- Best overall held-out test F1 is 0.779 from simple `mean_token_entropy`.
-- Best energy-family held-out test F1 is 0.773 from
+- Exploratory maximum test F1 is 0.779 from simple `mean_token_entropy`.
+- Exploratory maximum energy-family test F1 is 0.773 from
   `mean_spilled_probability_mass_after_top2`.
 - Energy best AUPRC is 0.004679 below simple best AUPRC.
 - Energy best F1 is 0.006685 below simple best F1.
@@ -1344,10 +1432,9 @@ entry point for GitHub Pages.
       or depending on local-only token traces.
 
 35. The next research direction needed a small, reviewable implementation path.
-    - Fix: added an evidence-aware verifier pilot over the 9 Demo v2 cases and
-      15 presentation-locked spans. It creates claim-evidence rows, a summary,
-      an HTML report, and validation checks without changing Qwen outputs,
-      span labels, detector scores, or headline metrics.
+    - Fix: added a claim-evidence review schema over the 9 Demo v2 cases and 15
+      selected presentation spans. Its statuses are label-derived and prepare
+      a future independent comparison; they are not verifier predictions.
 
 ## Remaining Risks
 
@@ -1379,16 +1466,23 @@ entry point for GitHub Pages.
      bundle is ready, but claims should remain span-level and should not imply
      whole-answer correctness.
 
-5. The evidence-aware verifier pilot is intentionally small.
-   - It covers only Demo v2 locked spans and should be described as a research
-     prototype, not an independent production checker or new benchmark result.
-   - It is useful for showing the next comparison family, but it does not yet
-     replace internal uncertainty baselines or formal full100 evaluation.
+5. Claim-Evidence Review Schema v0 is intentionally small.
+   - It covers only selected Demo v2 spans and derives statuses from existing
+     presentation labels.
+   - It is a protocol scaffold, not an independent production checker, a new
+     benchmark result, or evidence that a verifier outperforms uncertainty.
 
 6. Current pilot metrics are not held-out results.
-    - The split-safe full100 metrics, interpretation, and label lock package
-      are now available; the remaining risk is presentation clarity, not metric
-      availability.
+    - The full100 evaluator correctly freezes each signal threshold on dev, but
+      the 35-question annotation subset is outcome-informed, evidence contexts
+      cross splits, and headline signals were chosen after test comparison.
+    - Treat 0.835 AUPRC and 0.779 F1 as reproducible exploratory maxima, not as
+      representative or confirmatory performance estimates.
+
+7. A clean confirmation set does not exist yet.
+   - The next result needs fresh or context-separated evidence, annotation
+     targets selected before answer-quality review, independent human labeling,
+     frozen detector decisions, and separate claim-extraction evaluation.
 
 ## Recommended Next Steps
 
@@ -1401,28 +1495,35 @@ entry point for GitHub Pages.
      supply management, and BA / DS / AI Analyst roles.
    - Use `docs/research_one_pager.html` for professor, capstone, and research
      advisor outreach.
-   - Use `docs/evidence_verifier_pilot.html` to show the next evidence-aware
-     verifier family without claiming new headline detector metrics.
+   - Use `docs/methodology_hardening.html` to disclose current evidence strength
+     and the future confirmation protocol.
+   - Use `docs/evidence_verifier_pilot.html` to show the claim-evidence review
+     schema without claiming independent verifier predictions or new metrics.
    - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
      `docs/detector_interpretation.html` as deeper technical references.
 
 2. Preserve claim guardrails.
    - Say span-level business-fact evaluation, not whole-answer correctness.
-   - Say assistant-reviewed presentation labels, not a large independent
-     human-labeled benchmark.
+   - Say 205 AI-assisted provisional labels and 15 additionally
+     assistant-reviewed presentation spans, not a human-labeled benchmark.
    - Say diagnostic detector baselines, not production-ready hallucination
      detection.
    - Say simple uncertainty is strongest in this run; do not imply the
      energy-family methods won overall.
 
-3. Extend only after the public package and CI remain stable.
-   - Treat the current evidence-aware verifier pilot as v0 over Demo v2 locked
-     spans; the next research step is protocol hardening before any full100
-     expansion or new headline metrics.
+3. Treat Confirmation Set v1 as the next research branch, but keep it blocked
+   until the dataset decision is complete.
+   - Audit the same-dataset prospective-replication option and at least one
+     second public transaction dataset against the six source-acceptance
+     criteria in `configs/confirmation_set_v1_protocol.json`.
+   - Record the selected source, exclusions, license, completeness checks, and
+     feasible evidence contexts before creating prompt files.
+   - Keep the 12/30/30 counts as planning targets until a source-feasibility and
+     precision review confirms that they are defensible.
+   - Treat the current claim-evidence schema as label-derived v0 scaffolding;
+     implement an independent decision protocol only on pilot/development data.
    - Keep internal-state and literature-grounded methods as comparison tracks:
      entropy, top-2 margin, energy-style signals, Semantic Entropy, TOHA, and
      entity-level hallucination detection.
-   - Then add a 10-20 question business-risk extension for returns, revenue
-     reconciliation, product concentration, and country exposure.
-   - Defer larger benchmark expansion until the public demo, interview story,
-     and research comparison plan remain clean after validation.
+   - Do not inspect sealed confirmation labels, tune on confirmation data, or
+     promote a pilot result into a new headline metric.
