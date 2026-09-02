@@ -1,0 +1,2690 @@
+{
+  "schema_version": "1.0",
+  "status": "outcome_blind_precision_review_blocked",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "scope": "synthetic outcome-blind context-count precision sensitivity analysis",
+  "config": {
+    "path": "configs/confirmation_precision_review_v1.json",
+    "sha256": "e49ea86fe12749f261a36a4f3acf9498c50b17a2eddcff50a27a7a276a5d99e1"
+  },
+  "source_capacity_input": {
+    "path": "reports/bizhallu_confirmation_context_feasibility_report.json",
+    "observed_complete_period_count": 50,
+    "context_manifest_created": false
+  },
+  "simulation_only": true,
+  "confirmation_data_accessed": false,
+  "historical_detector_performance_used_for_calibration": false,
+  "new_empirical_metrics_created": false,
+  "scenario_row_count": 80,
+  "candidate_summaries": [
+    {
+      "confirmation_context_count": 15,
+      "confirmation_contexts_per_family": 5,
+      "total_context_count_including_pilot": 36,
+      "source_period_reserve": 14,
+      "structural_pass": false,
+      "central_scenario_count": 16,
+      "central_preferred_scenario_count": 5,
+      "central_preferred_scenario_share": 0.3125,
+      "central_median_of_median_auprc_half_widths": 0.103099,
+      "central_worst_median_auprc_half_width": 0.14955,
+      "central_median_of_median_paired_difference_half_widths": 0.08816,
+      "central_worst_median_paired_difference_half_width": 0.126422,
+      "stress_scenario_count": 4,
+      "stress_preferred_scenario_count": 2,
+      "stress_worst_median_auprc_half_width": 0.193229,
+      "stress_worst_median_paired_difference_half_width": 0.182327,
+      "precision_pass": false,
+      "candidate_pass": false,
+      "selected": false
+    },
+    {
+      "confirmation_context_count": 21,
+      "confirmation_contexts_per_family": 7,
+      "total_context_count_including_pilot": 42,
+      "source_period_reserve": 8,
+      "structural_pass": false,
+      "central_scenario_count": 16,
+      "central_preferred_scenario_count": 10,
+      "central_preferred_scenario_share": 0.625,
+      "central_median_of_median_auprc_half_widths": 0.094613,
+      "central_worst_median_auprc_half_width": 0.136085,
+      "central_median_of_median_paired_difference_half_widths": 0.077994,
+      "central_worst_median_paired_difference_half_width": 0.106863,
+      "stress_scenario_count": 4,
+      "stress_preferred_scenario_count": 2,
+      "stress_worst_median_auprc_half_width": 0.184151,
+      "stress_worst_median_paired_difference_half_width": 0.159216,
+      "precision_pass": false,
+      "candidate_pass": false,
+      "selected": false
+    },
+    {
+      "confirmation_context_count": 24,
+      "confirmation_contexts_per_family": 8,
+      "total_context_count_including_pilot": 45,
+      "source_period_reserve": 5,
+      "structural_pass": true,
+      "central_scenario_count": 16,
+      "central_preferred_scenario_count": 9,
+      "central_preferred_scenario_share": 0.5625,
+      "central_median_of_median_auprc_half_widths": 0.087154,
+      "central_worst_median_auprc_half_width": 0.126603,
+      "central_median_of_median_paired_difference_half_widths": 0.07507,
+      "central_worst_median_paired_difference_half_width": 0.102429,
+      "stress_scenario_count": 4,
+      "stress_preferred_scenario_count": 2,
+      "stress_worst_median_auprc_half_width": 0.166158,
+      "stress_worst_median_paired_difference_half_width": 0.150591,
+      "precision_pass": false,
+      "candidate_pass": false,
+      "selected": false
+    },
+    {
+      "confirmation_context_count": 27,
+      "confirmation_contexts_per_family": 9,
+      "total_context_count_including_pilot": 48,
+      "source_period_reserve": 2,
+      "structural_pass": true,
+      "central_scenario_count": 16,
+      "central_preferred_scenario_count": 10,
+      "central_preferred_scenario_share": 0.625,
+      "central_median_of_median_auprc_half_widths": 0.082558,
+      "central_worst_median_auprc_half_width": 0.121219,
+      "central_median_of_median_paired_difference_half_widths": 0.069898,
+      "central_worst_median_paired_difference_half_width": 0.097796,
+      "stress_scenario_count": 4,
+      "stress_preferred_scenario_count": 2,
+      "stress_worst_median_auprc_half_width": 0.16445,
+      "stress_worst_median_paired_difference_half_width": 0.140737,
+      "precision_pass": false,
+      "candidate_pass": false,
+      "selected": false
+    }
+  ],
+  "scenario_results": [
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_01",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.137246,
+        "p90": 0.169161,
+        "minimum": 0.094963,
+        "maximum": 0.217309
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.118492,
+        "p90": 0.156648,
+        "minimum": 0.069909,
+        "maximum": 0.185191
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_02",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.111372,
+        "p90": 0.159795,
+        "minimum": 0.053375,
+        "maximum": 0.19898
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.115388,
+        "p90": 0.151782,
+        "minimum": 0.057762,
+        "maximum": 0.202456
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_03",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.14955,
+        "p90": 0.187753,
+        "minimum": 0.082319,
+        "maximum": 0.229788
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.126422,
+        "p90": 0.162569,
+        "minimum": 0.086011,
+        "maximum": 0.221986
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_04",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.123764,
+        "p90": 0.174391,
+        "minimum": 0.053621,
+        "maximum": 0.213454
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.105954,
+        "p90": 0.15154,
+        "minimum": 0.058595,
+        "maximum": 0.186875
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_05",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.110506,
+        "p90": 0.140872,
+        "minimum": 0.066286,
+        "maximum": 0.189096
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.100464,
+        "p90": 0.136994,
+        "minimum": 0.060312,
+        "maximum": 0.170558
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_06",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.096801,
+        "p90": 0.131949,
+        "minimum": 0.045877,
+        "maximum": 0.150846
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.091911,
+        "p90": 0.124184,
+        "minimum": 0.056461,
+        "maximum": 0.166771
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_07",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.138633,
+        "p90": 0.172066,
+        "minimum": 0.078692,
+        "maximum": 0.189553
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.101115,
+        "p90": 0.126279,
+        "minimum": 0.054745,
+        "maximum": 0.162774
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_08",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.106197,
+        "p90": 0.143935,
+        "minimum": 0.070433,
+        "maximum": 0.204038
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.096792,
+        "p90": 0.124194,
+        "minimum": 0.042215,
+        "maximum": 0.147124
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_09",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.099814,
+        "p90": 0.128423,
+        "minimum": 0.049182,
+        "maximum": 0.169075
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.084119,
+        "p90": 0.107292,
+        "minimum": 0.045703,
+        "maximum": 0.133972
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_10",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.076596,
+        "p90": 0.11951,
+        "minimum": 0.025179,
+        "maximum": 0.143771
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.077402,
+        "p90": 0.102222,
+        "minimum": 0.03176,
+        "maximum": 0.135571
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_11",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.108461,
+        "p90": 0.147774,
+        "minimum": 0.057554,
+        "maximum": 0.160843
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.084408,
+        "p90": 0.10674,
+        "minimum": 0.049023,
+        "maximum": 0.1324
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_12",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.090675,
+        "p90": 0.126923,
+        "minimum": 0.027672,
+        "maximum": 0.140519
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.069282,
+        "p90": 0.101304,
+        "minimum": 0.026719,
+        "maximum": 0.124984
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_13",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.084084,
+        "p90": 0.115687,
+        "minimum": 0.033288,
+        "maximum": 0.136372
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.076089,
+        "p90": 0.096085,
+        "minimum": 0.035852,
+        "maximum": 0.142072
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_14",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.062973,
+        "p90": 0.083591,
+        "minimum": 0.025788,
+        "maximum": 0.112837
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.061099,
+        "p90": 0.080269,
+        "minimum": 0.029607,
+        "maximum": 0.125505
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_15",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.100001,
+        "p90": 0.122096,
+        "minimum": 0.059163,
+        "maximum": 0.132941
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.07686,
+        "p90": 0.098872,
+        "minimum": 0.030301,
+        "maximum": 0.117345
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_16",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 180
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.076851,
+        "p90": 0.108484,
+        "minimum": 0.04145,
+        "maximum": 0.125695
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.057588,
+        "p90": 0.081447,
+        "minimum": 0.033879,
+        "maximum": 0.115348
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 90
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 3,
+      "auprc_interval_half_width": {
+        "median": 0.193229,
+        "p90": 0.266399,
+        "minimum": 0.086321,
+        "maximum": 0.319614
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.182327,
+        "p90": 0.231209,
+        "minimum": 0.076447,
+        "maximum": 0.379819
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 90
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 5,
+      "auprc_interval_half_width": {
+        "median": 0.091037,
+        "p90": 0.124067,
+        "minimum": 0.036055,
+        "maximum": 0.160543
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.066157,
+        "p90": 0.088549,
+        "minimum": 0.026909,
+        "maximum": 0.130812
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_low_density",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.172054,
+        "p90": 0.219596,
+        "minimum": 0.100075,
+        "maximum": 0.256903
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.158588,
+        "p90": 0.202895,
+        "minimum": 0.100045,
+        "maximum": 0.240248
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_low_density",
+      "confirmation_context_count": 15,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 120
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.078247,
+        "p90": 0.109318,
+        "minimum": 0.030011,
+        "maximum": 0.134358
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.057438,
+        "p90": 0.081856,
+        "minimum": 0.020709,
+        "maximum": 0.121556
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_01",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.117442,
+        "p90": 0.140463,
+        "minimum": 0.067122,
+        "maximum": 0.156133
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.106669,
+        "p90": 0.128196,
+        "minimum": 0.058224,
+        "maximum": 0.148315
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_02",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.106311,
+        "p90": 0.130433,
+        "minimum": 0.054852,
+        "maximum": 0.154462
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.097696,
+        "p90": 0.125056,
+        "minimum": 0.064223,
+        "maximum": 0.141259
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_03",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.136085,
+        "p90": 0.178097,
+        "minimum": 0.073778,
+        "maximum": 0.187617
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.106863,
+        "p90": 0.130974,
+        "minimum": 0.065803,
+        "maximum": 0.168474
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_04",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.120065,
+        "p90": 0.153352,
+        "minimum": 0.055749,
+        "maximum": 0.181368
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.106661,
+        "p90": 0.13967,
+        "minimum": 0.050284,
+        "maximum": 0.181739
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_05",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.096323,
+        "p90": 0.121567,
+        "minimum": 0.060813,
+        "maximum": 0.172353
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.089616,
+        "p90": 0.111036,
+        "minimum": 0.060971,
+        "maximum": 0.164079
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_06",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.095614,
+        "p90": 0.119174,
+        "minimum": 0.057353,
+        "maximum": 0.152155
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.078219,
+        "p90": 0.108697,
+        "minimum": 0.050941,
+        "maximum": 0.128914
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_07",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.114921,
+        "p90": 0.147499,
+        "minimum": 0.061693,
+        "maximum": 0.165036
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.088149,
+        "p90": 0.108605,
+        "minimum": 0.054084,
+        "maximum": 0.135898
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_08",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.095861,
+        "p90": 0.134309,
+        "minimum": 0.055248,
+        "maximum": 0.16816
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.077769,
+        "p90": 0.10455,
+        "minimum": 0.042817,
+        "maximum": 0.140812
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_09",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.089467,
+        "p90": 0.118628,
+        "minimum": 0.041104,
+        "maximum": 0.138935
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.078973,
+        "p90": 0.100605,
+        "minimum": 0.041068,
+        "maximum": 0.121005
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_10",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.061713,
+        "p90": 0.089298,
+        "minimum": 0.020842,
+        "maximum": 0.105725
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.059538,
+        "p90": 0.076939,
+        "minimum": 0.035421,
+        "maximum": 0.137914
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_11",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.093611,
+        "p90": 0.130898,
+        "minimum": 0.049755,
+        "maximum": 0.163663
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.07181,
+        "p90": 0.09338,
+        "minimum": 0.043075,
+        "maximum": 0.105397
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_12",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.070844,
+        "p90": 0.093952,
+        "minimum": 0.030305,
+        "maximum": 0.114961
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.060158,
+        "p90": 0.085265,
+        "minimum": 0.02228,
+        "maximum": 0.09696
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_13",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.07368,
+        "p90": 0.09071,
+        "minimum": 0.042247,
+        "maximum": 0.130366
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.059106,
+        "p90": 0.077267,
+        "minimum": 0.034524,
+        "maximum": 0.098973
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_14",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.058752,
+        "p90": 0.073087,
+        "minimum": 0.032552,
+        "maximum": 0.091739
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.051927,
+        "p90": 0.065737,
+        "minimum": 0.030731,
+        "maximum": 0.088867
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_15",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.086186,
+        "p90": 0.118358,
+        "minimum": 0.046081,
+        "maximum": 0.135868
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.066067,
+        "p90": 0.083262,
+        "minimum": 0.037891,
+        "maximum": 0.113086
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_16",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 248
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.069436,
+        "p90": 0.083163,
+        "minimum": 0.030544,
+        "maximum": 0.110839
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.051685,
+        "p90": 0.065157,
+        "minimum": 0.029213,
+        "maximum": 0.094448
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 124
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.184151,
+        "p90": 0.227773,
+        "minimum": 0.124306,
+        "maximum": 0.315258
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.159216,
+        "p90": 0.211643,
+        "minimum": 0.081123,
+        "maximum": 0.335904
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 124
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.078884,
+        "p90": 0.103342,
+        "minimum": 0.032292,
+        "maximum": 0.140936
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.062937,
+        "p90": 0.08706,
+        "minimum": 0.028352,
+        "maximum": 0.111444
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_low_density",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.157487,
+        "p90": 0.194144,
+        "minimum": 0.107691,
+        "maximum": 0.225376
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.139751,
+        "p90": 0.183097,
+        "minimum": 0.080419,
+        "maximum": 0.230976
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_low_density",
+      "confirmation_context_count": 21,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 165
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.072236,
+        "p90": 0.096763,
+        "minimum": 0.033803,
+        "maximum": 0.110533
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.052297,
+        "p90": 0.07092,
+        "minimum": 0.028455,
+        "maximum": 0.098961
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_01",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.117621,
+        "p90": 0.134687,
+        "minimum": 0.072641,
+        "maximum": 0.1443
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.102429,
+        "p90": 0.122768,
+        "minimum": 0.065495,
+        "maximum": 0.134814
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_02",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.099303,
+        "p90": 0.127569,
+        "minimum": 0.060972,
+        "maximum": 0.141563
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.096787,
+        "p90": 0.123213,
+        "minimum": 0.061384,
+        "maximum": 0.138304
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_03",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.126603,
+        "p90": 0.144036,
+        "minimum": 0.080864,
+        "maximum": 0.162408
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.10128,
+        "p90": 0.132713,
+        "minimum": 0.070791,
+        "maximum": 0.154062
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_04",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.10445,
+        "p90": 0.136668,
+        "minimum": 0.061733,
+        "maximum": 0.186627
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.091464,
+        "p90": 0.112913,
+        "minimum": 0.062865,
+        "maximum": 0.134954
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_05",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.092206,
+        "p90": 0.111555,
+        "minimum": 0.058715,
+        "maximum": 0.124217
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.083593,
+        "p90": 0.107411,
+        "minimum": 0.059365,
+        "maximum": 0.126403
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_06",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.0847,
+        "p90": 0.107051,
+        "minimum": 0.051626,
+        "maximum": 0.114436
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.080244,
+        "p90": 0.100383,
+        "minimum": 0.049965,
+        "maximum": 0.108958
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_07",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.114415,
+        "p90": 0.136759,
+        "minimum": 0.060877,
+        "maximum": 0.165115
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.083449,
+        "p90": 0.101698,
+        "minimum": 0.061929,
+        "maximum": 0.119185
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_08",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.09803,
+        "p90": 0.126895,
+        "minimum": 0.053665,
+        "maximum": 0.178389
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.079315,
+        "p90": 0.09604,
+        "minimum": 0.039188,
+        "maximum": 0.137329
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_09",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.0809,
+        "p90": 0.102522,
+        "minimum": 0.041583,
+        "maximum": 0.117256
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.070826,
+        "p90": 0.094154,
+        "minimum": 0.035859,
+        "maximum": 0.118103
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_10",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.066192,
+        "p90": 0.083967,
+        "minimum": 0.040771,
+        "maximum": 0.10888
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.058135,
+        "p90": 0.075812,
+        "minimum": 0.030732,
+        "maximum": 0.091002
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_11",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.089608,
+        "p90": 0.121649,
+        "minimum": 0.060775,
+        "maximum": 0.134127
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.068862,
+        "p90": 0.092174,
+        "minimum": 0.044461,
+        "maximum": 0.118277
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_12",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.070145,
+        "p90": 0.093407,
+        "minimum": 0.027865,
+        "maximum": 0.106404
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.05874,
+        "p90": 0.078979,
+        "minimum": 0.026632,
+        "maximum": 0.095825
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_13",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.073607,
+        "p90": 0.089921,
+        "minimum": 0.043105,
+        "maximum": 0.100022
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.058618,
+        "p90": 0.073595,
+        "minimum": 0.03786,
+        "maximum": 0.090962
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_14",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.054586,
+        "p90": 0.070661,
+        "minimum": 0.03565,
+        "maximum": 0.084643
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.049285,
+        "p90": 0.060948,
+        "minimum": 0.01953,
+        "maximum": 0.070602
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_15",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.079043,
+        "p90": 0.100716,
+        "minimum": 0.058476,
+        "maximum": 0.122131
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.059072,
+        "p90": 0.075924,
+        "minimum": 0.03692,
+        "maximum": 0.086338
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_16",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 284
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.063929,
+        "p90": 0.089429,
+        "minimum": 0.033768,
+        "maximum": 0.104695
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.049969,
+        "p90": 0.067609,
+        "minimum": 0.016503,
+        "maximum": 0.082508
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 142
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.166158,
+        "p90": 0.212031,
+        "minimum": 0.110185,
+        "maximum": 0.240804
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.150591,
+        "p90": 0.182068,
+        "minimum": 0.098649,
+        "maximum": 0.239247
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 142
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.080205,
+        "p90": 0.106993,
+        "minimum": 0.026553,
+        "maximum": 0.137692
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.056751,
+        "p90": 0.074815,
+        "minimum": 0.021576,
+        "maximum": 0.089422
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_low_density",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.153555,
+        "p90": 0.175989,
+        "minimum": 0.107,
+        "maximum": 0.202839
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.130836,
+        "p90": 0.167524,
+        "minimum": 0.080946,
+        "maximum": 0.222548
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_low_density",
+      "confirmation_context_count": 24,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 189
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.067813,
+        "p90": 0.097563,
+        "minimum": 0.029223,
+        "maximum": 0.129977
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.052479,
+        "p90": 0.068948,
+        "minimum": 0.023524,
+        "maximum": 0.091128
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_01",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.107215,
+        "p90": 0.13187,
+        "minimum": 0.066751,
+        "maximum": 0.165452
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.097012,
+        "p90": 0.117662,
+        "minimum": 0.0544,
+        "maximum": 0.132687
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_02",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.098136,
+        "p90": 0.123085,
+        "minimum": 0.058149,
+        "maximum": 0.147015
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.088365,
+        "p90": 0.108874,
+        "minimum": 0.039018,
+        "maximum": 0.150614
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_03",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.121219,
+        "p90": 0.149975,
+        "minimum": 0.085485,
+        "maximum": 0.168142
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.097796,
+        "p90": 0.120851,
+        "minimum": 0.070528,
+        "maximum": 0.140325
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_04",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.109383,
+        "p90": 0.14206,
+        "minimum": 0.064322,
+        "maximum": 0.155371
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.093075,
+        "p90": 0.116648,
+        "minimum": 0.056616,
+        "maximum": 0.13367
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_05",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.092044,
+        "p90": 0.11332,
+        "minimum": 0.05913,
+        "maximum": 0.1337
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.082454,
+        "p90": 0.102475,
+        "minimum": 0.044548,
+        "maximum": 0.110234
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_06",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.077912,
+        "p90": 0.099601,
+        "minimum": 0.050582,
+        "maximum": 0.113198
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.073816,
+        "p90": 0.090362,
+        "minimum": 0.039647,
+        "maximum": 0.110137
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_07",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.104616,
+        "p90": 0.128968,
+        "minimum": 0.066371,
+        "maximum": 0.173852
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.08462,
+        "p90": 0.103265,
+        "minimum": 0.054056,
+        "maximum": 0.124422
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_08",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.4,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.093746,
+        "p90": 0.113697,
+        "minimum": 0.055827,
+        "maximum": 0.140293
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.075017,
+        "p90": 0.089046,
+        "minimum": 0.044722,
+        "maximum": 0.115709
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_09",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.073541,
+        "p90": 0.093451,
+        "minimum": 0.040223,
+        "maximum": 0.107455
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.063684,
+        "p90": 0.078096,
+        "minimum": 0.043757,
+        "maximum": 0.098399
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_10",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.063208,
+        "p90": 0.082553,
+        "minimum": 0.037411,
+        "maximum": 0.111714
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.054865,
+        "p90": 0.07635,
+        "minimum": 0.034502,
+        "maximum": 0.102864
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_11",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.087204,
+        "p90": 0.113442,
+        "minimum": 0.052589,
+        "maximum": 0.134596
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.065979,
+        "p90": 0.08586,
+        "minimum": 0.040047,
+        "maximum": 0.100146
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_12",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.072744,
+        "p90": 0.089934,
+        "minimum": 0.040851,
+        "maximum": 0.104407
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.058272,
+        "p90": 0.076426,
+        "minimum": 0.030811,
+        "maximum": 0.081865
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_13",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.067497,
+        "p90": 0.083763,
+        "minimum": 0.040136,
+        "maximum": 0.101172
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.054289,
+        "p90": 0.06593,
+        "minimum": 0.036277,
+        "maximum": 0.08799
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_14",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.05,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.051628,
+        "p90": 0.068007,
+        "minimum": 0.033112,
+        "maximum": 0.079578
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.046053,
+        "p90": 0.061349,
+        "minimum": 0.026302,
+        "maximum": 0.06463
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_15",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.077168,
+        "p90": 0.103174,
+        "minimum": 0.05583,
+        "maximum": 0.115645
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.056243,
+        "p90": 0.076401,
+        "minimum": 0.034095,
+        "maximum": 0.088118
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "central",
+      "scenario_id": "central_16",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.6,
+        "mean_spans_per_context": 12,
+        "label_icc": 0.15,
+        "internal_score_separation": 1.2
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 8,
+        "maximum_context_size": 16,
+        "total_spans": 318
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.056636,
+        "p90": 0.072615,
+        "minimum": 0.030347,
+        "maximum": 0.093851
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.047055,
+        "p90": 0.056786,
+        "minimum": 0.028929,
+        "maximum": 0.084403
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 159
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.16445,
+        "p90": 0.196577,
+        "minimum": 0.110629,
+        "maximum": 0.203065
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.140737,
+        "p90": 0.178647,
+        "minimum": 0.095082,
+        "maximum": 0.214247
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_small_cluster_high_icc",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 6,
+        "label_icc": 0.25,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 4,
+        "maximum_context_size": 8,
+        "total_spans": 159
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.073713,
+        "p90": 0.097442,
+        "minimum": 0.041233,
+        "maximum": 0.167303
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.054468,
+        "p90": 0.075035,
+        "minimum": 0.021044,
+        "maximum": 0.095251
+      },
+      "preferred_precision": true
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_low_prevalence_low_density",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.25,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.134303,
+        "p90": 0.179857,
+        "minimum": 0.086848,
+        "maximum": 0.230766
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.119729,
+        "p90": 0.152975,
+        "minimum": 0.082065,
+        "maximum": 0.184934
+      },
+      "preferred_precision": false
+    },
+    {
+      "scenario_type": "stress",
+      "scenario_id": "stress_high_prevalence_low_density",
+      "confirmation_context_count": 27,
+      "scenario": {
+        "class_prevalence": 0.75,
+        "mean_spans_per_context": 8,
+        "label_icc": 0.15,
+        "internal_score_separation": 0.8
+      },
+      "simulated_span_count_range": {
+        "minimum_context_size": 5,
+        "maximum_context_size": 11,
+        "total_spans": 212
+      },
+      "valid_outer_replicates": 60,
+      "invalid_outer_replicates": 0,
+      "invalid_bootstrap_replicates": 0,
+      "auprc_interval_half_width": {
+        "median": 0.060495,
+        "p90": 0.089505,
+        "minimum": 0.031976,
+        "maximum": 0.105323
+      },
+      "paired_auprc_difference_interval_half_width": {
+        "median": 0.044523,
+        "p90": 0.064793,
+        "minimum": 0.024917,
+        "maximum": 0.100029
+      },
+      "preferred_precision": true
+    }
+  ],
+  "planning_decision": {
+    "status": "no_candidate_passed",
+    "context_manifest_authorized": false,
+    "next_action": "If no candidate passes, do not create a context manifest. Revise the study scope, acquire additional independent contexts, or explicitly downgrade the planned claim before proceeding."
+  },
+  "interpretation": {
+    "primary": "The original 15-context confirmation target is too fragile across the frozen central scenarios. The selected count is a planning increase, not evidence that either detector family performs well.",
+    "stress": "No candidate is expected to make every low-density, extreme-prevalence, high-ICC stress scenario precise. Those scenarios remain explicit claim limits.",
+    "cluster_limit": "The selected design remains below 30 independent confirmation contexts, so cluster-bootstrap intervals require caution and subgroup results remain descriptive.",
+    "metric_limit": "All reported values are simulated interval half-width summaries. They are not observed AUPRC, F1, prevalence, or detector-comparison results."
+  },
+  "artifact_boundaries": {
+    "context_manifest_created": false,
+    "split_assignment_created": false,
+    "questions_created": false,
+    "prompts_created": false,
+    "model_run_executed": false,
+    "annotations_created": false,
+    "detector_scores_created": false,
+    "confirmation_metrics_reported": false
+  }
+}

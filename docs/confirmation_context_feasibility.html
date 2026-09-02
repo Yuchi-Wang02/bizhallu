@@ -51,20 +51,20 @@
   </style>
 </head>
 <body>
-  <header><nav><a href="./confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./confirmation_dataset_quality.html">Quality profile</a><a href="./confirmation_dataset_overlap.html">Overlap proof</a><a href="./confirmation_set_v1_design.html">Study design</a></div></nav></header>
+  <header><nav><a href="./confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./confirmation_dataset_quality.html">Quality profile</a><a href="./confirmation_dataset_overlap.html">Overlap proof</a><a href="./confirmation_precision_review.html">Precision review</a><a href="./confirmation_set_v1_design.html">Study design</a></div></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">Confirmation Set v1 · Outcome-blind source capacity</p>
-      <h1>The source can support 36 period-disjoint contexts without looking at model outcomes.</h1>
+      <h1>The source can support 48 period-disjoint contexts without looking at model outcomes.</h1>
       <p class="lede">Complete Monday-through-Sunday weeks were evaluated under frozen data-quality and business-support rules. The proof counts capacity only: no week was selected, no split was assigned, and no context manifest was created.</p>
       <div class="metrics">
         <div><span>Observed complete weeks</span><strong>50</strong></div>
-        <div><span>Required context slots</span><strong>36</strong></div>
-        <div><span>Maximum matching</span><strong>36/36</strong></div>
+        <div><span>Required context slots</span><strong>48</strong></div>
+        <div><span>Maximum matching</span><strong>48/48</strong></div>
         <div><span>Eligible families</span><strong>3 of 4</strong></div>
       </div>
-      <div class="callout good"><strong>Capacity proof complete.</strong> Three allowed families each have 50 eligible periods for 12 required slots, and the minimum Hall-capacity slack is +14.</div>
-      <div class="callout"><strong>Execution remains blocked.</strong> The precision review, context manifest, seeded split, question templates, prompts, model run, independent annotation, and sealed confirmation evaluation do not exist yet.</div>
+      <div class="callout good"><strong>Capacity proof complete.</strong> Three allowed families each have 50 eligible periods for 16 required slots, and the minimum Hall-capacity slack is +2.</div>
+      <div class="callout"><strong>Execution remains blocked.</strong> The outcome-blind precision review is complete with a narrower estimation claim, but the context manifest, seeded split, question templates, prompts, model run, independent annotation, and sealed confirmation evaluation do not exist yet.</div>
     </section>
 
     <section>
@@ -99,7 +99,7 @@
       <h2>Three families advance; customer concentration stays blocked.</h2>
       <div class="table-wrap"><table>
         <thead><tr><th>Question family</th><th>Status</th><th>Eligible periods</th><th>Required</th><th>Slack</th><th>Interpretation or block reason</th></tr></thead>
-        <tbody><tr><td><strong>Net-revenue reconciliation</strong><code>net_revenue_reconciliation_by_period</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td>Supports deterministic gross-positive, negative, and net-revenue reconciliation.</td></tr><tr><td><strong>Product return comparison</strong><code>product_return_rate_comparison</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td>This is a recorded return-to-positive-sales unit ratio, not a customer-linked or original-sale-linked causal return rate.</td></tr><tr><td><strong>Country-product exposure</strong><code>country_product_exposure</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td>Supports deterministic country-product concentration and exposure comparisons.</td></tr><tr><td><strong>Customer concentration</strong><code>customer_revenue_concentration</code></td><td><span class="badge blocked">blocked</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>The source audit records 100207 missing customer IDs and explicitly blocks customer-level questions. Feasibility cannot introduce a complete-case denominator after viewing source capacity.</td></tr></tbody>
+        <tbody><tr><td><strong>Net-revenue reconciliation</strong><code>net_revenue_reconciliation_by_period</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td>Supports deterministic gross-positive, negative, and net-revenue reconciliation.</td></tr><tr><td><strong>Product return comparison</strong><code>product_return_rate_comparison</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td>This is a recorded return-to-positive-sales unit ratio, not a customer-linked or original-sale-linked causal return rate.</td></tr><tr><td><strong>Country-product exposure</strong><code>country_product_exposure</code></td><td><span class="badge pass">source-feasible</span></td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td>Supports deterministic country-product concentration and exposure comparisons.</td></tr><tr><td><strong>Customer concentration</strong><code>customer_revenue_concentration</code></td><td><span class="badge blocked">blocked</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>The source audit records 100207 missing customer IDs and explicitly blocks customer-level questions. Feasibility cannot introduce a complete-case denominator after viewing source capacity.</td></tr></tbody>
       </table></div>
       <div class="callout blocked"><strong>No complete-case shortcut.</strong> The source has 100,207 rows without Customer ID. The pre-existing source audit blocks customer-level questions, so this profile does not invent a denominator after seeing capacity.</div>
       <div class="callout"><strong>Return metric limit.</strong> Product support uses a recorded return-to-positive-sales unit ratio within the same week. It is not an original-sale-linked or causal customer return rate; question wording and metric precision still require the pending review.</div>
@@ -110,9 +110,9 @@
       <h2>Every family subset has enough unique periods.</h2>
       <div class="table-wrap"><table>
         <thead><tr><th>Family subset</th><th>Available unique periods</th><th>Required unique periods</th><th>Slack</th><th>Result</th></tr></thead>
-        <tbody><tr><td>Net-revenue reconciliation</td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td><span class="badge pass">pass</span></td></tr><tr><td>Product return comparison</td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td><span class="badge pass">pass</span></td></tr><tr><td>Country-product exposure</td><td class="num">50</td><td class="num">12</td><td class="num">+38</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Product return comparison</td><td class="num">50</td><td class="num">24</td><td class="num">+26</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Country-product exposure</td><td class="num">50</td><td class="num">24</td><td class="num">+26</td><td><span class="badge pass">pass</span></td></tr><tr><td>Product return comparison + Country-product exposure</td><td class="num">50</td><td class="num">24</td><td class="num">+26</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Product return comparison + Country-product exposure</td><td class="num">50</td><td class="num">36</td><td class="num">+14</td><td><span class="badge pass">pass</span></td></tr></tbody>
+        <tbody><tr><td>Net-revenue reconciliation</td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td><span class="badge pass">pass</span></td></tr><tr><td>Product return comparison</td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td><span class="badge pass">pass</span></td></tr><tr><td>Country-product exposure</td><td class="num">50</td><td class="num">16</td><td class="num">+34</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Product return comparison</td><td class="num">50</td><td class="num">32</td><td class="num">+18</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Country-product exposure</td><td class="num">50</td><td class="num">32</td><td class="num">+18</td><td><span class="badge pass">pass</span></td></tr><tr><td>Product return comparison + Country-product exposure</td><td class="num">50</td><td class="num">32</td><td class="num">+18</td><td><span class="badge pass">pass</span></td></tr><tr><td>Net-revenue reconciliation + Product return comparison + Country-product exposure</td><td class="num">50</td><td class="num">48</td><td class="num">+2</td><td><span class="badge pass">pass</span></td></tr></tbody>
       </table></div>
-      <p>The independent maximum matching fills all 36 slots: 2 pilot, 5 development, and 5 confirmation contexts per eligible family. The assignment itself is neither retained nor published.</p>
+      <p>The independent maximum matching fills all 48 slots: 2 pilot, 5 development, and 5 confirmation contexts per eligible family. The assignment itself is neither retained nor published.</p>
     </section>
 
     <section>
@@ -130,8 +130,8 @@
 
     <section>
       <p class="eyebrow">Next gate</p>
-      <h2>Review precision before freezing any context.</h2>
-      <p>The next authorized step is the outcome-blind precision review for the planned 6 pilot, 15 development, and 15 confirmation contexts. Only after that review can the context manifest and seeded split be frozen.</p>
+      <h2>Freeze only the context manifest and seeded split.</h2>
+      <p>The <a href="./confirmation_precision_review.html">outcome-blind precision review</a> rejected the stronger comparison design and revised the plan to 6 pilot, 15 development, and 27 confirmation contexts. The next audited step may freeze that manifest and split, but it must not generate questions or model outputs.</p>
       <ul>
         <li>No question, prompt, Qwen output, annotation target, verifier prediction, detector score, AUPRC, or F1 was created here.</li>
         <li>The dataset-source audit gate can advance, but the six downstream execution gates remain pending.</li>

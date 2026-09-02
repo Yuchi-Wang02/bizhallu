@@ -17,6 +17,9 @@ HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibilit
 VALIDATION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_validation.json"
 OVERLAP_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap_report.json"
 METHODOLOGY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
+PRECISION_AMENDMENT_PATH = (
+    PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
+)
 LOCAL_PROOF_PATH = (
     PROJECT_ROOT
     / "data"
@@ -32,7 +35,8 @@ STRICT_TABLE_PATH = (
     / "strict_window_lines.csv.gz"
 )
 
-EXPECTED_CONFIG_SHA256 = "eb30a75561d04db3a7b4a48885a027ac81ac48f1afb0d73452ddb8a6d92ba536"
+EXPECTED_CONFIG_SHA256 = "fce09f569c1ebebbf0e913f362af4f79732eb7292f769048d40f8843c8d8f28a"
+EXPECTED_PRECISION_AMENDMENT_SHA256 = "7bdcd6c368aad4abc22df793a6480052274fedda6c204f7711b8437c73fa2ca4"
 EXPECTED_STRICT_TABLE_SHA256 = "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc"
 EXPECTED_STRICT_ROW_COUNT = 502938
 EXPECTED_ALLOWED_FAMILIES = [
@@ -68,9 +72,9 @@ EXPECTED_SUPPORT_DISTRIBUTIONS = {
     },
 }
 EXPECTED_HALL_BY_SUBSET_SIZE = {
-    1: {"check_count": 3, "available": 50, "required": 12, "slack": 38},
-    2: {"check_count": 3, "available": 50, "required": 24, "slack": 26},
-    3: {"check_count": 1, "available": 50, "required": 36, "slack": 14},
+    1: {"check_count": 3, "available": 50, "required": 16, "slack": 34},
+    2: {"check_count": 3, "available": 50, "required": 32, "slack": 18},
+    3: {"check_count": 1, "available": 50, "required": 48, "slack": 2},
 }
 EXPECTED_HISTORICAL_RESULTS = {
     "exploratory_max_test_auprc": 0.835073,
@@ -80,16 +84,17 @@ EXPECTED_HISTORICAL_RESULTS = {
 }
 
 REQUIRED_HTML_FRAGMENTS = [
-    "The source can support 36 period-disjoint contexts without looking at model outcomes.",
+    "The source can support 48 period-disjoint contexts without looking at model outcomes.",
     "Complete Monday-through-Sunday weeks",
     "no context manifest was created",
-    "36/36",
+    "48/48",
     "50",
-    "+14",
+    "+2",
     "100,207",
     "customer concentration stays blocked",
     "recorded return-to-positive-sales unit ratio",
-    "Review precision before freezing any context.",
+    "Freeze only the context manifest and seeded split.",
+    "precision review is complete with a narrower estimation claim",
     "No question, prompt, Qwen output",
     "No context manifest or experiment result.",
     "overflow-x:auto;",
@@ -142,7 +147,14 @@ def check_equal(
 
 def main() -> None:
     failures: list[dict[str, Any]] = []
-    required_paths = [CONFIG_PATH, REPORT_PATH, HTML_PATH, OVERLAP_PATH, METHODOLOGY_PATH]
+    required_paths = [
+        CONFIG_PATH,
+        REPORT_PATH,
+        HTML_PATH,
+        OVERLAP_PATH,
+        METHODOLOGY_PATH,
+        PRECISION_AMENDMENT_PATH,
+    ]
     missing = [repo_path(path) for path in required_paths if not path.exists()]
     if missing:
         add_failure(failures, "required_files_exist", missing)
@@ -159,6 +171,7 @@ def main() -> None:
     report = load_json(REPORT_PATH)
     overlap = load_json(OVERLAP_PATH)
     methodology = load_json(METHODOLOGY_PATH)
+    precision_amendment = load_json(PRECISION_AMENDMENT_PATH)
     html = HTML_PATH.read_text(encoding="utf-8")
 
     config_sha256 = file_sha256(CONFIG_PATH)
@@ -186,7 +199,7 @@ def main() -> None:
             "total": config.get("capacity_target", {}).get("required_total_contexts"),
             "per_family": config.get("capacity_target", {}).get("required_contexts_per_eligible_family"),
         },
-        {"pilot": 6, "development": 15, "confirmation": 15, "total": 36, "per_family": 12},
+        {"pilot": 6, "development": 15, "confirmation": 27, "total": 48, "per_family": 16},
     )
 
     check_equal(
@@ -263,8 +276,8 @@ def main() -> None:
             family_capacity.get(family),
             {
                 "eligible_period_count": 50,
-                "required_period_count": 12,
-                "capacity_slack": 38,
+                "required_period_count": 16,
+                "capacity_slack": 34,
                 "all_observed_complete_periods_eligible": True,
             },
         )
@@ -314,7 +327,7 @@ def main() -> None:
             "assignment_retained": proof.get("matching_assignment_retained_or_published"),
             "feasible": proof.get("capacity_target_feasible"),
         },
-        {"minimum_slack": 14, "matched": 36, "required": 36, "assignment_retained": False, "feasible": True},
+        {"minimum_slack": 2, "matched": 48, "required": 48, "assignment_retained": False, "feasible": True},
     )
 
     separation = report.get("evidence_separation", {})
@@ -373,8 +386,8 @@ def main() -> None:
         expected_boundary,
     )
     research = report.get("research_decision", {})
-    check_equal(failures, "research_capacity_complete", research.get("minimum_36_period_disjoint_context_capacity_verified"), True)
-    check_equal(failures, "research_precision_pending", research.get("precision_review_pending"), True)
+    check_equal(failures, "research_capacity_complete", research.get("required_48_period_disjoint_context_capacity_verified"), True)
+    check_equal(failures, "research_precision_complete", research.get("precision_review_complete_with_scope_downgrade"), True)
     check_equal(failures, "research_manifest_pending", research.get("context_manifest_and_split_assignment_pending"), True)
 
     expected_privacy = {
@@ -387,7 +400,29 @@ def main() -> None:
         "contains_only_aggregate_capacity_evidence": True,
     }
     check_equal(failures, "public_privacy_contract", report.get("privacy"), expected_privacy)
-    for artifact_path, payload in [(CONFIG_PATH, config), (REPORT_PATH, report)]:
+    check_equal(
+        failures,
+        "precision_amendment_sha256",
+        file_sha256(PRECISION_AMENDMENT_PATH),
+        EXPECTED_PRECISION_AMENDMENT_SHA256,
+    )
+    check_equal(
+        failures,
+        "precision_amendment_status",
+        precision_amendment.get("status"),
+        "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
+    )
+    check_equal(
+        failures,
+        "precision_amendment_capacity_recheck_status",
+        precision_amendment.get("required_capacity_recheck", {}).get("status"),
+        "complete",
+    )
+    for artifact_path, payload in [
+        (CONFIG_PATH, config),
+        (REPORT_PATH, report),
+        (PRECISION_AMENDMENT_PATH, precision_amendment),
+    ]:
         if contains_local_path(json.dumps(payload, ensure_ascii=True)):
             add_failure(failures, "local_path_in_public_json", repo_path(artifact_path))
 

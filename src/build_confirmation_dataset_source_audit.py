@@ -134,8 +134,8 @@ def main() -> None:
         "pending_criterion_ids": pending_criteria,
         "local_profile_check_count": len(checks),
         "next_authorized_action": (
-            "Run only the outcome-blind precision review for the planned 6 pilot, 15 development, "
-            "and 15 confirmation contexts before freezing any context manifest or seeded split."
+            "Freeze only the deterministic 6 pilot, 15 development, and 27 confirmation context "
+            "manifest and seeded split. Do not create questions, prompts, or model outputs yet."
         ),
         "num_failures": 0,
         "failures": [],
@@ -236,13 +236,13 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_confirmation_set_v1_design.html">BizHallu</a>
-      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
+      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
     </header>
     <main>
       <section class="hero">
         <p class="eyebrow">Confirmation Dataset Source Audit v1</p>
         <h1>Source quality and historical record separation are verified.</h1>
-        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. Canonical and date-blind record comparisons found zero overlap, and an outcome-blind capacity proof supports 36 unique complete-week context slots across three allowed families.</p>
+        <p class="lede">UCI Online Retail II is acquired, hashed, structurally inspected, and profiled across the 502,938-row strict prior-period window. Canonical and date-blind record comparisons found zero overlap, and the revised outcome-blind capacity proof supports {esc(summary['required_context_count'])} unique complete-week context slots across three allowed families.</p>
         <div class="status">
           <div><span>Dataset gate</span><strong>Complete</strong></div>
           <div><span>Record overlap</span><strong>0 rows</strong></div>
@@ -291,7 +291,7 @@ def main() -> None:
       <section>
         <p class="eyebrow">Acceptance criteria</p>
         <h2>Analytical quality, record separation, and aggregate capacity are controlled.</h2>
-        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, and capacity for 36 outcome-blind unique complete-week contexts. Context selection and final evidence-fingerprint checks remain later gates.</p>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for {esc(summary['required_context_count'])} unique complete-week contexts. Context selection and final evidence-fingerprint checks remain later gates.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody>{criterion_rows}</tbody>
@@ -337,12 +337,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Review precision next; do not generate.</h2>
+        <h2>Freeze the manifest and split next; do not generate.</h2>
         <p>{esc(summary['next_authorized_action'])}</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, and aggregate context capacity verified {esc(audit['audit_date'])}; experiment execution remains blocked.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, outcome-blind precision review, and revised aggregate context capacity are verified; experiment execution remains blocked.</footer>
     </main>
   </body>
 </html>

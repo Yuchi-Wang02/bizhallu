@@ -25,6 +25,9 @@ PUBLIC_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_f
 QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
 OVERLAP_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap_report.json"
 METHODOLOGY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
+PRECISION_AMENDMENT_PATH = (
+    PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
+)
 
 REQUIRED_COLUMNS = [
     "source_sheet",
@@ -129,7 +132,14 @@ def maximum_slot_matching_count(
 
 
 def main() -> None:
-    required_files = [CONFIG_PATH, STRICT_TABLE_PATH, QUALITY_PATH, OVERLAP_PATH, METHODOLOGY_PATH]
+    required_files = [
+        CONFIG_PATH,
+        STRICT_TABLE_PATH,
+        QUALITY_PATH,
+        OVERLAP_PATH,
+        METHODOLOGY_PATH,
+        PRECISION_AMENDMENT_PATH,
+    ]
     missing_files = [repo_path(path) for path in required_files if not path.exists()]
     if missing_files:
         raise FileNotFoundError(f"Missing context-feasibility prerequisites: {missing_files}")
@@ -138,6 +148,7 @@ def main() -> None:
     quality = load_json(QUALITY_PATH)
     overlap = load_json(OVERLAP_PATH)
     methodology = load_json(METHODOLOGY_PATH)
+    precision_amendment = load_json(PRECISION_AMENDMENT_PATH)
 
     frame = pd.read_csv(STRICT_TABLE_PATH, usecols=REQUIRED_COLUMNS, low_memory=False)
     missing_columns = [column for column in REQUIRED_COLUMNS if column not in frame.columns]
@@ -426,6 +437,23 @@ def main() -> None:
             == 0
         ),
         "historical_metrics_remain_locked": historical_auprc == 0.835073 and historical_f1 == 0.779412,
+        "precision_scope_amendment_matches_capacity_target": (
+            precision_amendment["status"]
+            == "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending"
+            and precision_amendment["revised_planning_counts"]["total_context_count"]
+            == target["required_total_contexts"]
+            and precision_amendment["revised_planning_counts"]["confirmation_context_count"]
+            == target["required_confirmation_contexts"]
+            and precision_amendment["revised_planning_counts"]["contexts_per_family_across_all_splits"]
+            == target["required_contexts_per_eligible_family"]
+            and precision_amendment["required_capacity_recheck"]["status"] == "complete"
+            and precision_amendment["required_capacity_recheck"]["observed_maximum_matching_count"]
+            == target["required_total_contexts"]
+            and precision_amendment["required_capacity_recheck"]["observed_minimum_hall_slack_for_all_families"]
+            == 2
+            and precision_amendment["required_capacity_recheck"]["context_assignment_retained"] is False
+            and precision_amendment["gate_effect"]["context_manifest_authorized_now"] is True
+        ),
     }
     failures = [name for name, passed in checks.items() if not passed]
 
@@ -435,6 +463,7 @@ def main() -> None:
         "config_path": repo_path(CONFIG_PATH),
         "config_sha256": sha256_file(CONFIG_PATH),
         "strict_table_sha256": sha256_file(STRICT_TABLE_PATH),
+        "precision_scope_amendment_sha256": sha256_file(PRECISION_AMENDMENT_PATH),
         "calendar_period_count": len(calendar_periods),
         "observed_complete_period_count": len(observed_periods),
         "empty_complete_period_count": len(empty_periods),
@@ -471,6 +500,12 @@ def main() -> None:
             "path": repo_path(CONFIG_PATH),
             "sha256": sha256_file(CONFIG_PATH),
             "status": config["status"],
+        },
+        "precision_scope_amendment": {
+            "path": repo_path(PRECISION_AMENDMENT_PATH),
+            "sha256": sha256_file(PRECISION_AMENDMENT_PATH),
+            "status": precision_amendment["status"],
+            "claim_scope": precision_amendment["scope_amendment"]["decision"],
         },
         "input": {
             "strict_window_table_path": repo_path(STRICT_TABLE_PATH),
@@ -529,13 +564,13 @@ def main() -> None:
         },
         "research_decision": {
             "context_feasibility_check_complete": not failures,
-            "minimum_36_period_disjoint_context_capacity_verified": not failures,
+            "required_48_period_disjoint_context_capacity_verified": not failures,
             "dataset_source_selected_and_audited_gate_eligible_for_completion": not failures,
             "customer_family_excluded_from_capacity_target": True,
             "context_manifest_and_split_assignment_pending": True,
-            "precision_review_pending": True,
+            "precision_review_complete_with_scope_downgrade": True,
             "execution_ready": False,
-            "claim_limit": "This proves source capacity for a same-retailer temporal internal replication. It does not select contexts, validate question wording, create independent labels, or establish external generalization.",
+            "claim_limit": "This proves source capacity for an estimation-focused same-retailer temporal internal replication. It does not select contexts, validate question wording, create independent labels, support detector-superiority claims, or establish external generalization.",
         },
         "critical_checks": checks,
         "failed_critical_checks": failures,

@@ -13,6 +13,7 @@ PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
+PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -29,11 +30,11 @@ REQUIRED_HTML_FRAGMENTS = [
     "same_source_prior_period",
     "second_public_transaction_dataset",
     "jhu_domain_extension",
-    "72 generations",
-    "only 60 enter the main study",
+    "96 generations",
+    "only 84 enter the main study",
     "permanently excluded from confirmation metrics",
-    "minimum planning targets",
     "outcome-blind precision review",
+    "does not preregister a superiority claim",
     "historical full100 evidence fingerprints are excluded",
     "every in-scope business-fact claim",
     "Do not hide oracle spans inside an end-to-end claim.",
@@ -42,7 +43,7 @@ REQUIRED_HTML_FRAGMENTS = [
     "Evidence verification",
     "continuous unsupported-risk score",
     "End-to-end audit",
-    "cluster bootstrap",
+    "context-level BCa bootstrap",
     "Semantic Entropy",
     "TOHA",
     "One gate is complete; six remain pending.",
@@ -52,13 +53,14 @@ REQUIRED_HTML_FRAGMENTS = [
     "502,938-row strict prior-period window has a completed quality profile",
     "conditionally suitable for aggregate business analysis",
     "zero canonical and date-blind historical record overlap",
-    "aggregate capacity for 36 unique complete-week contexts",
+    "aggregate capacity for 48 unique complete-week contexts",
     "Customer ID",
     "Read the source audit.",
     "Read the quality profile.",
     "Read the overlap proof.",
     "Read the capacity proof.",
-    "Run only the outcome-blind precision review",
+    "Read the precision review.",
+    "Freeze only the deterministic 6/15/27 context manifest",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -97,6 +99,7 @@ def main() -> None:
         METHODOLOGY_SUMMARY_PATH,
         DATASET_AUDIT_SUMMARY_PATH,
         CONTEXT_FEASIBILITY_PATH,
+        PRECISION_REVIEW_PATH,
         HTML_PATH,
         SUMMARY_PATH,
     ]:
@@ -107,6 +110,7 @@ def main() -> None:
     methodology = load_json(METHODOLOGY_SUMMARY_PATH) if METHODOLOGY_SUMMARY_PATH.exists() else {}
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH) if DATASET_AUDIT_SUMMARY_PATH.exists() else {}
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH) if CONTEXT_FEASIBILITY_PATH.exists() else {}
+    precision_report = load_json(PRECISION_REVIEW_PATH) if PRECISION_REVIEW_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
 
@@ -114,6 +118,7 @@ def main() -> None:
         (PROTOCOL_PATH, protocol),
         (DATASET_AUDIT_SUMMARY_PATH, dataset_audit),
         (CONTEXT_FEASIBILITY_PATH, feasibility),
+        (PRECISION_REVIEW_PATH, precision_report),
         (SUMMARY_PATH, summary),
     ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -182,7 +187,7 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "selected_source_audited_precision_review_pending":
+    if dataset_strategy.get("selection_status") != "selected_source_audited_context_manifest_pending":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
@@ -205,6 +210,10 @@ def main() -> None:
         "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
         "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+        "precision_review_config": "configs/confirmation_precision_review_v1.json",
+        "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
+        "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
+        "precision_scope_amendment": "configs/confirmation_precision_scope_amendment_v1.json",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "complete",
@@ -213,6 +222,8 @@ def main() -> None:
         "quality_profile_verified": True,
         "historical_record_overlap_verified": True,
         "outcome_blind_context_feasibility_verified": True,
+        "outcome_blind_precision_review_completed": True,
+        "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,
         "date_blind_record_overlap_row_count": 0,
         "business_pattern_overlap_row_count": 195814,
@@ -225,9 +236,9 @@ def main() -> None:
         "strict_window_net_revenue_gbp": 9266060.76,
         "complete_calendar_week_count": 51,
         "observed_complete_week_count": 50,
-        "required_period_disjoint_context_count": 36,
-        "maximum_period_to_slot_matching_count": 36,
-        "minimum_hall_capacity_slack": 14,
+        "required_period_disjoint_context_count": 48,
+        "maximum_period_to_slot_matching_count": 48,
+        "minimum_hall_capacity_slack": 2,
         "source_feasible_question_families": [
             "net_revenue_reconciliation_by_period",
             "product_return_rate_comparison",
@@ -247,7 +258,7 @@ def main() -> None:
     expected_sampling = {
         "protocol_pilot": 12,
         "development": 30,
-        "confirmation": 30,
+        "confirmation": 54,
     }
     for split, expected in expected_sampling.items():
         actual = sampling.get(split, {}).get("question_count")
@@ -257,9 +268,9 @@ def main() -> None:
                 "sampling_question_count",
                 {"split": split, "expected": expected, "actual": actual},
             )
-    if sampling.get("main_question_count") != 60:
+    if sampling.get("main_question_count") != 84:
         add_failure(failures, "main_question_count", sampling.get("main_question_count"))
-    if sampling.get("total_generation_target_including_pilot") != 72:
+    if sampling.get("total_generation_target_including_pilot") != 96:
         add_failure(
             failures,
             "total_generation_target",
@@ -267,8 +278,10 @@ def main() -> None:
         )
     if sampling.get("outcome_blind_selection") is not True:
         add_failure(failures, "outcome_blind_selection", sampling.get("outcome_blind_selection"))
-    if sampling.get("counts_are_minimum_targets_pending_precision_review") is not True:
+    if sampling.get("counts_are_minimum_targets_pending_precision_review") is not False:
         add_failure(failures, "minimum_target_policy", sampling)
+    if sampling.get("counts_frozen_after_precision_scope_amendment") is not True:
+        add_failure(failures, "frozen_count_policy", sampling)
     if sampling.get("protocol_pilot", {}).get("included_in_confirmation_metrics") is not False:
         add_failure(failures, "pilot_metric_exclusion", sampling.get("protocol_pilot"))
 
@@ -276,12 +289,16 @@ def main() -> None:
     if split_policy.get("assignment_unit") != "evidence_context_id":
         add_failure(failures, "split_assignment_unit", split_policy.get("assignment_unit"))
     precision_review = protocol.get("precision_review", {})
-    if precision_review.get("status") != "pending":
+    if precision_review.get("status") != "complete_with_scope_downgrade":
         add_failure(failures, "precision_review_status", precision_review.get("status"))
     if precision_review.get("effective_independent_unit") != "evidence_context_id":
         add_failure(failures, "precision_review_unit", precision_review)
-    if precision_review.get("required_before_context_manifest_freeze") is not True:
+    if precision_review.get("required_before_context_manifest_freeze") is not False:
         add_failure(failures, "precision_review_timing", precision_review)
+    if precision_review.get("selected_confirmation_contexts") != 27:
+        add_failure(failures, "precision_review_selected_contexts", precision_review)
+    if precision_report.get("status") != "outcome_blind_precision_review_blocked":
+        add_failure(failures, "precision_review_source_status", precision_report.get("status"))
 
     if split_policy.get("period_disjoint_across_all_new_study_splits") is not True:
         add_failure(failures, "period_disjoint_policy", split_policy)
@@ -338,8 +355,10 @@ def main() -> None:
     metric_policy = protocol.get("metric_policy", {})
     if metric_policy.get("primary_metric") != "AUPRC":
         add_failure(failures, "primary_metric", metric_policy.get("primary_metric"))
-    if metric_policy.get("uncertainty_interval") != "cluster bootstrap by evidence_context_id":
+    if metric_policy.get("uncertainty_interval") != "context-level BCa bootstrap when defined, with paired percentile context bootstrap as sensitivity":
         add_failure(failures, "uncertainty_interval", metric_policy.get("uncertainty_interval"))
+    if metric_policy.get("planned_bootstrap_replicates") != 5000:
+        add_failure(failures, "planned_bootstrap_replicates", metric_policy.get("planned_bootstrap_replicates"))
 
     family_statuses = {
         item.get("family"): item.get("source_feasibility_status")
@@ -375,7 +394,7 @@ def main() -> None:
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "selected_source_audited_precision_review_pending",
+        "dataset_selection_status": "selected_source_audited_context_manifest_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "complete",
@@ -399,18 +418,21 @@ def main() -> None:
         "context_feasibility_report_path": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "complete_calendar_week_count": 51,
         "observed_complete_week_count": 50,
-        "required_context_count": 36,
-        "maximum_slot_matching_count": 36,
-        "minimum_hall_capacity_slack": 14,
+        "required_context_count": 48,
+        "maximum_slot_matching_count": 48,
+        "minimum_hall_capacity_slack": 2,
+        "precision_review_report_path": "reports/bizhallu_confirmation_precision_review_report.json",
+        "precision_review_original_status": "outcome_blind_precision_review_blocked",
+        "precision_scope_amendment_status": "complete_with_scope_downgrade",
         "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
         "development_question_count": 30,
-        "confirmation_question_count": 30,
-        "main_question_count": 60,
-        "total_generation_target_including_pilot": 72,
-        "counts_are_minimum_targets_pending_precision_review": True,
-        "precision_review_status": "pending",
+        "confirmation_question_count": 54,
+        "main_question_count": 84,
+        "total_generation_target_including_pilot": 96,
+        "counts_are_minimum_targets_pending_precision_review": False,
+        "precision_review_status": "complete_with_scope_downgrade",
         "historical_evidence_fingerprint_exclusion": True,
         "primary_metric": "AUPRC",
         "bootstrap_unit": "evidence_context_id",
@@ -440,7 +462,7 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_precision_review_pending",
+        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_context_manifest_pending",
         "dataset_acquisition_verified": dataset_strategy.get("official_acquisition_verified") is True,
         "dataset_structure_and_date_window_verified": dataset_strategy.get("structure_and_date_window_verified") is True,
         "dataset_quality_profile_verified": dataset_strategy.get("quality_profile_verified") is True,
@@ -451,7 +473,7 @@ def main() -> None:
             (item.get("status") for item in gates if item.get("gate") == "dataset_source_selected_and_audited"),
             None,
         ) == "complete",
-        "precision_review_pending": precision_review.get("status") == "pending",
+        "precision_review_complete_with_scope_downgrade": precision_review.get("status") == "complete_with_scope_downgrade",
         "pending_gate_count": sum(item.get("status") == "pending" for item in gates),
         "num_failures": len(failures),
         "failures": failures,

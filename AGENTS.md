@@ -68,6 +68,7 @@ python src\validate_confirmation_dataset_acquisition.py
 python src\validate_confirmation_dataset_quality.py
 python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_context_feasibility.py
+python src\validate_confirmation_precision_review.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -119,14 +120,27 @@ controls. The local 23-column line table remains Git-ignored because it contains
 source invoice and customer identifiers. Canonical eight-field and date-blind
 seven-field comparisons now prove zero repeated records against the current Online
 Retail lineage; expected product, customer, country, and five-field business-pattern
-continuity is disclosed separately and is not external independence. An
-outcome-blind capacity proof found 50 observed complete calendar weeks and a
-36-of-36 period-to-family matching across net-revenue reconciliation, product
-return comparison, and country-product exposure. Customer concentration stays
-blocked because 100,207 Customer IDs are missing. No matching assignment,
-context manifest, or split was retained. The next authorized research action is
-only the outcome-blind precision review for the planned 6/15/15 context counts;
-do not create a context manifest or prompts yet.
+continuity is disclosed separately and is not external independence.
+
+An outcome-blind precision review tested 15, 21, 24, and 27 confirmation
+contexts under frozen synthetic scenarios. None passed every frozen
+strong-comparison rule, and the thresholds were not relaxed afterward. The
+scope amendment therefore changes Confirmation Set v1 from a detector-
+superiority study to an estimation-focused study: family-level AUPRC intervals
+are primary, paired differences are descriptive, and subgroup results are
+descriptive. Do not claim detector superiority from Confirmation Set v1.
+
+The revised plan contains 6 protocol-pilot, 15 development, and 27 confirmation
+contexts, for 48 period-disjoint contexts and 96 questions. A repeated
+outcome-blind capacity proof found 50 observed complete calendar weeks, a
+48-of-48 period-to-family matching, and minimum Hall-capacity slack 2 across
+net-revenue reconciliation, product return comparison, and country-product
+exposure. Customer concentration stays blocked because 100,207 Customer IDs
+are missing. No matching assignment, context manifest, or split was retained.
+The next authorized research action is only to freeze the deterministic
+6/15/27 context manifest and seeded period-disjoint split. Do not generate
+questions, prompts, model outputs, labels, detector scores, or new empirical
+metrics yet.
 Do not run Qwen, annotate new outputs, or report confirmation metrics before those
 checks are complete. Any future
 result described as confirmatory must use

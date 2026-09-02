@@ -17,6 +17,9 @@ DEMO_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_demo_v2_summary.json"
 RISK_SUMMARY_PATH = REPORTS_DIR / "bizhallu_business_risk_lens_summary.json"
 VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.json"
 METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
+PRECISION_REPORT_PATH = REPORTS_DIR / "bizhallu_confirmation_precision_review_report.json"
+PRECISION_AMENDMENT_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
+CAPACITY_REPORT_PATH = REPORTS_DIR / "bizhallu_confirmation_context_feasibility_report.json"
 
 HTML_PATH = REPORTS_DIR / "bizhallu_research_one_pager.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
@@ -47,6 +50,9 @@ def main() -> None:
     risk = load_json(RISK_SUMMARY_PATH)
     verifier = load_json(VERIFIER_SUMMARY_PATH)
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
+    precision = load_json(PRECISION_REPORT_PATH)
+    precision_amendment = load_json(PRECISION_AMENDMENT_PATH)
+    capacity = load_json(CAPACITY_REPORT_PATH)
 
     best_auprc = interpretation["best_overall_by_test_auprc"]
     best_f1 = interpretation["best_overall_by_test_f1"]
@@ -93,6 +99,12 @@ def main() -> None:
         "Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.",
     ]
 
+    revised_counts = precision_amendment["revised_planning_counts"]
+    capacity_proof = capacity["capacity_proof"]
+    precision_pass_count = precision_amendment["failed_strong_comparison_design"][
+        "passing_candidate_count"
+    ]
+
     summary = {
         "status": "research_one_pager_ready",
         "research_one_pager_html_path": repo_path(HTML_PATH),
@@ -110,7 +122,16 @@ def main() -> None:
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "claim-evidence review schema v0 over Demo v2 spans; no independent verifier or full100 rerun",
+        "next_stage_scope": "freeze 6/15/27 context manifest and period-disjoint split; no questions, prompts, model outputs, or new metrics yet",
+        "confirmation_precision_review_status": precision["status"],
+        "confirmation_strong_candidate_pass_count": precision_pass_count,
+        "confirmation_candidate_count": len(precision["candidate_summaries"]),
+        "confirmation_context_count": revised_counts["confirmation_context_count"],
+        "confirmation_total_context_count": revised_counts["total_context_count"],
+        "confirmation_total_question_count": revised_counts["total_question_count"],
+        "confirmation_capacity_matching_count": capacity_proof["maximum_slot_matching_count"],
+        "confirmation_capacity_hall_slack": capacity_proof["minimum_hall_capacity_slack"],
+        "confirmation_claim_scope": "estimation_only_no_detector_superiority",
         "methodology_status": methodology["status"],
         "methodology_share_status": methodology["share_status"],
         "label_lock_basis": narrative["label_lock_basis"],
@@ -323,6 +344,23 @@ def main() -> None:
             {render_list(jhu_extensions)}
           </article>
         </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Prospective confirmation design</p>
+        <h2>The next study preserves the failed precision gate instead of overstating it.</h2>
+        <div class="grid">
+          <article class="panel">
+            <h3>Outcome-blind decision</h3>
+            <p>{esc(summary["confirmation_strong_candidate_pass_count"])}/{esc(summary["confirmation_candidate_count"])} tested strong-design candidates passed every frozen rule. Thresholds were not relaxed, and the scope was narrowed to estimation rather than detector superiority.</p>
+          </article>
+          <article class="panel">
+            <h3>Revised capacity</h3>
+            <p>The frozen 6/15/{esc(summary["confirmation_context_count"])} plan uses {esc(summary["confirmation_total_context_count"])} period-disjoint contexts and {esc(summary["confirmation_total_question_count"])} questions. Aggregate matching fills {esc(summary["confirmation_capacity_matching_count"])}/{esc(summary["confirmation_total_context_count"])} slots with minimum Hall slack +{esc(summary["confirmation_capacity_hall_slack"])}.</p>
+          </article>
+        </div>
+        <div class="callout"><strong>Current boundary:</strong> no context manifest, split, question, prompt, model output, annotation, detector score, or new empirical metric exists. Next freeze only the outcome-blind context manifest and period-disjoint split.</div>
+        <p><a href="./bizhallu_confirmation_precision_review.html"><strong>Open precision review</strong></a> · <a href="./bizhallu_confirmation_set_v1_design.html"><strong>Open prospective study design</strong></a></p>
       </section>
 
       <section>

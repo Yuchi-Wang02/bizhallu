@@ -1,6 +1,6 @@
 # BizHallu Current State Audit
 
-Date: 2026-09-01
+Date: 2026-09-02
 
 ## Integrity Update: 2026-08-31
 
@@ -57,10 +57,10 @@ not started. `configs/confirmation_set_v1_protocol.json` fixes the intended
 sampling, context separation, annotation, evaluation-track, metric, and claim
 policies before new model answers are viewed.
 
-- The planning target is 72 generations: a 12-question protocol pilot, 30
-  development questions, and 30 sealed confirmation questions. The protocol
-  pilot is permanently excluded from confirmation metrics, so the main study
-  contains 60 questions.
+- The post-review planning target is 96 generations: a 12-question protocol
+  pilot, 30 development questions, and 54 sealed confirmation questions. The
+  protocol pilot is permanently excluded from confirmation metrics, so the
+  main study contains 84 questions.
 - Sampling is outcome-blind at the `evidence_context_id` level. The design does
   not force a 50/50 correct-error balance and does not replace outputs after
   answer quality is observed.
@@ -87,8 +87,8 @@ policies before new model answers are viewed.
   and all 12 expected months are now profiled with documented controls. Canonical
   eight-field and date-blind seven-field comparisons both found zero repeated
   current-source records. An outcome-blind feasibility profile found 50 observed
-  complete weeks and proved a 36-of-36 period-to-family matching across three
-  allowed families, with minimum Hall-capacity slack 14. Customer concentration
+  complete weeks and proved a 48-of-48 period-to-family matching across three
+  allowed families, with minimum Hall-capacity slack 2. Customer concentration
   remains blocked because 100,207 Customer IDs are missing. No selected periods,
   split, context manifest, prompts, or model outcomes were retained.
 
@@ -103,9 +103,37 @@ records official source and license evidence, and keeps Complete Journey as the
 preferred external-replication shortlist candidate. The selected source is now
 locally acquired, structurally inspected, quality-profiled, and separated from
 the current source at normalized record level. This remains same-retailer,
-  same-lineage temporal replication, not external independence. The next action is
-  only an outcome-blind precision review of the planned 6/15/15 context counts.
-  No context manifest, prompt, generation, annotation target, or new metric was created.
+  same-lineage temporal replication, not external independence. The precision
+  review and claim amendment below supersede the original 6/15/15 planning
+  counts. No context manifest, prompt, generation, annotation target, or new
+  empirical metric was created.
+
+## Outcome-Blind Precision Review Update: 2026-09-02
+
+Before selecting any contexts, a frozen simulation review evaluated 15, 21,
+24, and 27 confirmation contexts under 16 central and 4 stress scenarios. It
+used synthetic labels and detector scores only; no confirmation context,
+answer, annotation, or detector outcome was accessed.
+
+- None of the four candidates passed every frozen strong-comparison rule. The
+  decision thresholds were not relaxed after the result.
+- The largest capacity-feasible candidate, 27 confirmation contexts, passed 10
+  of 16 preferred central scenarios. Its worst central median AUPRC half-width
+  was 0.121219 and its worst central median paired-difference half-width was
+  0.097796. These are simulation planning quantities, not empirical detector
+  results.
+- The study was narrowed from a detector-superiority design to an estimation-
+  focused design. Detector-family AUPRC intervals are primary; paired
+  differences and subgroup results are descriptive. Confirmation Set v1 must
+  not be used to claim one detector family is statistically superior.
+- The revised plan is 6 protocol-pilot, 15 development, and 27 confirmation
+  contexts, with two questions per context: 48 contexts and 96 questions total.
+- The aggregate capacity proof was rerun for the revised target. Fifty observed
+  complete weeks support a 48-of-48 period-to-family matching with minimum Hall
+  slack 2. No matching assignment or candidate-period list was retained.
+- The next authorized action is only to freeze the deterministic 6/15/27
+  context manifest and seeded, period-disjoint split. Question generation,
+  prompts, Qwen execution, annotation, and new detector metrics remain blocked.
 
 ## Historical Record-Overlap Update: 2026-09-01
 
@@ -132,9 +160,10 @@ hidden by converting records to a simple set.
 - Public artifacts expose aggregate counts and whole-inventory manifest hashes
   only. Raw invoice values, customer values, and row fingerprints remain local.
 
-The historical-overlap sub-check is complete. The dataset gate and all seven
-execution gates remain pending because at least 36 outcome-blind disjoint
-evidence contexts have not yet been proven feasible.
+The historical-overlap sub-check is complete. This paragraph records the state
+at the overlap checkpoint; the later capacity and precision updates above now
+supersede it. The source gate is complete, 48-context capacity is verified, and
+the combined context-manifest/split gate remains pending.
 
 ## Audit Scope
 
@@ -1545,6 +1574,32 @@ entry point for GitHub Pages.
       or new metric was created. Context feasibility remains the only unfinished
       source-data blocker.
 
+40. The source then needed an outcome-blind capacity proof at the complete-week
+    evidence-context grain.
+    - The first planning target proved 36/36 matching with 14 unused complete
+      weeks, but retained no matching assignment, period list, or split.
+    - After the precision-review failure path increased the study to 48 total
+      contexts, the same frozen family rules were rerun. All three allowed
+      families had 50 eligible complete weeks, maximum matching filled 48/48
+      slots, and generalized Hall capacity had minimum slack 2.
+    - Customer concentration remained blocked because 100,207 Customer IDs are
+      missing; it was not rescued with a post hoc complete-case denominator.
+
+41. The planned detector comparison needed a precision review before any
+    context manifest could be frozen.
+    - A deterministic synthetic simulation tested 15, 21, 24, and 27
+      confirmation-context candidates under fixed central and stress scenarios.
+    - No candidate passed all frozen strong-comparison rules. An alternate-seed
+      sensitivity check agreed on the failure direction, and the primary frozen
+      simulation artifact was not replaced.
+    - The decision thresholds were preserved. The project instead froze an
+      estimation-focused scope, selected the largest balanced capacity-feasible
+      plan of 6/15/27 contexts, and prohibited detector-superiority claims from
+      Confirmation Set v1.
+    - Boundary: the review used no confirmation outcomes and created no context
+      manifest, questions, prompts, generated answers, annotations, detector
+      scores, or empirical performance metrics.
+
 ## Remaining Risks
 
 1. Current review auto-status is only a triage aid.
@@ -1592,10 +1647,17 @@ entry point for GitHub Pages.
    - The next result needs fresh or context-separated evidence, annotation
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
-   - Online Retail II is only provisionally selected. Acquisition, hashes,
-      structure, strict-window quality controls, and monthly reconciliation are
-      verified, and canonical plus date-blind zero-overlap proof is complete.
-      Outcome-blind 36-context feasibility is still pending.
+   - Online Retail II is selected for an internal temporal replication.
+     Acquisition, hashes, structure, strict-window quality controls, monthly
+     reconciliation, zero-overlap checks, outcome-blind precision review, and
+     revised 48-context capacity proof are complete.
+   - Statistical precision remains limited by the number of independent
+     contexts. The study is estimation-focused; paired and subgroup contrasts
+     are descriptive, and a stronger comparative claim requires more contexts
+     or a separately audited second dataset.
+   - The 6/15/27 context manifest and split are not yet frozen, so questions,
+     prompts, model execution, labeling, and confirmation metrics remain
+     unauthorized.
 
 ## Recommended Next Steps
 
@@ -1626,8 +1688,8 @@ entry point for GitHub Pages.
    - Say simple uncertainty is strongest in this run; do not imply the
      energy-family methods won overall.
 
-3. Treat Confirmation Set v1 as the next research branch, but keep it blocked
-   until the provisionally selected strict window passes the remaining source QA.
+3. Treat Confirmation Set v1 as the next research branch, but advance only one
+   gate at a time.
    - Preserve the recorded official-file hashes and keep the workbook and local
      validation record under the Git-ignored raw-data tree.
    - Preserve the completed strict-window controls: three header aliases,
@@ -1635,11 +1697,14 @@ entry point for GitHub Pages.
      customer-level question blocking, and cancellation-aware net revenue.
    - Preserve the completed overlap proof: zero canonical and date-blind record
      overlap, with same-retailer entity and business-pattern continuity disclosed.
-   - Next, prove at least 6 pilot, 15 development, and 15 confirmation contexts can be
-     assigned without viewing model outputs and with period/fingerprint
-     separation before creating prompt files.
-   - Keep the 12/30/30 counts as planning targets until a source-feasibility and
-     precision review confirms that they are defensible.
+   - Preserve the completed precision result: no tested candidate passed every
+     frozen strong-comparison rule, thresholds were not relaxed, and the study
+     now estimates detector-family performance rather than claiming superiority.
+   - Next, freeze exactly 6 pilot, 15 development, and 27 confirmation contexts
+     without viewing model outputs, using period and evidence-fingerprint
+     separation. Retain two unassigned complete weeks as source reserve.
+   - Keep the 12/30/54 question counts and 96-generation total fixed unless a
+     new, separately justified design amendment is made before model outcomes.
    - Treat the current claim-evidence schema as label-derived v0 scaffolding;
      implement an independent decision protocol only on pilot/development data.
    - Keep internal-state and literature-grounded methods as comparison tracks:

@@ -301,7 +301,7 @@ def main() -> None:
     if observed_sheet_counts != expected_sheet_counts:
         add_failure(failures, "sheet_counts", observed_sheet_counts)
 
-    if audit.get("status") != "dataset_source_selected_and_audited_precision_review_pending":
+    if audit.get("status") != "dataset_source_selected_and_audited_context_manifest_pending":
         add_failure(failures, "audit_status", audit.get("status"))
     expected_audit_flags = {
         "download_performed": True,
@@ -347,8 +347,8 @@ def main() -> None:
     expected_capacity = {
         "status": "outcome_blind_context_feasibility_complete",
         "observed_complete_period_count": 50,
-        "required_total_context_count": 36,
-        "maximum_slot_matching_count": 36,
+        "required_total_context_count": 48,
+        "maximum_slot_matching_count": 48,
         "context_manifest_created": False,
         "execution_ready": False,
         "no_new_results": True,

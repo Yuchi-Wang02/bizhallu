@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "status": "dataset_source_selected_and_audited_precision_review_pending",
+  "status": "dataset_source_selected_and_audited_context_manifest_pending",
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "audit_date": "2026-09-01",
-  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, monthly coverage, normalized historical record-overlap proof, and outcome-blind 36-context capacity proof are complete. Precision review and context-manifest freeze remain pending.",
+  "audit_scope": "Official-source metadata review, immutable local acquisition, workbook-structure inspection, strict-window field quality, duplicate/grain analysis, business-rule reconciliation, monthly coverage, normalized historical record-overlap proof, outcome-blind precision review, and revised 48-context capacity proof are complete. Context-manifest freeze remains pending.",
   "protocol_source": "configs/confirmation_set_v1_protocol.json",
   "no_new_results": true,
   "download_performed": true,
@@ -16,11 +16,11 @@
   "local_profile_complete": true,
   "execution_ready": false,
   "decision": {
-    "selection_status": "selected_source_audited_precision_review_pending",
+    "selection_status": "selected_source_audited_context_manifest_pending",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_role": "prospective_temporal_internal_replication",
     "dataset_gate_status": "complete",
-    "decision_summary": "Select the strict prior-period portion of UCI Online Retail II for a same-retailer temporal internal replication. It preserves the required business fields through three explicit header aliases, is conditionally suitable after documented quality controls, has zero canonical plus date-blind normalized record overlap with the current source, and supports 36 unique complete-week contexts across three allowed question families without using model outcomes.",
+    "decision_summary": "Select the strict prior-period portion of UCI Online Retail II for a same-retailer temporal internal replication. It preserves the required business fields through three explicit header aliases, is conditionally suitable after documented quality controls, has zero canonical plus date-blind normalized record overlap with the current source, and supports the revised 48 unique complete-week contexts across three allowed question families without using model outcomes.",
     "allowed_time_window": {
       "start_inclusive": "2009-12-01T00:00:00",
       "end_exclusive": "2010-12-01T00:00:00",
@@ -29,7 +29,7 @@
     "claim_limit": "This is a same-retailer, same-source temporal internal replication. It cannot establish cross-dataset, cross-company, or unseen-domain generalization.",
     "why_not_current_rows": "New question families over the current 541,909 rows would be prospective at the question level but would still reuse the exploratory transaction population.",
     "why_not_external_first": "Complete Journey is a strong external candidate, but its discount and returns semantics require a new metric map. The prior-period UCI source is the lower-risk way to validate the corrected sampling, split, annotation, and comparison protocol first.",
-    "gate_completion_rule": "The dataset_source_selected_and_audited gate is complete because acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, zero normalized historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. This does not authorize context selection or experiment execution."
+    "gate_completion_rule": "The dataset_source_selected_and_audited gate is complete because acquisition, hashing, workbook structure, strict-window completeness, duplicate/grain handling, cancellation/value rules, monthly coverage, zero normalized historical record overlap, outcome-blind precision review, and revised capacity for 48 unique complete-week contexts are verified. This does not authorize question generation or experiment execution."
   },
   "acquisition_evidence": {
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -113,10 +113,10 @@
       "evidence": "The source uses nominal customer identifiers rather than names or contact details. Public outputs must remain aggregated or use non-reversible study IDs instead of exposing source customer identifiers."
     },
     {
-      "criterion_id": "minimum_36_disjoint_contexts",
-      "description": "At least 36 disjoint evidence contexts can be formed without outcome-based filtering.",
+      "criterion_id": "minimum_48_disjoint_contexts",
+      "description": "At least 48 disjoint evidence contexts can be formed without outcome-based filtering.",
       "selected_candidate_status": "pass_outcome_blind_capacity_profile",
-      "evidence": "Fifty observed complete calendar weeks support 36 unique period-to-family slots across three allowed families. Generalized Hall capacity has minimum slack 14 and an independent maximum matching fills 36 of 36 slots; no assignment was retained."
+      "evidence": "Fifty observed complete calendar weeks support 48 unique period-to-family slots across three allowed families. Generalized Hall capacity has minimum slack 2 and an independent maximum matching fills 48 of 48 slots; no assignment was retained."
     }
   ],
   "candidates": [
@@ -157,7 +157,7 @@
       "candidate_id": "uci_online_retail_ii_prior_period",
       "name": "UCI Online Retail II, strict prior-period window",
       "role": "prospective_temporal_internal_replication",
-      "decision_status": "selected_source_audited_precision_review_pending",
+      "decision_status": "selected_source_audited_context_manifest_pending",
       "official_source_url": "https://archive.ics.uci.edu/dataset/502/online+retail",
       "source_identity": {
         "doi": "10.24432/C5CG6D",
@@ -189,9 +189,9 @@
         "100,207 customer IDs and 2,821 descriptions are missing, so customer-level questions stay blocked and product/value evidence requires descriptions",
         "6,544 normalized exact duplicate extra rows require exact-row deduplication before aggregation",
         "2,057 negative-quantity rows lack the C invoice prefix, so cancellation logic cannot rely on prefix alone",
-        "customer concentration remains blocked because 100,207 Customer IDs are missing; the verified 36-context capacity covers three other families"
+        "customer concentration remains blocked because 100,207 Customer IDs are missing; the verified 48-context capacity covers three other families"
       ],
-      "recommended_use": "Use the documented strict-window controls and completed aggregate capacity proof, then run the outcome-blind precision review before freezing any context manifest or seeded split."
+      "recommended_use": "Use the documented strict-window controls, completed precision review, estimation-only claim amendment, and revised aggregate capacity proof; next freeze only the deterministic 6/15/27 context manifest and seeded split."
     },
     {
       "candidate_id": "completejourney_external",
@@ -368,7 +368,7 @@
     {
       "check_id": "context_feasibility",
       "status": "completed",
-      "requirement": "Outcome-blind capacity is verified for 6 pilot, 15 development, and 15 confirmation contexts using unique complete calendar weeks across three allowed families. Final evidence fingerprints remain a manifest-freeze check."
+      "requirement": "Outcome-blind capacity is verified for 6 pilot, 15 development, and 27 confirmation contexts using unique complete calendar weeks across three allowed families. Final evidence fingerprints remain a manifest-freeze check."
     },
     {
       "check_id": "public_privacy_boundary",
@@ -382,12 +382,12 @@
       "the strict prior-period window has zero exact normalized record overlap with the current source",
       "required fields remain sufficiently complete for deterministic gold calculations",
       "cancellation and value rules can be documented without outcome-dependent exclusions",
-      "at least 36 disjoint evidence contexts satisfy the frozen split policy"
+      "at least 48 disjoint evidence contexts satisfy the frozen split policy"
     ],
     "reject_or_redesign_if": [
       "record overlap remains after the strict cutoff",
       "missingness or duplicate ambiguity prevents deterministic evidence calculations",
-      "fewer than 36 eligible contexts can be formed without looking at generated answers",
+      "fewer than 48 eligible contexts can be formed without looking at generated answers",
       "the proposed period split produces materially sparse or incomparable business scopes"
     ],
     "fallback_order": [
@@ -475,7 +475,8 @@
       "The workbook contains 1,067,371 date-valid rows, and the strict prior-period window contains 502,938 rows after the date boundary is applied.",
       "Three raw header aliases are required before shared BizHallu business rules can be applied.",
       "Official metadata, local structure, field quality, duplicate/grain, business-rule, monthly coverage, historical overlap, and aggregate context-capacity checks are complete.",
-      "Fifty observed complete weeks provide outcome-blind capacity for 36 unique context slots across three allowed families; no context assignment or split has been retained.",
+      "Fifty observed complete weeks provide outcome-blind capacity for 48 unique context slots across three allowed families; no context assignment or split has been retained.",
+      "The frozen precision review rejected the stronger comparison design; the study now plans estimation with intervals and prohibits a detector-superiority claim.",
       "The strict prior window has zero canonical and zero date-blind normalized record overlap with the current source, while expected same-retailer product, customer, and country continuity remains.",
       "Complete Journey is the preferred external-replication shortlist candidate, not a selected or downloaded confirmation source."
     ],

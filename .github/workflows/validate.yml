@@ -53,6 +53,9 @@ jobs:
       - name: Validate Confirmation Dataset context capacity proof
         run: python src/validate_confirmation_context_feasibility.py
 
+      - name: Validate Confirmation Set precision review
+        run: python src/validate_confirmation_precision_review.py
+
       - name: Validate Confirmation Dataset Source Audit v1
         run: python src/validate_confirmation_dataset_source_audit.py
 

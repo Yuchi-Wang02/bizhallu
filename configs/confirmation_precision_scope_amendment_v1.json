@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "status": "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "decided_on": "2026-09-02",
+  "purpose": "Resolve the preregistered precision-review failure without relaxing its thresholds or using any confirmation outcome.",
+  "no_new_results": true,
+  "inputs": {
+    "precision_review_config": "configs/confirmation_precision_review_v1.json",
+    "precision_review_config_sha256": "e49ea86fe12749f261a36a4f3acf9498c50b17a2eddcff50a27a7a276a5d99e1",
+    "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
+    "precision_review_report_sha256": "3c9490b51313e42dc7c35eae552216d2e436ba3186bfd79c7dd29fe342066ed3",
+    "precision_review_status": "outcome_blind_precision_review_blocked"
+  },
+  "failed_strong_comparison_design": {
+    "candidate_confirmation_context_counts": [
+      15,
+      21,
+      24,
+      27
+    ],
+    "passing_candidate_count": 0,
+    "thresholds_changed_after_simulation": false,
+    "best_capacity_feasible_candidate": {
+      "confirmation_context_count": 27,
+      "central_preferred_scenario_count": 10,
+      "central_scenario_count": 16,
+      "central_preferred_scenario_share": 0.625,
+      "central_worst_median_auprc_half_width": 0.121219,
+      "central_worst_median_paired_difference_half_width": 0.097796,
+      "stress_worst_median_auprc_half_width": 0.16445,
+      "stress_worst_median_paired_difference_half_width": 0.140737
+    },
+    "interpretation": "The 27-context candidate narrowly misses the frozen central AUPRC-width rule and clearly misses the preferred-scenario-share rule. It cannot support a preregistered detector-superiority claim under the frozen sensitivity design."
+  },
+  "scope_amendment": {
+    "decision": "downgrade_from_superiority_to_estimation",
+    "primary_objective": "Estimate the AUPRC of each frozen detector family on the sealed confirmation set with context-resampled uncertainty intervals.",
+    "paired_difference_role": "Report the paired AUPRC difference and its interval as a descriptive secondary estimate, not as a binary winner or superiority test.",
+    "prohibited_primary_claim": "Do not claim that evidence-aware verification, internal uncertainty, or a hybrid detector is statistically superior on Confirmation Set v1.",
+    "stress_scenario_policy": "If the realized sealed data have low class prevalence, low claim density, or concentrated errors, report the resulting wide intervals without replacing contexts or weakening the caveat.",
+    "subgroup_policy": "Question-family and fact-type results are descriptive only because the number of independent contexts per subgroup remains small.",
+    "external_replication_policy": "A stronger comparative or generalization claim requires additional independent contexts, preferably from a separately validated second dataset."
+  },
+  "revised_planning_counts": {
+    "protocol_pilot_context_count": 6,
+    "protocol_pilot_contexts_per_family": 2,
+    "development_context_count": 15,
+    "development_contexts_per_family": 5,
+    "confirmation_context_count": 27,
+    "confirmation_contexts_per_family": 9,
+    "total_context_count": 48,
+    "contexts_per_family_across_all_splits": 16,
+    "questions_per_context": 2,
+    "protocol_pilot_question_count": 12,
+    "development_question_count": 30,
+    "confirmation_question_count": 54,
+    "total_question_count": 96,
+    "observed_complete_source_period_count": 50,
+    "unassigned_source_period_reserve": 2,
+    "selection_reason": "Twenty-seven is the largest balanced confirmation count that preserves six pilot contexts, fifteen development contexts, period disjointness, equal family representation, and two unassigned source periods. It is selected to reduce uncertainty, not because it passed the original strong-comparison rule."
+  },
+  "required_capacity_recheck": {
+    "status": "complete",
+    "required_total_period_disjoint_contexts": 48,
+    "required_contexts_per_family": 16,
+    "required_maximum_matching_count": 48,
+    "minimum_required_hall_slack_for_all_families": 2,
+    "assignment_must_not_be_retained": true,
+    "evidence_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
+    "observed_complete_source_period_count": 50,
+    "observed_maximum_matching_count": 48,
+    "observed_minimum_hall_slack_for_all_families": 2,
+    "context_assignment_retained": false,
+    "failure_policy": "If aggregate 48-context capacity does not pass under the frozen eligibility rules, stop and do not create a context manifest."
+  },
+  "gate_effect": {
+    "precision_review": "complete_with_scope_downgrade",
+    "context_capacity_recheck": "complete_without_retained_assignment",
+    "context_manifest_split_and_precision_review_frozen": "pending_context_manifest_and_split",
+    "context_manifest_authorized_now": true,
+    "question_generation_authorized_now": false,
+    "model_execution_authorized_now": false,
+    "next_authorized_action": "Freeze only the outcome-blind 6/15/27 context manifest and period-disjoint split under the predeclared eligibility rules; do not generate questions or access model outcomes yet."
+  }
+}

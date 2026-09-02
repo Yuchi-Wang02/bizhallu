@@ -607,16 +607,21 @@ spans and should be treated as protocol scaffolding, not a new benchmark.
 Confirmation Set v1 now defines the next research branch prospectively. Its
 machine-readable protocol is `configs/confirmation_set_v1_protocol.json`, and
 its generated design report is
-`reports/bizhallu_confirmation_set_v1_design.html`. The planned inventory is a
-12-question protocol pilot plus 30 development and 30 sealed confirmation
-questions. These are minimum planning targets, not collected results. They may
-increase after an outcome-blind precision review, but cannot be reduced or
-rebalanced after generated answers are viewed. Exact historical full100
-  evidence fingerprints are excluded. The dataset-source gate is complete after
-  the aggregate-only capacity proof verified 50 observed complete weeks and a
-  36-of-36 unique period-to-family matching across three allowed families. Six
-  downstream gates remain pending, and the design introduces no new performance
-  claim or selected context manifest.
+`reports/bizhallu_confirmation_set_v1_design.html`. A frozen outcome-blind
+precision simulation tested 15, 21, 24, and 27 confirmation contexts. No
+candidate passed every strong-comparison rule, and the project did not relax
+the rules after seeing the result. The amended study is therefore estimation-
+focused rather than a detector-superiority test.
+
+The revised inventory is a 12-question protocol pilot, 30 development
+questions, and 54 sealed confirmation questions: 96 generations across
+6/15/27 contexts. Exact historical full100 evidence fingerprints are excluded.
+The dataset-source gate is complete after the aggregate-only capacity proof
+verified 50 observed complete weeks, 48-of-48 unique period-to-family matching
+across three allowed families, and minimum Hall slack 2. No matching assignment,
+context manifest, question, prompt, model outcome, annotation, or new empirical
+metric was retained. The next gate is only the deterministic context-manifest
+and period-disjoint split freeze.
 
 Next one-step branch:
 
@@ -632,7 +637,7 @@ Next one-step branch:
 - use `docs/evidence_verifier_pilot.html` to show the v0 evidence-aware
   verifier family and `docs/evidence_aware_verifier_design.md` to plan any
   expansion beyond Demo v2
-- select and audit the Confirmation Set v1 dataset source before writing new
-  prompts or running the model
+- freeze only the outcome-blind 6/15/27 context manifest and period-disjoint
+  split before writing new questions or prompts
 - keep new model runs blocked until the context manifest, split, prompts,
   detector policies, reviewer plan, and sealed-run authorization are frozen

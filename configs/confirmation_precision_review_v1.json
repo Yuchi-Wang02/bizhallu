@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0",
+  "status": "rules_frozen_simulation_pending",
+  "project": "BizHallu",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-02",
+  "purpose": "Run an outcome-blind design sensitivity analysis for the number of independent confirmation evidence contexts before any context manifest, model output, label, detector score, or confirmation metric exists.",
+  "no_new_results": true,
+  "review_boundary": {
+    "independent_unit": "evidence_context_id",
+    "allowed_inputs": [
+      "synthetic class-prevalence scenarios",
+      "synthetic spans-per-context scenarios",
+      "synthetic within-context label correlation scenarios",
+      "synthetic paired detector-score scenarios",
+      "aggregate source-capacity counts from the completed context-feasibility proof"
+    ],
+    "forbidden_inputs": [
+      "candidate period identifiers",
+      "selected context identifiers",
+      "split assignments",
+      "confirmation questions or prompts",
+      "confirmation model outputs",
+      "confirmation labels",
+      "confirmation detector outcomes",
+      "historical detector performance used to calibrate synthetic score separation"
+    ],
+    "interpretation": "This is a planning sensitivity analysis, not a formal power calculation, detector evaluation, or guarantee of future confidence-interval coverage."
+  },
+  "fixed_design": {
+    "eligible_question_families": [
+      "net_revenue_reconciliation_by_period",
+      "product_return_rate_comparison",
+      "country_product_exposure"
+    ],
+    "question_family_count": 3,
+    "protocol_pilot_context_count": 6,
+    "development_context_count": 15,
+    "questions_per_context": 2,
+    "observed_source_period_capacity": 50,
+    "minimum_unassigned_source_period_reserve": 2,
+    "periods_disjoint_across_all_contexts": true
+  },
+  "candidate_confirmation_context_counts": [
+    15,
+    21,
+    24,
+    27
+  ],
+  "synthetic_data_model": {
+    "class_label": "hallucinated business-fact span",
+    "average_precision_definition": "Average precision computed from the ranked synthetic unsupported-risk scores.",
+    "cluster_label_model": "For each context, draw a context-specific prevalence from a beta distribution parameterized by the scenario prevalence and label ICC, then draw binary span labels conditionally within that context.",
+    "cluster_size_model": "Use a deterministic five-context multiplier pattern of 0.65, 0.85, 1.00, 1.15, and 1.35 around each scenario mean, with a minimum of four spans. This tests unequal cluster sizes without using observed confirmation data.",
+    "paired_score_model": "Generate two correlated synthetic risk scores from shared and detector-specific Gaussian noise. Detector B has a fixed 0.20 standardized separation increment only to study paired-difference interval width; it is not a predicted evidence-aware advantage.",
+    "shared_score_noise_weight": 0.6,
+    "detector_specific_noise_weight": 0.8,
+    "context_score_shift_sd": 0.25,
+    "paired_detector_separation_increment": 0.2
+  },
+  "central_scenario_grid": {
+    "class_prevalence": [
+      0.4,
+      0.6
+    ],
+    "mean_spans_per_context": [
+      8,
+      12
+    ],
+    "label_icc": [
+      0.05,
+      0.15
+    ],
+    "internal_score_separation": [
+      0.8,
+      1.2
+    ],
+    "expected_scenario_count": 16
+  },
+  "stress_scenarios": [
+    {
+      "scenario_id": "stress_low_prevalence_small_cluster_high_icc",
+      "class_prevalence": 0.25,
+      "mean_spans_per_context": 6,
+      "label_icc": 0.25,
+      "internal_score_separation": 0.8
+    },
+    {
+      "scenario_id": "stress_high_prevalence_small_cluster_high_icc",
+      "class_prevalence": 0.75,
+      "mean_spans_per_context": 6,
+      "label_icc": 0.25,
+      "internal_score_separation": 0.8
+    },
+    {
+      "scenario_id": "stress_low_prevalence_low_density",
+      "class_prevalence": 0.25,
+      "mean_spans_per_context": 8,
+      "label_icc": 0.15,
+      "internal_score_separation": 0.8
+    },
+    {
+      "scenario_id": "stress_high_prevalence_low_density",
+      "class_prevalence": 0.75,
+      "mean_spans_per_context": 8,
+      "label_icc": 0.15,
+      "internal_score_separation": 0.8
+    }
+  ],
+  "monte_carlo": {
+    "base_seed": 20260902,
+    "outer_dataset_replicates_per_scenario": 60,
+    "cluster_bootstrap_replicates_per_dataset": 300,
+    "confidence_level": 0.95,
+    "interval_method_for_design_simulation": "paired percentile cluster bootstrap",
+    "minimum_valid_outer_replicate_fraction": 0.95,
+    "resampling_unit": "synthetic evidence context",
+    "paired_resampling": "The same resampled context indices are used for both synthetic detector scores."
+  },
+  "decision_policy": {
+    "minimum_confirmation_context_count": 24,
+    "minimum_confirmation_contexts_per_family": 8,
+    "maximum_total_context_count": 48,
+    "minimum_source_period_reserve": 2,
+    "preferred_scenario_max_median_auprc_half_width": 0.1,
+    "preferred_scenario_max_median_paired_difference_half_width": 0.08,
+    "minimum_preferred_central_scenario_share": 0.75,
+    "maximum_worst_central_median_auprc_half_width": 0.12,
+    "maximum_worst_central_median_paired_difference_half_width": 0.1,
+    "selection_rule": "Select the smallest balanced candidate that satisfies every structural and central-scenario rule. Stress scenarios are disclosure checks and cannot be hidden, but they are not pass criteria because the source cannot guarantee their future prevalence or cluster structure.",
+    "failure_rule": "If no candidate passes, do not create a context manifest. Revise the study scope, acquire additional independent contexts, or explicitly downgrade the planned claim before proceeding."
+  },
+  "future_interval_policy": {
+    "primary_resampling_unit": "evidence_context_id",
+    "paired_detector_comparison": true,
+    "planned_bootstrap_replicates": 5000,
+    "planned_primary_interval": "context-level BCa bootstrap when all leave-one-context-out estimates are defined",
+    "planned_sensitivity_interval": "paired percentile context bootstrap",
+    "small_cluster_caveat": "Fewer than 30 independent contexts remains a small-cluster setting. Report intervals and avoid a binary superiority claim when the interval is wide or interval methods disagree."
+  },
+  "literature_context": [
+    {
+      "title": "Simple Approaches for Dealing With Correlated Data",
+      "url": "https://academic.oup.com/aje/article/192/4/507/6973188",
+      "relevance": "Supports resampling whole clusters and cautions that clustered-bootstrap validity still relies on large-sample arguments, with particular caution below 30 clusters."
+    },
+    {
+      "title": "Pointwise sampling uncertainties on the Precision-Recall curve",
+      "url": "https://proceedings.mlr.press/v206/urlus23a.html",
+      "relevance": "Shows that PR uncertainty depends on test-set sampling and that scarce positives can create discrete bootstrap behavior."
+    },
+    {
+      "title": "Estimating Uncertainty in Classifier Performance with Applications to Large Language Models and Nested Data",
+      "url": "https://arxiv.org/abs/2606.26422",
+      "relevance": "Recent preprint evidence that default intervals can under-cover for small nested text-classification evaluations; used as a caution, not as a settled standard."
+    }
+  ],
+  "public_output_policy": {
+    "allowed": [
+      "synthetic scenario definitions",
+      "aggregate interval half-width summaries",
+      "candidate design pass or fail status",
+      "selected planning counts",
+      "aggregate source-capacity reserve"
+    ],
+    "forbidden": [
+      "candidate source periods",
+      "retained matching assignments",
+      "context manifests",
+      "split assignments",
+      "model outcomes",
+      "new empirical AUPRC or F1 claims"
+    ]
+  }
+}

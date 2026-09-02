@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BizHallu Outcome-Blind Precision Review</title>
+  <style>
+    :root { --ink:#191b1f; --muted:#626a73; --line:#d8dde3; --soft:#f4f6f8; --paper:#fff; --green:#14633f; --green-bg:#eef8f2; --amber:#825006; --amber-bg:#fff8e7; --red:#8a2f2a; --red-bg:#fff1ef; --blue:#075ea8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; letter-spacing:0; }
+    a { color:var(--blue); text-decoration:none; }
+    header { border-bottom:1px solid var(--line); background:#fbfbfc; }
+    nav { width:min(1180px,calc(100% - 40px)); min-height:60px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    nav strong { color:var(--ink); font-size:15px; }
+    nav div { display:flex; gap:17px; font-size:13px; font-weight:700; }
+    main { width:min(1180px,calc(100% - 40px)); margin:0 auto; }
+    section { padding:44px 0; border-bottom:1px solid var(--line); }
+    .hero { padding:64px 0 48px; }
+    .eyebrow { margin:0 0 10px; color:var(--green); font-size:12px; font-weight:800; text-transform:uppercase; }
+    h1 { max-width:1020px; margin:0; font-size:48px; line-height:1.08; letter-spacing:0; }
+    h2 { margin:0 0 12px; font-size:30px; line-height:1.2; letter-spacing:0; }
+    h3 { margin:0 0 8px; font-size:18px; letter-spacing:0; }
+    p { margin:7px 0; }
+    .lede { max-width:940px; margin-top:18px; color:var(--muted); font-size:19px; }
+    .metrics { margin-top:28px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+    .metrics div { min-width:0; padding:16px; border-right:1px solid var(--line); background:#fff; }
+    .metrics div:last-child { border-right:0; }
+    .metrics span { display:block; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }
+    .metrics strong { display:block; margin-top:5px; font-size:22px; overflow-wrap:anywhere; }
+    .callout { margin-top:20px; padding:16px 18px; border-left:4px solid var(--amber); background:var(--amber-bg); }
+    .callout.good { border-color:var(--green); background:var(--green-bg); }
+    .callout.blocked { border-color:var(--red); background:var(--red-bg); }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:20px; }
+    .panel { min-width:0; padding:18px; border:1px solid var(--line); border-radius:7px; }
+    .panel p { color:var(--muted); }
+    .table-wrap { margin-top:18px; overflow-x:auto; border:1px solid var(--line); border-radius:7px; }
+    table { width:100%; min-width:940px; border-collapse:collapse; }
+    th,td { padding:11px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:13px; overflow-wrap:anywhere; }
+    th { color:#3e454d; background:var(--soft); font-size:11px; text-transform:uppercase; white-space:nowrap; overflow-wrap:normal; }
+    tr:last-child td { border-bottom:0; }
+    td.num { white-space:nowrap; font-variant-numeric:tabular-nums; }
+    code { padding:2px 5px; border-radius:4px; background:#eef1f4; font-family:"SFMono-Regular",Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; }
+    .badge { display:inline-block; padding:3px 7px; border-radius:4px; font-size:11px; font-weight:800; text-transform:uppercase; white-space:nowrap; }
+    .badge.pass { color:var(--green); background:var(--green-bg); }
+    .badge.blocked { color:var(--red); background:var(--red-bg); }
+    ul,ol { display:grid; gap:8px; padding-left:20px; }
+    footer { padding:34px 0 50px; color:var(--muted); font-size:13px; }
+    @media (max-width:860px) { nav div { display:none; } .metrics { grid-template-columns:1fr 1fr; } .grid { grid-template-columns:1fr; } .metrics div { border-bottom:1px solid var(--line); } }
+    @media (max-width:560px) { main,nav { width:min(100% - 24px,1180px); } h1 { font-size:38px; } h2 { font-size:26px; } .metrics { grid-template-columns:1fr; } .metrics div { border-right:0; } }
+  </style>
+</head>
+<body>
+  <header><nav><a href="./confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./confirmation_context_feasibility.html">Capacity proof</a><a href="./confirmation_set_v1_design.html">Study design</a><a href="../README.md">Repository guide</a></div></nav></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Confirmation Set v1 · Outcome-blind precision review</p>
+      <h1>The 15-context comparison plan was too fragile, so the claim was narrowed instead of the thresholds.</h1>
+      <p class="lede">Synthetic clustered scenarios were fixed before the formal run. No candidate met every strong-comparison rule. BizHallu therefore preserves the failed review, increases the sealed confirmation plan to 27 balanced contexts, and limits the study to estimation with uncertainty rather than a detector-superiority claim.</p>
+      <div class="metrics">
+        <div><span>Strong-design candidates passed</span><strong>0 of 4</strong></div>
+        <div><span>Revised confirmation contexts</span><strong>27</strong></div>
+        <div><span>Total period-disjoint contexts</span><strong>48</strong></div>
+        <div><span>Unassigned source periods</span><strong>2</strong></div>
+      </div>
+      <div class="callout blocked"><strong>The original precision gate did not pass.</strong> Its thresholds were not relaxed, its random seed was not replaced, and the result was not rewritten as a success.</div>
+      <div class="callout good"><strong>A narrower study remains feasible.</strong> The revised 6/15/27 plan has an independently recomputed 48/48 aggregate matching, with no period assignment retained.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">What was simulated</p>
+      <h2>Design sensitivity, not detector performance.</h2>
+      <div class="grid">
+        <article class="panel"><h3>Outcome-blind inputs</h3><p>Only synthetic prevalence, spans per context, label ICC, score separation, and aggregate source capacity were used. Confirmation periods, labels, answers, and detector outcomes do not exist.</p></article>
+        <article class="panel"><h3>Independent unit</h3><p>Whole synthetic evidence contexts were resampled together. Both detector scores used the same resampled context indices for the paired comparison.</p></article>
+        <article class="panel"><h3>Unequal cluster sizes</h3><p>Each scenario used a fixed multiplier pattern around 8 or 12 mean spans per context. Stress scenarios lowered density and increased within-context label correlation.</p></article>
+      </div>
+      <div class="callout"><strong>Interpretation boundary.</strong> Interval half-widths below are Monte Carlo planning summaries. They are not observed AUPRC, F1, prevalence, power, or model-quality results.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Frozen decision rules</p>
+      <h2>No candidate satisfied the complete strong-comparison gate.</h2>
+      <p>A preferred central scenario required median AUPRC half-width at most 0.10 and median paired-difference half-width at most 0.08. A design needed at least 75% preferred central scenarios plus the frozen worst-case central limits.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Confirmation contexts</th><th>Per family</th><th>Source reserve</th><th>Preferred central</th><th>Median AUPRC half-width</th><th>Worst central AUPRC half-width</th><th>Worst paired half-width</th><th>Strong gate</th></tr></thead>
+        <tbody><tr><td class="num">15</td><td class="num">5</td><td class="num">14</td><td class="num">5/16</td><td class="num">0.103</td><td class="num">0.150</td><td class="num">0.126</td><td><span class="badge blocked">did not pass</span></td></tr><tr><td class="num">21</td><td class="num">7</td><td class="num">8</td><td class="num">10/16</td><td class="num">0.095</td><td class="num">0.136</td><td class="num">0.107</td><td><span class="badge blocked">did not pass</span></td></tr><tr><td class="num">24</td><td class="num">8</td><td class="num">5</td><td class="num">9/16</td><td class="num">0.087</td><td class="num">0.127</td><td class="num">0.102</td><td><span class="badge blocked">did not pass</span></td></tr><tr><td class="num">27</td><td class="num">9</td><td class="num">2</td><td class="num">10/16</td><td class="num">0.083</td><td class="num">0.121</td><td class="num">0.098</td><td><span class="badge blocked">did not pass</span></td></tr></tbody>
+      </table></div>
+      <p>The 27-context candidate came closest, but passed only 10 of 16 preferred central scenarios and had a worst central median AUPRC half-width of 0.121219, just above the frozen 0.12 limit.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Scope amendment</p>
+      <h2>Estimate transparently; do not declare a winner.</h2>
+      <div class="grid">
+        <article class="panel"><h3>Primary objective</h3><p>Estimate the AUPRC of each frozen detector family on the sealed confirmation set with context-resampled uncertainty intervals.</p></article>
+        <article class="panel"><h3>Paired comparison</h3><p>Report the paired AUPRC difference and its interval as a descriptive secondary estimate, not as a binary winner or superiority test.</p></article>
+        <article class="panel"><h3>Subgroups</h3><p>Question-family and fact-type results are descriptive only because the number of independent contexts per subgroup remains small.</p></article>
+      </div>
+      <div class="callout blocked"><strong>Prohibited claim.</strong> Do not claim that evidence-aware verification, internal uncertainty, or a hybrid detector is statistically superior on Confirmation Set v1.</div>
+      <ul>
+        <li>Protocol pilot: 6 contexts / 12 questions.</li>
+        <li>Development: 15 contexts / 30 questions.</li>
+        <li>Sealed confirmation: 27 contexts / 54 questions.</li>
+        <li>Total: 48 contexts / 96 questions, with 9 confirmation contexts per allowed family.</li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">Statistical caution</p>
+      <h2>Twenty-seven clusters improve precision, but do not make this publication-grade.</h2>
+      <p>Fewer than 30 independent contexts remains a small-cluster setting. Report intervals and avoid a binary superiority claim when the interval is wide or interval methods disagree.</p>
+      <p>The future sealed analysis plans 5,000 context-level bootstrap replicates, a BCa interval when leave-one-context-out estimates are defined, and a paired percentile interval as sensitivity analysis. This method still requires implementation and validation on non-confirmation data.</p>
+      <ul><li><a href="https://academic.oup.com/aje/article/192/4/507/6973188"><strong>Simple Approaches for Dealing With Correlated Data</strong></a>: Supports resampling whole clusters and cautions that clustered-bootstrap validity still relies on large-sample arguments, with particular caution below 30 clusters.</li><li><a href="https://proceedings.mlr.press/v206/urlus23a.html"><strong>Pointwise sampling uncertainties on the Precision-Recall curve</strong></a>: Shows that PR uncertainty depends on test-set sampling and that scarce positives can create discrete bootstrap behavior.</li><li><a href="https://arxiv.org/abs/2606.26422"><strong>Estimating Uncertainty in Classifier Performance with Applications to Large Language Models and Nested Data</strong></a>: Recent preprint evidence that default intervals can under-cover for small nested text-classification evaluations; used as a caution, not as a settled standard.</li></ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">Next gate</p>
+      <h2>Only the context manifest and seeded split may come next.</h2>
+      <ol>
+        <li>Freeze a deterministic, auditable context-selection procedure before retaining any period.</li>
+        <li>Create the 6/15/27 manifest and seeded split once, then verify period and evidence-fingerprint disjointness.</li>
+        <li>Keep product, country, invoice, customer, and period details local; publish only aggregate proof.</li>
+        <li>Do not generate questions, prompts, Qwen outputs, annotations, detector scores, or confirmation metrics in that step.</li>
+      </ol>
+      <div class="callout"><strong>Current boundary.</strong> No context manifest, split assignment, question, prompt, model output, label, detector score, or new empirical metric exists.</div>
+    </section>
+    <footer>BizHallu Confirmation Set v1 · Outcome-blind precision review and scope amendment · Generated from committed machine-readable artifacts.</footer>
+  </main>
+</body>
+</html>

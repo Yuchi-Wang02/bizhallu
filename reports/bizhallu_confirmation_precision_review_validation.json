@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "confirmation_precision_review_validation_ready",
+  "review_status": "outcome_blind_precision_review_blocked",
+  "scope_amendment_status": "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
+  "revised_confirmation_context_count": 27,
+  "revised_total_context_count": 48,
+  "revised_capacity_matching_count": 48,
+  "context_manifest_created": false,
+  "new_empirical_metrics_created": false,
+  "num_failures": 0,
+  "failures": []
+}

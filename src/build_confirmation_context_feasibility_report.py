@@ -157,11 +157,11 @@ def main() -> None:
   </style>
 </head>
 <body>
-  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a></div></nav></header>
+  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a></div></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">Confirmation Set v1 · Outcome-blind source capacity</p>
-      <h1>The source can support 36 period-disjoint contexts without looking at model outcomes.</h1>
+      <h1>The source can support {integer(capacity['required_total_context_count'])} period-disjoint contexts without looking at model outcomes.</h1>
       <p class="lede">Complete Monday-through-Sunday weeks were evaluated under frozen data-quality and business-support rules. The proof counts capacity only: no week was selected, no split was assigned, and no context manifest was created.</p>
       <div class="metrics">
         <div><span>Observed complete weeks</span><strong>{integer(source['observed_complete_period_count'])}</strong></div>
@@ -169,8 +169,8 @@ def main() -> None:
         <div><span>Maximum matching</span><strong>{integer(capacity['maximum_slot_matching_count'])}/{integer(capacity['required_slot_count'])}</strong></div>
         <div><span>Eligible families</span><strong>3 of 4</strong></div>
       </div>
-      <div class="callout good"><strong>Capacity proof complete.</strong> Three allowed families each have 50 eligible periods for 12 required slots, and the minimum Hall-capacity slack is +{integer(capacity['minimum_hall_capacity_slack'])}.</div>
-      <div class="callout"><strong>Execution remains blocked.</strong> The precision review, context manifest, seeded split, question templates, prompts, model run, independent annotation, and sealed confirmation evaluation do not exist yet.</div>
+      <div class="callout good"><strong>Capacity proof complete.</strong> Three allowed families each have 50 eligible periods for {integer(capacity['required_contexts_per_eligible_family'])} required slots, and the minimum Hall-capacity slack is +{integer(capacity['minimum_hall_capacity_slack'])}.</div>
+      <div class="callout"><strong>Execution remains blocked.</strong> The outcome-blind precision review is complete with a narrower estimation claim, but the context manifest, seeded split, question templates, prompts, model run, independent annotation, and sealed confirmation evaluation do not exist yet.</div>
     </section>
 
     <section>
@@ -236,8 +236,8 @@ def main() -> None:
 
     <section>
       <p class="eyebrow">Next gate</p>
-      <h2>Review precision before freezing any context.</h2>
-      <p>The next authorized step is the outcome-blind precision review for the planned 6 pilot, 15 development, and 15 confirmation contexts. Only after that review can the context manifest and seeded split be frozen.</p>
+      <h2>Freeze only the context manifest and seeded split.</h2>
+      <p>The <a href="./bizhallu_confirmation_precision_review.html">outcome-blind precision review</a> rejected the stronger comparison design and revised the plan to 6 pilot, 15 development, and 27 confirmation contexts. The next audited step may freeze that manifest and split, but it must not generate questions or model outputs.</p>
       <ul>
         <li>No question, prompt, Qwen output, annotation target, verifier prediction, detector score, AUPRC, or F1 was created here.</li>
         <li>The dataset-source audit gate can advance, but the six downstream execution gates remain pending.</li>

@@ -13,6 +13,7 @@ PROTOCOL_PATH = PROJECT_ROOT / "configs" / "confirmation_set_v1_protocol.json"
 METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_summary.json"
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
+PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -36,6 +37,7 @@ def main() -> None:
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH)
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH)
+    precision_review = load_json(PRECISION_REVIEW_PATH)
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -78,6 +80,9 @@ def main() -> None:
         "required_context_count": feasibility["capacity_proof"]["required_total_context_count"],
         "maximum_slot_matching_count": feasibility["capacity_proof"]["maximum_slot_matching_count"],
         "minimum_hall_capacity_slack": feasibility["capacity_proof"]["minimum_hall_capacity_slack"],
+        "precision_review_report_path": repo_path(PRECISION_REVIEW_PATH),
+        "precision_review_original_status": precision_review["status"],
+        "precision_scope_amendment_status": "complete_with_scope_downgrade",
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -100,7 +105,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Run only the outcome-blind precision review for the planned 6/15/15 context counts before freezing any context manifest or seeded split. The dataset-source gate is complete, but six downstream gates remain pending.",
+        "recommended_next_decision": "Freeze only the deterministic 6/15/27 context manifest and seeded split. The precision review and revised 48-context capacity proof are complete, but the combined manifest/split gate and five later gates remain pending.",
         "num_failures": 0,
         "failures": [],
     }
@@ -177,7 +182,7 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -190,7 +195,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, and aggregate capacity for 36 unique complete-week contexts. Precision review, context selection, model output, and Confirmation Set v1 results do not exist yet.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, an outcome-blind precision review with a narrower estimation claim, and aggregate capacity for 48 unique complete-week contexts. The context manifest, split, model output, and Confirmation Set v1 results do not exist yet.</div>
       </section>
 
       <section>
@@ -212,24 +217,24 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 36-slot aggregate capacity are verified across three allowed families. Customer concentration remains blocked, and a broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a></div>
+        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 48-slot aggregate capacity are verified across three allowed families. The precision review rejected a superiority design and retained an estimation-only scope. Customer concentration remains blocked, and a broader claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a> <a href="./bizhallu_confirmation_precision_review.html">Read the precision review.</a></div>
       </section>
 
       <section>
         <p class="eyebrow">Sampling architecture</p>
-        <h2>72 generations, but only 60 enter the main study.</h2>
+        <h2>{sampling['total_generation_target_including_pilot']} generations, but only {sampling['main_question_count']} enter the main study.</h2>
         <div class="status">
-          <div><span>Protocol pilot</span><strong>12</strong></div>
-          <div><span>Development</span><strong>30</strong></div>
-          <div><span>Confirmation</span><strong>30</strong></div>
-          <div><span>Main total</span><strong>60</strong></div>
+          <div><span>Protocol pilot</span><strong>{sampling['protocol_pilot']['question_count']}</strong></div>
+          <div><span>Development</span><strong>{sampling['development']['question_count']}</strong></div>
+          <div><span>Confirmation</span><strong>{sampling['confirmation']['question_count']}</strong></div>
+          <div><span>Main total</span><strong>{sampling['main_question_count']}</strong></div>
         </div>
         <ul>
           <li>The 12-question protocol pilot validates schemas and runtime and is permanently excluded from confirmation metrics.</li>
           <li>Development data freezes thresholds, extraction settings, verifier rules, and any hybrid combination.</li>
-          <li>The 30-question confirmation split is evaluated once after all decisions are frozen.</li>
+          <li>The {sampling['confirmation']['question_count']}-question confirmation split is evaluated once after all decisions are frozen.</li>
           <li>Natural correct/error prevalence is reported; no 50/50 balancing is imposed after generation.</li>
-          <li>The 15 development and 15 confirmation contexts are minimum planning targets. An outcome-blind precision review may increase them before generation.</li>
+          <li>The outcome-blind review increased sealed confirmation from 15 to 27 contexts. The study estimates detector performance with intervals and does not preregister a superiority claim.</li>
         </ul>
       </section>
 
@@ -237,7 +242,7 @@ def main() -> None:
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
         <div class="grid">{family_panels}</div>
-        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review, deterministic gold calculations, and evidence-table construction must pass before any context enters a manifest.</p>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review is complete; the context manifest comes next, while deterministic gold calculations and evidence-table construction remain a later gate.</p>
       </section>
 
       <section>
@@ -257,9 +262,9 @@ def main() -> None:
         <ul>
           <li>Primary oracle-span metric: <strong>{esc(protocol['metric_policy']['primary_metric'])}</strong>.</li>
           <li>Secondary F1 reuses a development-frozen threshold; precision, recall, specificity, AUROC, coverage, and abstention are reported.</li>
-          <li>Uncertainty intervals use a cluster bootstrap by <code>evidence_context_id</code>, not an independent-span bootstrap.</li>
+          <li>Uncertainty uses context-level BCa bootstrap when defined, with a paired percentile context bootstrap as sensitivity; independent-span bootstrap is prohibited.</li>
           <li><code>contradicted</code> and <code>unmatched</code> are positive unsupported claims; unresolved <code>needs_review</code> items are counted and excluded only after an adjudication attempt.</li>
-          <li>Context counts must pass the pending outcome-blind precision review before the context manifest is frozen.</li>
+          <li>The precision review is complete with a scope downgrade: report estimates and intervals, but do not declare a detector family statistically superior.</li>
           <li><code>one_minus_min_top2_margin</code> is a frozen candidate because of the exploratory study, not because it is already confirmed.</li>
           <li>Semantic Entropy, TOHA, and entity-level detection remain academic candidates, but inclusion and implementation must be frozen before the pilot.</li>
         </ul>
@@ -272,7 +277,7 @@ def main() -> None:
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Run only the outcome-blind precision review before freezing the context manifest and seeded split. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Freeze only the deterministic 6/15/27 context manifest and seeded split. Do not create questions, prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
       </section>
 
       <section>

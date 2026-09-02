@@ -13,7 +13,7 @@
   "dataset_context_feasibility_verified": true,
   "strict_window_row_count": 502938,
   "dataset_gate_complete": true,
-  "precision_review_pending": true,
+  "precision_review_complete_with_scope_downgrade": true,
   "pending_gate_count": 6,
   "num_failures": 0,
   "failures": []

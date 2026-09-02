@@ -11,8 +11,14 @@
   ],
   "config": {
     "path": "configs/confirmation_context_feasibility_v1.json",
-    "sha256": "eb30a75561d04db3a7b4a48885a027ac81ac48f1afb0d73452ddb8a6d92ba536",
+    "sha256": "fce09f569c1ebebbf0e913f362af4f79732eb7292f769048d40f8843c8d8f28a",
     "status": "rules_frozen_profile_pending"
+  },
+  "precision_scope_amendment": {
+    "path": "configs/confirmation_precision_scope_amendment_v1.json",
+    "sha256": "7bdcd6c368aad4abc22df793a6480052274fedda6c204f7711b8437c73fa2ca4",
+    "status": "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
+    "claim_scope": "downgrade_from_superiority_to_estimation"
   },
   "input": {
     "strict_window_table_path": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
@@ -68,20 +74,20 @@
   "family_capacity": {
     "net_revenue_reconciliation_by_period": {
       "eligible_period_count": 50,
-      "required_period_count": 12,
-      "capacity_slack": 38,
+      "required_period_count": 16,
+      "capacity_slack": 34,
       "all_observed_complete_periods_eligible": true
     },
     "product_return_rate_comparison": {
       "eligible_period_count": 50,
-      "required_period_count": 12,
-      "capacity_slack": 38,
+      "required_period_count": 16,
+      "capacity_slack": 34,
       "all_observed_complete_periods_eligible": true
     },
     "country_product_exposure": {
       "eligible_period_count": 50,
-      "required_period_count": 12,
-      "capacity_slack": 38,
+      "required_period_count": 16,
+      "capacity_slack": 34,
       "all_observed_complete_periods_eligible": true
     },
     "customer_revenue_concentration": {
@@ -94,17 +100,17 @@
   "capacity_proof": {
     "required_protocol_pilot_context_count": 6,
     "required_development_context_count": 15,
-    "required_confirmation_context_count": 15,
-    "required_total_context_count": 36,
-    "required_contexts_per_eligible_family": 12,
+    "required_confirmation_context_count": 27,
+    "required_total_context_count": 48,
+    "required_contexts_per_eligible_family": 16,
     "generalized_hall_checks": [
       {
         "family_subset": [
           "net_revenue_reconciliation_by_period"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 12,
-        "capacity_slack": 38,
+        "required_unique_period_count": 16,
+        "capacity_slack": 34,
         "passed": true
       },
       {
@@ -112,8 +118,8 @@
           "product_return_rate_comparison"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 12,
-        "capacity_slack": 38,
+        "required_unique_period_count": 16,
+        "capacity_slack": 34,
         "passed": true
       },
       {
@@ -121,8 +127,8 @@
           "country_product_exposure"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 12,
-        "capacity_slack": 38,
+        "required_unique_period_count": 16,
+        "capacity_slack": 34,
         "passed": true
       },
       {
@@ -131,8 +137,8 @@
           "product_return_rate_comparison"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 24,
-        "capacity_slack": 26,
+        "required_unique_period_count": 32,
+        "capacity_slack": 18,
         "passed": true
       },
       {
@@ -141,8 +147,8 @@
           "country_product_exposure"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 24,
-        "capacity_slack": 26,
+        "required_unique_period_count": 32,
+        "capacity_slack": 18,
         "passed": true
       },
       {
@@ -151,8 +157,8 @@
           "country_product_exposure"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 24,
-        "capacity_slack": 26,
+        "required_unique_period_count": 32,
+        "capacity_slack": 18,
         "passed": true
       },
       {
@@ -162,14 +168,14 @@
           "country_product_exposure"
         ],
         "available_unique_period_count": 50,
-        "required_unique_period_count": 36,
-        "capacity_slack": 14,
+        "required_unique_period_count": 48,
+        "capacity_slack": 2,
         "passed": true
       }
     ],
-    "minimum_hall_capacity_slack": 14,
-    "maximum_slot_matching_count": 36,
-    "required_slot_count": 36,
+    "minimum_hall_capacity_slack": 2,
+    "maximum_slot_matching_count": 48,
+    "required_slot_count": 48,
     "matching_assignment_retained_or_published": false,
     "capacity_target_feasible": true
   },
@@ -188,13 +194,13 @@
   },
   "research_decision": {
     "context_feasibility_check_complete": true,
-    "minimum_36_period_disjoint_context_capacity_verified": true,
+    "required_48_period_disjoint_context_capacity_verified": true,
     "dataset_source_selected_and_audited_gate_eligible_for_completion": true,
     "customer_family_excluded_from_capacity_target": true,
     "context_manifest_and_split_assignment_pending": true,
-    "precision_review_pending": true,
+    "precision_review_complete_with_scope_downgrade": true,
     "execution_ready": false,
-    "claim_limit": "This proves source capacity for a same-retailer temporal internal replication. It does not select contexts, validate question wording, create independent labels, or establish external generalization."
+    "claim_limit": "This proves source capacity for an estimation-focused same-retailer temporal internal replication. It does not select contexts, validate question wording, create independent labels, support detector-superiority claims, or establish external generalization."
   },
   "critical_checks": {
     "config_status_is_frozen_profile_pending": true,
@@ -211,12 +217,13 @@
     "customer_family_remains_blocked": true,
     "historical_canonical_overlap_remains_zero": true,
     "historical_date_blind_overlap_remains_zero": true,
-    "historical_metrics_remain_locked": true
+    "historical_metrics_remain_locked": true,
+    "precision_scope_amendment_matches_capacity_target": true
   },
   "failed_critical_checks": [],
   "local_proof": {
     "path": "data/processed/confirmation_online_retail_ii/context_feasibility_local_proof.json",
-    "sha256": "ab906c2dc4b1d4ae20ed7c7301bee629e688a401e8de15a4e5c631d1d0d571d9",
+    "sha256": "f8535c67c659e07abab9d4329cd8a3e1dbc84928425198b62fb3752008e4c9a8",
     "git_ignored": true,
     "contains_period_profiles": true,
     "matching_assignment_retained": false
@@ -239,5 +246,5 @@
   "new_metrics_reported": false,
   "execution_ready": false,
   "no_new_results": true,
-  "next_authorized_action": "Run only the outcome-blind precision review for the 6/15/15 planning counts before freezing a context manifest."
+  "next_authorized_action": "Freeze only the deterministic 6/15/27 context manifest and seeded split in a separate audited step. Do not create questions, prompts, model outputs, labels, or metrics yet."
 }

@@ -15,7 +15,7 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "selected_source_audited_precision_review_pending",
+    "selection_status": "selected_source_audited_context_manifest_pending",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -28,6 +28,10 @@
     "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
     "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
     "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+    "precision_review_config": "configs/confirmation_precision_review_v1.json",
+    "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
+    "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
+    "precision_scope_amendment": "configs/confirmation_precision_scope_amendment_v1.json",
     "selected_candidate_id": "uci_online_retail_ii_prior_period",
     "selected_candidate_role": "prospective_temporal_internal_replication",
     "selected_candidate_gate_status": "complete",
@@ -36,6 +40,8 @@
     "quality_profile_verified": true,
     "historical_record_overlap_verified": true,
     "outcome_blind_context_feasibility_verified": true,
+    "outcome_blind_precision_review_completed": true,
+    "precision_review_scope_downgraded_to_estimation": true,
     "canonical_record_overlap_row_count": 0,
     "date_blind_record_overlap_row_count": 0,
     "business_pattern_overlap_row_count": 195814,
@@ -48,9 +54,9 @@
     "strict_window_net_revenue_gbp": 9266060.76,
     "complete_calendar_week_count": 51,
     "observed_complete_week_count": 50,
-    "required_period_disjoint_context_count": 36,
-    "maximum_period_to_slot_matching_count": 36,
-    "minimum_hall_capacity_slack": 14,
+    "required_period_disjoint_context_count": 48,
+    "maximum_period_to_slot_matching_count": 48,
+    "minimum_hall_capacity_slack": 2,
     "source_feasible_question_families": [
       "net_revenue_reconciliation_by_period",
       "product_return_rate_comparison",
@@ -59,7 +65,7 @@
     "blocked_question_families": [
       "customer_revenue_concentration"
     ],
-    "recommended_sequence": "The source audit gate is complete: quality controls, zero historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. Next run only the outcome-blind precision review before freezing any context manifest or seeded split; a separately scoped second-dataset replication remains required for broader generalization claims.",
+    "recommended_sequence": "The source audit gate is complete: quality controls, zero historical record overlap, an outcome-blind precision review with an explicit estimation-only scope amendment, and capacity for 48 unique complete-week contexts are verified. Next freeze only the deterministic 6/15/27 context manifest and seeded split; a separately scoped second-dataset replication remains required for stronger comparative or generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -146,12 +152,13 @@
       "source completeness and duplicate handling can be audited",
       "license or terms permit the intended local research use",
       "no sensitive personal data is required for the public artifact",
-      "at least 36 disjoint evidence contexts can be formed without outcome-based filtering"
+      "at least 48 disjoint evidence contexts can be formed without outcome-based filtering"
     ]
   },
   "sampling_plan": {
     "counts_are_planning_targets_not_collected_results": true,
-    "counts_are_minimum_targets_pending_precision_review": true,
+    "counts_are_minimum_targets_pending_precision_review": false,
+    "counts_frozen_after_precision_scope_amendment": true,
     "protocol_pilot": {
       "context_count": 6,
       "questions_per_context": 2,
@@ -166,26 +173,29 @@
       "purpose": "Freeze detector thresholds, verifier rules, extraction settings, and any hybrid combination."
     },
     "confirmation": {
-      "context_count": 15,
+      "context_count": 27,
       "questions_per_context": 2,
-      "question_count": 30,
-      "purpose": "One sealed evaluation after all analytical decisions are frozen."
+      "question_count": 54,
+      "purpose": "One sealed estimation-focused evaluation after all analytical decisions are frozen; no detector-superiority claim is authorized."
     },
-    "main_question_count": 60,
-    "total_generation_target_including_pilot": 72,
+    "main_question_count": 84,
+    "total_generation_target_including_pilot": 96,
     "selection_timing": "All context and question identifiers are fixed before model generation.",
     "outcome_blind_selection": true,
     "class_balance_policy": "Do not force equal correct and hallucinated counts and do not drop answers based on correctness. Report natural prevalence.",
     "technical_failure_policy": "Use a predefined retry rule for empty or interrupted generations; retain and report every selected question rather than replacing difficult outputs."
   },
   "precision_review": {
-    "status": "pending",
+    "status": "complete_with_scope_downgrade",
     "effective_independent_unit": "evidence_context_id",
     "minimum_development_contexts": 15,
-    "minimum_confirmation_contexts": 15,
-    "required_before_context_manifest_freeze": true,
+    "selected_confirmation_contexts": 27,
+    "selected_confirmation_contexts_per_family": 9,
+    "required_before_context_manifest_freeze": false,
     "review_method": "Use outcome-blind prevalence and cluster-size scenarios to examine expected AUPRC uncertainty and paired-comparison precision. Do not use confirmation labels or detector outcomes.",
-    "decision_policy": "Increase context counts before generation if the planned cluster bootstrap or primary comparison is too unstable; never reduce or replace contexts after answer quality is observed."
+    "strong_comparison_result": "No candidate from 15, 21, 24, or 27 confirmation contexts passed every frozen strong-comparison criterion.",
+    "decision_policy": "Increase the confirmation plan to the capacity-feasible balanced maximum of 27 contexts and narrow the primary objective to interval estimation. Report paired detector differences descriptively and never reduce or replace contexts after answer quality is observed.",
+    "claim_limit": "Confirmation Set v1 does not preregister a detector-superiority claim. Stronger comparison claims require additional independent contexts."
   },
   "context_split_policy": {
     "assignment_unit": "evidence_context_id",
@@ -215,7 +225,7 @@
     ]
   },
   "question_design": {
-    "family_status": "source_feasibility_verified_precision_review_pending",
+    "family_status": "source_feasibility_and_precision_review_complete_manifest_pending",
     "candidate_families": [
       {
         "family": "net_revenue_reconciliation_by_period",
@@ -226,7 +236,7 @@
         "family": "customer_revenue_concentration",
         "source_feasibility_status": "blocked_by_preexisting_quality_control",
         "business_value": "customer exposure and concentration risk",
-        "reason": "The source audit records 100207 missing Customer IDs. This family is excluded from the 36-context capacity target rather than introducing a complete-case denominator after inspecting capacity."
+        "reason": "The source audit records 100207 missing Customer IDs. This family is excluded from the 48-context capacity target rather than introducing a complete-case denominator after inspecting capacity."
       },
       {
         "family": "product_return_rate_comparison",
@@ -327,7 +337,7 @@
     "literature_inclusion_gate": "Decide feasibility and freeze included implementations before protocol-pilot generation.",
     "evidence_aware_family": "independent claim-evidence consistency rules or model decisions developed only on pilot and development data",
     "hybrid_family": "optional prespecified combination of internal and evidence-aware scores frozen on development",
-    "confirmation_policy": "Every frozen family is reported; no family is omitted because its confirmation result is weak."
+    "confirmation_policy": "Every frozen family is reported; no family is omitted because its confirmation result is weak, and no family is declared statistically superior in Confirmation Set v1."
   },
   "metric_policy": {
     "primary_metric": "AUPRC",
@@ -340,24 +350,26 @@
       "AUROC",
       "coverage and abstention rate for evidence verification"
     ],
-    "uncertainty_interval": "cluster bootstrap by evidence_context_id",
-    "cluster_count_policy": "The 15 development and 15 confirmation contexts are minimum planning targets; final counts must pass the pending outcome-blind precision review before generation.",
+    "uncertainty_interval": "context-level BCa bootstrap when defined, with paired percentile context bootstrap as sensitivity",
+    "planned_bootstrap_replicates": 5000,
+    "cluster_count_policy": "The outcome-blind precision review increased sealed confirmation from 15 to 27 contexts. This remains below 30 independent clusters, so intervals require caution and subgroup slices remain descriptive.",
     "prevalence_reporting": true,
     "per_group_reporting": "Report question-family and fact-type slices with counts; label underpowered slices as descriptive.",
-    "multiple_comparison_policy": "Only the preregistered primary comparison supports a primary claim; all additional detector and subgroup comparisons are secondary or exploratory.",
+    "multiple_comparison_policy": "Primary reporting estimates each frozen detector family's AUPRC with uncertainty. Paired detector differences, additional detectors, and subgroup comparisons are descriptive or exploratory and do not support a superiority claim.",
     "test_access_policy": "Do not inspect confirmation labels, tune thresholds, select families, modify prompts, or revise verifier rules after confirmation evaluation begins."
   },
   "execution_gates": [
     {
       "gate": "dataset_source_selected_and_audited",
       "status": "complete",
-      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, all 12 months, zero canonical plus date-blind historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts verified",
-      "completion_evidence": "Three allowed families each have 50 eligible observed complete weeks for 12 required slots; generalized Hall capacity has minimum slack 14 and independent maximum matching fills 36 of 36 slots.",
+      "progress": "official workbook acquired and hashed; structure, strict-window completeness, duplicate/grain controls, cancellation/value rules, all 12 months, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for 48 unique complete-week contexts verified",
+      "completion_evidence": "Three allowed families each have 50 eligible observed complete weeks for 16 required slots; generalized Hall capacity has minimum slack 2 and independent maximum matching fills 48 of 48 slots.",
       "blocking_requirements": []
     },
     {
       "gate": "context_manifest_split_and_precision_review_frozen",
-      "status": "pending"
+      "status": "pending",
+      "progress": "precision review complete with estimation-only scope amendment; revised 48-context capacity passes; deterministic context manifest, seeded split, and final evidence-fingerprint checks remain pending"
     },
     {
       "gate": "question_templates_and_gold_calculations_validated",
@@ -388,7 +400,8 @@
       "production-ready detector",
       "publication-grade benchmark before independent labels and sealed evaluation",
       "whole-answer correctness",
-      "external generalization from same-dataset internal replication"
+      "external generalization from same-dataset internal replication",
+      "detector-superiority claim from Confirmation Set v1"
     ]
   }
 }

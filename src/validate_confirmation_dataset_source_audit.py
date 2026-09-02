@@ -62,10 +62,10 @@ REQUIRED_HTML_FRAGMENTS = [
     "2,057 negative-quantity rows",
     "GBP 9,266,060.76",
     "Nine checks are complete; public privacy stays active.",
-    "Review precision next; do not generate.",
+    "Freeze the manifest and split next; do not generate.",
     "Read the aggregate-only overlap proof.",
     "Read the aggregate-only capacity proof.",
-    "36 unique complete-week context slots",
+    "48 unique complete-week context slots",
     "The raw files remain local and Git-ignored.",
     ".panel { min-width:0;",
     "overflow-x:auto;",
@@ -177,7 +177,7 @@ def main() -> None:
             add_failure(failures, "local_path_in_html", repo_path(HTML_PATH))
 
     expected_audit_boundary = {
-        "status": "dataset_source_selected_and_audited_precision_review_pending",
+        "status": "dataset_source_selected_and_audited_context_manifest_pending",
         "audit_date": "2026-09-01",
         "no_new_results": True,
         "download_performed": True,
@@ -199,7 +199,7 @@ def main() -> None:
 
     decision = audit.get("decision", {})
     expected_decision = {
-        "selection_status": "selected_source_audited_precision_review_pending",
+        "selection_status": "selected_source_audited_context_manifest_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "complete",
@@ -249,7 +249,7 @@ def main() -> None:
         add_failure(failures, "selected_source_identity", selected_identity)
     if selected.get("official_source_url") != "https://archive.ics.uci.edu/dataset/502/online+retail":
         add_failure(failures, "selected_source_url", selected.get("official_source_url"))
-    if selected.get("decision_status") != "selected_source_audited_precision_review_pending":
+    if selected.get("decision_status") != "selected_source_audited_context_manifest_pending":
         add_failure(failures, "selected_decision_status", selected.get("decision_status"))
 
     criteria = audit.get("source_acceptance_criteria", [])
@@ -264,7 +264,7 @@ def main() -> None:
         "completeness_and_duplicates_auditable",
         "permitted_research_use",
         "no_sensitive_personal_data_required",
-        "minimum_36_disjoint_contexts",
+        "minimum_48_disjoint_contexts",
     }
     if {item.get("criterion_id") for item in criteria} != expected_criterion_ids:
         add_failure(failures, "criterion_ids", criteria)
@@ -327,7 +327,7 @@ def main() -> None:
 
     strategy = protocol.get("dataset_strategy", {})
     expected_strategy = {
-        "selection_status": "selected_source_audited_precision_review_pending",
+        "selection_status": "selected_source_audited_context_manifest_pending",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
@@ -339,6 +339,10 @@ def main() -> None:
         "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
         "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+        "precision_review_config": "configs/confirmation_precision_review_v1.json",
+        "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
+        "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
+        "precision_scope_amendment": "configs/confirmation_precision_scope_amendment_v1.json",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "selected_candidate_gate_status": "complete",
@@ -347,6 +351,8 @@ def main() -> None:
         "quality_profile_verified": True,
         "historical_record_overlap_verified": True,
         "outcome_blind_context_feasibility_verified": True,
+        "outcome_blind_precision_review_completed": True,
+        "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,
         "date_blind_record_overlap_row_count": 0,
         "business_pattern_overlap_row_count": 195814,
@@ -359,9 +365,9 @@ def main() -> None:
         "strict_window_net_revenue_gbp": 9266060.76,
         "complete_calendar_week_count": 51,
         "observed_complete_week_count": 50,
-        "required_period_disjoint_context_count": 36,
-        "maximum_period_to_slot_matching_count": 36,
-        "minimum_hall_capacity_slack": 14,
+        "required_period_disjoint_context_count": 48,
+        "maximum_period_to_slot_matching_count": 48,
+        "minimum_hall_capacity_slack": 2,
         "source_feasible_question_families": [
             "net_revenue_reconciliation_by_period",
             "product_return_rate_comparison",
@@ -397,7 +403,7 @@ def main() -> None:
         add_failure(failures, "dataset_gate_progress", dataset_gate)
     if "structure, strict-window completeness" not in dataset_gate.get("progress", ""):
         add_failure(failures, "dataset_gate_quality_progress", dataset_gate)
-    if "outcome-blind capacity for 36 unique complete-week contexts verified" not in dataset_gate.get("progress", ""):
+    if "capacity for 48 unique complete-week contexts verified" not in dataset_gate.get("progress", ""):
         add_failure(failures, "dataset_gate_capacity_progress", dataset_gate)
     if dataset_gate.get("blocking_requirements") != []:
         add_failure(failures, "dataset_gate_blockers", dataset_gate)
@@ -417,7 +423,7 @@ def main() -> None:
         "local_profile_complete": True,
         "execution_ready": False,
         "no_new_results": True,
-        "selection_status": "selected_source_audited_precision_review_pending",
+        "selection_status": "selected_source_audited_context_manifest_pending",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
         "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -452,9 +458,9 @@ def main() -> None:
         "context_feasibility_report_path": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "complete_calendar_week_count": 51,
         "observed_complete_week_count": 50,
-        "required_context_count": 36,
-        "maximum_slot_matching_count": 36,
-        "minimum_hall_capacity_slack": 14,
+        "required_context_count": 48,
+        "maximum_slot_matching_count": 48,
+        "minimum_hall_capacity_slack": 2,
         "source_feasible_family_count": 3,
         "blocked_family_count": 1,
         "candidate_count": 6,
@@ -463,6 +469,7 @@ def main() -> None:
         "selected_criterion_status_counts": EXPECTED_CRITERION_STATUSES,
         "pending_criterion_ids": [],
         "local_profile_check_count": 10,
+        "next_authorized_action": "Freeze only the deterministic 6 pilot, 15 development, and 27 confirmation context manifest and seeded split. Do not create questions, prompts, or model outputs yet.",
         "num_failures": 0,
     }
     for key, expected in expected_summary.items():
@@ -575,9 +582,9 @@ def main() -> None:
     expected_feasibility_evidence = {
         "status": "outcome_blind_context_feasibility_complete",
         "observed_complete_period_count": 50,
-        "required_total_context_count": 36,
-        "maximum_slot_matching_count": 36,
-        "minimum_hall_capacity_slack": 14,
+        "required_total_context_count": 48,
+        "maximum_slot_matching_count": 48,
+        "minimum_hall_capacity_slack": 2,
         "context_manifest_created": False,
         "execution_ready": False,
         "no_new_results": True,

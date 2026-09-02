@@ -4,13 +4,15 @@
   "project": "BizHallu",
   "study_name": "Confirmation Set v1",
   "frozen_on": "2026-09-01",
-  "purpose": "Test outcome-blind source capacity for 36 period-disjoint evidence contexts without selecting contexts, assigning splits, or creating questions, prompts, model outputs, labels, or metrics.",
+  "amended_on": "2026-09-02",
+  "purpose": "Test outcome-blind source capacity for 48 period-disjoint evidence contexts after the precision-review scope amendment, without selecting contexts, assigning splits, or creating questions, prompts, model outputs, labels, or metrics.",
   "no_new_results": true,
   "input": {
     "strict_window_table": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
     "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
     "strict_window_row_count": 502938,
-    "historical_overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json"
+    "historical_overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+    "precision_scope_amendment": "configs/confirmation_precision_scope_amendment_v1.json"
   },
   "context_grain": {
     "period_definition": "complete_monday_through_sunday_calendar_week",
@@ -91,12 +93,12 @@
     ],
     "protocol_pilot_contexts_per_family": 2,
     "development_contexts_per_family": 5,
-    "confirmation_contexts_per_family": 5,
-    "required_contexts_per_eligible_family": 12,
+    "confirmation_contexts_per_family": 9,
+    "required_contexts_per_eligible_family": 16,
     "required_protocol_pilot_contexts": 6,
     "required_development_contexts": 15,
-    "required_confirmation_contexts": 15,
-    "required_total_contexts": 36,
+    "required_confirmation_contexts": 27,
+    "required_total_contexts": 48,
     "proof_method": "Check generalized Hall capacity for every nonempty family subset and independently compute a maximum period-to-slot bipartite matching.",
     "assignment_policy": "Capacity proof only. Do not retain or publish the matching assignment. The seeded split and context manifest remain pending."
   },
@@ -119,6 +121,6 @@
       "questions, prompts, model outputs, labels, or detector metrics"
     ]
   },
-  "success_rule": "Pass only if all three eligible families satisfy their frozen rules, generalized Hall capacity and maximum matching both support 36 unique periods, the customer family remains blocked, historical overlap remains zero, and no manifest or experiment artifact is created.",
-  "next_if_passed": "Run only the outcome-blind precision review for the 6/15/15 planning counts before freezing a context manifest."
+  "success_rule": "Pass only if all three eligible families satisfy their frozen rules, generalized Hall capacity and maximum matching both support 48 unique periods, the customer family remains blocked, historical overlap remains zero, the precision-review scope amendment remains unchanged, and no manifest or experiment artifact is created.",
+  "next_if_passed": "Freeze only the deterministic 6/15/27 context manifest and seeded split in a separate audited step. Do not create questions, prompts, model outputs, labels, or metrics yet."
 }

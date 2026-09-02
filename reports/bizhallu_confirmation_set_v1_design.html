@@ -46,7 +46,7 @@
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -55,11 +55,11 @@
         <p class="lede">This design replaces answer-driven sampling with a frozen context manifest, independent human review, sealed confirmation labels, and separate evaluations for claim extraction and evidence verification.</p>
         <div class="status">
           <div><span>Current state</span><strong>Design only</strong></div>
-          <div><span>Main questions</span><strong>60</strong></div>
+          <div><span>Main questions</span><strong>84</strong></div>
           <div><span>Human reviewers</span><strong>2</strong></div>
           <div><span>Execution gates</span><strong>6 pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, and aggregate capacity for 36 unique complete-week contexts. Precision review, context selection, model output, and Confirmation Set v1 results do not exist yet.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, an outcome-blind precision review with a narrower estimation claim, and aggregate capacity for 48 unique complete-week contexts. The context manifest, split, model output, and Confirmation Set v1 results do not exist yet.</div>
       </section>
 
       <section>
@@ -76,7 +76,7 @@
       <section>
         <p class="eyebrow">Dataset decision</p>
         <h2>Use a staged path instead of overstating one dataset.</h2>
-        <p>The source audit gate is complete: quality controls, zero historical record overlap, and outcome-blind capacity for 36 unique complete-week contexts are verified. Next run only the outcome-blind precision review before freezing any context manifest or seeded split; a separately scoped second-dataset replication remains required for broader generalization claims.</p>
+        <p>The source audit gate is complete: quality controls, zero historical record overlap, an outcome-blind precision review with an explicit estimation-only scope amendment, and capacity for 48 unique complete-week contexts are verified. Next freeze only the deterministic 6/15/27 context manifest and seeded split; a separately scoped second-dataset replication remains required for stronger comparative or generalization claims.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody><tr>
@@ -104,32 +104,32 @@
           <td><ul><li>availability and permissions are not yet known</li><li>should not delay the near-term internal replication</li></ul></td>
         </tr></tbody>
         </table></div>
-        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 36-slot aggregate capacity are verified across three allowed families. Customer concentration remains blocked, and a broader generalization claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a></div>
+        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 48-slot aggregate capacity are verified across three allowed families. The precision review rejected a superiority design and retained an estimation-only scope. Customer concentration remains blocked, and a broader claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a> <a href="./bizhallu_confirmation_precision_review.html">Read the precision review.</a></div>
       </section>
 
       <section>
         <p class="eyebrow">Sampling architecture</p>
-        <h2>72 generations, but only 60 enter the main study.</h2>
+        <h2>96 generations, but only 84 enter the main study.</h2>
         <div class="status">
           <div><span>Protocol pilot</span><strong>12</strong></div>
           <div><span>Development</span><strong>30</strong></div>
-          <div><span>Confirmation</span><strong>30</strong></div>
-          <div><span>Main total</span><strong>60</strong></div>
+          <div><span>Confirmation</span><strong>54</strong></div>
+          <div><span>Main total</span><strong>84</strong></div>
         </div>
         <ul>
           <li>The 12-question protocol pilot validates schemas and runtime and is permanently excluded from confirmation metrics.</li>
           <li>Development data freezes thresholds, extraction settings, verifier rules, and any hybrid combination.</li>
-          <li>The 30-question confirmation split is evaluated once after all decisions are frozen.</li>
+          <li>The 54-question confirmation split is evaluated once after all decisions are frozen.</li>
           <li>Natural correct/error prevalence is reported; no 50/50 balancing is imposed after generation.</li>
-          <li>The 15 development and 15 confirmation contexts are minimum planning targets. An outcome-blind precision review may increase them before generation.</li>
+          <li>The outcome-blind review increased sealed confirmation from 15 to 27 contexts. The study estimates detector performance with intervals and does not preregister a superiority claim.</li>
         </ul>
       </section>
 
       <section>
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
-        <div class="grid"><article class="panel"><h3>net_revenue_reconciliation_by_period</h3><p><strong>verified</strong></p><p>accounting reconciliation of gross positive revenue, cancellations, and net revenue</p></article><article class="panel"><h3>customer_revenue_concentration</h3><p><strong>blocked_by_preexisting_quality_control</strong></p><p>customer exposure and concentration risk</p><p>The source audit records 100207 missing Customer IDs. This family is excluded from the 36-context capacity target rather than introducing a complete-case denominator after inspecting capacity.</p></article><article class="panel"><h3>product_return_rate_comparison</h3><p><strong>verified</strong></p><p>returns and product-performance monitoring</p></article><article class="panel"><h3>country_product_exposure</h3><p><strong>verified</strong></p><p>market and product concentration across business entities</p></article></div>
-        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review, deterministic gold calculations, and evidence-table construction must pass before any context enters a manifest.</p>
+        <div class="grid"><article class="panel"><h3>net_revenue_reconciliation_by_period</h3><p><strong>verified</strong></p><p>accounting reconciliation of gross positive revenue, cancellations, and net revenue</p></article><article class="panel"><h3>customer_revenue_concentration</h3><p><strong>blocked_by_preexisting_quality_control</strong></p><p>customer exposure and concentration risk</p><p>The source audit records 100207 missing Customer IDs. This family is excluded from the 48-context capacity target rather than introducing a complete-case denominator after inspecting capacity.</p></article><article class="panel"><h3>product_return_rate_comparison</h3><p><strong>verified</strong></p><p>returns and product-performance monitoring</p></article><article class="panel"><h3>country_product_exposure</h3><p><strong>verified</strong></p><p>market and product concentration across business entities</p></article></div>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review is complete; the context manifest comes next, while deterministic gold calculations and evidence-table construction remain a later gate.</p>
       </section>
 
       <section>
@@ -149,9 +149,9 @@
         <ul>
           <li>Primary oracle-span metric: <strong>AUPRC</strong>.</li>
           <li>Secondary F1 reuses a development-frozen threshold; precision, recall, specificity, AUROC, coverage, and abstention are reported.</li>
-          <li>Uncertainty intervals use a cluster bootstrap by <code>evidence_context_id</code>, not an independent-span bootstrap.</li>
+          <li>Uncertainty uses context-level BCa bootstrap when defined, with a paired percentile context bootstrap as sensitivity; independent-span bootstrap is prohibited.</li>
           <li><code>contradicted</code> and <code>unmatched</code> are positive unsupported claims; unresolved <code>needs_review</code> items are counted and excluded only after an adjudication attempt.</li>
-          <li>Context counts must pass the pending outcome-blind precision review before the context manifest is frozen.</li>
+          <li>The precision review is complete with a scope downgrade: report estimates and intervals, but do not declare a detector family statistically superior.</li>
           <li><code>one_minus_min_top2_margin</code> is a frozen candidate because of the exploratory study, not because it is already confirmed.</li>
           <li>Semantic Entropy, TOHA, and entity-level detection remain academic candidates, but inclusion and implementation must be frozen before the pilot.</li>
         </ul>
@@ -164,7 +164,7 @@
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody><tr><td>1</td><td><code>dataset_source_selected_and_audited</code></td><td>complete</td></tr><tr><td>2</td><td><code>context_manifest_split_and_precision_review_frozen</code></td><td>pending</td></tr><tr><td>3</td><td><code>question_templates_and_gold_calculations_validated</code></td><td>pending</td></tr><tr><td>4</td><td><code>model_prompt_and_detector_configs_frozen</code></td><td>pending</td></tr><tr><td>5</td><td><code>two_independent_human_reviewers_assigned</code></td><td>pending</td></tr><tr><td>6</td><td><code>claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data</code></td><td>pending</td></tr><tr><td>7</td><td><code>sealed_confirmation_run_authorized</code></td><td>pending</td></tr></tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Run only the outcome-blind precision review before freezing the context manifest and seeded split. Do not create prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Freeze only the deterministic 6/15/27 context manifest and seeded split. Do not create questions, prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
       </section>
 
       <section>

@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "9a04d0640d049aa4dc6f12e703fde531bb6b527a0c56df97f433efec942312a9",
+  "index_sha256": "d81f9fb00006afda6637dcfdb6c94013063166d150d6ea657f9599beda5ad6b9",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -11,6 +11,8 @@
   "source_methodology_summary_path": "reports/bizhallu_methodology_hardening_summary.json",
   "source_confirmation_overlap_path": "reports/bizhallu_confirmation_dataset_overlap_report.json",
   "source_confirmation_feasibility_path": "reports/bizhallu_confirmation_context_feasibility_report.json",
+  "source_confirmation_precision_path": "reports/bizhallu_confirmation_precision_review_report.json",
+  "source_confirmation_precision_amendment_path": "configs/confirmation_precision_scope_amendment_v1.json",
   "source_narrative_summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "results/full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -44,10 +46,20 @@
   "confirmation_context_feasibility_status": "outcome_blind_context_feasibility_complete",
   "confirmation_context_feasibility_complete": true,
   "confirmation_observed_complete_period_count": 50,
-  "confirmation_required_context_count": 36,
-  "confirmation_maximum_slot_matching_count": 36,
-  "confirmation_minimum_hall_capacity_slack": 14,
+  "confirmation_required_context_count": 48,
+  "confirmation_maximum_slot_matching_count": 48,
+  "confirmation_minimum_hall_capacity_slack": 2,
   "confirmation_context_manifest_created": false,
+  "confirmation_precision_review_status": "outcome_blind_precision_review_blocked",
+  "confirmation_precision_candidate_count": 4,
+  "confirmation_precision_passing_candidate_count": 0,
+  "confirmation_precision_thresholds_changed_after_simulation": false,
+  "confirmation_precision_scope_amendment_status": "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
+  "confirmation_precision_scope_decision": "downgrade_from_superiority_to_estimation",
+  "confirmation_selected_confirmation_context_count": 27,
+  "confirmation_selected_total_context_count": 48,
+  "confirmation_selected_total_question_count": 96,
+  "confirmation_context_manifest_authorized": true,
   "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
   "metric_selection_status": "exploratory_test_maxima",
   "automatic_claim_extraction": false,
@@ -97,9 +109,9 @@
       "role": "research_one_pager",
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "d031e7df1ee87664858f0dd17a518aabb8f949f0b0de58b371e40be8239a0dbb",
-      "dest_sha256": "c2be336e08815228ba4883837b371a6331e5f796e25e52a424ecab11f82961d3",
-      "dest_size_bytes": 14906
+      "source_sha256": "5429430d0f8d697139579838e563fdaf7442d9ed2e3d9622378abe98f4053c5e",
+      "dest_sha256": "e1ce861e83d39a12fa2a239f182a8189d9557be880bb95a87124b1b635ea5921",
+      "dest_size_bytes": 16165
     },
     {
       "role": "evidence_verifier_pilot",
@@ -121,9 +133,9 @@
       "role": "confirmation_dataset_source_audit",
       "source": "reports/bizhallu_confirmation_dataset_source_audit.html",
       "dest": "docs/confirmation_dataset_source_audit.html",
-      "source_sha256": "34088c9e64b6974a18aa8b21c21ef4a74aad9d392188e67edf4894f15fa7d312",
-      "dest_sha256": "d5769cadf8c8f6e246d8cb6677e80a3be666c5b810c0103bdce9ba6ffd55c905",
-      "dest_size_bytes": 29813
+      "source_sha256": "a11c10b162836c594c0cf38817451faa0d5a36f84db1e92f8b03dd3e4d051578",
+      "dest_sha256": "074a19973c1a4a84cdab2dac6ecb85a8d10b7aedbdcb2604cbbaaec2f4a8b3db",
+      "dest_size_bytes": 30030
     },
     {
       "role": "confirmation_dataset_quality",
@@ -145,17 +157,25 @@
       "role": "confirmation_context_feasibility",
       "source": "reports/bizhallu_confirmation_context_feasibility.html",
       "dest": "docs/confirmation_context_feasibility.html",
-      "source_sha256": "8649bdc14ed4faf994e8b00e69e22c9da459a8258c44fd931a15096180a3a1e8",
-      "dest_sha256": "b15b954be77b76562a83a6f9f1fd35f4b1b6dd020744e5b8fcc20cd40b4fc325",
-      "dest_size_bytes": 14526
+      "source_sha256": "cc72ec6046e22fe6bfedb346bd026cb7fb80f494f034a3c8d7c821e3da94937c",
+      "dest_sha256": "545027e311d486101e49e6ca09c13687cb9b3503dbcc41148dc866ee278e6640",
+      "dest_size_bytes": 14769
+    },
+    {
+      "role": "confirmation_precision_review",
+      "source": "reports/bizhallu_confirmation_precision_review.html",
+      "dest": "docs/confirmation_precision_review.html",
+      "source_sha256": "4394c53734d71cd002598dc4214a8b648f590981f88d4b794fd3a48eea4638c2",
+      "dest_sha256": "faaaa2848a00ea1dbd7c47acfc3494f5c1250e3271951d0ec872392d68526b9d",
+      "dest_size_bytes": 12966
     },
     {
       "role": "confirmation_set_v1_design",
       "source": "reports/bizhallu_confirmation_set_v1_design.html",
       "dest": "docs/confirmation_set_v1_design.html",
-      "source_sha256": "b60984112a5451da61859a1389bec46bb5648ca912b36606de6f2c2a184a86bb",
-      "dest_sha256": "4622d1add04adaacabdbee33b204e022975a3e70f88c9cb320e5d9000aa60e55",
-      "dest_size_bytes": 17378
+      "source_sha256": "1912038dd2f9c6ea277b91c5b9894ffb907ac082a5c049a9767f3c31565094cd",
+      "dest_sha256": "657b93fa20cb762929bf6230f08999db5ace8fa98eee50abc6ce48d1a666e4d0",
+      "dest_size_bytes": 17844
     },
     {
       "role": "detector_interpretation",

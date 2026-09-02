@@ -32,6 +32,8 @@ VERIFIER_SUMMARY_PATH = REPORTS_DIR / "bizhallu_evidence_verifier_pilot_summary.
 METHODOLOGY_SUMMARY_PATH = REPORTS_DIR / "bizhallu_methodology_hardening_summary.json"
 CONFIRMATION_OVERLAP_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_overlap_report.json"
 CONFIRMATION_FEASIBILITY_PATH = REPORTS_DIR / "bizhallu_confirmation_context_feasibility_report.json"
+CONFIRMATION_PRECISION_PATH = REPORTS_DIR / "bizhallu_confirmation_precision_review_report.json"
+CONFIRMATION_PRECISION_AMENDMENT_PATH = ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -97,6 +99,11 @@ PAGE_COPIES = [
         REPORTS_DIR / "bizhallu_confirmation_context_feasibility.html",
         DOCS_DIR / "confirmation_context_feasibility.html",
         "confirmation_context_feasibility",
+    ),
+    (
+        REPORTS_DIR / "bizhallu_confirmation_precision_review.html",
+        DOCS_DIR / "confirmation_precision_review.html",
+        "confirmation_precision_review",
     ),
     (
         REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html",
@@ -168,6 +175,7 @@ LINK_REWRITES = {
     "./bizhallu_confirmation_dataset_quality.html": "./confirmation_dataset_quality.html",
     "./bizhallu_confirmation_dataset_overlap.html": "./confirmation_dataset_overlap.html",
     "./bizhallu_confirmation_context_feasibility.html": "./confirmation_context_feasibility.html",
+    "./bizhallu_confirmation_precision_review.html": "./confirmation_precision_review.html",
     "./bizhallu_confirmation_set_v1_design.html": "./confirmation_set_v1_design.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
@@ -213,6 +221,8 @@ def render_index(
     methodology: dict[str, Any],
     confirmation_overlap: dict[str, Any],
     confirmation_feasibility: dict[str, Any],
+    confirmation_precision: dict[str, Any],
+    confirmation_precision_amendment: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -245,6 +255,17 @@ def render_index(
     confirmation_matching = confirmation_feasibility.get("capacity_proof", {}).get(
         "maximum_slot_matching_count", "n/a"
     )
+    confirmation_hall_slack = confirmation_feasibility.get("capacity_proof", {}).get(
+        "minimum_hall_capacity_slack", "n/a"
+    )
+    precision_candidate_count = len(confirmation_precision.get("candidate_summaries", []))
+    precision_passing_count = confirmation_precision_amendment.get(
+        "failed_strong_comparison_design", {}
+    ).get("passing_candidate_count", "n/a")
+    revised_counts = confirmation_precision_amendment.get("revised_planning_counts", {})
+    revised_confirmation_contexts = revised_counts.get("confirmation_context_count", "n/a")
+    revised_total_contexts = revised_counts.get("total_context_count", "n/a")
+    revised_total_questions = revised_counts.get("total_question_count", "n/a")
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -612,10 +633,16 @@ def render_index(
             <p><a href="./methodology_hardening.html">Open methodology audit</a></p>
           </article>
           <article class="card">
+            <h3>Confirmation precision review</h3>
+            <p>{precision_passing_count}/{precision_candidate_count} strong-design candidates passed every frozen rule. Thresholds were not relaxed; the study scope was narrowed to estimation rather than detector superiority.</p>
+            <p>The revised 6/15/{revised_confirmation_contexts} plan uses {revised_total_contexts} contexts and {revised_total_questions} questions. These are design quantities, not new model results.</p>
+            <p><a href="./confirmation_precision_review.html">Open precision review</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
+          </article>
+          <article class="card">
             <h3>Confirmation data gate</h3>
-            <p>Inspect source acquisition, strict-window quality, {confirmation_overlap_rows} repeated historical records, and outcome-blind capacity: {confirmation_observed_weeks} observed complete weeks support a {confirmation_matching}/{confirmation_required_contexts} unique period-to-family matching across three allowed families.</p>
-            <p>No context assignment, split, prompt, model output, or new metric exists. The next gate is the outcome-blind precision review.</p>
-            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_context_feasibility.html">Capacity proof</a> / <a href="./confirmation_set_v1_design.html">Study design</a></p>
+            <p>Inspect source acquisition, strict-window quality, {confirmation_overlap_rows} repeated historical records, and outcome-blind capacity: {confirmation_observed_weeks} observed complete weeks support a {confirmation_matching}/{confirmation_required_contexts} unique period-to-family matching with minimum Hall slack +{confirmation_hall_slack}.</p>
+            <p>No context assignment, split, question, prompt, model output, annotation, or new empirical metric exists. The next authorized step is only the outcome-blind 6/15/{revised_confirmation_contexts} context-manifest and period-disjoint split freeze.</p>
+            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_context_feasibility.html">Capacity proof</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -743,6 +770,8 @@ def main() -> None:
     methodology = load_json(METHODOLOGY_SUMMARY_PATH)
     confirmation_overlap = load_json(CONFIRMATION_OVERLAP_PATH)
     confirmation_feasibility = load_json(CONFIRMATION_FEASIBILITY_PATH)
+    confirmation_precision = load_json(CONFIRMATION_PRECISION_PATH)
+    confirmation_precision_amendment = load_json(CONFIRMATION_PRECISION_AMENDMENT_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
@@ -756,6 +785,8 @@ def main() -> None:
         methodology,
         confirmation_overlap,
         confirmation_feasibility,
+        confirmation_precision,
+        confirmation_precision_amendment,
         narrative,
         preflight,
     )
@@ -778,6 +809,8 @@ def main() -> None:
         "source_methodology_summary_path": repo_path(METHODOLOGY_SUMMARY_PATH),
         "source_confirmation_overlap_path": repo_path(CONFIRMATION_OVERLAP_PATH),
         "source_confirmation_feasibility_path": repo_path(CONFIRMATION_FEASIBILITY_PATH),
+        "source_confirmation_precision_path": repo_path(CONFIRMATION_PRECISION_PATH),
+        "source_confirmation_precision_amendment_path": repo_path(CONFIRMATION_PRECISION_AMENDMENT_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -812,6 +845,16 @@ def main() -> None:
         "confirmation_maximum_slot_matching_count": confirmation_feasibility.get("capacity_proof", {}).get("maximum_slot_matching_count"),
         "confirmation_minimum_hall_capacity_slack": confirmation_feasibility.get("capacity_proof", {}).get("minimum_hall_capacity_slack"),
         "confirmation_context_manifest_created": confirmation_feasibility.get("context_manifest_created"),
+        "confirmation_precision_review_status": confirmation_precision.get("status"),
+        "confirmation_precision_candidate_count": len(confirmation_precision.get("candidate_summaries", [])),
+        "confirmation_precision_passing_candidate_count": confirmation_precision_amendment.get("failed_strong_comparison_design", {}).get("passing_candidate_count"),
+        "confirmation_precision_thresholds_changed_after_simulation": confirmation_precision_amendment.get("failed_strong_comparison_design", {}).get("thresholds_changed_after_simulation"),
+        "confirmation_precision_scope_amendment_status": confirmation_precision_amendment.get("status"),
+        "confirmation_precision_scope_decision": confirmation_precision_amendment.get("scope_amendment", {}).get("decision"),
+        "confirmation_selected_confirmation_context_count": confirmation_precision_amendment.get("revised_planning_counts", {}).get("confirmation_context_count"),
+        "confirmation_selected_total_context_count": confirmation_precision_amendment.get("revised_planning_counts", {}).get("total_context_count"),
+        "confirmation_selected_total_question_count": confirmation_precision_amendment.get("revised_planning_counts", {}).get("total_question_count"),
+        "confirmation_context_manifest_authorized": confirmation_precision_amendment.get("gate_effect", {}).get("context_manifest_authorized_now"),
         "annotation_status": "205_ai_assisted_provisional_15_additionally_reviewed",
         "metric_selection_status": "exploratory_test_maxima",
         "automatic_claim_extraction": False,
