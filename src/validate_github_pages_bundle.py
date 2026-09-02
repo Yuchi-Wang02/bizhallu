@@ -99,6 +99,7 @@ REQUIRED_PAGE_FILES = [
 ]
 
 FORBIDDEN_FRAGMENTS = [
+    'href="../',
     "../site/index.html",
     "../results/",
     "./full100_detector_interpretation.html",

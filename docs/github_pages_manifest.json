@@ -172,9 +172,9 @@
       "role": "confirmation_precision_review",
       "source": "reports/bizhallu_confirmation_precision_review.html",
       "dest": "docs/confirmation_precision_review.html",
-      "source_sha256": "f513d552bb5aab83b3925ed5dec6330844e23c9509f028d0cf51d50adc221c3b",
-      "dest_sha256": "c0059335912f511c9a41a1950ceb90013d118e47749e68d3119a374405d31de7",
-      "dest_size_bytes": 13276
+      "source_sha256": "5b43eaf093b67e2e75a80001c79d990c1fb8c86cfdfc0e1c2179cae4376b5a5c",
+      "dest_sha256": "6f18f913f80fca84712ab7297190818dc24bf36d67f6d47def1c5ea2e42c6923",
+      "dest_size_bytes": 13311
     },
     {
       "role": "confirmation_context_manifest",

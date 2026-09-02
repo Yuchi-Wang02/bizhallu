@@ -130,7 +130,7 @@ def main() -> None:
   </style>
 </head>
 <body>
-  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_context_manifest.html">Context manifest</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a><a href="../README.md">Repository guide</a></div></nav></header>
+  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_context_manifest.html">Context manifest</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a><a href="https://github.com/Yuchi-Wang02/bizhallu#readme">Repository guide</a></div></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">Confirmation Set v1 · Outcome-blind precision review</p>
