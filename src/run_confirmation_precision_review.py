@@ -15,6 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_review_v1.json"
 CAPACITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -22,6 +23,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def sha256_file(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):

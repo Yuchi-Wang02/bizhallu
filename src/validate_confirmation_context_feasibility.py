@@ -36,9 +36,10 @@ STRICT_TABLE_PATH = (
 )
 
 EXPECTED_CONFIG_SHA256 = "fce09f569c1ebebbf0e913f362af4f79732eb7292f769048d40f8843c8d8f28a"
-EXPECTED_PRECISION_AMENDMENT_SHA256 = "7bdcd6c368aad4abc22df793a6480052274fedda6c204f7711b8437c73fa2ca4"
+EXPECTED_PRECISION_AMENDMENT_SHA256 = "a70c374db68bbcfb60bdb346739036f7dd1d8a77d4d189418a1939772fefd039"
 EXPECTED_STRICT_TABLE_SHA256 = "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc"
 EXPECTED_STRICT_ROW_COUNT = 502938
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 EXPECTED_ALLOWED_FAMILIES = [
     "net_revenue_reconciliation_by_period",
     "product_return_rate_comparison",
@@ -127,6 +128,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def file_sha256(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):

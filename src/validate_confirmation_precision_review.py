@@ -19,7 +19,8 @@ HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review.h
 VALIDATION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_validation.json"
 
 EXPECTED_REVIEW_CONFIG_SHA256 = "e49ea86fe12749f261a36a4f3acf9498c50b17a2eddcff50a27a7a276a5d99e1"
-EXPECTED_REVIEW_REPORT_SHA256 = "3c9490b51313e42dc7c35eae552216d2e436ba3186bfd79c7dd29fe342066ed3"
+EXPECTED_REVIEW_REPORT_SHA256 = "9a69bfc1a54f1757da8527ccda19f1ac2e9370090fe5cbccba25c789506d2643"
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 EXPECTED_CANDIDATES = {
     15: (5, 16, 0.3125, 0.103099, 0.14955, 0.126422, False, False),
     21: (10, 16, 0.625, 0.094613, 0.136085, 0.106863, False, False),
@@ -71,6 +72,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def file_sha256(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):

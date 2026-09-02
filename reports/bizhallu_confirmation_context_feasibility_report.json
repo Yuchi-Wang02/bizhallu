@@ -16,7 +16,7 @@
   },
   "precision_scope_amendment": {
     "path": "configs/confirmation_precision_scope_amendment_v1.json",
-    "sha256": "7bdcd6c368aad4abc22df793a6480052274fedda6c204f7711b8437c73fa2ca4",
+    "sha256": "a70c374db68bbcfb60bdb346739036f7dd1d8a77d4d189418a1939772fefd039",
     "status": "scope_downgrade_frozen_capacity_recheck_complete_manifest_pending",
     "claim_scope": "downgrade_from_superiority_to_estimation"
   },
@@ -223,7 +223,7 @@
   "failed_critical_checks": [],
   "local_proof": {
     "path": "data/processed/confirmation_online_retail_ii/context_feasibility_local_proof.json",
-    "sha256": "f8535c67c659e07abab9d4329cd8a3e1dbc84928425198b62fb3752008e4c9a8",
+    "sha256": "87694e981e5208155d5f955e1179f60fde4d397be9cb01e90626f7be9d92e594",
     "git_ignored": true,
     "contains_period_profiles": true,
     "matching_assignment_retained": false

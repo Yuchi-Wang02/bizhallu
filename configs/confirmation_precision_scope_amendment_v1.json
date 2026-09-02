@@ -10,7 +10,7 @@
     "precision_review_config": "configs/confirmation_precision_review_v1.json",
     "precision_review_config_sha256": "e49ea86fe12749f261a36a4f3acf9498c50b17a2eddcff50a27a7a276a5d99e1",
     "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
-    "precision_review_report_sha256": "3c9490b51313e42dc7c35eae552216d2e436ba3186bfd79c7dd29fe342066ed3",
+    "precision_review_report_sha256": "9a69bfc1a54f1757da8527ccda19f1ac2e9370090fe5cbccba25c789506d2643",
     "precision_review_status": "outcome_blind_precision_review_blocked"
   },
   "failed_strong_comparison_design": {

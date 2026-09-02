@@ -28,6 +28,7 @@ METHODOLOGY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_su
 PRECISION_AMENDMENT_PATH = (
     PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 )
+TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 
 REQUIRED_COLUMNS = [
     "source_sheet",
@@ -56,6 +57,9 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def sha256_file(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES:
+        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
