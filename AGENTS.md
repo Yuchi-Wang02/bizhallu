@@ -70,6 +70,7 @@ python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_context_feasibility.py
 python src\validate_confirmation_precision_review.py
 python src\validate_confirmation_context_manifest.py
+python src\validate_confirmation_question_design.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -109,8 +110,8 @@ retrospective study. Use `configs/confirmation_set_v1_protocol.json` and
 `reports/bizhallu_confirmation_set_v1_design.html` as the source of truth for
 the prospective next study.
 
-Confirmation Set v1 is design-only and is not execution-ready. Its dataset-source
-and context-manifest gates are complete; the other five gates must remain pending
+Confirmation Set v1 is design-only and is not execution-ready. Its dataset-source,
+context-manifest, and question-design gates are complete; the other four gates must remain pending
 until each requirement is actually satisfied. The official-source desk audit selects the strict prior-period window from UCI Online
 Retail II. The official ZIP and workbook are acquired, hashed, and kept under the
 Git-ignored raw-data tree. The two-sheet structure, three required raw-header
@@ -132,7 +133,7 @@ are primary, paired differences are descriptive, and subgroup results are
 descriptive. Do not claim detector superiority from Confirmation Set v1.
 
 The revised plan contains 6 protocol-pilot, 15 development, and 27 confirmation
-contexts, for 48 period-disjoint contexts and 96 future questions. A repeated
+contexts, for 48 period-disjoint contexts and 96 frozen private questions. A repeated
 outcome-blind capacity proof found 50 observed complete calendar weeks, a
 48-of-48 period-to-family matching, and minimum Hall-capacity slack 2 across
 net-revenue reconciliation, product return comparison, and country-product
@@ -144,13 +145,22 @@ Git-ignored; public artifacts may expose only aggregate counts and the canonical
 SHA-256 commitment `002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a`.
 Do not publish or manually edit selected periods, context IDs, scope entities, or
 private evidence hashes. Do not substitute reserve periods after outcome access.
-The next authorized research action is only to define and validate deterministic
-question templates, scope-entity selection rules, gold calculations, question IDs,
-and question-level evidence payload fingerprints. Do not generate prompts, run
-Qwen, create labels, score detectors or verifiers, or report new empirical metrics
-yet.
-Do not run Qwen, annotate new outputs, or report confirmation metrics before those
-checks are complete. Any future
+A second deterministic private manifest now fixes 96 question IDs, six templates,
+question text, gold answers, selected scope entities, and question-level evidence
+payloads. Public artifacts may expose only rules, aggregate counts, and its canonical
+SHA-256 commitment `b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c`.
+All 96 full-payload fingerprints and all 96 normalized evidence-table content
+fingerprints are unique, with zero exact cross-split overlap. None of the normalized
+contents matches the 66 unique historical full100 evidence-table contents under the
+wrapper-independent comparison.
+Do not publish or manually edit private question IDs, text, gold answers, entities,
+evidence rows, or payload fingerprints.
+
+The next authorized research action is only to freeze the exact model and tokenizer
+revisions, prompt templates, decoding settings, detector-family inclusion decisions,
+and metric implementations before protocol-pilot generation. Do not run Qwen, create
+labels, score detectors or verifiers, inspect confirmation outcomes, or report new
+empirical metrics yet. Any future
 result described as confirmatory must use
 fresh or context-separated data, select annotation targets before answer-quality
 review, freeze primary detector and threshold policies before confirmation-set

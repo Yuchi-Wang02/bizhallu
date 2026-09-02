@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "e102907bd8f1a08722b581834aedb56a09af4eba84cc81104240f5f6aab8d91c",
+  "index_sha256": "efdcb780bb958a4ca7ed68e957ba78315fe98f376f1c5f697728d4be11b17a8e",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -14,6 +14,7 @@
   "source_confirmation_precision_path": "reports/bizhallu_confirmation_precision_review_report.json",
   "source_confirmation_precision_amendment_path": "configs/confirmation_precision_scope_amendment_v1.json",
   "source_confirmation_context_manifest_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+  "source_confirmation_question_design_path": "reports/bizhallu_confirmation_question_design_report.json",
   "source_narrative_summary_path": "reports/bizhallu_portfolio_narrative_summary.json",
   "source_preflight_validation_path": "results/full100_preflight_validation.json",
   "source_preflight_stage": "github_pages_ready",
@@ -56,7 +57,18 @@
   "confirmation_context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
   "confirmation_context_manifest_selected_context_count": 48,
   "confirmation_context_manifest_reserve_period_count": 2,
-  "confirmation_question_payload_fingerprint_check": "pending_next_gate",
+  "confirmation_question_design_status": "confirmation_question_design_v1_frozen",
+  "confirmation_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+  "confirmation_question_count": 96,
+  "confirmation_question_template_count": 6,
+  "confirmation_question_payload_fingerprint_check": "complete",
+  "confirmation_question_payload_cross_split_overlap_count": 0,
+  "confirmation_question_evidence_content_fingerprint_count": 96,
+  "confirmation_question_evidence_content_cross_split_overlap_count": 0,
+  "confirmation_historical_unique_evidence_content_fingerprint_count": 66,
+  "confirmation_question_evidence_content_historical_overlap_count": 0,
+  "confirmation_question_created": true,
+  "confirmation_prompt_created": false,
   "confirmation_precision_review_status": "outcome_blind_precision_review_blocked",
   "confirmation_precision_candidate_count": 4,
   "confirmation_precision_passing_candidate_count": 0,
@@ -116,9 +128,9 @@
       "role": "research_one_pager",
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "e6a5a030bdcc83499fbea8eab60bd090daa2bf8c4201a7f884422f0080dcb84e",
-      "dest_sha256": "c429206b8ee023c150faece59d82151359e8c66c2d1f723c649887b367f5cc26",
-      "dest_size_bytes": 16432
+      "source_sha256": "49d8b00a50ee43a0e670e771c1c551286abaddadc4dbc6df0305d3487bd3ef69",
+      "dest_sha256": "f6e8034ea878f5d0412dc2981c866f0e321fec93b6b9e9a55f0035ce06c7a9d7",
+      "dest_size_bytes": 16743
     },
     {
       "role": "evidence_verifier_pilot",
@@ -188,9 +200,9 @@
       "role": "confirmation_set_v1_design",
       "source": "reports/bizhallu_confirmation_set_v1_design.html",
       "dest": "docs/confirmation_set_v1_design.html",
-      "source_sha256": "a347d0344bc0ac6ca48bde9e13ed771e8a0cca86e07dfc0e149dd33dc07b4534",
-      "dest_sha256": "04806b5cf84fa7f87e6021230199a6dc71bf17503b9f57c557e841a42925f501",
-      "dest_size_bytes": 18176
+      "source_sha256": "a3e7af8e1b32dc892e94511f6a4789e7b50136787e8cd7ba0239917bc0904526",
+      "dest_sha256": "a94c71b28284ae282914103cdcc284ecd2a7b47b51b16e135fbb6ae7ba327bae",
+      "dest_size_bytes": 19094
     },
     {
       "role": "detector_interpretation",

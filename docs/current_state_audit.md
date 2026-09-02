@@ -157,11 +157,44 @@ result.
   invoice, customer value, or row fingerprint.
 - All 48 selected periods, context IDs, and context evidence-pool hashes are
   unique. Historical canonical and date-blind source-record overlap remains 0.
-- Exact question-level evidence payload fingerprint checks remain pending,
-  because deterministic question templates and gold payloads have not yet been
-  created. They belong to the next gate and are not treated as complete here.
+- At this context-manifest checkpoint, exact question-level evidence payload
+  fingerprint checks remained pending because deterministic question templates
+  and gold payloads had not yet been created. The later Gate 3 update below
+  supersedes that temporary boundary without altering this historical record.
 - No question, gold answer, prompt, Qwen output, annotation, detector score,
   verifier prediction, AUPRC, F1, or other new empirical metric was created.
+
+## Question and Gold Freeze Update: 2026-09-02
+
+Gate 3 is now complete without running Qwen or creating a new empirical result.
+
+- Six deterministic templates create two questions for each of the 48 frozen
+  contexts: 12 protocol-pilot, 30 development, and 54 confirmation questions.
+  The private inventory therefore contains 96 questions, with 32 questions per
+  eligible business family.
+- Net-revenue reconciliation includes weekly arithmetic and a daily
+  cancellation-hotspot question. Product return comparison uses two disjoint
+  product pairs per context and explicitly measures recorded returned units
+  divided by positive units; it is not a customer-linked causal return rate.
+  Country-product exposure selects the highest-revenue product only among five
+  frozen candidates and reports its share of country merchandise net revenue.
+- Question IDs, entity choices, and evidence presentation order use
+  domain-separated seeded SHA-256 ordering. They do not use generated answers,
+  labels, detector scores, or future model behavior.
+- All 96 full payloads and all 96 normalized evidence-table contents have unique
+  canonical fingerprints. Exact cross-split and cross-context overlap are both
+  0. The normalized contents match 0 of the 66 unique historical full100
+  evidence-table contents after wrapper metadata is removed and documented field
+  aliases are normalized. These are exact-content controls, not a claim of
+  external-domain independence.
+- The detailed question/gold manifest is Git-ignored. It contains question IDs,
+  question text, gold answers, selected entities, and evidence rows. The public
+  report exposes only rules, aggregate counts, and the whole-manifest canonical
+  SHA-256 commitment
+  `b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c`.
+- No prompt, model output, annotation, detector score, verifier score, or new
+  confirmation metric was created. Confirmation Set v1 remains design-only and
+  has three of seven execution gates complete.
 
 ## Historical Record-Overlap Update: 2026-09-01
 
@@ -1735,9 +1768,12 @@ entry point for GitHub Pages.
      commitment. Do not expose selected periods, context IDs, or scope entities
      in public artifacts, and do not substitute the two reserve weeks after
      outcome access.
-   - Next, define and validate deterministic question templates, scope-entity
-     selection rules, gold calculations, question IDs, and exact question-level
-     evidence payload fingerprints without generating prompts or running Qwen.
+   - Preserve the frozen private 96-question/gold manifest and its separate
+     public commitment. Do not expose question IDs, text, gold values, selected
+     entities, evidence rows, or payload fingerprints.
+   - Next, freeze exact model and tokenizer revisions, prompt templates, decoding
+     settings, detector-family inclusion decisions, and metric implementations.
+     This is a configuration gate only; do not run Qwen yet.
    - Keep the 12/30/54 question counts and 96-generation total fixed unless a
      new, separately justified design amendment is made before model outcomes.
    - Treat the current claim-evidence schema as label-derived v0 scaffolding;

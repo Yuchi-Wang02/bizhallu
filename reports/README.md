@@ -9,6 +9,8 @@ This directory is reserved for portfolio-ready written outputs:
 
 Current report-ready drafts:
 
+- `bizhallu_confirmation_question_design_report.json`
+- `bizhallu_confirmation_question_design_validation.json`
 - `bizhallu_confirmation_context_manifest.html`
 - `bizhallu_confirmation_context_manifest_report.json`
 - `bizhallu_confirmation_context_manifest_validation.json`

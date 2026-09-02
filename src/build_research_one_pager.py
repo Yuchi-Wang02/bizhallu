@@ -21,6 +21,7 @@ PRECISION_REPORT_PATH = REPORTS_DIR / "bizhallu_confirmation_precision_review_re
 PRECISION_AMENDMENT_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 CAPACITY_REPORT_PATH = REPORTS_DIR / "bizhallu_confirmation_context_feasibility_report.json"
 CONTEXT_MANIFEST_PATH = REPORTS_DIR / "bizhallu_confirmation_context_manifest_report.json"
+QUESTION_DESIGN_PATH = REPORTS_DIR / "bizhallu_confirmation_question_design_report.json"
 
 HTML_PATH = REPORTS_DIR / "bizhallu_research_one_pager.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
@@ -55,6 +56,7 @@ def main() -> None:
     precision_amendment = load_json(PRECISION_AMENDMENT_PATH)
     capacity = load_json(CAPACITY_REPORT_PATH)
     context_manifest = load_json(CONTEXT_MANIFEST_PATH)
+    question_design = load_json(QUESTION_DESIGN_PATH)
 
     best_auprc = interpretation["best_overall_by_test_auprc"]
     best_f1 = interpretation["best_overall_by_test_f1"]
@@ -124,7 +126,7 @@ def main() -> None:
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "validate deterministic question templates, gold calculations, and question-level evidence payload fingerprints; no prompts, model outputs, labels, scores, or new metrics yet",
+        "next_stage_scope": "freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations; no model execution, labels, scores, or new metrics yet",
         "confirmation_precision_review_status": precision["status"],
         "confirmation_strong_candidate_pass_count": precision_pass_count,
         "confirmation_candidate_count": len(precision["candidate_summaries"]),
@@ -138,6 +140,16 @@ def main() -> None:
         "confirmation_split_assignment_created": context_manifest["execution_boundary"]["split_assignment_created"],
         "confirmation_context_manifest_commitment_sha256": context_manifest["private_manifest_commitment"]["canonical_sha256"],
         "confirmation_reserve_period_count": context_manifest["frozen_inventory"]["reserve_period_count"],
+        "confirmation_question_design_status": question_design["status"],
+        "confirmation_question_manifest_commitment_sha256": question_design["private_question_manifest_commitment"]["canonical_sha256"],
+        "confirmation_question_count_frozen": question_design["frozen_inventory"]["question_count"],
+        "confirmation_question_template_count": len(question_design["frozen_inventory"]["template_counts"]),
+        "confirmation_question_payload_fingerprint_check": question_design["evidence_payload_integrity"]["question_level_evidence_payload_fingerprint_check"],
+        "confirmation_question_payload_cross_split_overlap_count": question_design["evidence_payload_integrity"]["cross_split_fingerprint_count"],
+        "confirmation_question_evidence_content_fingerprint_count": question_design["evidence_payload_integrity"]["unique_content_fingerprint_count"],
+        "confirmation_question_evidence_content_cross_split_overlap_count": question_design["evidence_payload_integrity"]["content_cross_split_fingerprint_count"],
+        "confirmation_historical_unique_evidence_content_fingerprint_count": question_design["evidence_payload_integrity"]["historical_full100_content_fingerprint_count"],
+        "confirmation_question_evidence_content_historical_overlap_count": question_design["evidence_payload_integrity"]["historical_full100_content_fingerprint_overlap_count"],
         "confirmation_claim_scope": "estimation_only_no_detector_superiority",
         "methodology_status": methodology["status"],
         "methodology_share_status": methodology["share_status"],
@@ -363,10 +375,10 @@ def main() -> None:
           </article>
           <article class="panel">
             <h3>Revised capacity</h3>
-            <p>The frozen 6/15/{esc(summary["confirmation_context_count"])} plan uses {esc(summary["confirmation_total_context_count"])} period-disjoint contexts and {esc(summary["confirmation_total_question_count"])} future questions. Aggregate matching fills {esc(summary["confirmation_capacity_matching_count"])}/{esc(summary["confirmation_total_context_count"])} slots with minimum Hall slack +{esc(summary["confirmation_capacity_hall_slack"])}; the private manifest now fixes the assignment with {esc(summary["confirmation_reserve_period_count"])} reserve weeks.</p>
+            <p>The frozen 6/15/{esc(summary["confirmation_context_count"])} plan uses {esc(summary["confirmation_total_context_count"])} period-disjoint contexts and {esc(summary["confirmation_question_count_frozen"])} frozen private questions. Aggregate matching fills {esc(summary["confirmation_capacity_matching_count"])}/{esc(summary["confirmation_total_context_count"])} slots with minimum Hall slack +{esc(summary["confirmation_capacity_hall_slack"])}; the private context manifest fixes the assignment with {esc(summary["confirmation_reserve_period_count"])} reserve weeks.</p>
           </article>
         </div>
-        <div class="callout"><strong>Current boundary:</strong> the outcome-blind context manifest and 6/15/27 split are frozen under a public SHA-256 commitment. No question, gold answer, prompt, model output, annotation, detector score, or new empirical metric exists. Next validate deterministic questions and question-level evidence payload fingerprints.</div>
+        <div class="callout"><strong>Current boundary:</strong> the outcome-blind context manifest and 6/15/27 split are frozen under one public SHA-256 commitment. A second private manifest freezes {esc(summary["confirmation_question_count_frozen"])} deterministic questions and gold answers across {esc(summary["confirmation_question_template_count"])} templates under a separate public commitment. All {esc(summary["confirmation_question_count_frozen"])} full payloads and normalized evidence-table contents are unique, and the normalized contents match 0 of {esc(summary["confirmation_historical_unique_evidence_content_fingerprint_count"])} unique historical full100 contents. No prompt, model output, annotation, detector score, or new empirical metric exists. Next freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations before protocol-pilot generation.</div>
         <p><a href="./bizhallu_confirmation_precision_review.html"><strong>Open precision review</strong></a> · <a href="./bizhallu_confirmation_context_manifest.html"><strong>Open manifest commitment</strong></a> · <a href="./bizhallu_confirmation_set_v1_design.html"><strong>Open prospective study design</strong></a></p>
       </section>
 

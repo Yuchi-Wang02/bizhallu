@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0",
+  "status": "question_and_gold_rules_frozen",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-02",
+  "purpose": "Create two deterministic, outcome-blind business questions and gold answers for each frozen context before prompts, model outputs, labels, or detector scores exist.",
+  "inputs": {
+    "protocol": "configs/confirmation_set_v1_protocol.json",
+    "context_manifest_config": "configs/confirmation_context_manifest_v1.json",
+    "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
+    "private_context_manifest": "data/processed/confirmation_online_retail_ii/context_manifest_v1_private.json",
+    "strict_window_table": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "historical_questions": "data/processed/business_questions_gold.jsonl"
+  },
+  "outputs": {
+    "private_question_manifest": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
+    "public_report": "reports/bizhallu_confirmation_question_design_report.json",
+    "public_validation": "reports/bizhallu_confirmation_question_design_validation.json"
+  },
+  "assignment": {
+    "seed": 20260902,
+    "question_id_domain": "bizhallu:confirmation-question-id:v1",
+    "product_pair_order_domain": "bizhallu:confirmation-product-pair-order:v1",
+    "country_order_domain": "bizhallu:confirmation-country-order:v1",
+    "country_product_order_domain": "bizhallu:confirmation-country-product-order:v1",
+    "question_evidence_payload_domain": "bizhallu:question-evidence-payload:v1",
+    "evidence_content_comparison_domain": "bizhallu:evidence-table-content:v1",
+    "private_question_manifest_domain": "bizhallu:confirmation-private-question-manifest:v1",
+    "selection_policy": "Use domain-separated seeded SHA-256 ordering over frozen context IDs and eligible source entities. Do not use generated answers, labels, detector scores, or future model behavior."
+  },
+  "question_inventory": {
+    "questions_per_context": 2,
+    "selected_context_count": 48,
+    "total_question_count": 96,
+    "question_counts_by_split": {
+      "protocol_pilot": 12,
+      "development": 30,
+      "confirmation": 54
+    },
+    "question_counts_per_family": 32,
+    "historical_question_id_reuse_allowed": false
+  },
+  "shared_calculation_rules": {
+    "currency": "GBP",
+    "money_rounding_decimals": 2,
+    "percentage_rounding_decimals": 2,
+    "ratio_comparison_precision_decimals": 6,
+    "money_reconciliation_tolerance_gbp": 0.01,
+    "percentage_tolerance_points": 0.01,
+    "negative_quantity_policy": "Retain negative quantities as recorded cancellations or returns.",
+    "duplicate_policy": "Use frozen analytical evidence flags, which exclude normalized exact-duplicate copies.",
+    "product_name_policy": "Within a question evidence slice, use the normalized nonblank description with the highest source-line count for a stock code; break ties lexicographically.",
+    "tie_break_policy": "Break gold ranking ties by normalized stock code or ISO business date, as applicable.",
+    "evidence_order_policy": "Never sort evidence rows into gold-answer order. Use chronological order for daily rows and seeded hash order for entity rows."
+  },
+  "family_designs": [
+    {
+      "family": "net_revenue_reconciliation_by_period",
+      "context_count": 16,
+      "question_count": 32,
+      "templates": [
+        {
+          "template_id": "nrr_weekly_reconciliation_v1",
+          "question_template": "For the complete week from {period_start} through {period_end_inclusive}, reconcile gross positive line revenue, negative cancellation-and-return revenue, and final net revenue. Report the positive amount, the reduction as a positive amount, and net revenue in GBP, then show the arithmetic relationship.",
+          "evidence_columns": [
+            "gross_positive_revenue_gbp",
+            "cancellation_return_revenue_gbp"
+          ],
+          "gold_fields": [
+            "gross_positive_revenue_gbp",
+            "cancellation_return_reduction_gbp",
+            "net_revenue_gbp"
+          ],
+          "calculation": "gross_positive_revenue + cancellation_return_revenue = net_revenue; cancellation_return_reduction = abs(cancellation_return_revenue)"
+        },
+        {
+          "template_id": "nrr_daily_cancellation_hotspot_v1",
+          "question_template": "During the complete week from {period_start} through {period_end_inclusive}, which observed trading day had the largest negative cancellation-and-return revenue reduction? Report the date, reduction as a positive amount in GBP, that day's gross positive line revenue, and the reduction as a percentage of that gross positive line revenue.",
+          "evidence_columns": [
+            "business_date",
+            "gross_positive_revenue_gbp",
+            "cancellation_return_revenue_gbp"
+          ],
+          "gold_fields": [
+            "business_date",
+            "cancellation_return_reduction_gbp",
+            "gross_positive_revenue_gbp",
+            "reduction_percentage_of_gross"
+          ],
+          "calculation": "Choose the observed day with the largest absolute negative line revenue; reduction_percentage = reduction / gross_positive_line_revenue * 100"
+        }
+      ]
+    },
+    {
+      "family": "product_return_rate_comparison",
+      "context_count": 16,
+      "question_count": 32,
+      "templates": [
+        {
+          "template_id": "prr_pair_comparison_1_v1",
+          "question_template": "For the complete week from {period_start} through {period_end_inclusive}, compare the recorded return-to-positive-sales unit ratios for {product_a_name} ({product_a_code}) and {product_b_name} ({product_b_code}). Which ratio was higher, what was each ratio, and what was the percentage-point difference?",
+          "pair_slot": 1
+        },
+        {
+          "template_id": "prr_pair_comparison_2_v1",
+          "question_template": "For the complete week from {period_start} through {period_end_inclusive}, compare the recorded return-to-positive-sales unit ratios for {product_a_name} ({product_a_code}) and {product_b_name} ({product_b_code}). Which ratio was higher, what was each ratio, and what was the percentage-point difference?",
+          "pair_slot": 2
+        }
+      ],
+      "evidence_columns": [
+        "stock_code",
+        "product_name",
+        "positive_units",
+        "returned_units",
+        "positive_invoice_count",
+        "return_invoice_count"
+      ],
+      "gold_fields": [
+        "product_a_ratio_percentage",
+        "product_b_ratio_percentage",
+        "higher_ratio_stock_code",
+        "percentage_point_difference"
+      ],
+      "selection_rule": "For each pair slot, hash-order the frozen eligible stock-code pool, select the first product and then the first remaining product with a distinct ratio at six decimals and a distinct displayed percentage at two decimals. Remove both products before selecting slot 2.",
+      "calculation": "ratio = absolute negative quantity / positive quantity within the same complete week; this is not a customer-linked or original-sale-linked causal return rate"
+    },
+    {
+      "family": "country_product_exposure",
+      "context_count": 16,
+      "question_count": 32,
+      "templates": [
+        {
+          "template_id": "cpe_candidate_product_exposure_1_v1",
+          "question_template": "For {country} during the complete week from {period_start} through {period_end_inclusive}, which of the five listed products had the highest merchandise net revenue? Report the stock code, product name, net revenue in GBP, and its share of the country's total merchandise net revenue.",
+          "country_slot": 1
+        },
+        {
+          "template_id": "cpe_candidate_product_exposure_2_v1",
+          "question_template": "For {country} during the complete week from {period_start} through {period_end_inclusive}, which of the five listed products had the highest merchandise net revenue? Report the stock code, product name, net revenue in GBP, and its share of the country's total merchandise net revenue.",
+          "country_slot": 2
+        }
+      ],
+      "candidate_product_count": 5,
+      "evidence_columns": [
+        "country",
+        "stock_code",
+        "product_name",
+        "product_merchandise_net_revenue_gbp",
+        "country_merchandise_net_revenue_gbp"
+      ],
+      "gold_fields": [
+        "country",
+        "stock_code",
+        "product_name",
+        "product_merchandise_net_revenue_gbp",
+        "share_of_country_merchandise_net_revenue_percentage"
+      ],
+      "selection_rule": "Hash-order the frozen eligible country pool and use the first two countries. Within each selected country, hash-order products with positive merchandise net revenue and select the first five; do not rank products before evidence presentation.",
+      "calculation": "Select the largest net revenue among the five frozen candidates; share = selected product net revenue / total country merchandise net revenue * 100"
+    }
+  ],
+  "fingerprint_policy": {
+    "payload_definition": "Canonical JSON over evidence schema, evidence metadata, and evidence rows exactly as a later prompt builder is allowed to consume.",
+    "content_comparison_projection": "For cross-split and historical comparison, canonicalize only normalized evidence-table rows, normalize documented field aliases and finite numeric values, sort row keys, and sort the row multiset by canonical JSON. Exclude schema_version, question family, template ID, source filename, filters, and metadata so wrapper or integer-versus-float differences cannot force a false zero-overlap result.",
+    "content_field_aliases": {
+      "description": "product_name",
+      "gross_positive_revenue": "gross_positive_revenue_gbp",
+      "cancellation_revenue": "cancellation_return_revenue_gbp",
+      "net_revenue": "net_revenue_gbp",
+      "product_merchandise_net_revenue_gbp": "net_revenue_gbp"
+    },
+    "required_checks": [
+      "all 96 question evidence payloads are fingerprinted",
+      "all 96 normalized evidence-table contents are fingerprinted under a cross-experiment domain",
+      "no full-payload or normalized-content fingerprint appears in more than one split",
+      "no normalized-content fingerprint matches any historical full100 evidence table under the same canonical domain",
+      "duplicate payloads or normalized table contents within one frozen context and split are reported rather than hidden"
+    ]
+  },
+  "privacy": {
+    "private_question_manifest_git_ignored": true,
+    "publish_question_text": false,
+    "publish_question_ids": false,
+    "publish_selected_periods": false,
+    "publish_context_ids": false,
+    "publish_scope_entities": false,
+    "publish_evidence_rows": false,
+    "publish_only_rules_aggregate_counts_and_whole_manifest_commitment": true
+  },
+  "execution_boundary": {
+    "question_and_gold_generation_allowed": true,
+    "prompt_generation_allowed": false,
+    "model_run_allowed": false,
+    "annotation_allowed": false,
+    "detector_or_verifier_scoring_allowed": false,
+    "new_empirical_metrics_allowed": false
+  }
+}

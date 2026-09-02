@@ -24,6 +24,7 @@ Current config files:
 - `confirmation_dataset_source_audit_v1.json`
 - `confirmation_context_feasibility_v1.json`
 - `confirmation_context_manifest_v1.json`
+- `confirmation_question_design_v1.json`
 - `confirmation_precision_review_v1.json`
 - `confirmation_precision_scope_amendment_v1.json`
 - `confirmation_set_v1_protocol.json`
@@ -43,3 +44,9 @@ not contain confirmation outcomes.
 6/15/27 split, reserve, evidence-pool, and privacy rules. The selected periods
 and entities remain in a Git-ignored private manifest; the public report stores
 only aggregate counts and a canonical SHA-256 commitment.
+
+`confirmation_question_design_v1.json` freezes two deterministic questions per
+context across six templates, the gold calculation and rounding rules, seeded
+entity selection, evidence ordering, payload fingerprinting, and the public/private
+boundary. Question text, gold answers, selected entities, and evidence rows remain
+in a Git-ignored private manifest.

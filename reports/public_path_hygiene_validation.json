@@ -1,12 +1,13 @@
 {
   "status": "public_path_hygiene_ready",
-  "checked_file_count": 99,
+  "checked_file_count": 102,
   "checked_files": [
     "configs/confirmation_context_feasibility_v1.json",
     "configs/confirmation_context_manifest_v1.json",
     "configs/confirmation_dataset_source_audit_v1.json",
     "configs/confirmation_precision_review_v1.json",
     "configs/confirmation_precision_scope_amendment_v1.json",
+    "configs/confirmation_question_design_v1.json",
     "configs/confirmation_set_v1_protocol.json",
     "configs/detector_baseline_suite.json",
     "configs/full100_questions.json",
@@ -40,6 +41,8 @@
     "reports/bizhallu_confirmation_dataset_structure_report.json",
     "reports/bizhallu_confirmation_precision_review_report.json",
     "reports/bizhallu_confirmation_precision_review_validation.json",
+    "reports/bizhallu_confirmation_question_design_report.json",
+    "reports/bizhallu_confirmation_question_design_validation.json",
     "reports/bizhallu_confirmation_set_v1_design_summary.json",
     "reports/bizhallu_confirmation_set_v1_design_validation.json",
     "reports/bizhallu_demo_v2_data.json",

@@ -59,6 +59,9 @@ jobs:
       - name: Validate Confirmation Set context manifest commitment
         run: python src/validate_confirmation_context_manifest.py
 
+      - name: Validate Confirmation Set question and gold design
+        run: python src/validate_confirmation_question_design.py
+
       - name: Validate Confirmation Dataset Source Audit v1
         run: python src/validate_confirmation_dataset_source_audit.py
 

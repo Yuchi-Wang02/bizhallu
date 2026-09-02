@@ -1,0 +1,16 @@
+{
+  "status": "confirmation_question_design_validation_passed",
+  "config_path": "configs/confirmation_question_design_v1.json",
+  "report_path": "reports/bizhallu_confirmation_question_design_report.json",
+  "question_count": 96,
+  "question_payload_fingerprint_check": "complete",
+  "private_artifacts_available": true,
+  "private_question_count_checked": 96,
+  "private_gold_record_count_checked": 96,
+  "private_evidence_content_fingerprint_count_checked": 96,
+  "historical_unique_evidence_content_fingerprint_count_checked": 66,
+  "historical_evidence_content_overlap_count_checked": 0,
+  "private_commitment_checked": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+  "num_failures": 0,
+  "failures": []
+}

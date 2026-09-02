@@ -331,7 +331,7 @@ def main() -> None:
 
     strategy = protocol.get("dataset_strategy", {})
     expected_strategy = {
-        "selection_status": "selected_source_audited_context_manifest_frozen",
+        "selection_status": "selected_source_audited_context_manifest_and_question_design_frozen",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
@@ -347,6 +347,10 @@ def main() -> None:
         "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
         "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
         "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
+        "question_design_config": "configs/confirmation_question_design_v1.json",
+        "question_design_report": "reports/bizhallu_confirmation_question_design_report.json",
+        "question_design_validation": "reports/bizhallu_confirmation_question_design_validation.json",
+        "private_question_manifest": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
         "precision_review_config": "configs/confirmation_precision_review_v1.json",
         "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
         "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -362,7 +366,12 @@ def main() -> None:
         "outcome_blind_context_manifest_frozen": True,
         "period_disjoint_split_frozen": True,
         "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
-        "question_level_evidence_payload_fingerprint_check_pending": True,
+        "question_level_evidence_payload_fingerprint_check_pending": False,
+        "question_level_evidence_payload_fingerprint_check_complete": True,
+        "private_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+        "normalized_evidence_content_fingerprint_check_complete": True,
+        "historical_full100_unique_evidence_content_fingerprint_count": 66,
+        "historical_full100_evidence_content_overlap_count": 0,
         "outcome_blind_precision_review_completed": True,
         "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,

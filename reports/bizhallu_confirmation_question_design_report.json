@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "status": "confirmation_question_design_v1_frozen",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-02",
+  "scope": "aggregate public commitment to 96 deterministic private questions, gold answers, and question-level evidence payloads",
+  "config": {
+    "path": "configs/confirmation_question_design_v1.json",
+    "status": "question_and_gold_rules_frozen",
+    "canonical_sha256": "6c85c5066ff3cf70e2f2b43d27066eee1a1cea6f57240604e5ea60c2a6d0898f"
+  },
+  "source_commitments": {
+    "private_context_manifest_canonical_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "historical_full100_question_count": 100,
+    "historical_full100_evidence_content_fingerprint_count": 66
+  },
+  "private_question_manifest_commitment": {
+    "path": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
+    "git_ignored": true,
+    "canonical_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+    "commitment_domain": "bizhallu:confirmation-private-question-manifest:v1",
+    "published_contents": false
+  },
+  "frozen_inventory": {
+    "context_count": 48,
+    "question_count": 96,
+    "questions_per_context": 2,
+    "split_counts": {
+      "protocol_pilot": 12,
+      "development": 30,
+      "confirmation": 54
+    },
+    "family_counts": {
+      "country_product_exposure": 32,
+      "net_revenue_reconciliation_by_period": 32,
+      "product_return_rate_comparison": 32
+    },
+    "template_counts": {
+      "cpe_candidate_product_exposure_1_v1": 16,
+      "cpe_candidate_product_exposure_2_v1": 16,
+      "nrr_daily_cancellation_hotspot_v1": 16,
+      "nrr_weekly_reconciliation_v1": 16,
+      "prr_pair_comparison_1_v1": 16,
+      "prr_pair_comparison_2_v1": 16
+    }
+  },
+  "selection_integrity": {
+    "outcome_blind": true,
+    "selection_seed": 20260902,
+    "question_id_count": 96,
+    "unique_question_id_count": 96,
+    "historical_question_id_overlap_count": 0,
+    "product_pairs_reuse_entities_within_context": false,
+    "country_questions_reuse_countries_within_context": false,
+    "evidence_order_selection_uses_gold_answer": false,
+    "country_gold_position_counts": {
+      "1": 9,
+      "2": 5,
+      "3": 3,
+      "4": 6,
+      "5": 9
+    },
+    "country_candidate_tables_accidentally_fully_descending": 1
+  },
+  "gold_calculation_integrity": {
+    "validated_question_count": 96,
+    "recomputed_context_evidence_hash_count": 48,
+    "maximum_weekly_reconciliation_error_gbp": 0.0,
+    "selected_reconciliation_positive_cancel_flagged_row_count": 1,
+    "reconciliation_sign_policy": "Gross positive line revenue is sign-based. Negative cancellation-and-return revenue is sign-based. One selected source row has a cancellation invoice prefix but positive quantity and revenue; it remains in gross positive line revenue and is disclosed rather than silently removed.",
+    "minimum_daily_evidence_row_count": 5,
+    "minimum_eligible_product_count": 20,
+    "minimum_selected_product_count_per_context": 4,
+    "minimum_product_pair_percentage_point_difference": 0.04,
+    "selected_product_return_ratio_percentage_range": [
+      0.2,
+      156.25
+    ],
+    "selected_product_return_ratio_over_100_count": 1,
+    "selected_product_return_ratio_interpretation": "A value above 100% can occur because same-week negative units are not linked to the original positive sale; retain as a recorded ratio, not a causal return rate.",
+    "minimum_country_positive_product_candidate_pool": 21,
+    "country_gold_share_percentage_range": [
+      0.01,
+      14.78
+    ]
+  },
+  "evidence_payload_integrity": {
+    "fingerprint_domain": "bizhallu:question-evidence-payload:v1",
+    "fingerprint_count": 96,
+    "unique_fingerprint_count": 96,
+    "cross_split_fingerprint_count": 0,
+    "cross_context_fingerprint_count": 0,
+    "content_comparison_domain": "bizhallu:evidence-table-content:v1",
+    "content_projection": "normalized evidence-table row multiset with documented field aliases; wrapper metadata excluded",
+    "content_fingerprint_count": 96,
+    "unique_content_fingerprint_count": 96,
+    "content_cross_split_fingerprint_count": 0,
+    "content_cross_context_fingerprint_count": 0,
+    "historical_full100_content_fingerprint_count": 66,
+    "historical_full100_content_fingerprint_overlap_count": 0,
+    "question_level_evidence_payload_fingerprint_check": "complete"
+  },
+  "privacy": {
+    "contains_question_text": false,
+    "contains_question_ids": false,
+    "contains_selected_periods": false,
+    "contains_context_ids": false,
+    "contains_scope_entity_values": false,
+    "contains_evidence_rows": false,
+    "contains_only_rules_aggregate_counts_and_whole_manifest_commitment": true
+  },
+  "current_result_boundary": {
+    "historical_exploratory_max_test_auprc": 0.835073,
+    "historical_exploratory_max_test_f1": 0.779412,
+    "new_confirmation_metric_reported": false,
+    "detector_superiority_claim_authorized": false
+  },
+  "execution_boundary": {
+    "question_created": true,
+    "gold_answer_created": true,
+    "evidence_payload_created": true,
+    "prompt_created": false,
+    "model_run_performed": false,
+    "annotation_created": false,
+    "detector_or_verifier_scoring_performed": false,
+    "new_metrics_reported": false,
+    "execution_ready": false,
+    "no_new_results": true
+  },
+  "next_gate": {
+    "gate": "model_prompt_and_detector_configs_frozen",
+    "authorized_scope": "Freeze model revision, tokenizer revision, prompt template, decoding policy, internal detector fields, literature-baseline feasibility decisions, and metric implementations before protocol-pilot generation.",
+    "still_forbidden": [
+      "Qwen execution",
+      "annotation",
+      "detector or verifier scoring",
+      "confirmation-set access",
+      "new empirical metrics"
+    ]
+  },
+  "critical_checks": {
+    "source_context_commitment_matches": true,
+    "all_48_context_evidence_hashes_recomputed": true,
+    "question_count_is_96": true,
+    "two_questions_per_context": true,
+    "question_ids_are_unique": true,
+    "question_ids_do_not_reuse_historical_ids": true,
+    "split_question_counts_match_12_30_54": true,
+    "family_question_counts_are_32_each": true,
+    "six_templates_have_16_questions_each": true,
+    "all_question_payloads_are_fingerprinted": true,
+    "all_evidence_contents_are_fingerprinted": true,
+    "question_payloads_do_not_cross_splits": true,
+    "question_payloads_do_not_cross_contexts": true,
+    "evidence_contents_do_not_cross_splits": true,
+    "evidence_contents_do_not_cross_contexts": true,
+    "evidence_contents_do_not_match_historical_full100": true,
+    "all_records_have_gold_answers_and_facts": true,
+    "no_prompt_or_model_output_created": true
+  },
+  "num_failures": 0,
+  "failures": []
+}

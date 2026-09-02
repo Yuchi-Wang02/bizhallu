@@ -15,6 +15,7 @@ DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_d
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
+QUESTION_DESIGN_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_question_design_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -36,7 +37,13 @@ REQUIRED_HTML_FRAGMENTS = [
     "permanently excluded from confirmation metrics",
     "The precision review rejected a superiority design",
     "does not preregister a superiority claim",
-    "exact historical full100 question-payload fingerprint exclusion remains a next-gate check",
+    "All 96 full payloads and all 96 normalized evidence-table contents have unique fingerprints",
+    "matches 0 of 66 unique historical full100 evidence contents",
+    "One selected reconciliation row has a cancellation invoice prefix but positive quantity and revenue",
+    "One of 64 selected product evidence rows",
+    "maximum 156.25%",
+    "one of 32 candidate tables happens to be fully revenue-descending by chance",
+    "The ordering algorithm never reads the gold rank",
     "every in-scope business-fact claim",
     "Do not hide oracle spans inside an end-to-end claim.",
     "Oracle-span diagnostics",
@@ -47,11 +54,11 @@ REQUIRED_HTML_FRAGMENTS = [
     "context-level BCa bootstrap",
     "Semantic Entropy",
     "TOHA",
-    "Two gates are complete; five remain pending.",
+    "3 gates are complete; 4 remain pending.",
     "The current 0.835 / 0.779 values remain exploratory context.",
     "introduces no new detector metric",
-    "The dataset-source and context-manifest gates are complete",
-    "private, Git-ignored manifest now fixes 48 unique complete-week contexts",
+    "The source, context-manifest, and question-design gates are complete",
+    "96 deterministic questions with gold answers and evidence payloads",
     "conditionally suitable for aggregate business analysis",
     "Zero historical record overlap",
     "48-slot aggregate capacity",
@@ -62,7 +69,7 @@ REQUIRED_HTML_FRAGMENTS = [
     "Read the capacity proof.",
     "Read the precision review.",
     "Read the manifest commitment.",
-    "Define and validate deterministic question templates",
+    "Freeze the model revision, tokenizer revision, prompt template",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -103,6 +110,7 @@ def main() -> None:
         CONTEXT_FEASIBILITY_PATH,
         PRECISION_REVIEW_PATH,
         CONTEXT_MANIFEST_PATH,
+        QUESTION_DESIGN_PATH,
         HTML_PATH,
         SUMMARY_PATH,
     ]:
@@ -115,6 +123,7 @@ def main() -> None:
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH) if CONTEXT_FEASIBILITY_PATH.exists() else {}
     precision_report = load_json(PRECISION_REVIEW_PATH) if PRECISION_REVIEW_PATH.exists() else {}
     context_manifest = load_json(CONTEXT_MANIFEST_PATH) if CONTEXT_MANIFEST_PATH.exists() else {}
+    question_design = load_json(QUESTION_DESIGN_PATH) if QUESTION_DESIGN_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
 
@@ -124,6 +133,7 @@ def main() -> None:
         (CONTEXT_FEASIBILITY_PATH, feasibility),
         (PRECISION_REVIEW_PATH, precision_report),
         (CONTEXT_MANIFEST_PATH, context_manifest),
+        (QUESTION_DESIGN_PATH, question_design),
         (SUMMARY_PATH, summary),
     ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -192,7 +202,7 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "selected_source_audited_context_manifest_frozen":
+    if dataset_strategy.get("selection_status") != "selected_source_audited_context_manifest_and_question_design_frozen":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
@@ -219,6 +229,10 @@ def main() -> None:
         "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
         "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
         "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
+        "question_design_config": "configs/confirmation_question_design_v1.json",
+        "question_design_report": "reports/bizhallu_confirmation_question_design_report.json",
+        "question_design_validation": "reports/bizhallu_confirmation_question_design_validation.json",
+        "private_question_manifest": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
         "precision_review_config": "configs/confirmation_precision_review_v1.json",
         "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
         "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -234,7 +248,12 @@ def main() -> None:
         "outcome_blind_context_manifest_frozen": True,
         "period_disjoint_split_frozen": True,
         "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
-        "question_level_evidence_payload_fingerprint_check_pending": True,
+        "question_level_evidence_payload_fingerprint_check_pending": False,
+        "question_level_evidence_payload_fingerprint_check_complete": True,
+        "private_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+        "normalized_evidence_content_fingerprint_check_complete": True,
+        "historical_full100_unique_evidence_content_fingerprint_count": 66,
+        "historical_full100_evidence_content_overlap_count": 0,
         "outcome_blind_precision_review_completed": True,
         "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,
@@ -345,6 +364,49 @@ def main() -> None:
     if observed_manifest_evidence != expected_manifest_evidence:
         add_failure(failures, "context_manifest_source_status", observed_manifest_evidence)
 
+    expected_question_design_evidence = {
+        "status": "confirmation_question_design_v1_frozen",
+        "question_count": 96,
+        "split_counts": {
+            "protocol_pilot": 12,
+            "development": 30,
+            "confirmation": 54,
+        },
+        "family_counts": {
+            "net_revenue_reconciliation_by_period": 32,
+            "product_return_rate_comparison": 32,
+            "country_product_exposure": 32,
+        },
+        "commitment": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+        "payload_check": "complete",
+        "cross_split_overlap": 0,
+        "content_fingerprint_count": 96,
+        "content_cross_split_overlap": 0,
+        "historical_content_fingerprint_count": 66,
+        "historical_content_overlap": 0,
+        "prompt_created": False,
+        "model_run_performed": False,
+        "new_metrics_reported": False,
+    }
+    observed_question_design_evidence = {
+        "status": question_design.get("status"),
+        "question_count": question_design.get("frozen_inventory", {}).get("question_count"),
+        "split_counts": question_design.get("frozen_inventory", {}).get("split_counts"),
+        "family_counts": question_design.get("frozen_inventory", {}).get("family_counts"),
+        "commitment": question_design.get("private_question_manifest_commitment", {}).get("canonical_sha256"),
+        "payload_check": question_design.get("evidence_payload_integrity", {}).get("question_level_evidence_payload_fingerprint_check"),
+        "cross_split_overlap": question_design.get("evidence_payload_integrity", {}).get("cross_split_fingerprint_count"),
+        "content_fingerprint_count": question_design.get("evidence_payload_integrity", {}).get("unique_content_fingerprint_count"),
+        "content_cross_split_overlap": question_design.get("evidence_payload_integrity", {}).get("content_cross_split_fingerprint_count"),
+        "historical_content_fingerprint_count": question_design.get("evidence_payload_integrity", {}).get("historical_full100_content_fingerprint_count"),
+        "historical_content_overlap": question_design.get("evidence_payload_integrity", {}).get("historical_full100_content_fingerprint_overlap_count"),
+        "prompt_created": question_design.get("execution_boundary", {}).get("prompt_created"),
+        "model_run_performed": question_design.get("execution_boundary", {}).get("model_run_performed"),
+        "new_metrics_reported": question_design.get("execution_boundary", {}).get("new_metrics_reported"),
+    }
+    if observed_question_design_evidence != expected_question_design_evidence:
+        add_failure(failures, "question_design_source_status", observed_question_design_evidence)
+
     if split_policy.get("period_disjoint_across_all_new_study_splits") is not True:
         add_failure(failures, "period_disjoint_policy", split_policy)
     if split_policy.get("evidence_fingerprint_disjoint_across_all_splits") is not True:
@@ -357,8 +419,24 @@ def main() -> None:
         add_failure(failures, "split_inventory_counts", split_policy)
     if split_policy.get("context_pool_fingerprint_check_complete") is not True:
         add_failure(failures, "context_pool_fingerprint_check", split_policy)
-    if split_policy.get("question_payload_fingerprint_check_pending") is not True:
-        add_failure(failures, "question_payload_fingerprint_boundary", split_policy)
+    if split_policy.get("question_payload_fingerprint_check_pending") is not False:
+        add_failure(failures, "question_payload_fingerprint_pending_boundary", split_policy)
+    if split_policy.get("question_payload_fingerprint_check_complete") is not True:
+        add_failure(failures, "question_payload_fingerprint_complete_boundary", split_policy)
+    if split_policy.get("question_payload_fingerprint_count") != 96:
+        add_failure(failures, "question_payload_fingerprint_count", split_policy)
+    if split_policy.get("question_payload_cross_split_overlap_count") != 0:
+        add_failure(failures, "question_payload_cross_split_overlap", split_policy)
+    if split_policy.get("question_evidence_content_fingerprint_count") != 96:
+        add_failure(failures, "question_evidence_content_fingerprint_count", split_policy)
+    if split_policy.get("question_evidence_content_cross_split_overlap_count") != 0:
+        add_failure(failures, "question_evidence_content_cross_split_overlap", split_policy)
+    if split_policy.get("historical_full100_unique_evidence_content_fingerprint_count") != 66:
+        add_failure(failures, "historical_evidence_content_fingerprint_count", split_policy)
+    if split_policy.get("question_evidence_content_historical_full100_overlap_count") != 0:
+        add_failure(failures, "question_evidence_content_historical_overlap", split_policy)
+    if split_policy.get("private_question_manifest_commitment_sha256") != "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c":
+        add_failure(failures, "question_manifest_commitment", split_policy)
     if split_policy.get("public_manifest_commitment_sha256") != "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a":
         add_failure(failures, "manifest_commitment", split_policy.get("public_manifest_commitment_sha256"))
     forbidden_assignment = set(split_policy.get("forbidden_assignment_methods", []))
@@ -425,6 +503,25 @@ def main() -> None:
     }
     if family_statuses != expected_family_statuses:
         add_failure(failures, "question_family_source_feasibility", family_statuses)
+    question_design_protocol = protocol.get("question_design", {})
+    if question_design_protocol.get("family_status") != "question_templates_gold_and_payload_fingerprints_frozen":
+        add_failure(failures, "question_design_family_status", question_design_protocol.get("family_status"))
+    if question_design_protocol.get("question_count") != 96 or question_design_protocol.get("template_count") != 6:
+        add_failure(failures, "question_design_inventory", question_design_protocol)
+    for key, expected in {
+        "full_payload_fingerprint_count": 96,
+        "normalized_evidence_content_fingerprint_count": 96,
+        "historical_full100_unique_evidence_content_fingerprint_count": 66,
+        "historical_full100_evidence_content_overlap_count": 0,
+    }.items():
+        if question_design_protocol.get(key) != expected:
+            add_failure(
+                failures,
+                "question_design_fingerprint_inventory",
+                {"field": key, "expected": expected, "actual": question_design_protocol.get(key)},
+            )
+    if question_design_protocol.get("private_question_manifest_commitment_sha256") != "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c":
+        add_failure(failures, "question_design_protocol_commitment", question_design_protocol)
 
     gates = protocol.get("execution_gates", [])
     if len(gates) != 7:
@@ -433,7 +530,7 @@ def main() -> None:
     expected_gate_statuses = {
         "dataset_source_selected_and_audited": "complete",
         "context_manifest_split_and_precision_review_frozen": "complete",
-        "question_templates_and_gold_calculations_validated": "pending",
+        "question_templates_and_gold_calculations_validated": "complete",
         "model_prompt_and_detector_configs_frozen": "pending",
         "two_independent_human_reviewers_assigned": "pending",
         "claim_extraction_and_verifier_protocols_implemented_on_non_confirmation_data": "pending",
@@ -447,7 +544,7 @@ def main() -> None:
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "selected_source_audited_context_manifest_frozen",
+        "dataset_selection_status": "selected_source_audited_context_manifest_and_question_design_frozen",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "complete",
@@ -484,7 +581,24 @@ def main() -> None:
         "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
         "selected_context_count": 48,
         "reserve_period_count": 2,
-        "question_payload_fingerprint_check_pending": True,
+        "question_design_report_path": "reports/bizhallu_confirmation_question_design_report.json",
+        "question_design_status": "confirmation_question_design_v1_frozen",
+        "question_design_config_path": "configs/confirmation_question_design_v1.json",
+        "question_design_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+        "question_count_frozen": 96,
+        "question_template_count": 6,
+        "question_payload_fingerprint_check_pending": False,
+        "question_payload_fingerprint_check_complete": True,
+        "question_payload_cross_split_overlap_count": 0,
+        "question_evidence_content_fingerprint_count": 96,
+        "question_evidence_content_cross_split_overlap_count": 0,
+        "historical_unique_evidence_content_fingerprint_count": 66,
+        "question_evidence_content_historical_overlap_count": 0,
+        "selected_reconciliation_positive_cancel_flagged_row_count": 1,
+        "selected_product_return_ratio_percentage_range": [0.2, 156.25],
+        "selected_product_return_ratio_over_100_count": 1,
+        "country_gold_position_counts": {"1": 9, "2": 5, "3": 3, "4": 6, "5": 9},
+        "country_candidate_tables_accidentally_fully_descending": 1,
         "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
@@ -501,7 +615,7 @@ def main() -> None:
         "claim_inventory_policy": "exhaustive_business_fact_claim_inventory",
         "binary_positive_statuses": ["contradicted", "unmatched"],
         "evaluation_track_count": 4,
-        "pending_gate_count": 5,
+        "pending_gate_count": 4,
         "current_study_classification": "exploratory_retrospective",
         "current_share_status": "share_with_caveats",
         "historical_exploratory_max_test_auprc": 0.835073,
@@ -523,7 +637,7 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_context_manifest_frozen",
+        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_context_manifest_and_question_design_frozen",
         "dataset_acquisition_verified": dataset_strategy.get("official_acquisition_verified") is True,
         "dataset_structure_and_date_window_verified": dataset_strategy.get("structure_and_date_window_verified") is True,
         "dataset_quality_profile_verified": dataset_strategy.get("quality_profile_verified") is True,

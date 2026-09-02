@@ -614,16 +614,20 @@ the rules after seeing the result. The amended study is therefore estimation-
 focused rather than a detector-superiority test.
 
 The revised inventory is a 12-question protocol pilot, 30 development
-questions, and 54 sealed confirmation questions: 96 future generations across
+questions, and 54 sealed confirmation questions: 96 planned generations across
 6/15/27 contexts. The dataset-source gate is complete after the aggregate-only
 capacity proof verified 50 observed complete weeks, 48-of-48 unique
 period-to-family matching across three allowed families, and minimum Hall slack
 2. The second gate is now complete: a Git-ignored private manifest fixes 48
 unique periods, 16 contexts per family, the 6/15/27 split, two reserve periods,
 and 48 unique canonical context evidence-pool hashes under a public SHA-256
-commitment. No question, gold answer, prompt, model outcome, annotation, or new
-empirical metric was created. Exact historical question-level evidence payload
-fingerprint exclusion remains part of the next question/gold gate.
+commitment. Gate 3 is now also complete: a second Git-ignored private manifest
+freezes 96 deterministic questions and gold answers across six templates. Its
+96 canonical evidence payload fingerprints and 96 wrapper-independent,
+normalized evidence-table content fingerprints are unique, with zero exact
+cross-split overlap. The normalized contents match none of the 66 unique
+historical full100 evidence-table contents. No prompt, model outcome,
+annotation, detector score, verifier score, or new empirical metric was created.
 
 Next one-step branch:
 
@@ -641,8 +645,10 @@ Next one-step branch:
   expansion beyond Demo v2
 - preserve the frozen private 6/15/27 context manifest, two reserve weeks, and
   public SHA-256 commitment without publishing selected periods or entities
-- next define and validate deterministic question templates, scope-entity
-  selection rules, gold calculations, question IDs, and question-level evidence
-  payload fingerprints without generating prompts or running Qwen
+- preserve the frozen private 96-question/gold manifest and its public SHA-256
+  commitment without publishing question IDs, text, answers, entities, or rows
+- next freeze model and tokenizer revisions, prompt templates, decoding settings,
+  detector-family inclusion decisions, and metric implementations without
+  creating per-question prompt records or running Qwen
 - keep new model runs blocked until the context manifest, split, prompts,
   detector policies, reviewer plan, and sealed-run authorization are frozen

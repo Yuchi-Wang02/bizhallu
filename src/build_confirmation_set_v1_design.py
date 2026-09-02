@@ -15,6 +15,7 @@ DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_d
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
+QUESTION_DESIGN_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_question_design_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -40,6 +41,7 @@ def main() -> None:
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH)
     precision_review = load_json(PRECISION_REVIEW_PATH)
     context_manifest = load_json(CONTEXT_MANIFEST_PATH)
+    question_design = load_json(QUESTION_DESIGN_PATH)
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -92,7 +94,24 @@ def main() -> None:
         "context_manifest_commitment_sha256": context_manifest["private_manifest_commitment"]["canonical_sha256"],
         "selected_context_count": context_manifest["frozen_inventory"]["selected_context_count"],
         "reserve_period_count": context_manifest["frozen_inventory"]["reserve_period_count"],
-        "question_payload_fingerprint_check_pending": context_manifest["context_evidence_integrity"]["final_question_evidence_payload_fingerprint_check"] == "pending_next_gate",
+        "question_design_report_path": repo_path(QUESTION_DESIGN_PATH),
+        "question_design_status": question_design["status"],
+        "question_design_config_path": question_design["config"]["path"],
+        "question_design_commitment_sha256": question_design["private_question_manifest_commitment"]["canonical_sha256"],
+        "question_count_frozen": question_design["frozen_inventory"]["question_count"],
+        "question_template_count": len(question_design["frozen_inventory"]["template_counts"]),
+        "question_payload_fingerprint_check_pending": False,
+        "question_payload_fingerprint_check_complete": question_design["evidence_payload_integrity"]["question_level_evidence_payload_fingerprint_check"] == "complete",
+        "question_payload_cross_split_overlap_count": question_design["evidence_payload_integrity"]["cross_split_fingerprint_count"],
+        "question_evidence_content_fingerprint_count": question_design["evidence_payload_integrity"]["unique_content_fingerprint_count"],
+        "question_evidence_content_cross_split_overlap_count": question_design["evidence_payload_integrity"]["content_cross_split_fingerprint_count"],
+        "historical_unique_evidence_content_fingerprint_count": question_design["evidence_payload_integrity"]["historical_full100_content_fingerprint_count"],
+        "question_evidence_content_historical_overlap_count": question_design["evidence_payload_integrity"]["historical_full100_content_fingerprint_overlap_count"],
+        "selected_reconciliation_positive_cancel_flagged_row_count": question_design["gold_calculation_integrity"]["selected_reconciliation_positive_cancel_flagged_row_count"],
+        "selected_product_return_ratio_percentage_range": question_design["gold_calculation_integrity"]["selected_product_return_ratio_percentage_range"],
+        "selected_product_return_ratio_over_100_count": question_design["gold_calculation_integrity"]["selected_product_return_ratio_over_100_count"],
+        "country_gold_position_counts": question_design["selection_integrity"]["country_gold_position_counts"],
+        "country_candidate_tables_accidentally_fully_descending": question_design["selection_integrity"]["country_candidate_tables_accidentally_fully_descending"],
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -115,7 +134,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints without generating prompts or running Qwen. The context manifest and 6/15/27 split are frozen; five later gates remain pending.",
+        "recommended_next_decision": "Freeze the model revision, tokenizer revision, prompt template, decoding settings, detector-family inclusion decisions, and metric implementations before protocol-pilot generation. The 48 contexts and 96 deterministic question/gold payloads are frozen; four later gates remain pending.",
         "num_failures": 0,
         "failures": [],
     }
@@ -205,7 +224,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source and context-manifest gates are complete. A private, Git-ignored manifest now fixes 48 unique complete-week contexts and the seeded 6/15/27 split under a public SHA-256 commitment. Questions, gold answers, prompts, model outputs, labels, detector scores, and Confirmation Set v1 results do not exist yet.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The source, context-manifest, and question-design gates are complete. Private, Git-ignored manifests now fix 48 complete-week contexts, the 6/15/27 split, and 96 deterministic questions with gold answers and evidence payloads. Prompts, model outputs, labels, detector scores, and Confirmation Set v1 metrics do not exist yet.</div>
       </section>
 
       <section>
@@ -213,7 +232,7 @@ def main() -> None:
         <h2>Correct the current study's selection and split limits prospectively.</h2>
         <div class="grid">
           <article class="panel"><h3>Outcome-blind sampling</h3><p>All contexts and question IDs are selected before generation. Answers are never retained, dropped, or rebalanced because they look correct, incorrect, easy, or difficult.</p></article>
-          <article class="panel"><h3>Context-separated evaluation</h3><p>The frozen manifest uses one unique complete week per context across every family and split. Context-pool fingerprints are distinct; exact historical full100 question-payload fingerprint exclusion remains a next-gate check after question evidence exists.</p></article>
+          <article class="panel"><h3>Context-separated evaluation</h3><p>The frozen manifest uses one unique complete week per context across every family and split. All 96 full payloads and all 96 normalized evidence-table contents have unique fingerprints, with zero cross-split overlap. The wrapper-independent content comparison matches 0 of 66 unique historical full100 evidence contents.</p></article>
           <article class="panel"><h3>Independent labels</h3><p>Two human reviewers annotate every in-scope business-fact claim without detector scores or each other's labels. Agreement is reported before adjudication.</p></article>
           <article class="panel"><h3>Sealed research decisions</h3><p>Detector families, thresholds, extraction logic, verifier rules, prompts, and analysis code are frozen before confirmation-label access.</p></article>
         </div>
@@ -252,7 +271,8 @@ def main() -> None:
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
         <div class="grid">{family_panels}</div>
-        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. Their context allocation is frozen, but they remain candidate task definitions rather than validated question templates. Deterministic gold calculations, scope-entity selection rules, and question-level evidence payload fingerprints are the next gate.</p>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. Six templates now create two deterministic questions per context: weekly reconciliation and cancellation hotspot, two disjoint product-return comparisons, or two country-product exposure questions. Gold calculations and evidence payload fingerprints are frozen before prompt generation.</p>
+        <div class="callout"><strong>Pre-generation diagnostics.</strong> One selected reconciliation row has a cancellation invoice prefix but positive quantity and revenue; the sign-based formula retains it in gross positive line revenue and does not call it a negative reduction. One of 64 selected product evidence rows has a recorded return-to-positive-sales unit ratio above 100% (maximum 156.25%). It is retained because same-week negative units are not linked to their original sales; this metric is a recorded ratio, not a causal return rate. Hash ordering places the correct country-product candidate across positions 1-5, and one of 32 candidate tables happens to be fully revenue-descending by chance. The ordering algorithm never reads the gold rank.</div>
       </section>
 
       <section>
@@ -282,12 +302,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Execution gates</p>
-        <h2>Two gates are complete; five remain pending.</h2>
+        <h2>{len(gates) - len(pending_gates)} gates are complete; {len(pending_gates)} remain pending.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints. Do not generate prompts, run Qwen, annotate outputs, score detectors, or report new metrics.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Freeze the model revision, tokenizer revision, prompt template, decoding settings, detector-family feasibility decisions, and metric implementations. Do not run Qwen, annotate outputs, score detectors, or report new metrics yet.</div>
       </section>
 
       <section>
@@ -296,7 +316,7 @@ def main() -> None:
         <p>The existing numbers are not Confirmation Set v1 baselines or targets. This design introduces no new detector metric and does not retroactively upgrade the current evidence level.</p>
       </section>
     </main>
-    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, two gates complete, execution blocked by five pending gates.</main></footer>
+    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, {len(gates) - len(pending_gates)} gates complete, execution blocked by {len(pending_gates)} pending gates.</main></footer>
   </body>
 </html>
 """

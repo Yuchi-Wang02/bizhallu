@@ -15,7 +15,7 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "selected_source_audited_context_manifest_frozen",
+    "selection_status": "selected_source_audited_context_manifest_and_question_design_frozen",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -32,6 +32,10 @@
     "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
     "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
     "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
+    "question_design_config": "configs/confirmation_question_design_v1.json",
+    "question_design_report": "reports/bizhallu_confirmation_question_design_report.json",
+    "question_design_validation": "reports/bizhallu_confirmation_question_design_validation.json",
+    "private_question_manifest": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
     "precision_review_config": "configs/confirmation_precision_review_v1.json",
     "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
     "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -47,7 +51,12 @@
     "outcome_blind_context_manifest_frozen": true,
     "period_disjoint_split_frozen": true,
     "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
-    "question_level_evidence_payload_fingerprint_check_pending": true,
+    "question_level_evidence_payload_fingerprint_check_pending": false,
+    "question_level_evidence_payload_fingerprint_check_complete": true,
+    "private_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+    "normalized_evidence_content_fingerprint_check_complete": true,
+    "historical_full100_unique_evidence_content_fingerprint_count": 66,
+    "historical_full100_evidence_content_overlap_count": 0,
     "outcome_blind_precision_review_completed": true,
     "precision_review_scope_downgraded_to_estimation": true,
     "canonical_record_overlap_row_count": 0,
@@ -73,7 +82,7 @@
     "blocked_question_families": [
       "customer_revenue_concentration"
     ],
-    "recommended_sequence": "The source audit and context-manifest gates are complete. A private, Git-ignored manifest now fixes 48 unique complete-week contexts and the 6/15/27 split under a public SHA-256 commitment. Next define and validate deterministic question templates, scope-entity selection rules, gold calculations, and question-level evidence payload fingerprints without running the model. A separately scoped second-dataset replication remains required for stronger comparative or generalization claims.",
+    "recommended_sequence": "The source, context-manifest, and deterministic question-design gates are complete. A private, Git-ignored question manifest now fixes 96 questions, gold answers, and evidence payloads under a public SHA-256 commitment, with zero exact cross-split evidence-content overlap and zero exact content overlap against historical full100. Next freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations before protocol-pilot generation. A separately scoped second-dataset replication remains required for stronger comparative or generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -235,7 +244,18 @@
     "selected_context_count": 48,
     "reserve_period_count": 2,
     "context_pool_fingerprint_check_complete": true,
-    "question_payload_fingerprint_check_pending": true,
+    "question_payload_fingerprint_check_pending": false,
+    "question_payload_fingerprint_check_complete": true,
+    "private_question_manifest_path": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
+    "private_question_manifest_git_ignored": true,
+    "private_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+    "question_count": 96,
+    "question_payload_fingerprint_count": 96,
+    "question_payload_cross_split_overlap_count": 0,
+    "question_evidence_content_fingerprint_count": 96,
+    "question_evidence_content_cross_split_overlap_count": 0,
+    "historical_full100_unique_evidence_content_fingerprint_count": 66,
+    "question_evidence_content_historical_full100_overlap_count": 0,
     "forbidden_assignment_methods": [
       "periodic row position",
       "generated-answer auto-status",
@@ -244,7 +264,18 @@
     ]
   },
   "question_design": {
-    "family_status": "context_manifest_and_split_frozen_question_templates_pending",
+    "family_status": "question_templates_gold_and_payload_fingerprints_frozen",
+    "config_path": "configs/confirmation_question_design_v1.json",
+    "public_report_path": "reports/bizhallu_confirmation_question_design_report.json",
+    "private_question_manifest_path": "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json",
+    "private_question_manifest_commitment_sha256": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+    "question_count": 96,
+    "template_count": 6,
+    "templates_per_family": 2,
+    "full_payload_fingerprint_count": 96,
+    "normalized_evidence_content_fingerprint_count": 96,
+    "historical_full100_unique_evidence_content_fingerprint_count": 66,
+    "historical_full100_evidence_content_overlap_count": 0,
     "candidate_families": [
       {
         "family": "net_revenue_reconciliation_by_period",
@@ -394,8 +425,10 @@
     },
     {
       "gate": "question_templates_and_gold_calculations_validated",
-      "status": "pending",
-      "progress": "context inventory and split are frozen; deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprint checks do not exist yet"
+      "status": "complete",
+      "progress": "six deterministic templates now produce two questions for each of 48 frozen contexts; 96 question IDs, gold answers, and exact evidence payloads are fixed in a Git-ignored private manifest",
+      "completion_evidence": "reports/bizhallu_confirmation_question_design_report.json records 96 unique full-payload fingerprints, 96 unique wrapper-independent evidence-content fingerprints, zero cross-split overlap, zero overlap with the 66 unique historical full100 evidence contents, 48 recomputed context evidence hashes, and private commitment b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c.",
+      "blocking_requirements": []
     },
     {
       "gate": "model_prompt_and_detector_configs_frozen",
