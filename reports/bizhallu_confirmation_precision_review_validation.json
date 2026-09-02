@@ -6,7 +6,9 @@
   "revised_confirmation_context_count": 27,
   "revised_total_context_count": 48,
   "revised_capacity_matching_count": 48,
-  "context_manifest_created": false,
+  "precision_checkpoint_context_manifest_created": false,
+  "current_context_manifest_status": "confirmation_context_manifest_v1_frozen",
+  "current_selected_context_count": 48,
   "new_empirical_metrics_created": false,
   "num_failures": 0,
   "failures": []

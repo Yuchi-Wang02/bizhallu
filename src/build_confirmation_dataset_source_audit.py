@@ -17,6 +17,7 @@ STRUCTURE_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_struc
 QUALITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_quality_report.json"
 OVERLAP_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_overlap_report.json"
 FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
+CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit_summary.json"
@@ -51,6 +52,7 @@ def main() -> None:
     quality = load_json(QUALITY_PATH)
     overlap = load_json(OVERLAP_PATH)
     feasibility = load_json(FEASIBILITY_PATH)
+    context_manifest = load_json(CONTEXT_MANIFEST_PATH)
 
     decision = audit["decision"]
     candidates = audit["candidates"]
@@ -91,7 +93,7 @@ def main() -> None:
         "local_profile_complete": audit["local_profile_complete"],
         "execution_ready": audit["execution_ready"],
         "no_new_results": audit["no_new_results"],
-        "selection_status": decision["selection_status"],
+        "selection_status": protocol["dataset_strategy"]["selection_status"],
         "selected_candidate_id": selected["candidate_id"],
         "selected_candidate_name": selected["name"],
         "selected_candidate_role": selected["role"],
@@ -125,6 +127,13 @@ def main() -> None:
         "required_context_count": feasibility["capacity_proof"]["required_total_context_count"],
         "maximum_slot_matching_count": feasibility["capacity_proof"]["maximum_slot_matching_count"],
         "minimum_hall_capacity_slack": feasibility["capacity_proof"]["minimum_hall_capacity_slack"],
+        "context_manifest_report_path": repo_path(CONTEXT_MANIFEST_PATH),
+        "context_manifest_status": context_manifest["status"],
+        "context_manifest_created": context_manifest["execution_boundary"]["context_manifest_created"],
+        "split_assignment_created": context_manifest["execution_boundary"]["split_assignment_created"],
+        "context_manifest_commitment_sha256": context_manifest["private_manifest_commitment"]["canonical_sha256"],
+        "selected_context_count": context_manifest["frozen_inventory"]["selected_context_count"],
+        "reserve_period_count": context_manifest["frozen_inventory"]["reserve_period_count"],
         "source_feasible_family_count": 3,
         "blocked_family_count": 1,
         "candidate_count": len(candidates),
@@ -134,8 +143,9 @@ def main() -> None:
         "pending_criterion_ids": pending_criteria,
         "local_profile_check_count": len(checks),
         "next_authorized_action": (
-            "Freeze only the deterministic 6 pilot, 15 development, and 27 confirmation context "
-            "manifest and seeded split. Do not create questions, prompts, or model outputs yet."
+            "Define and validate deterministic question templates, scope-entity selection rules, gold "
+            "calculations, question IDs, and question-level evidence payload fingerprints. Do not "
+            "generate prompts or run the model yet."
         ),
         "num_failures": 0,
         "failures": [],
@@ -236,7 +246,7 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_confirmation_set_v1_design.html">BizHallu</a>
-      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
+      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_context_manifest.html">Manifest freeze</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -249,7 +259,7 @@ def main() -> None:
           <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
         </div>
-        <div class="callout"><strong>Execution remains blocked.</strong> The raw files remain local and Git-ignored. No context manifest, prompt, model output, annotation target, detector decision, or Confirmation Set result was created.</div>
+        <div class="callout"><strong>Execution remains blocked.</strong> The raw files and detailed context manifest remain local and Git-ignored. The 48-context inventory and 6/15/27 split are frozen under a public SHA-256 commitment, but no question, prompt, model output, annotation target, detector decision, or Confirmation Set result exists.</div>
       </section>
 
       <section>
@@ -291,7 +301,7 @@ def main() -> None:
       <section>
         <p class="eyebrow">Acceptance criteria</p>
         <h2>Analytical quality, record separation, and aggregate capacity are controlled.</h2>
-        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for {esc(summary['required_context_count'])} unique complete-week contexts. Context selection and final evidence-fingerprint checks remain later gates.</p>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for {esc(summary['required_context_count'])} unique complete-week contexts. The context inventory and split are now frozen; exact question-level evidence payload fingerprints remain a next-gate check.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody>{criterion_rows}</tbody>
@@ -337,12 +347,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Freeze the manifest and split next; do not generate.</h2>
+        <h2>Validate question templates and gold calculations next; do not generate.</h2>
         <p>{esc(summary['next_authorized_action'])}</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, outcome-blind precision review, and revised aggregate context capacity are verified; experiment execution remains blocked.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, precision review, aggregate capacity, and the subsequent manifest freeze are verified; experiment execution remains blocked.</footer>
     </main>
   </body>
 </html>

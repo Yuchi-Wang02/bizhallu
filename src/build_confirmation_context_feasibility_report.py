@@ -9,6 +9,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 CONFIG_PATH = PROJECT_ROOT / "configs" / "confirmation_context_feasibility_v1.json"
+MANIFEST_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility.html"
 
 
@@ -30,14 +31,16 @@ def number(value: Any) -> str:
 
 
 def main() -> None:
-    for path in [REPORT_PATH, CONFIG_PATH]:
+    for path in [REPORT_PATH, CONFIG_PATH, MANIFEST_REPORT_PATH]:
         if not path.exists():
             raise FileNotFoundError(f"Missing context-feasibility artifact: {path}")
     report = load_json(REPORT_PATH)
     config = load_json(CONFIG_PATH)
+    manifest = load_json(MANIFEST_REPORT_PATH)
 
     source = report["source_capacity"]
     capacity = report["capacity_proof"]
+    frozen_inventory = manifest["frozen_inventory"]
     family_capacity = report["family_capacity"]
     support = source["support_distributions"]
     family_configs = {item["family"]: item for item in config["family_eligibility"]}
@@ -157,12 +160,12 @@ def main() -> None:
   </style>
 </head>
 <body>
-  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a></div></nav></header>
+  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_context_manifest.html">Context manifest</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a></div></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">Confirmation Set v1 · Outcome-blind source capacity</p>
       <h1>The source can support {integer(capacity['required_total_context_count'])} period-disjoint contexts without looking at model outcomes.</h1>
-      <p class="lede">Complete Monday-through-Sunday weeks were evaluated under frozen data-quality and business-support rules. The proof counts capacity only: no week was selected, no split was assigned, and no context manifest was created.</p>
+      <p class="lede">Complete Monday-through-Sunday weeks were evaluated under frozen data-quality and business-support rules. At this historical capacity checkpoint, no week was selected, no split was assigned, and no context manifest was created.</p>
       <div class="metrics">
         <div><span>Observed complete weeks</span><strong>{integer(source['observed_complete_period_count'])}</strong></div>
         <div><span>Required context slots</span><strong>{integer(capacity['required_slot_count'])}</strong></div>
@@ -170,7 +173,7 @@ def main() -> None:
         <div><span>Eligible families</span><strong>3 of 4</strong></div>
       </div>
       <div class="callout good"><strong>Capacity proof complete.</strong> Three allowed families each have 50 eligible periods for {integer(capacity['required_contexts_per_eligible_family'])} required slots, and the minimum Hall-capacity slack is +{integer(capacity['minimum_hall_capacity_slack'])}.</div>
-      <div class="callout"><strong>Execution remains blocked.</strong> The outcome-blind precision review is complete with a narrower estimation claim, but the context manifest, seeded split, question templates, prompts, model run, independent annotation, and sealed confirmation evaluation do not exist yet.</div>
+      <div class="callout"><strong>Checkpoint versus current state.</strong> The capacity proof and precision review preceded selection. A subsequent outcome-blind freeze now fixes {integer(frozen_inventory['selected_context_count'])} contexts and the {integer(frozen_inventory['split_counts']['protocol_pilot'])}/{integer(frozen_inventory['split_counts']['development'])}/{integer(frozen_inventory['split_counts']['confirmation'])} split. Question templates, prompts, model outputs, new labels, detector scores, and confirmation results still do not exist.</div>
     </section>
 
     <section>
@@ -179,7 +182,7 @@ def main() -> None:
       <div class="grid">
         <article class="panel"><h3>Calendar-defined periods</h3><p>Only complete Monday-through-Sunday weeks inside the strict prior window are counted. Partial boundary weeks are excluded before eligibility is measured.</p></article>
         <article class="panel"><h3>Stronger separation</h3><p>A final period may be assigned to one family only. Context periods would therefore be disjoint across all contexts, not merely across development and confirmation.</p></article>
-        <article class="panel"><h3>No retained assignment</h3><p>The matching proves capacity but discards the period-to-slot assignment. Actual IDs, evidence hashes, and seeded splits remain a later gate.</p></article>
+        <article class="panel"><h3>No assignment at this checkpoint</h3><p>The capacity calculation discarded its period-to-slot matching. A later, separately committed procedure performed the one-time manifest freeze.</p></article>
       </div>
       <div class="metrics">
         <div><span>Complete calendar weeks</span><strong>{integer(source['complete_calendar_period_count'])}</strong></div>
@@ -218,33 +221,34 @@ def main() -> None:
         <thead><tr><th>Family subset</th><th>Available unique periods</th><th>Required unique periods</th><th>Slack</th><th>Result</th></tr></thead>
         <tbody>{''.join(hall_rows)}</tbody>
       </table></div>
-      <p>The independent maximum matching fills all {integer(capacity['required_slot_count'])} slots: 2 pilot, 5 development, and 5 confirmation contexts per eligible family. The assignment itself is neither retained nor published.</p>
+      <p>The independent maximum matching fills all {integer(capacity['required_slot_count'])} slots: 2 pilot, 5 development, and 9 confirmation contexts per eligible family. At this capacity checkpoint, the assignment itself was neither retained nor published.</p>
     </section>
 
     <section>
       <p class="eyebrow">Evidence and privacy boundary</p>
-      <h2>Capacity is proven without turning candidates into a manifest.</h2>
+      <h2>The capacity checkpoint exposed no candidate or selected period.</h2>
       <ul>
         <li>Exact-duplicate copies are excluded by the frozen analytical evidence flags.</li>
         <li>Complete calendar periods are row-disjoint; a source row belongs to only one period.</li>
         <li>Historical canonical and date-blind overlap with the exploratory source remain zero.</li>
         <li>The public report contains no candidate period list, invoice, customer, product, country candidate, row fingerprint, selected context ID, or split assignment.</li>
-        <li>The local period profile remains Git-ignored and contains no retained matching assignment.</li>
+        <li>The local period profile remains Git-ignored and contains no matching assignment from this capacity calculation.</li>
       </ul>
       <div class="callout"><strong>Claim limit:</strong> this proves source capacity for a same-retailer temporal internal replication. It does not validate question wording, establish independent labels, estimate confirmation performance, or support external-generalization claims.</div>
     </section>
 
     <section>
-      <p class="eyebrow">Next gate</p>
-      <h2>Freeze only the context manifest and seeded split.</h2>
-      <p>The <a href="./bizhallu_confirmation_precision_review.html">outcome-blind precision review</a> rejected the stronger comparison design and revised the plan to 6 pilot, 15 development, and 27 confirmation contexts. The next audited step may freeze that manifest and split, but it must not generate questions or model outputs.</p>
+      <p class="eyebrow">Subsequent gate</p>
+      <h2>The authorized manifest freeze is complete.</h2>
+      <p>The <a href="./bizhallu_confirmation_precision_review.html">outcome-blind precision review</a> rejected the stronger comparison design and revised the plan to 6 pilot, 15 development, and 27 confirmation contexts. The later <a href="./bizhallu_confirmation_context_manifest.html">manifest gate</a> froze exactly that allocation without inspecting model outcomes.</p>
       <ul>
-        <li>No question, prompt, Qwen output, annotation target, verifier prediction, detector score, AUPRC, or F1 was created here.</li>
-        <li>The dataset-source audit gate can advance, but the six downstream execution gates remain pending.</li>
+        <li>No question, prompt, Qwen output, annotation target, verifier prediction, detector score, AUPRC, or F1 was created by either checkpoint.</li>
+        <li>Two protocol gates are complete and the five downstream execution gates remain pending.</li>
+        <li>The next gate is limited to deterministic question templates, gold calculations, and question-level evidence fingerprints.</li>
         <li>A later external dataset is still required for cross-company or cross-domain claims.</li>
       </ul>
     </section>
-    <footer>BizHallu Outcome-Blind Context Capacity Proof · Aggregate-only public evidence · No context manifest or experiment result.</footer>
+    <footer>BizHallu Outcome-Blind Context Capacity Proof · Historical capacity checkpoint with a linked current manifest state · No experiment result.</footer>
   </main>
 </body>
 </html>

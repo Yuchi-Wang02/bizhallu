@@ -79,8 +79,8 @@ policies before new model answers are viewed.
   bootstrap by evidence context.
 - Internal uncertainty, literature-grounded baselines, evidence-aware
   verification, and an optional frozen hybrid remain comparison families.
-- The first of seven execution gates is complete; six downstream gates remain
-  deliberately pending. The official Online Retail II
+- The first two of seven execution gates are complete; five downstream gates
+  remain deliberately pending. The official Online Retail II
   ZIP and workbook are acquired, hashed, and Git-ignored; the two-sheet structure,
   three raw-header aliases, and 502,938-row strict prior-period boundary are
   verified. Completeness, duplicate/grain behavior, cancellation/value rules,
@@ -89,8 +89,10 @@ policies before new model answers are viewed.
   current-source records. An outcome-blind feasibility profile found 50 observed
   complete weeks and proved a 48-of-48 period-to-family matching across three
   allowed families, with minimum Hall-capacity slack 2. Customer concentration
-  remains blocked because 100,207 Customer IDs are missing. No selected periods,
-  split, context manifest, prompts, or model outcomes were retained.
+  remains blocked because 100,207 Customer IDs are missing. A subsequent
+  outcome-blind freeze now retains 48 selected periods and their 6/15/27 split
+  in a Git-ignored private manifest under a public SHA-256 commitment. Questions,
+  prompts, and model outcomes still do not exist.
 
 The generated report at
 `reports/bizhallu_confirmation_set_v1_design.html` introduces no new detector
@@ -131,9 +133,35 @@ answer, annotation, or detector outcome was accessed.
 - The aggregate capacity proof was rerun for the revised target. Fifty observed
   complete weeks support a 48-of-48 period-to-family matching with minimum Hall
   slack 2. No matching assignment or candidate-period list was retained.
-- The next authorized action is only to freeze the deterministic 6/15/27
-  context manifest and seeded, period-disjoint split. Question generation,
-  prompts, Qwen execution, annotation, and new detector metrics remain blocked.
+- At this precision-review checkpoint, the next authorized action was only to
+  freeze the deterministic 6/15/27 context manifest and seeded,
+  period-disjoint split. The manifest update below records completion of that
+  step; question generation, prompts, Qwen execution, annotation, and new
+  detector metrics remain blocked.
+
+## Context Manifest Freeze Update: 2026-09-02
+
+The authorized manifest-only step is now complete without creating a new model
+result.
+
+- A deterministic, outcome-blind bipartite assignment fixed 48 unique complete
+  weeks across three eligible families: 16 contexts per family.
+- Each family is split into 2 protocol-pilot, 5 development, and 9 confirmation
+  contexts, giving 6/15/27 overall. Two unmatched weeks remain source reserve
+  and cannot replace difficult outputs after outcome access.
+- The detailed manifest is Git-ignored. It contains selected periods, context
+  IDs, family/split assignments, eligible scope entities, and canonical
+  context evidence-pool hashes.
+- The public report exposes aggregate counts and the whole-manifest canonical
+  SHA-256 commitment only. It publishes no selected period, context ID, entity,
+  invoice, customer value, or row fingerprint.
+- All 48 selected periods, context IDs, and context evidence-pool hashes are
+  unique. Historical canonical and date-blind source-record overlap remains 0.
+- Exact question-level evidence payload fingerprint checks remain pending,
+  because deterministic question templates and gold payloads have not yet been
+  created. They belong to the next gate and are not treated as complete here.
+- No question, gold answer, prompt, Qwen output, annotation, detector score,
+  verifier prediction, AUPRC, F1, or other new empirical metric was created.
 
 ## Historical Record-Overlap Update: 2026-09-01
 
@@ -1643,7 +1671,7 @@ entry point for GitHub Pages.
     - Treat 0.835 AUPRC and 0.779 F1 as reproducible exploratory maxima, not as
       representative or confirmatory performance estimates.
 
-7. A clean confirmation set does not exist yet.
+7. A clean confirmation result does not exist yet.
    - The next result needs fresh or context-separated evidence, annotation
      targets selected before answer-quality review, independent human labeling,
      frozen detector decisions, and separate claim-extraction evaluation.
@@ -1655,9 +1683,10 @@ entry point for GitHub Pages.
      contexts. The study is estimation-focused; paired and subgroup contrasts
      are descriptive, and a stronger comparative claim requires more contexts
      or a separately audited second dataset.
-   - The 6/15/27 context manifest and split are not yet frozen, so questions,
-     prompts, model execution, labeling, and confirmation metrics remain
-     unauthorized.
+   - The 6/15/27 context manifest and split are now frozen, but question
+     templates, gold calculations, prompt/model configuration, independent
+     reviewers, non-confirmation detector implementations, and sealed-run
+     authorization remain incomplete.
 
 ## Recommended Next Steps
 
@@ -1674,6 +1703,8 @@ entry point for GitHub Pages.
       and the future confirmation protocol.
     - Use `docs/confirmation_dataset_overlap.html` to show aggregate-only
       historical record separation and its same-retailer limitation.
+    - Use `docs/confirmation_context_manifest.html` to show the outcome-blind
+      48-context freeze, 6/15/27 split, privacy boundary, and public commitment.
    - Use `docs/evidence_verifier_pilot.html` to show the claim-evidence review
      schema without claiming independent verifier predictions or new metrics.
    - Keep `docs/portfolio_demo.html`, `docs/portfolio_narrative.html`, and
@@ -1700,9 +1731,13 @@ entry point for GitHub Pages.
    - Preserve the completed precision result: no tested candidate passed every
      frozen strong-comparison rule, thresholds were not relaxed, and the study
      now estimates detector-family performance rather than claiming superiority.
-   - Next, freeze exactly 6 pilot, 15 development, and 27 confirmation contexts
-     without viewing model outputs, using period and evidence-fingerprint
-     separation. Retain two unassigned complete weeks as source reserve.
+   - Preserve the frozen private 6/15/27 manifest and its public SHA-256
+     commitment. Do not expose selected periods, context IDs, or scope entities
+     in public artifacts, and do not substitute the two reserve weeks after
+     outcome access.
+   - Next, define and validate deterministic question templates, scope-entity
+     selection rules, gold calculations, question IDs, and exact question-level
+     evidence payload fingerprints without generating prompts or running Qwen.
    - Keep the 12/30/54 question counts and 96-generation total fixed unless a
      new, separately justified design amendment is made before model outcomes.
    - Treat the current claim-evidence schema as label-derived v0 scaffolding;

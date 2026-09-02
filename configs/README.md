@@ -23,6 +23,7 @@ Current config files:
 - `methodology_protocol_v1.json`
 - `confirmation_dataset_source_audit_v1.json`
 - `confirmation_context_feasibility_v1.json`
+- `confirmation_context_manifest_v1.json`
 - `confirmation_precision_review_v1.json`
 - `confirmation_precision_scope_amendment_v1.json`
 - `confirmation_set_v1_protocol.json`
@@ -37,3 +38,8 @@ manifest is selected. No candidate passed every strong-comparison rule.
 `confirmation_precision_scope_amendment_v1.json` records the resulting
 estimation-focused claim boundary and the revised 6/15/27 context plan; it does
 not contain confirmation outcomes.
+
+`confirmation_context_manifest_v1.json` freezes the seeded family matching,
+6/15/27 split, reserve, evidence-pool, and privacy rules. The selected periods
+and entities remain in a Git-ignored private manifest; the public report stores
+only aggregate counts and a canonical SHA-256 commitment.

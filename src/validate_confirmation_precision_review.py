@@ -15,6 +15,7 @@ REVIEW_CONFIG_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_review_v
 REVIEW_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 AMENDMENT_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 CAPACITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
+MANIFEST_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review.html"
 VALIDATION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_validation.json"
 
@@ -39,8 +40,10 @@ REQUIRED_HTML_FRAGMENTS = [
     "0.121219",
     "Estimate transparently; do not declare a winner.",
     "do not make this publication-grade",
-    "Only the context manifest and seeded split may come next.",
-    "No context manifest, split assignment, question, prompt, model output, label, detector score, or new empirical metric exists.",
+    "The authorized manifest freeze is complete; questions come next.",
+    "froze 48 period-disjoint contexts with a 6/15/27 seeded split",
+    "At the precision-review checkpoint no manifest or split existed.",
+    "No question, prompt, model output, new label, detector score, or new empirical metric exists.",
     "overflow-x:auto;",
     "overflow-wrap:anywhere;",
     "@media (max-width:860px)",
@@ -93,7 +96,14 @@ def check_equal(failures: list[dict[str, Any]], check: str, actual: Any, expecte
 
 def main() -> None:
     failures: list[dict[str, Any]] = []
-    required = [REVIEW_CONFIG_PATH, REVIEW_REPORT_PATH, AMENDMENT_PATH, CAPACITY_PATH, HTML_PATH]
+    required = [
+        REVIEW_CONFIG_PATH,
+        REVIEW_REPORT_PATH,
+        AMENDMENT_PATH,
+        CAPACITY_PATH,
+        MANIFEST_REPORT_PATH,
+        HTML_PATH,
+    ]
     missing = [repo_path(path) for path in required if not path.exists()]
     if missing:
         add_failure(failures, "required_files_exist", missing)
@@ -111,6 +121,7 @@ def main() -> None:
     report = load_json(REVIEW_REPORT_PATH)
     amendment = load_json(AMENDMENT_PATH)
     capacity = load_json(CAPACITY_PATH)
+    manifest = load_json(MANIFEST_REPORT_PATH)
     html_text = HTML_PATH.read_text(encoding="utf-8")
 
     check_equal(failures, "review_config_sha256", file_sha256(REVIEW_CONFIG_PATH), EXPECTED_REVIEW_CONFIG_SHA256)
@@ -197,8 +208,28 @@ def main() -> None:
     )
     check_equal(failures, "capacity_manifest_created", capacity.get("context_manifest_created"), False)
     check_equal(failures, "capacity_new_metrics", capacity.get("new_metrics_reported"), False)
+    check_equal(
+        failures,
+        "subsequent_manifest_state",
+        {
+            "status": manifest.get("status"),
+            "selected": manifest.get("frozen_inventory", {}).get("selected_context_count"),
+            "reserve": manifest.get("frozen_inventory", {}).get("reserve_period_count"),
+            "splits": manifest.get("frozen_inventory", {}).get("split_counts"),
+            "question_created": manifest.get("execution_boundary", {}).get("question_created"),
+            "new_metrics": manifest.get("execution_boundary", {}).get("new_metrics_reported"),
+        },
+        {
+            "status": "confirmation_context_manifest_v1_frozen",
+            "selected": 48,
+            "reserve": 2,
+            "splits": {"protocol_pilot": 6, "development": 15, "confirmation": 27},
+            "question_created": False,
+            "new_metrics": False,
+        },
+    )
 
-    public_objects = [config, report, amendment, capacity]
+    public_objects = [config, report, amendment, capacity, manifest]
     for index, value in enumerate(public_objects):
         if contains_local_path(value):
             add_failure(failures, f"public_object_{index}_contains_local_path", True)
@@ -245,7 +276,9 @@ def main() -> None:
         ],
         "revised_total_context_count": amendment["revised_planning_counts"]["total_context_count"],
         "revised_capacity_matching_count": capacity_proof.get("maximum_slot_matching_count"),
-        "context_manifest_created": False,
+        "precision_checkpoint_context_manifest_created": False,
+        "current_context_manifest_status": manifest.get("status"),
+        "current_selected_context_count": manifest.get("frozen_inventory", {}).get("selected_context_count"),
         "new_empirical_metrics_created": False,
         "num_failures": len(failures),
         "failures": failures,

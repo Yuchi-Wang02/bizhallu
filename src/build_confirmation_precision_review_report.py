@@ -11,6 +11,7 @@ REVIEW_CONFIG_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_review_v
 REVIEW_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
 AMENDMENT_PATH = PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 CAPACITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
+MANIFEST_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review.html"
 
 
@@ -31,7 +32,13 @@ def decimal(value: Any, digits: int = 3) -> str:
 
 
 def main() -> None:
-    required = [REVIEW_CONFIG_PATH, REVIEW_REPORT_PATH, AMENDMENT_PATH, CAPACITY_PATH]
+    required = [
+        REVIEW_CONFIG_PATH,
+        REVIEW_REPORT_PATH,
+        AMENDMENT_PATH,
+        CAPACITY_PATH,
+        MANIFEST_REPORT_PATH,
+    ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Missing precision-review artifacts: {missing}")
@@ -40,9 +47,11 @@ def main() -> None:
     report = load_json(REVIEW_REPORT_PATH)
     amendment = load_json(AMENDMENT_PATH)
     capacity = load_json(CAPACITY_PATH)
+    manifest = load_json(MANIFEST_REPORT_PATH)
     summaries = report["candidate_summaries"]
     selected = amendment["revised_planning_counts"]
     decision = config["decision_policy"]
+    frozen_inventory = manifest["frozen_inventory"]
 
     candidate_rows = []
     for row in summaries:
@@ -121,7 +130,7 @@ def main() -> None:
   </style>
 </head>
 <body>
-  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a><a href="../README.md">Repository guide</a></div></nav></header>
+  <header><nav><a href="./bizhallu_confirmation_set_v1_design.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_context_manifest.html">Context manifest</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a><a href="../README.md">Repository guide</a></div></nav></header>
   <main>
     <section class="hero">
       <p class="eyebrow">Confirmation Set v1 · Outcome-blind precision review</p>
@@ -141,7 +150,7 @@ def main() -> None:
       <p class="eyebrow">What was simulated</p>
       <h2>Design sensitivity, not detector performance.</h2>
       <div class="grid">
-        <article class="panel"><h3>Outcome-blind inputs</h3><p>Only synthetic prevalence, spans per context, label ICC, score separation, and aggregate source capacity were used. Confirmation periods, labels, answers, and detector outcomes do not exist.</p></article>
+        <article class="panel"><h3>Outcome-blind inputs</h3><p>Only synthetic prevalence, spans per context, label ICC, score separation, and aggregate source capacity were used. At this review checkpoint, confirmation periods, labels, answers, and detector outcomes did not exist.</p></article>
         <article class="panel"><h3>Independent unit</h3><p>Whole synthetic evidence contexts were resampled together. Both detector scores used the same resampled context indices for the paired comparison.</p></article>
         <article class="panel"><h3>Unequal cluster sizes</h3><p>Each scenario used a fixed multiplier pattern around 8 or 12 mean spans per context. Stress scenarios lowered density and increased within-context label correlation.</p></article>
       </div>
@@ -185,15 +194,15 @@ def main() -> None:
     </section>
 
     <section>
-      <p class="eyebrow">Next gate</p>
-      <h2>Only the context manifest and seeded split may come next.</h2>
+      <p class="eyebrow">Subsequent gate</p>
+      <h2>The authorized manifest freeze is complete; questions come next.</h2>
       <ol>
-        <li>Freeze a deterministic, auditable context-selection procedure before retaining any period.</li>
-        <li>Create the 6/15/27 manifest and seeded split once, then verify period and evidence-fingerprint disjointness.</li>
-        <li>Keep product, country, invoice, customer, and period details local; publish only aggregate proof.</li>
-        <li>Do not generate questions, prompts, Qwen outputs, annotations, detector scores, or confirmation metrics in that step.</li>
+        <li>The later manifest gate froze {integer(frozen_inventory['selected_context_count'])} period-disjoint contexts with a {integer(frozen_inventory['split_counts']['protocol_pilot'])}/{integer(frozen_inventory['split_counts']['development'])}/{integer(frozen_inventory['split_counts']['confirmation'])} seeded split.</li>
+        <li>Selected periods and scope entities remain local; the public <a href="./bizhallu_confirmation_context_manifest.html">manifest report</a> exposes only aggregate proof and a commitment hash.</li>
+        <li>The next gate may define deterministic question templates, gold calculations, and question-level evidence fingerprints.</li>
+        <li>Prompts, Qwen execution, annotation, detector or verifier scoring, and new empirical metrics remain forbidden.</li>
       </ol>
-      <div class="callout"><strong>Current boundary.</strong> No context manifest, split assignment, question, prompt, model output, label, detector score, or new empirical metric exists.</div>
+      <div class="callout"><strong>Checkpoint versus current state.</strong> At the precision-review checkpoint no manifest or split existed. The subsequent outcome-blind freeze completed those two artifacts only. No question, prompt, model output, new label, detector score, or new empirical metric exists.</div>
     </section>
     <footer>BizHallu Confirmation Set v1 · Outcome-blind precision review and scope amendment · Generated from committed machine-readable artifacts.</footer>
   </main>

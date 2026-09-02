@@ -1,0 +1,203 @@
+from __future__ import annotations
+
+import html
+import json
+from pathlib import Path
+from typing import Any
+
+from public_paths import repo_path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
+HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest.html"
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def esc(value: Any) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def main() -> None:
+    if not REPORT_PATH.exists():
+        raise FileNotFoundError(f"Missing manifest commitment report: {repo_path(REPORT_PATH)}")
+    report = load_json(REPORT_PATH)
+    inventory = report["frozen_inventory"]
+    commitment = report["private_manifest_commitment"]
+    evidence = report["context_evidence_integrity"]
+    boundary = report["execution_boundary"]
+
+    family_rows = "".join(
+        f"<tr><td><code>{esc(family)}</code></td>"
+        f"<td>{esc(counts['protocol_pilot'])}</td>"
+        f"<td>{esc(counts['development'])}</td>"
+        f"<td>{esc(counts['confirmation'])}</td>"
+        f"<td>{esc(sum(counts.values()))}</td></tr>"
+        for family, counts in inventory["family_split_counts"].items()
+    )
+
+    html_text = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BizHallu · Confirmation Context Manifest v1</title>
+  <style>
+    :root {{
+      color-scheme: light;
+      --ink:#171717; --muted:#5f6368; --line:#d9dde3; --soft:#f5f6f8;
+      --blue:#0b57d0; --green:#137333; --amber:#8a4b08; --red:#b3261e;
+      --max:1100px;
+    }}
+    * {{ box-sizing:border-box; }}
+    body {{ margin:0; background:#fff; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; letter-spacing:0; }}
+    header {{ border-bottom:1px solid var(--line); background:rgba(255,255,255,.96); position:sticky; top:0; z-index:5; }}
+    nav {{ max-width:var(--max); margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }}
+    nav a {{ color:var(--ink); text-decoration:none; font-size:14px; }}
+    nav strong {{ font-size:16px; }}
+    nav div {{ display:flex; gap:18px; flex-wrap:wrap; justify-content:flex-end; }}
+    main {{ max-width:var(--max); margin:0 auto; padding:0 24px 64px; }}
+    section {{ padding:48px 0; border-bottom:1px solid var(--line); }}
+    .hero {{ padding-top:64px; }}
+    .eyebrow {{ margin:0 0 10px; color:var(--blue); font-size:13px; font-weight:700; text-transform:uppercase; }}
+    h1 {{ margin:0; max-width:900px; font-size:56px; line-height:1.04; letter-spacing:0; }}
+    h2 {{ margin:0 0 22px; font-size:30px; line-height:1.18; letter-spacing:0; }}
+    h3 {{ margin:0 0 8px; font-size:18px; letter-spacing:0; }}
+    p {{ max-width:850px; color:var(--muted); }}
+    .lede {{ font-size:19px; margin:22px 0 0; }}
+    .metrics {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:30px 0; }}
+    .metrics div, .panel {{ border:1px solid var(--line); border-radius:8px; padding:18px; background:#fff; min-width:0; }}
+    .metrics span {{ display:block; color:var(--muted); font-size:13px; }}
+    .metrics strong {{ display:block; margin-top:5px; font-size:26px; overflow-wrap:anywhere; }}
+    .grid {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }}
+    .panel p {{ margin:6px 0 0; }}
+    .callout {{ margin:18px 0; border-left:4px solid var(--blue); background:#f6f9ff; padding:14px 18px; color:#283044; }}
+    .callout.good {{ border-left-color:var(--green); background:#f3faf5; }}
+    .callout.warn {{ border-left-color:var(--amber); background:#fff8ed; }}
+    .hash {{ display:block; margin-top:10px; padding:12px; border:1px solid var(--line); background:var(--soft); overflow-wrap:anywhere; font:13px ui-monospace,SFMono-Regular,Consolas,monospace; }}
+    .table-wrap {{ overflow-x:auto; border:1px solid var(--line); border-radius:8px; }}
+    table {{ width:100%; border-collapse:collapse; min-width:700px; }}
+    th,td {{ padding:13px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }}
+    th {{ background:var(--soft); color:#404349; font-size:13px; }}
+    tr:last-child td {{ border-bottom:0; }}
+    code {{ overflow-wrap:anywhere; }}
+    ul {{ padding-left:20px; color:var(--muted); }}
+    footer {{ padding:30px 0; color:var(--muted); font-size:13px; }}
+    @media (max-width:860px) {{
+      nav {{ align-items:flex-start; }} nav div {{ gap:10px; }}
+      .metrics {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
+      .grid {{ grid-template-columns:1fr; }}
+      h1 {{ font-size:40px; }}
+    }}
+    @media (max-width:560px) {{
+      nav {{ padding:12px 16px; }} nav div {{ display:none; }} main {{ padding:0 16px 48px; }}
+      section {{ padding:36px 0; }} .hero {{ padding-top:44px; }}
+      .metrics {{ grid-template-columns:1fr 1fr; }} .metrics strong {{ font-size:22px; }}
+    }}
+  </style>
+</head>
+<body>
+  <header>
+    <nav><a href="../docs/index.html"><strong>BizHallu</strong></a><div><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_set_v1_design.html">Study design</a></div></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Confirmation Set v1 · Prospective freeze checkpoint</p>
+      <h1>The 48-context inventory and 6/15/27 split are now frozen.</h1>
+      <p class="lede">A deterministic, outcome-blind assignment fixed one complete source week per context before any new question, prompt, model answer, label, detector score, or empirical metric was created.</p>
+      <div class="metrics">
+        <div><span>Selected contexts</span><strong>{esc(inventory['selected_context_count'])}</strong></div>
+        <div><span>Pilot / development</span><strong>{esc(inventory['split_counts']['protocol_pilot'])} / {esc(inventory['split_counts']['development'])}</strong></div>
+        <div><span>Sealed confirmation</span><strong>{esc(inventory['split_counts']['confirmation'])}</strong></div>
+        <div><span>Unassigned reserve</span><strong>{esc(inventory['reserve_period_count'])}</strong></div>
+      </div>
+      <div class="callout good"><strong>Gate completed.</strong> All 48 selected periods are unique, every period belongs to one family only, and all 48 context-level canonical evidence-pool hashes are distinct.</div>
+      <div class="callout warn"><strong>Execution remains blocked.</strong> This is a manifest commitment, not a model experiment or a new performance result. The next gate is deterministic question templates and gold calculations.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Frozen allocation</p>
+      <h2>Each business family receives the same 2 / 5 / 9 split.</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Question family</th><th>Protocol pilot</th><th>Development</th><th>Confirmation</th><th>Total</th></tr></thead>
+        <tbody>{family_rows}</tbody>
+        <tfoot><tr><th>All families</th><th>{esc(inventory['split_counts']['protocol_pilot'])}</th><th>{esc(inventory['split_counts']['development'])}</th><th>{esc(inventory['split_counts']['confirmation'])}</th><th>{esc(inventory['selected_context_count'])}</th></tr></tfoot>
+      </table></div>
+      <p>Each context is planned to support two questions later, preserving the frozen 96-question target. No question identifiers have been assigned in this step.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Outcome-blind assignment</p>
+      <h2>The mapping uses only source eligibility, the frozen seed, and domain-separated hashes.</h2>
+      <div class="grid">
+        <article class="panel"><h3>Family matching</h3><p>A deterministic hash-ordered bipartite matching fills 16 slots for each of the three eligible families. No generated-answer field or detector outcome is an input.</p></article>
+        <article class="panel"><h3>Split assignment</h3><p>Within each family, an independent seeded hash order assigns 2 contexts to pilot, 5 to development, and 9 to sealed confirmation.</p></article>
+        <article class="panel"><h3>Period separation</h3><p>All 48 selected complete weeks are unique across every family and split. The two unmatched weeks remain reserve and cannot replace difficult outputs later.</p></article>
+        <article class="panel"><h3>Blocked family</h3><p>Customer revenue concentration remains excluded because the pre-existing data-quality audit found substantial missing Customer ID coverage.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Public commitment</p>
+      <h2>The public hash commits to a private, Git-ignored manifest.</h2>
+      <p>The private file contains the selected weeks, family and split assignments, eligible scope entities, context IDs, and context evidence-pool hashes. Those values are not published. The public artifact records only aggregate counts and the canonical manifest commitment:</p>
+      <span class="hash">{esc(commitment['canonical_sha256'])}</span>
+      <ul>
+        <li>Commitment domain: <code>{esc(commitment['commitment_domain'])}</code>.</li>
+        <li>The private manifest is Git-ignored and is not part of the GitHub Pages bundle.</li>
+        <li>Regenerating the same canonical manifest reproduces the same commitment; changing any selected period, entity, split, or evidence hash changes it.</li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">Evidence separation</p>
+      <h2>Context pools are fixed now; question payloads are checked next.</h2>
+      <div class="metrics">
+        <div><span>Context-pool hashes</span><strong>{esc(evidence['canonical_context_pool_hash_count'])}</strong></div>
+        <div><span>Unique pool hashes</span><strong>{esc(evidence['unique_canonical_context_pool_hash_count'])}</strong></div>
+        <div><span>Historical canonical overlap rows</span><strong>{esc(report['input_evidence']['historical_canonical_record_overlap_row_count'])}</strong></div>
+        <div><span>Date-blind overlap rows</span><strong>{esc(report['input_evidence']['historical_date_blind_record_overlap_row_count'])}</strong></div>
+      </div>
+      <div class="callout"><strong>Important distinction.</strong> Context-level source pools are now frozen and disjoint. Exact question-level evidence payload fingerprints remain pending because question templates and deterministic gold payloads do not exist yet. That check belongs to the next gate and has not been silently treated as complete.</div>
+    </section>
+
+    <section>
+      <p class="eyebrow">What did not happen</p>
+      <h2>No new empirical result was created.</h2>
+      <ul>
+        <li>No questions, gold answers, prompts, Qwen outputs, annotations, verifier decisions, or detector scores were created.</li>
+        <li>The historical 0.835 AUPRC and 0.779 F1 remain exploratory maxima from the earlier outcome-informed span subset.</li>
+        <li>Confirmation Set v1 remains estimation-focused and does not authorize a detector-superiority claim.</li>
+        <li>This remains a same-retailer, same-lineage temporal internal replication design, not external validation.</li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">Next gate</p>
+      <h2>Define and validate questions and gold calculations, without running Qwen.</h2>
+      <p>{esc(report['next_gate']['authorized_scope'])}</p>
+      <div class="callout warn"><strong>Still prohibited:</strong> prompt generation, model execution, annotation, detector or verifier scoring, and new empirical metrics.</div>
+    </section>
+    <footer>BizHallu Confirmation Context Manifest v1 · Aggregate public commitment · Status: {esc(report['status'])} · Execution ready: {esc(boundary['execution_ready']).lower()}.</footer>
+  </main>
+</body>
+</html>
+"""
+    HTML_PATH.write_text(html_text, encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "status": "confirmation_context_manifest_html_built",
+                "report_status": report["status"],
+                "html_path": repo_path(HTML_PATH),
+            },
+            indent=2,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

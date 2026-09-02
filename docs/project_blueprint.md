@@ -614,14 +614,16 @@ the rules after seeing the result. The amended study is therefore estimation-
 focused rather than a detector-superiority test.
 
 The revised inventory is a 12-question protocol pilot, 30 development
-questions, and 54 sealed confirmation questions: 96 generations across
-6/15/27 contexts. Exact historical full100 evidence fingerprints are excluded.
-The dataset-source gate is complete after the aggregate-only capacity proof
-verified 50 observed complete weeks, 48-of-48 unique period-to-family matching
-across three allowed families, and minimum Hall slack 2. No matching assignment,
-context manifest, question, prompt, model outcome, annotation, or new empirical
-metric was retained. The next gate is only the deterministic context-manifest
-and period-disjoint split freeze.
+questions, and 54 sealed confirmation questions: 96 future generations across
+6/15/27 contexts. The dataset-source gate is complete after the aggregate-only
+capacity proof verified 50 observed complete weeks, 48-of-48 unique
+period-to-family matching across three allowed families, and minimum Hall slack
+2. The second gate is now complete: a Git-ignored private manifest fixes 48
+unique periods, 16 contexts per family, the 6/15/27 split, two reserve periods,
+and 48 unique canonical context evidence-pool hashes under a public SHA-256
+commitment. No question, gold answer, prompt, model outcome, annotation, or new
+empirical metric was created. Exact historical question-level evidence payload
+fingerprint exclusion remains part of the next question/gold gate.
 
 Next one-step branch:
 
@@ -637,7 +639,10 @@ Next one-step branch:
 - use `docs/evidence_verifier_pilot.html` to show the v0 evidence-aware
   verifier family and `docs/evidence_aware_verifier_design.md` to plan any
   expansion beyond Demo v2
-- freeze only the outcome-blind 6/15/27 context manifest and period-disjoint
-  split before writing new questions or prompts
+- preserve the frozen private 6/15/27 context manifest, two reserve weeks, and
+  public SHA-256 commitment without publishing selected periods or entities
+- next define and validate deterministic question templates, scope-entity
+  selection rules, gold calculations, question IDs, and question-level evidence
+  payload fingerprints without generating prompts or running Qwen
 - keep new model runs blocked until the context manifest, split, prompts,
   detector policies, reviewer plan, and sealed-run authorization are frozen

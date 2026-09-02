@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "status": "confirmation_context_manifest_v1_frozen",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-02",
+  "scope": "aggregate public commitment to an outcome-blind private context manifest and period-disjoint 6/15/27 split",
+  "config": {
+    "path": "configs/confirmation_context_manifest_v1.json",
+    "canonical_sha256": "78171f971f39de2be4a1ede2182ac98d659cabe69040d59db703cbe08d8f6f93",
+    "status": "assignment_rules_frozen"
+  },
+  "private_manifest_commitment": {
+    "path": "data/processed/confirmation_online_retail_ii/context_manifest_v1_private.json",
+    "git_ignored": true,
+    "canonical_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+    "commitment_domain": "bizhallu:confirmation-private-context-manifest:v1",
+    "contains_selected_periods_and_scope_entities": true,
+    "published_contents": false
+  },
+  "input_evidence": {
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "strict_window_row_count": 502938,
+    "local_feasibility_proof_canonical_sha256": "eedc8c78f038935149205f6d076399620e0bc095795174cd0b32aaf60f523f0e",
+    "observed_complete_period_count": 50,
+    "maximum_feasible_matching_count": 48,
+    "minimum_hall_capacity_slack": 2,
+    "historical_canonical_record_overlap_row_count": 0,
+    "historical_date_blind_record_overlap_row_count": 0
+  },
+  "frozen_inventory": {
+    "candidate_period_count": 50,
+    "selected_context_count": 48,
+    "reserve_period_count": 2,
+    "questions_per_context": 2,
+    "future_question_target": 96,
+    "family_count": 3,
+    "family_counts": {
+      "country_product_exposure": 16,
+      "net_revenue_reconciliation_by_period": 16,
+      "product_return_rate_comparison": 16
+    },
+    "split_counts": {
+      "protocol_pilot": 6,
+      "development": 15,
+      "confirmation": 27
+    },
+    "family_split_counts": {
+      "net_revenue_reconciliation_by_period": {
+        "protocol_pilot": 2,
+        "development": 5,
+        "confirmation": 9
+      },
+      "product_return_rate_comparison": {
+        "protocol_pilot": 2,
+        "development": 5,
+        "confirmation": 9
+      },
+      "country_product_exposure": {
+        "protocol_pilot": 2,
+        "development": 5,
+        "confirmation": 9
+      }
+    }
+  },
+  "assignment_integrity": {
+    "seed": 20260901,
+    "algorithm": "deterministic_hash_ordered_bipartite_augmenting_path_v1",
+    "outcome_blind": true,
+    "all_selected_periods_unique": true,
+    "period_disjoint_across_all_contexts_and_splits": true,
+    "one_family_per_selected_period": true,
+    "reserve_substitution_after_outcome_access_allowed": false
+  },
+  "context_evidence_integrity": {
+    "canonical_context_pool_hash_count": 48,
+    "unique_canonical_context_pool_hash_count": 48,
+    "context_pool_hashes_disjoint_across_selected_contexts": true,
+    "historical_source_records_disjoint": true,
+    "final_question_evidence_payload_fingerprint_check": "pending_next_gate",
+    "interpretation": "Context-level source pools are frozen and disjoint. Exact question-level evidence payload fingerprints cannot be checked until deterministic question templates and gold payloads are defined."
+  },
+  "privacy": {
+    "contains_selected_period_list": false,
+    "contains_context_ids": false,
+    "contains_scope_entity_values": false,
+    "contains_invoice_or_customer_values": false,
+    "contains_row_fingerprint_values": false,
+    "contains_only_aggregate_counts_and_whole_manifest_commitment": true
+  },
+  "current_result_boundary": {
+    "historical_exploratory_max_test_auprc": 0.835073,
+    "historical_exploratory_max_test_f1": 0.779412,
+    "historical_aligned_span_count": 205,
+    "historical_test_span_count": 103,
+    "new_confirmation_metric_reported": false,
+    "detector_superiority_claim_authorized": false
+  },
+  "execution_boundary": {
+    "context_manifest_created": true,
+    "split_assignment_created": true,
+    "question_created": false,
+    "gold_answer_created": false,
+    "prompt_created": false,
+    "model_run_performed": false,
+    "annotation_created": false,
+    "detector_or_verifier_scoring_performed": false,
+    "new_metrics_reported": false,
+    "execution_ready": false,
+    "no_new_results": true
+  },
+  "next_gate": {
+    "gate": "question_templates_and_gold_calculations_validated",
+    "authorized_scope": "Define deterministic question templates, scope-entity selection rules, gold calculations, and question-level evidence payload fingerprints without running the model.",
+    "still_forbidden": [
+      "prompt generation",
+      "Qwen execution",
+      "annotation",
+      "detector or verifier scoring",
+      "new empirical metrics"
+    ]
+  },
+  "claim_limits": [
+    "This is a same-retailer, same-lineage temporal internal replication design, not an external replication.",
+    "The manifest commitment proves a frozen inventory; it is not an experiment result.",
+    "No detector family is authorized to claim superiority in Confirmation Set v1.",
+    "Final question-level evidence payload separation remains a next-gate requirement."
+  ],
+  "num_failures": 0,
+  "failures": []
+}

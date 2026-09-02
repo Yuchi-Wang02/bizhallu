@@ -14,6 +14,7 @@ METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hard
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
+CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -38,6 +39,7 @@ def main() -> None:
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH)
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH)
     precision_review = load_json(PRECISION_REVIEW_PATH)
+    context_manifest = load_json(CONTEXT_MANIFEST_PATH)
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -83,6 +85,14 @@ def main() -> None:
         "precision_review_report_path": repo_path(PRECISION_REVIEW_PATH),
         "precision_review_original_status": precision_review["status"],
         "precision_scope_amendment_status": "complete_with_scope_downgrade",
+        "context_manifest_report_path": repo_path(CONTEXT_MANIFEST_PATH),
+        "context_manifest_status": context_manifest["status"],
+        "context_manifest_created": context_manifest["execution_boundary"]["context_manifest_created"],
+        "split_assignment_created": context_manifest["execution_boundary"]["split_assignment_created"],
+        "context_manifest_commitment_sha256": context_manifest["private_manifest_commitment"]["canonical_sha256"],
+        "selected_context_count": context_manifest["frozen_inventory"]["selected_context_count"],
+        "reserve_period_count": context_manifest["frozen_inventory"]["reserve_period_count"],
+        "question_payload_fingerprint_check_pending": context_manifest["context_evidence_integrity"]["final_question_evidence_payload_fingerprint_check"] == "pending_next_gate",
         "dataset_option_count": len(options),
         "candidate_question_family_count": len(families),
         "protocol_pilot_question_count": sampling["protocol_pilot"]["question_count"],
@@ -105,7 +115,7 @@ def main() -> None:
         "current_share_status": methodology["share_status"],
         "historical_exploratory_max_test_auprc": methodology["locked_public_results"]["exploratory_max_test_auprc"],
         "historical_exploratory_max_test_f1": methodology["locked_public_results"]["exploratory_max_test_f1"],
-        "recommended_next_decision": "Freeze only the deterministic 6/15/27 context manifest and seeded split. The precision review and revised 48-context capacity proof are complete, but the combined manifest/split gate and five later gates remain pending.",
+        "recommended_next_decision": "Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints without generating prompts or running Qwen. The context manifest and 6/15/27 split are frozen; five later gates remain pending.",
         "num_failures": 0,
         "failures": [],
     }
@@ -182,7 +192,7 @@ def main() -> None:
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_methodology_hardening.html">BizHallu</a>
-      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
+      <nav><a href="./bizhallu_methodology_hardening.html">Current audit</a><a href="./bizhallu_confirmation_dataset_source_audit.html">Source audit</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_dataset_overlap.html">Overlap proof</a><a href="./bizhallu_confirmation_context_feasibility.html">Capacity proof</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_context_manifest.html">Manifest freeze</a><a href="./bizhallu_research_one_pager.html">Research one-pager</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -195,7 +205,7 @@ def main() -> None:
           <div><span>Human reviewers</span><strong>{protocol['annotation_protocol']['reviewer_count']}</strong></div>
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
-        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source gate is complete: the 502,938-row strict prior-period window has a completed quality profile, zero canonical and date-blind historical record overlap, an outcome-blind precision review with a narrower estimation claim, and aggregate capacity for 48 unique complete-week contexts. The context manifest, split, model output, and Confirmation Set v1 results do not exist yet.</div>
+        <div class="callout"><strong>Not execution-ready.</strong> The dataset-source and context-manifest gates are complete. A private, Git-ignored manifest now fixes 48 unique complete-week contexts and the seeded 6/15/27 split under a public SHA-256 commitment. Questions, gold answers, prompts, model outputs, labels, detector scores, and Confirmation Set v1 results do not exist yet.</div>
       </section>
 
       <section>
@@ -203,7 +213,7 @@ def main() -> None:
         <h2>Correct the current study's selection and split limits prospectively.</h2>
         <div class="grid">
           <article class="panel"><h3>Outcome-blind sampling</h3><p>All contexts and question IDs are selected before generation. Answers are never retained, dropped, or rebalanced because they look correct, incorrect, easy, or difficult.</p></article>
-          <article class="panel"><h3>Context-separated evaluation</h3><p>Every new-study split uses disjoint periods and evidence fingerprints, and exact historical full100 evidence fingerprints are excluded. Assignment happens at <code>evidence_context_id</code>, not row position.</p></article>
+          <article class="panel"><h3>Context-separated evaluation</h3><p>The frozen manifest uses one unique complete week per context across every family and split. Context-pool fingerprints are distinct; exact historical full100 question-payload fingerprint exclusion remains a next-gate check after question evidence exists.</p></article>
           <article class="panel"><h3>Independent labels</h3><p>Two human reviewers annotate every in-scope business-fact claim without detector scores or each other's labels. Agreement is reported before adjudication.</p></article>
           <article class="panel"><h3>Sealed research decisions</h3><p>Detector families, thresholds, extraction logic, verifier rules, prompts, and analysis code are frozen before confirmation-label access.</p></article>
         </div>
@@ -217,7 +227,7 @@ def main() -> None:
           <thead><tr><th>Option</th><th>Source and role</th><th>Advantages</th><th>Limitations</th></tr></thead>
           <tbody>{dataset_rows}</tbody>
         </table></div>
-        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 48-slot aggregate capacity are verified across three allowed families. The precision review rejected a superiority design and retained an estimation-only scope. Customer concentration remains blocked, and a broader claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a> <a href="./bizhallu_confirmation_precision_review.html">Read the precision review.</a></div>
+        <div class="callout good"><strong>Near-term source decision.</strong> The strict window is conditionally suitable for aggregate business analysis after exact-duplicate, description, customer-coverage, cancellation, and value controls. Zero historical record overlap and 48-slot aggregate capacity are verified across three allowed families. The precision review rejected a superiority design and retained an estimation-only scope. The 48-context manifest and 6/15/27 split are now frozen. Customer concentration remains blocked, and a broader claim still requires the second-public-dataset arm. <a href="./bizhallu_confirmation_dataset_source_audit.html">Read the source audit.</a> <a href="./bizhallu_confirmation_dataset_quality.html">Read the quality profile.</a> <a href="./bizhallu_confirmation_dataset_overlap.html">Read the overlap proof.</a> <a href="./bizhallu_confirmation_context_feasibility.html">Read the capacity proof.</a> <a href="./bizhallu_confirmation_precision_review.html">Read the precision review.</a> <a href="./bizhallu_confirmation_context_manifest.html">Read the manifest commitment.</a></div>
       </section>
 
       <section>
@@ -242,7 +252,7 @@ def main() -> None:
         <p class="eyebrow">Candidate business tasks</p>
         <h2>Keep accounting and supply-management relevance visible.</h2>
         <div class="grid">{family_panels}</div>
-        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. These remain candidate tasks, not frozen question templates. The precision review is complete; the context manifest comes next, while deterministic gold calculations and evidence-table construction remain a later gate.</p>
+        <p>Three families pass source-capacity checks; customer concentration is blocked by the pre-existing Customer ID coverage rule. Their context allocation is frozen, but they remain candidate task definitions rather than validated question templates. Deterministic gold calculations, scope-entity selection rules, and question-level evidence payload fingerprints are the next gate.</p>
       </section>
 
       <section>
@@ -272,12 +282,12 @@ def main() -> None:
 
       <section>
         <p class="eyebrow">Execution gates</p>
-        <h2>One gate is complete; six remain pending.</h2>
+        <h2>Two gates are complete; five remain pending.</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Gate</th><th>Status</th></tr></thead>
           <tbody>{gate_rows}</tbody>
         </table></div>
-        <div class="callout"><strong>Next authorized action.</strong> Freeze only the deterministic 6/15/27 context manifest and seeded split. Do not create questions, prompts, run Qwen, annotate outputs, or implement confirmation metrics before the downstream gates are complete.</div>
+        <div class="callout"><strong>Next authorized action.</strong> Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints. Do not generate prompts, run Qwen, annotate outputs, score detectors, or report new metrics.</div>
       </section>
 
       <section>
@@ -286,7 +296,7 @@ def main() -> None:
         <p>The existing numbers are not Confirmation Set v1 baselines or targets. This design introduces no new detector metric and does not retroactively upgrade the current evidence level.</p>
       </section>
     </main>
-    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, one gate complete, execution blocked by six pending gates.</main></footer>
+    <footer><main>Generated from <code>configs/confirmation_set_v1_protocol.json</code>. Status: design ready, two gates complete, execution blocked by five pending gates.</main></footer>
   </body>
 </html>
 """

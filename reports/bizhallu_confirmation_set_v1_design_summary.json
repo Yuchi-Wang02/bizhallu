@@ -5,7 +5,7 @@
   "protocol_path": "configs/confirmation_set_v1_protocol.json",
   "html_path": "reports/bizhallu_confirmation_set_v1_design.html",
   "study_role": "prospective_confirmation_design",
-  "dataset_selection_status": "selected_source_audited_context_manifest_pending",
+  "dataset_selection_status": "selected_source_audited_context_manifest_frozen",
   "dataset_source_audit_path": "reports/bizhallu_confirmation_dataset_source_audit_summary.json",
   "selected_candidate_id": "uci_online_retail_ii_prior_period",
   "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -36,6 +36,14 @@
   "precision_review_report_path": "reports/bizhallu_confirmation_precision_review_report.json",
   "precision_review_original_status": "outcome_blind_precision_review_blocked",
   "precision_scope_amendment_status": "complete_with_scope_downgrade",
+  "context_manifest_report_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+  "context_manifest_status": "confirmation_context_manifest_v1_frozen",
+  "context_manifest_created": true,
+  "split_assignment_created": true,
+  "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+  "selected_context_count": 48,
+  "reserve_period_count": 2,
+  "question_payload_fingerprint_check_pending": true,
   "dataset_option_count": 4,
   "candidate_question_family_count": 4,
   "protocol_pilot_question_count": 12,
@@ -55,9 +63,8 @@
     "unmatched"
   ],
   "evaluation_track_count": 4,
-  "pending_gate_count": 6,
+  "pending_gate_count": 5,
   "pending_gates": [
-    "context_manifest_split_and_precision_review_frozen",
     "question_templates_and_gold_calculations_validated",
     "model_prompt_and_detector_configs_frozen",
     "two_independent_human_reviewers_assigned",
@@ -68,7 +75,7 @@
   "current_share_status": "share_with_caveats",
   "historical_exploratory_max_test_auprc": 0.835073,
   "historical_exploratory_max_test_f1": 0.779412,
-  "recommended_next_decision": "Freeze only the deterministic 6/15/27 context manifest and seeded split. The precision review and revised 48-context capacity proof are complete, but the combined manifest/split gate and five later gates remain pending.",
+  "recommended_next_decision": "Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints without generating prompts or running Qwen. The context manifest and 6/15/27 split are frozen; five later gates remain pending.",
   "num_failures": 0,
   "failures": []
 }

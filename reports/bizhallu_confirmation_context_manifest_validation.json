@@ -1,0 +1,23 @@
+{
+  "status": "confirmation_context_manifest_validation_passed",
+  "config_path": "configs/confirmation_context_manifest_v1.json",
+  "report_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+  "html_path": "reports/bizhallu_confirmation_context_manifest.html",
+  "private_manifest_policy": "Git-ignored private manifest is verified when locally available; clean-clone CI validates the public commitment and frozen aggregate contract.",
+  "private_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+  "selected_context_count": 48,
+  "reserve_period_count": 2,
+  "split_counts": {
+    "protocol_pilot": 6,
+    "development": 15,
+    "confirmation": 27
+  },
+  "context_manifest_created": true,
+  "split_assignment_created": true,
+  "question_created": false,
+  "model_run_performed": false,
+  "new_metrics_reported": false,
+  "execution_ready": false,
+  "num_failures": 0,
+  "failures": []
+}

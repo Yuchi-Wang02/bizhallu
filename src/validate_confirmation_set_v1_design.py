@@ -14,6 +14,7 @@ METHODOLOGY_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hard
 DATASET_AUDIT_SUMMARY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_source_audit_summary.json"
 CONTEXT_FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 PRECISION_REVIEW_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_precision_review_report.json"
+CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html"
 SUMMARY_PATH = REPORTS_DIR / "bizhallu_confirmation_set_v1_design_summary.json"
@@ -33,9 +34,9 @@ REQUIRED_HTML_FRAGMENTS = [
     "96 generations",
     "only 84 enter the main study",
     "permanently excluded from confirmation metrics",
-    "outcome-blind precision review",
+    "The precision review rejected a superiority design",
     "does not preregister a superiority claim",
-    "historical full100 evidence fingerprints are excluded",
+    "exact historical full100 question-payload fingerprint exclusion remains a next-gate check",
     "every in-scope business-fact claim",
     "Do not hide oracle spans inside an end-to-end claim.",
     "Oracle-span diagnostics",
@@ -46,21 +47,22 @@ REQUIRED_HTML_FRAGMENTS = [
     "context-level BCa bootstrap",
     "Semantic Entropy",
     "TOHA",
-    "One gate is complete; six remain pending.",
+    "Two gates are complete; five remain pending.",
     "The current 0.835 / 0.779 values remain exploratory context.",
     "introduces no new detector metric",
-    "The dataset-source gate is complete",
-    "502,938-row strict prior-period window has a completed quality profile",
+    "The dataset-source and context-manifest gates are complete",
+    "private, Git-ignored manifest now fixes 48 unique complete-week contexts",
     "conditionally suitable for aggregate business analysis",
-    "zero canonical and date-blind historical record overlap",
-    "aggregate capacity for 48 unique complete-week contexts",
+    "Zero historical record overlap",
+    "48-slot aggregate capacity",
     "Customer ID",
     "Read the source audit.",
     "Read the quality profile.",
     "Read the overlap proof.",
     "Read the capacity proof.",
     "Read the precision review.",
-    "Freeze only the deterministic 6/15/27 context manifest",
+    "Read the manifest commitment.",
+    "Define and validate deterministic question templates",
     ".panel { min-width:0;",
     "overflow-wrap:anywhere; word-break:break-word;",
 ]
@@ -100,6 +102,7 @@ def main() -> None:
         DATASET_AUDIT_SUMMARY_PATH,
         CONTEXT_FEASIBILITY_PATH,
         PRECISION_REVIEW_PATH,
+        CONTEXT_MANIFEST_PATH,
         HTML_PATH,
         SUMMARY_PATH,
     ]:
@@ -111,6 +114,7 @@ def main() -> None:
     dataset_audit = load_json(DATASET_AUDIT_SUMMARY_PATH) if DATASET_AUDIT_SUMMARY_PATH.exists() else {}
     feasibility = load_json(CONTEXT_FEASIBILITY_PATH) if CONTEXT_FEASIBILITY_PATH.exists() else {}
     precision_report = load_json(PRECISION_REVIEW_PATH) if PRECISION_REVIEW_PATH.exists() else {}
+    context_manifest = load_json(CONTEXT_MANIFEST_PATH) if CONTEXT_MANIFEST_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
 
@@ -119,6 +123,7 @@ def main() -> None:
         (DATASET_AUDIT_SUMMARY_PATH, dataset_audit),
         (CONTEXT_FEASIBILITY_PATH, feasibility),
         (PRECISION_REVIEW_PATH, precision_report),
+        (CONTEXT_MANIFEST_PATH, context_manifest),
         (SUMMARY_PATH, summary),
     ]:
         if payload and contains_local_path(json.dumps(payload, ensure_ascii=True)):
@@ -187,7 +192,7 @@ def main() -> None:
         add_failure(failures, "methodology_f1_drift", methodology.get("locked_public_results"))
 
     dataset_strategy = protocol.get("dataset_strategy", {})
-    if dataset_strategy.get("selection_status") != "selected_source_audited_context_manifest_pending":
+    if dataset_strategy.get("selection_status") != "selected_source_audited_context_manifest_frozen":
         add_failure(failures, "dataset_selection_status", dataset_strategy.get("selection_status"))
     option_ids = {item.get("option_id") for item in dataset_strategy.get("options", [])}
     expected_option_ids = {
@@ -210,6 +215,10 @@ def main() -> None:
         "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
         "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+        "context_manifest_config": "configs/confirmation_context_manifest_v1.json",
+        "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
+        "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
+        "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
         "precision_review_config": "configs/confirmation_precision_review_v1.json",
         "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
         "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -222,6 +231,10 @@ def main() -> None:
         "quality_profile_verified": True,
         "historical_record_overlap_verified": True,
         "outcome_blind_context_feasibility_verified": True,
+        "outcome_blind_context_manifest_frozen": True,
+        "period_disjoint_split_frozen": True,
+        "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "question_level_evidence_payload_fingerprint_check_pending": True,
         "outcome_blind_precision_review_completed": True,
         "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,
@@ -286,6 +299,8 @@ def main() -> None:
         add_failure(failures, "pilot_metric_exclusion", sampling.get("protocol_pilot"))
 
     split_policy = protocol.get("context_split_policy", {})
+    if split_policy.get("status") != "context_manifest_and_period_disjoint_split_frozen":
+        add_failure(failures, "split_policy_status", split_policy.get("status"))
     if split_policy.get("assignment_unit") != "evidence_context_id":
         add_failure(failures, "split_assignment_unit", split_policy.get("assignment_unit"))
     precision_review = protocol.get("precision_review", {})
@@ -299,6 +314,36 @@ def main() -> None:
         add_failure(failures, "precision_review_selected_contexts", precision_review)
     if precision_report.get("status") != "outcome_blind_precision_review_blocked":
         add_failure(failures, "precision_review_source_status", precision_report.get("status"))
+    expected_manifest_evidence = {
+        "status": "confirmation_context_manifest_v1_frozen",
+        "selected_context_count": 48,
+        "reserve_period_count": 2,
+        "split_counts": {
+            "protocol_pilot": 6,
+            "development": 15,
+            "confirmation": 27,
+        },
+        "commitment": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "context_manifest_created": True,
+        "split_assignment_created": True,
+        "question_created": False,
+        "model_run_performed": False,
+        "new_metrics_reported": False,
+    }
+    observed_manifest_evidence = {
+        "status": context_manifest.get("status"),
+        "selected_context_count": context_manifest.get("frozen_inventory", {}).get("selected_context_count"),
+        "reserve_period_count": context_manifest.get("frozen_inventory", {}).get("reserve_period_count"),
+        "split_counts": context_manifest.get("frozen_inventory", {}).get("split_counts"),
+        "commitment": context_manifest.get("private_manifest_commitment", {}).get("canonical_sha256"),
+        "context_manifest_created": context_manifest.get("execution_boundary", {}).get("context_manifest_created"),
+        "split_assignment_created": context_manifest.get("execution_boundary", {}).get("split_assignment_created"),
+        "question_created": context_manifest.get("execution_boundary", {}).get("question_created"),
+        "model_run_performed": context_manifest.get("execution_boundary", {}).get("model_run_performed"),
+        "new_metrics_reported": context_manifest.get("execution_boundary", {}).get("new_metrics_reported"),
+    }
+    if observed_manifest_evidence != expected_manifest_evidence:
+        add_failure(failures, "context_manifest_source_status", observed_manifest_evidence)
 
     if split_policy.get("period_disjoint_across_all_new_study_splits") is not True:
         add_failure(failures, "period_disjoint_policy", split_policy)
@@ -308,6 +353,14 @@ def main() -> None:
         add_failure(failures, "historical_evidence_exclusion", split_policy)
     if split_policy.get("historical_question_id_reuse") is not False:
         add_failure(failures, "historical_question_id_reuse", split_policy)
+    if split_policy.get("selected_context_count") != 48 or split_policy.get("reserve_period_count") != 2:
+        add_failure(failures, "split_inventory_counts", split_policy)
+    if split_policy.get("context_pool_fingerprint_check_complete") is not True:
+        add_failure(failures, "context_pool_fingerprint_check", split_policy)
+    if split_policy.get("question_payload_fingerprint_check_pending") is not True:
+        add_failure(failures, "question_payload_fingerprint_boundary", split_policy)
+    if split_policy.get("public_manifest_commitment_sha256") != "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a":
+        add_failure(failures, "manifest_commitment", split_policy.get("public_manifest_commitment_sha256"))
     forbidden_assignment = set(split_policy.get("forbidden_assignment_methods", []))
     for required in ["periodic row position", "generated-answer auto-status"]:
         if required not in forbidden_assignment:
@@ -379,7 +432,7 @@ def main() -> None:
     gate_statuses = {item.get("gate"): item.get("status") for item in gates}
     expected_gate_statuses = {
         "dataset_source_selected_and_audited": "complete",
-        "context_manifest_split_and_precision_review_frozen": "pending",
+        "context_manifest_split_and_precision_review_frozen": "complete",
         "question_templates_and_gold_calculations_validated": "pending",
         "model_prompt_and_detector_configs_frozen": "pending",
         "two_independent_human_reviewers_assigned": "pending",
@@ -394,7 +447,7 @@ def main() -> None:
         "execution_ready": False,
         "no_new_results": True,
         "study_role": "prospective_confirmation_design",
-        "dataset_selection_status": "selected_source_audited_context_manifest_pending",
+        "dataset_selection_status": "selected_source_audited_context_manifest_frozen",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_role": "prospective_temporal_internal_replication",
         "dataset_gate_status": "complete",
@@ -424,6 +477,14 @@ def main() -> None:
         "precision_review_report_path": "reports/bizhallu_confirmation_precision_review_report.json",
         "precision_review_original_status": "outcome_blind_precision_review_blocked",
         "precision_scope_amendment_status": "complete_with_scope_downgrade",
+        "context_manifest_report_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+        "context_manifest_status": "confirmation_context_manifest_v1_frozen",
+        "context_manifest_created": True,
+        "split_assignment_created": True,
+        "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "selected_context_count": 48,
+        "reserve_period_count": 2,
+        "question_payload_fingerprint_check_pending": True,
         "dataset_option_count": 4,
         "candidate_question_family_count": 4,
         "protocol_pilot_question_count": 12,
@@ -440,7 +501,7 @@ def main() -> None:
         "claim_inventory_policy": "exhaustive_business_fact_claim_inventory",
         "binary_positive_statuses": ["contradicted", "unmatched"],
         "evaluation_track_count": 4,
-        "pending_gate_count": 6,
+        "pending_gate_count": 5,
         "current_study_classification": "exploratory_retrospective",
         "current_share_status": "share_with_caveats",
         "historical_exploratory_max_test_auprc": 0.835073,
@@ -462,7 +523,7 @@ def main() -> None:
         "summary_path": repo_path(SUMMARY_PATH),
         "execution_ready": False,
         "no_new_results": True,
-        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_context_manifest_pending",
+        "dataset_source_selected": dataset_strategy.get("selection_status") == "selected_source_audited_context_manifest_frozen",
         "dataset_acquisition_verified": dataset_strategy.get("official_acquisition_verified") is True,
         "dataset_structure_and_date_window_verified": dataset_strategy.get("structure_and_date_window_verified") is True,
         "dataset_quality_profile_verified": dataset_strategy.get("quality_profile_verified") is True,

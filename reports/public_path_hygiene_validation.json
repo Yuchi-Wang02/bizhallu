@@ -1,8 +1,9 @@
 {
   "status": "public_path_hygiene_ready",
-  "checked_file_count": 96,
+  "checked_file_count": 99,
   "checked_files": [
     "configs/confirmation_context_feasibility_v1.json",
+    "configs/confirmation_context_manifest_v1.json",
     "configs/confirmation_dataset_source_audit_v1.json",
     "configs/confirmation_precision_review_v1.json",
     "configs/confirmation_precision_scope_amendment_v1.json",
@@ -26,6 +27,8 @@
     "reports/bizhallu_career_package_validation.json",
     "reports/bizhallu_confirmation_context_feasibility_report.json",
     "reports/bizhallu_confirmation_context_feasibility_validation.json",
+    "reports/bizhallu_confirmation_context_manifest_report.json",
+    "reports/bizhallu_confirmation_context_manifest_validation.json",
     "reports/bizhallu_confirmation_dataset_acquisition_report.json",
     "reports/bizhallu_confirmation_dataset_acquisition_validation.json",
     "reports/bizhallu_confirmation_dataset_overlap_report.json",

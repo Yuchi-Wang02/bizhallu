@@ -21,6 +21,7 @@ OVERLAP_HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_dataset_ov
 FEASIBILITY_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_report.json"
 FEASIBILITY_HTML_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility.html"
 FEASIBILITY_VALIDATION_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_feasibility_validation.json"
+CONTEXT_MANIFEST_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 LOCAL_QUALITY_PATH = PROJECT_ROOT / "data" / "processed" / "data_quality_report.json"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 HTML_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_source_audit.html"
@@ -62,11 +63,12 @@ REQUIRED_HTML_FRAGMENTS = [
     "2,057 negative-quantity rows",
     "GBP 9,266,060.76",
     "Nine checks are complete; public privacy stays active.",
-    "Freeze the manifest and split next; do not generate.",
+    "Validate question templates and gold calculations next; do not generate.",
     "Read the aggregate-only overlap proof.",
     "Read the aggregate-only capacity proof.",
     "48 unique complete-week context slots",
-    "The raw files remain local and Git-ignored.",
+    "detailed context manifest remain local and Git-ignored",
+    "48-context inventory and 6/15/27 split are frozen",
     ".panel { min-width:0;",
     "overflow-x:auto;",
     "overflow-wrap:anywhere;",
@@ -123,6 +125,7 @@ def main() -> None:
         FEASIBILITY_PATH,
         FEASIBILITY_HTML_PATH,
         FEASIBILITY_VALIDATION_PATH,
+        CONTEXT_MANIFEST_PATH,
         LOCAL_QUALITY_PATH,
         HTML_PATH,
         SUMMARY_PATH,
@@ -138,6 +141,7 @@ def main() -> None:
     quality = load_json(QUALITY_PATH) if QUALITY_PATH.exists() else {}
     overlap = load_json(OVERLAP_PATH) if OVERLAP_PATH.exists() else {}
     feasibility = load_json(FEASIBILITY_PATH) if FEASIBILITY_PATH.exists() else {}
+    context_manifest = load_json(CONTEXT_MANIFEST_PATH) if CONTEXT_MANIFEST_PATH.exists() else {}
     local_quality = load_json(LOCAL_QUALITY_PATH) if LOCAL_QUALITY_PATH.exists() else {}
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
@@ -327,7 +331,7 @@ def main() -> None:
 
     strategy = protocol.get("dataset_strategy", {})
     expected_strategy = {
-        "selection_status": "selected_source_audited_context_manifest_pending",
+        "selection_status": "selected_source_audited_context_manifest_frozen",
         "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
         "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
         "structure_report": "reports/bizhallu_confirmation_dataset_structure_report.json",
@@ -339,6 +343,10 @@ def main() -> None:
         "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
         "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
         "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+        "context_manifest_config": "configs/confirmation_context_manifest_v1.json",
+        "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
+        "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
+        "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
         "precision_review_config": "configs/confirmation_precision_review_v1.json",
         "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
         "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -351,6 +359,10 @@ def main() -> None:
         "quality_profile_verified": True,
         "historical_record_overlap_verified": True,
         "outcome_blind_context_feasibility_verified": True,
+        "outcome_blind_context_manifest_frozen": True,
+        "period_disjoint_split_frozen": True,
+        "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "question_level_evidence_payload_fingerprint_check_pending": True,
         "outcome_blind_precision_review_completed": True,
         "precision_review_scope_downgraded_to_estimation": True,
         "canonical_record_overlap_row_count": 0,
@@ -423,7 +435,7 @@ def main() -> None:
         "local_profile_complete": True,
         "execution_ready": False,
         "no_new_results": True,
-        "selection_status": "selected_source_audited_context_manifest_pending",
+        "selection_status": "selected_source_audited_context_manifest_frozen",
         "selected_candidate_id": "uci_online_retail_ii_prior_period",
         "selected_candidate_name": "UCI Online Retail II, strict prior-period window",
         "selected_candidate_role": "prospective_temporal_internal_replication",
@@ -461,6 +473,13 @@ def main() -> None:
         "required_context_count": 48,
         "maximum_slot_matching_count": 48,
         "minimum_hall_capacity_slack": 2,
+        "context_manifest_report_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+        "context_manifest_status": "confirmation_context_manifest_v1_frozen",
+        "context_manifest_created": True,
+        "split_assignment_created": True,
+        "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "selected_context_count": 48,
+        "reserve_period_count": 2,
         "source_feasible_family_count": 3,
         "blocked_family_count": 1,
         "candidate_count": 6,
@@ -469,7 +488,7 @@ def main() -> None:
         "selected_criterion_status_counts": EXPECTED_CRITERION_STATUSES,
         "pending_criterion_ids": [],
         "local_profile_check_count": 10,
-        "next_authorized_action": "Freeze only the deterministic 6 pilot, 15 development, and 27 confirmation context manifest and seeded split. Do not create questions, prompts, or model outputs yet.",
+        "next_authorized_action": "Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints. Do not generate prompts or run the model yet.",
         "num_failures": 0,
     }
     for key, expected in expected_summary.items():
@@ -602,6 +621,33 @@ def main() -> None:
     if observed_feasibility_evidence != expected_feasibility_evidence:
         add_failure(failures, "context_feasibility_evidence_drift", observed_feasibility_evidence)
 
+    expected_manifest_evidence = {
+        "status": "confirmation_context_manifest_v1_frozen",
+        "selected_context_count": 48,
+        "reserve_period_count": 2,
+        "split_counts": {
+            "protocol_pilot": 6,
+            "development": 15,
+            "confirmation": 27,
+        },
+        "commitment": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+        "question_created": False,
+        "model_run_performed": False,
+        "new_metrics_reported": False,
+    }
+    observed_manifest_evidence = {
+        "status": context_manifest.get("status"),
+        "selected_context_count": context_manifest.get("frozen_inventory", {}).get("selected_context_count"),
+        "reserve_period_count": context_manifest.get("frozen_inventory", {}).get("reserve_period_count"),
+        "split_counts": context_manifest.get("frozen_inventory", {}).get("split_counts"),
+        "commitment": context_manifest.get("private_manifest_commitment", {}).get("canonical_sha256"),
+        "question_created": context_manifest.get("execution_boundary", {}).get("question_created"),
+        "model_run_performed": context_manifest.get("execution_boundary", {}).get("model_run_performed"),
+        "new_metrics_reported": context_manifest.get("execution_boundary", {}).get("new_metrics_reported"),
+    }
+    if observed_manifest_evidence != expected_manifest_evidence:
+        add_failure(failures, "context_manifest_evidence_drift", observed_manifest_evidence)
+
     for artifact_path, payload in [
         (AUDIT_PATH, audit),
         (ACQUISITION_PATH, acquisition),
@@ -609,6 +655,7 @@ def main() -> None:
         (QUALITY_PATH, quality),
         (OVERLAP_PATH, overlap),
         (FEASIBILITY_PATH, feasibility),
+        (CONTEXT_MANIFEST_PATH, context_manifest),
         (SUMMARY_PATH, summary),
     ]:
         if contains_local_path(json.dumps(payload, ensure_ascii=True)):

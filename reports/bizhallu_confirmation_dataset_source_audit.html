@@ -51,7 +51,7 @@
   <body>
     <header class="topbar">
       <a class="brand" href="./bizhallu_confirmation_set_v1_design.html">BizHallu</a>
-      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
+      <nav><a href="./bizhallu_confirmation_set_v1_design.html">Confirmation design</a><a href="./bizhallu_confirmation_dataset_quality.html">Quality profile</a><a href="./bizhallu_confirmation_precision_review.html">Precision review</a><a href="./bizhallu_confirmation_context_manifest.html">Manifest freeze</a><a href="./bizhallu_methodology_hardening.html">Current audit</a></nav>
     </header>
     <main>
       <section class="hero">
@@ -64,7 +64,7 @@
           <div><span>Strict rows</span><strong>502,938</strong></div>
           <div><span>New results</span><strong>None</strong></div>
         </div>
-        <div class="callout"><strong>Execution remains blocked.</strong> The raw files remain local and Git-ignored. No context manifest, prompt, model output, annotation target, detector decision, or Confirmation Set result was created.</div>
+        <div class="callout"><strong>Execution remains blocked.</strong> The raw files and detailed context manifest remain local and Git-ignored. The 48-context inventory and 6/15/27 split are frozen under a public SHA-256 commitment, but no question, prompt, model output, annotation target, detector decision, or Confirmation Set result exists.</div>
       </section>
 
       <section>
@@ -106,7 +106,7 @@
       <section>
         <p class="eyebrow">Acceptance criteria</p>
         <h2>Analytical quality, record separation, and aggregate capacity are controlled.</h2>
-        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for 48 unique complete-week contexts. Context selection and final evidence-fingerprint checks remain later gates.</p>
+        <p>Local evidence confirms file integrity, workbook shape, date coverage, deterministic aliases, completeness, duplicate behavior, business-rule validity, monthly reconciliation, zero canonical plus date-blind historical record overlap, outcome-blind precision review, and capacity for 48 unique complete-week contexts. The context inventory and split are now frozen; exact question-level evidence payload fingerprints remain a next-gate check.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Criterion</th><th>Status</th><th>Requirement</th><th>Current evidence</th></tr></thead>
           <tbody><tr>
@@ -292,12 +292,12 @@
 
       <section>
         <p class="eyebrow">Next authorized action</p>
-        <h2>Freeze the manifest and split next; do not generate.</h2>
-        <p>Freeze only the deterministic 6 pilot, 15 development, and 27 confirmation context manifest and seeded split. Do not create questions, prompts, or model outputs yet.</p>
+        <h2>Validate question templates and gold calculations next; do not generate.</h2>
+        <p>Define and validate deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprints. Do not generate prompts or run the model yet.</p>
         <div class="callout"><strong>Still prohibited:</strong> creating confirmation prompts, running Qwen, viewing answer correctness, selecting annotation targets, tuning detectors, or reporting Confirmation Set v1 performance.</div>
       </section>
 
-      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, outcome-blind precision review, and revised aggregate context capacity are verified; experiment execution remains blocked.</footer>
+      <footer>BizHallu Confirmation Dataset Source Audit v1. Acquisition, structure, strict-window quality, historical record separation, precision review, aggregate capacity, and the subsequent manifest freeze are verified; experiment execution remains blocked.</footer>
     </main>
   </body>
 </html>

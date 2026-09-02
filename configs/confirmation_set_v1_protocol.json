@@ -15,7 +15,7 @@
     "policy": "Current values are historical context only and cannot be relabeled as Confirmation Set v1 results."
   },
   "dataset_strategy": {
-    "selection_status": "selected_source_audited_context_manifest_pending",
+    "selection_status": "selected_source_audited_context_manifest_frozen",
     "decision_must_precede_prompt_generation": true,
     "source_audit": "configs/confirmation_dataset_source_audit_v1.json",
     "acquisition_report": "reports/bizhallu_confirmation_dataset_acquisition_report.json",
@@ -28,6 +28,10 @@
     "context_feasibility_report": "reports/bizhallu_confirmation_context_feasibility_report.json",
     "context_feasibility_html": "reports/bizhallu_confirmation_context_feasibility.html",
     "context_feasibility_validation": "reports/bizhallu_confirmation_context_feasibility_validation.json",
+    "context_manifest_config": "configs/confirmation_context_manifest_v1.json",
+    "context_manifest_report": "reports/bizhallu_confirmation_context_manifest_report.json",
+    "context_manifest_html": "reports/bizhallu_confirmation_context_manifest.html",
+    "context_manifest_validation": "reports/bizhallu_confirmation_context_manifest_validation.json",
     "precision_review_config": "configs/confirmation_precision_review_v1.json",
     "precision_review_report": "reports/bizhallu_confirmation_precision_review_report.json",
     "precision_review_html": "reports/bizhallu_confirmation_precision_review.html",
@@ -40,6 +44,10 @@
     "quality_profile_verified": true,
     "historical_record_overlap_verified": true,
     "outcome_blind_context_feasibility_verified": true,
+    "outcome_blind_context_manifest_frozen": true,
+    "period_disjoint_split_frozen": true,
+    "context_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+    "question_level_evidence_payload_fingerprint_check_pending": true,
     "outcome_blind_precision_review_completed": true,
     "precision_review_scope_downgraded_to_estimation": true,
     "canonical_record_overlap_row_count": 0,
@@ -65,7 +73,7 @@
     "blocked_question_families": [
       "customer_revenue_concentration"
     ],
-    "recommended_sequence": "The source audit gate is complete: quality controls, zero historical record overlap, an outcome-blind precision review with an explicit estimation-only scope amendment, and capacity for 48 unique complete-week contexts are verified. Next freeze only the deterministic 6/15/27 context manifest and seeded split; a separately scoped second-dataset replication remains required for stronger comparative or generalization claims.",
+    "recommended_sequence": "The source audit and context-manifest gates are complete. A private, Git-ignored manifest now fixes 48 unique complete-week contexts and the 6/15/27 split under a public SHA-256 commitment. Next define and validate deterministic question templates, scope-entity selection rules, gold calculations, and question-level evidence payload fingerprints without running the model. A separately scoped second-dataset replication remains required for stronger comparative or generalization claims.",
     "options": [
       {
         "option_id": "same_dataset_new_contexts",
@@ -198,6 +206,8 @@
     "claim_limit": "Confirmation Set v1 does not preregister a detector-superiority claim. Stronger comparison claims require additional independent contexts."
   },
   "context_split_policy": {
+    "status": "context_manifest_and_period_disjoint_split_frozen",
+    "frozen_on": "2026-09-02",
     "assignment_unit": "evidence_context_id",
     "assignment_method": "seeded_stratified_hash_after_context_manifest_freeze",
     "assignment_seed": 20260901,
@@ -217,6 +227,15 @@
     "historical_exploratory_evidence_fingerprint_exclusion": true,
     "historical_question_id_reuse": false,
     "question_ids_assigned_after_split": true,
+    "implemented_algorithm": "deterministic_hash_ordered_bipartite_augmenting_path_v1 followed by independent seeded within-family split ordering",
+    "private_manifest_path": "data/processed/confirmation_online_retail_ii/context_manifest_v1_private.json",
+    "private_manifest_git_ignored": true,
+    "public_manifest_commitment_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+    "public_manifest_commitment_sha256": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+    "selected_context_count": 48,
+    "reserve_period_count": 2,
+    "context_pool_fingerprint_check_complete": true,
+    "question_payload_fingerprint_check_pending": true,
     "forbidden_assignment_methods": [
       "periodic row position",
       "generated-answer auto-status",
@@ -225,7 +244,7 @@
     ]
   },
   "question_design": {
-    "family_status": "source_feasibility_and_precision_review_complete_manifest_pending",
+    "family_status": "context_manifest_and_split_frozen_question_templates_pending",
     "candidate_families": [
       {
         "family": "net_revenue_reconciliation_by_period",
@@ -368,12 +387,15 @@
     },
     {
       "gate": "context_manifest_split_and_precision_review_frozen",
-      "status": "pending",
-      "progress": "precision review complete with estimation-only scope amendment; revised 48-context capacity passes; deterministic context manifest, seeded split, and final evidence-fingerprint checks remain pending"
+      "status": "complete",
+      "progress": "precision review complete with estimation-only scope amendment; a deterministic private manifest fixes 48 unique complete-week contexts and the seeded 6/15/27 split; all 48 context-level evidence-pool fingerprints are unique",
+      "completion_evidence": "reports/bizhallu_confirmation_context_manifest_report.json records the aggregate allocation and canonical SHA-256 commitment 002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a. The selected periods, scope entities, context IDs, and evidence hashes remain in the Git-ignored private manifest.",
+      "blocking_requirements": []
     },
     {
       "gate": "question_templates_and_gold_calculations_validated",
-      "status": "pending"
+      "status": "pending",
+      "progress": "context inventory and split are frozen; deterministic question templates, scope-entity selection rules, gold calculations, question IDs, and question-level evidence payload fingerprint checks do not exist yet"
     },
     {
       "gate": "model_prompt_and_detector_configs_frozen",

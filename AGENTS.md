@@ -69,6 +69,7 @@ python src\validate_confirmation_dataset_quality.py
 python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_context_feasibility.py
 python src\validate_confirmation_precision_review.py
+python src\validate_confirmation_context_manifest.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -109,8 +110,8 @@ retrospective study. Use `configs/confirmation_set_v1_protocol.json` and
 the prospective next study.
 
 Confirmation Set v1 is design-only and is not execution-ready. Its dataset-source
-gate is complete; the other six gates must remain pending until each requirement
-is actually satisfied. The official-source desk audit selects the strict prior-period window from UCI Online
+and context-manifest gates are complete; the other five gates must remain pending
+until each requirement is actually satisfied. The official-source desk audit selects the strict prior-period window from UCI Online
 Retail II. The official ZIP and workbook are acquired, hashed, and kept under the
 Git-ignored raw-data tree. The two-sheet structure, three required raw-header
 aliases, complete InvoiceDate range, and 502,938-row strict prior-period boundary
@@ -131,16 +132,23 @@ are primary, paired differences are descriptive, and subgroup results are
 descriptive. Do not claim detector superiority from Confirmation Set v1.
 
 The revised plan contains 6 protocol-pilot, 15 development, and 27 confirmation
-contexts, for 48 period-disjoint contexts and 96 questions. A repeated
+contexts, for 48 period-disjoint contexts and 96 future questions. A repeated
 outcome-blind capacity proof found 50 observed complete calendar weeks, a
 48-of-48 period-to-family matching, and minimum Hall-capacity slack 2 across
 net-revenue reconciliation, product return comparison, and country-product
 exposure. Customer concentration stays blocked because 100,207 Customer IDs
-are missing. No matching assignment, context manifest, or split was retained.
-The next authorized research action is only to freeze the deterministic
-6/15/27 context manifest and seeded period-disjoint split. Do not generate
-questions, prompts, model outputs, labels, detector scores, or new empirical
-metrics yet.
+are missing. A deterministic private manifest now fixes the 48 selected periods,
+16 contexts per family, the 6/15/27 split, two reserve periods, scope entities,
+context IDs, and canonical context evidence-pool hashes. The private manifest is
+Git-ignored; public artifacts may expose only aggregate counts and the canonical
+SHA-256 commitment `002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a`.
+Do not publish or manually edit selected periods, context IDs, scope entities, or
+private evidence hashes. Do not substitute reserve periods after outcome access.
+The next authorized research action is only to define and validate deterministic
+question templates, scope-entity selection rules, gold calculations, question IDs,
+and question-level evidence payload fingerprints. Do not generate prompts, run
+Qwen, create labels, score detectors or verifiers, or report new empirical metrics
+yet.
 Do not run Qwen, annotate new outputs, or report confirmation metrics before those
 checks are complete. Any future
 result described as confirmatory must use

@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "status": "assignment_rules_frozen",
+  "study_name": "Confirmation Set v1",
+  "frozen_on": "2026-09-02",
+  "purpose": "Freeze an outcome-blind, period-disjoint context inventory and 6/15/27 split before questions, prompts, model outputs, labels, detector scores, or new metrics are created.",
+  "inputs": {
+    "protocol": "configs/confirmation_set_v1_protocol.json",
+    "feasibility_config": "configs/confirmation_context_feasibility_v1.json",
+    "feasibility_local_proof": "data/processed/confirmation_online_retail_ii/context_feasibility_local_proof.json",
+    "strict_window_table": "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz",
+    "strict_window_table_sha256": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "historical_overlap_report": "reports/bizhallu_confirmation_dataset_overlap_report.json",
+    "precision_scope_amendment": "configs/confirmation_precision_scope_amendment_v1.json"
+  },
+  "candidate_policy": {
+    "period_definition": "complete_monday_through_sunday_calendar_week",
+    "candidate_source": "Only the 50 observed complete periods that passed every frozen family-eligibility rule in the local feasibility proof.",
+    "allowed_question_families": [
+      "net_revenue_reconciliation_by_period",
+      "product_return_rate_comparison",
+      "country_product_exposure"
+    ],
+    "blocked_question_families": [
+      "customer_revenue_concentration"
+    ],
+    "one_family_per_period": true,
+    "outcome_blind": true,
+    "forbidden_inputs": [
+      "generated answers",
+      "answer correctness or auto-status",
+      "annotations",
+      "detector or verifier predictions",
+      "detector metrics"
+    ]
+  },
+  "assignment": {
+    "seed": 20260901,
+    "hash_algorithm": "sha256",
+    "family_matching_algorithm": "deterministic_hash_ordered_bipartite_augmenting_path_v1",
+    "family_slot_order_domain": "bizhallu:confirmation-family-slot-order:v1",
+    "candidate_order_domain": "bizhallu:confirmation-period-candidate-order:v1",
+    "split_order_domain": "bizhallu:confirmation-split-order:v1",
+    "context_id_domain": "bizhallu:confirmation-context-id:v1",
+    "scope_entity_domain": "bizhallu:confirmation-scope-entities:v1",
+    "family_assignment_policy": "Create 16 slots for each allowed family, order slots and eligible periods by domain-separated seeded SHA-256, and retain the deterministic full matching only after all 48 slots are filled.",
+    "split_assignment_policy": "Within each family, order the 16 assigned contexts by an independent domain-separated seeded SHA-256 key; assign the first 2 to protocol_pilot, the next 5 to development, and the final 9 to confirmation.",
+    "tie_break_policy": "Break any equal hash keys by the canonical slot identifier or ISO period start string.",
+    "reserve_policy": "Retain the two unmatched observed complete periods as source reserve. Do not substitute them after model outcomes are viewed."
+  },
+  "target": {
+    "candidate_period_count": 50,
+    "selected_context_count": 48,
+    "reserve_period_count": 2,
+    "questions_per_context": 2,
+    "selected_question_target": 96,
+    "per_family": {
+      "protocol_pilot": 2,
+      "development": 5,
+      "confirmation": 9,
+      "total": 16
+    },
+    "all_families": {
+      "protocol_pilot": 6,
+      "development": 15,
+      "confirmation": 27,
+      "total": 48
+    }
+  },
+  "context_evidence_policy": {
+    "canonical_record_definition": "The normalized eight-field canonical record definition from the historical-overlap proof.",
+    "inventory_hash_definition": "Domain-separated SHA-256 over the sorted multiset of canonical row fingerprints and their multiplicities.",
+    "net_revenue_reconciliation_by_period": "All is_valid_net_revenue_line rows in the assigned complete week.",
+    "product_return_rate_comparison": "All is_merchandise_net_revenue_line rows for products that pass the frozen weekly product-support rules.",
+    "country_product_exposure": "All is_merchandise_net_revenue_line rows for countries that pass the frozen weekly country-support rules, excluding Unspecified.",
+    "context_pool_hashes_must_be_unique": true,
+    "final_question_evidence_payload_check": "Pending until deterministic question templates and gold evidence payloads are defined at the next execution gate."
+  },
+  "privacy": {
+    "private_manifest_path": "data/processed/confirmation_online_retail_ii/context_manifest_v1_private.json",
+    "private_manifest_git_ignored": true,
+    "public_commitment_path": "reports/bizhallu_confirmation_context_manifest_report.json",
+    "public_html_path": "reports/bizhallu_confirmation_context_manifest.html",
+    "publish_selected_periods": false,
+    "publish_context_ids": false,
+    "publish_scope_entities": false,
+    "publish_row_fingerprints": false,
+    "publish_only_aggregate_counts_and_whole_manifest_commitment": true
+  },
+  "execution_boundary": {
+    "context_manifest_and_split_may_be_created": true,
+    "question_or_gold_generation_allowed": false,
+    "prompt_generation_allowed": false,
+    "model_run_allowed": false,
+    "annotation_allowed": false,
+    "detector_or_verifier_scoring_allowed": false,
+    "new_empirical_metrics_allowed": false
+  }
+}

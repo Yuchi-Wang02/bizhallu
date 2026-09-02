@@ -34,6 +34,7 @@ CONFIRMATION_OVERLAP_PATH = REPORTS_DIR / "bizhallu_confirmation_dataset_overlap
 CONFIRMATION_FEASIBILITY_PATH = REPORTS_DIR / "bizhallu_confirmation_context_feasibility_report.json"
 CONFIRMATION_PRECISION_PATH = REPORTS_DIR / "bizhallu_confirmation_precision_review_report.json"
 CONFIRMATION_PRECISION_AMENDMENT_PATH = ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
+CONFIRMATION_CONTEXT_MANIFEST_PATH = REPORTS_DIR / "bizhallu_confirmation_context_manifest_report.json"
 NARRATIVE_SUMMARY_PATH = REPORTS_DIR / "bizhallu_portfolio_narrative_summary.json"
 PREFLIGHT_VALIDATION_PATH = ROOT / "results" / "full100_preflight_validation.json"
 MANIFEST_PATH = DOCS_DIR / "github_pages_manifest.json"
@@ -106,6 +107,11 @@ PAGE_COPIES = [
         "confirmation_precision_review",
     ),
     (
+        REPORTS_DIR / "bizhallu_confirmation_context_manifest.html",
+        DOCS_DIR / "confirmation_context_manifest.html",
+        "confirmation_context_manifest",
+    ),
+    (
         REPORTS_DIR / "bizhallu_confirmation_set_v1_design.html",
         DOCS_DIR / "confirmation_set_v1_design.html",
         "confirmation_set_v1_design",
@@ -162,6 +168,7 @@ ASSET_COPIES = [
 
 LINK_REWRITES = {
     "../site/index.html": "./index.html",
+    "../docs/index.html": "./index.html",
     "../docs/project_blueprint.md": "./project_blueprint.md",
     "../docs/current_state_audit.md": "./current_state_audit.md",
     "../results/full100_draft_detector_error_review_examples.csv": (
@@ -176,6 +183,7 @@ LINK_REWRITES = {
     "./bizhallu_confirmation_dataset_overlap.html": "./confirmation_dataset_overlap.html",
     "./bizhallu_confirmation_context_feasibility.html": "./confirmation_context_feasibility.html",
     "./bizhallu_confirmation_precision_review.html": "./confirmation_precision_review.html",
+    "./bizhallu_confirmation_context_manifest.html": "./confirmation_context_manifest.html",
     "./bizhallu_confirmation_set_v1_design.html": "./confirmation_set_v1_design.html",
     "./full100_detector_interpretation.html": "./detector_interpretation.html",
     "./full100_label_lock_report.html": "./label_lock_report.html",
@@ -223,6 +231,7 @@ def render_index(
     confirmation_feasibility: dict[str, Any],
     confirmation_precision: dict[str, Any],
     confirmation_precision_amendment: dict[str, Any],
+    confirmation_context_manifest: dict[str, Any],
     narrative: dict[str, Any],
     preflight: dict[str, Any],
 ) -> str:
@@ -266,6 +275,13 @@ def render_index(
     revised_confirmation_contexts = revised_counts.get("confirmation_context_count", "n/a")
     revised_total_contexts = revised_counts.get("total_context_count", "n/a")
     revised_total_questions = revised_counts.get("total_question_count", "n/a")
+    frozen_context_count = confirmation_context_manifest.get("frozen_inventory", {}).get(
+        "selected_context_count", "n/a"
+    )
+    reserve_period_count = confirmation_context_manifest.get("frozen_inventory", {}).get(
+        "reserve_period_count", "n/a"
+    )
+    context_manifest_status = confirmation_context_manifest.get("status", "n/a")
     current_stage = "github_pages_ready"
     model_id = escape(str(narrative.get("qwen_model_id", "Qwen/Qwen3-0.6B")))
     lock_basis = escape(str(narrative.get("label_lock_basis", "assistant_full_review")))
@@ -641,8 +657,9 @@ def render_index(
           <article class="card">
             <h3>Confirmation data gate</h3>
             <p>Inspect source acquisition, strict-window quality, {confirmation_overlap_rows} repeated historical records, and outcome-blind capacity: {confirmation_observed_weeks} observed complete weeks support a {confirmation_matching}/{confirmation_required_contexts} unique period-to-family matching with minimum Hall slack +{confirmation_hall_slack}.</p>
-            <p>No context assignment, split, question, prompt, model output, annotation, or new empirical metric exists. The next authorized step is only the outcome-blind 6/15/{revised_confirmation_contexts} context-manifest and period-disjoint split freeze.</p>
-            <p><a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_context_feasibility.html">Capacity proof</a></p>
+            <p>The private manifest now fixes {frozen_context_count} unique contexts and the 6/15/{revised_confirmation_contexts} split, with {reserve_period_count} source weeks held in reserve. Status: {context_manifest_status}. No question, prompt, model output, annotation, or new empirical metric exists.</p>
+            <p>Next validate deterministic question templates, gold calculations, and question-level evidence payload fingerprints without running Qwen.</p>
+            <p><a href="./confirmation_context_manifest.html">Manifest commitment</a> / <a href="./confirmation_dataset_source_audit.html">Source audit</a> / <a href="./confirmation_dataset_quality.html">Quality profile</a> / <a href="./confirmation_dataset_overlap.html">Overlap proof</a> / <a href="./confirmation_context_feasibility.html">Capacity proof</a></p>
           </article>
           <article class="card">
             <h3>Interview deck</h3>
@@ -772,6 +789,7 @@ def main() -> None:
     confirmation_feasibility = load_json(CONFIRMATION_FEASIBILITY_PATH)
     confirmation_precision = load_json(CONFIRMATION_PRECISION_PATH)
     confirmation_precision_amendment = load_json(CONFIRMATION_PRECISION_AMENDMENT_PATH)
+    confirmation_context_manifest = load_json(CONFIRMATION_CONTEXT_MANIFEST_PATH)
     narrative = load_json(NARRATIVE_SUMMARY_PATH)
     preflight = load_json(PREFLIGHT_VALIDATION_PATH)
 
@@ -787,6 +805,7 @@ def main() -> None:
         confirmation_feasibility,
         confirmation_precision,
         confirmation_precision_amendment,
+        confirmation_context_manifest,
         narrative,
         preflight,
     )
@@ -811,6 +830,7 @@ def main() -> None:
         "source_confirmation_feasibility_path": repo_path(CONFIRMATION_FEASIBILITY_PATH),
         "source_confirmation_precision_path": repo_path(CONFIRMATION_PRECISION_PATH),
         "source_confirmation_precision_amendment_path": repo_path(CONFIRMATION_PRECISION_AMENDMENT_PATH),
+        "source_confirmation_context_manifest_path": repo_path(CONFIRMATION_CONTEXT_MANIFEST_PATH),
         "source_narrative_summary_path": repo_path(NARRATIVE_SUMMARY_PATH),
         "source_preflight_validation_path": repo_path(PREFLIGHT_VALIDATION_PATH),
         "source_preflight_stage": preflight.get("current_stage"),
@@ -844,7 +864,13 @@ def main() -> None:
         "confirmation_required_context_count": confirmation_feasibility.get("capacity_proof", {}).get("required_total_context_count"),
         "confirmation_maximum_slot_matching_count": confirmation_feasibility.get("capacity_proof", {}).get("maximum_slot_matching_count"),
         "confirmation_minimum_hall_capacity_slack": confirmation_feasibility.get("capacity_proof", {}).get("minimum_hall_capacity_slack"),
-        "confirmation_context_manifest_created": confirmation_feasibility.get("context_manifest_created"),
+        "confirmation_context_manifest_status": confirmation_context_manifest.get("status"),
+        "confirmation_context_manifest_created": confirmation_context_manifest.get("execution_boundary", {}).get("context_manifest_created"),
+        "confirmation_split_assignment_created": confirmation_context_manifest.get("execution_boundary", {}).get("split_assignment_created"),
+        "confirmation_context_manifest_commitment_sha256": confirmation_context_manifest.get("private_manifest_commitment", {}).get("canonical_sha256"),
+        "confirmation_context_manifest_selected_context_count": confirmation_context_manifest.get("frozen_inventory", {}).get("selected_context_count"),
+        "confirmation_context_manifest_reserve_period_count": confirmation_context_manifest.get("frozen_inventory", {}).get("reserve_period_count"),
+        "confirmation_question_payload_fingerprint_check": confirmation_context_manifest.get("context_evidence_integrity", {}).get("final_question_evidence_payload_fingerprint_check"),
         "confirmation_precision_review_status": confirmation_precision.get("status"),
         "confirmation_precision_candidate_count": len(confirmation_precision.get("candidate_summaries", [])),
         "confirmation_precision_passing_candidate_count": confirmation_precision_amendment.get("failed_strong_comparison_design", {}).get("passing_candidate_count"),

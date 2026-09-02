@@ -6,6 +6,7 @@
 [Methodology audit](https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html) |
 [Confirmation capacity proof](https://yuchi-wang02.github.io/bizhallu/confirmation_context_feasibility.html) |
 [Confirmation precision review](https://yuchi-wang02.github.io/bizhallu/confirmation_precision_review.html) |
+[Confirmation manifest freeze](https://yuchi-wang02.github.io/bizhallu/confirmation_context_manifest.html) |
 [Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
 [Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
 
@@ -103,6 +104,7 @@ business conclusion.
 | Research one-pager | <https://yuchi-wang02.github.io/bizhallu/research_one_pager.html> |
 | Methodology Hardening v1 | <https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html> |
 | Confirmation precision review | <https://yuchi-wang02.github.io/bizhallu/confirmation_precision_review.html> |
+| Confirmation context manifest | <https://yuchi-wang02.github.io/bizhallu/confirmation_context_manifest.html> |
 | Claim-evidence review schema v0 | <https://yuchi-wang02.github.io/bizhallu/evidence_verifier_pilot.html> |
 | Portfolio narrative | <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html> |
 | Detector interpretation | <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html> |
@@ -183,6 +185,7 @@ confirmation protocol.
 | [`configs/methodology_protocol_v1.json`](configs/methodology_protocol_v1.json) | Machine-readable boundary between the current exploratory study and a future confirmation study |
 | [`configs/confirmation_set_v1_protocol.json`](configs/confirmation_set_v1_protocol.json) | Prospective, context-separated confirmation design with outcome-blind sampling and seven execution gates |
 | [`configs/confirmation_context_feasibility_v1.json`](configs/confirmation_context_feasibility_v1.json) | Frozen complete-week grain, family eligibility rules, revised 48-context capacity target, and public privacy boundary |
+| [`configs/confirmation_context_manifest_v1.json`](configs/confirmation_context_manifest_v1.json) | Frozen outcome-blind assignment algorithm, 6/15/27 split policy, reserve rule, and public/private manifest boundary |
 | [`configs/confirmation_precision_review_v1.json`](configs/confirmation_precision_review_v1.json) | Frozen synthetic cluster-precision scenarios and strong-comparison decision rules |
 | [`configs/confirmation_precision_scope_amendment_v1.json`](configs/confirmation_precision_scope_amendment_v1.json) | Estimation-focused claim amendment after no candidate passed every frozen strong-comparison rule |
 | [`reports/bizhallu_confirmation_dataset_source_audit.html`](reports/bizhallu_confirmation_dataset_source_audit.html) | Candidate-source decision, verified acquisition/structure evidence, and remaining source gates |
@@ -190,6 +193,7 @@ confirmation protocol.
 | [`reports/bizhallu_confirmation_dataset_overlap.html`](reports/bizhallu_confirmation_dataset_overlap.html) | Aggregate-only canonical, date-blind, lineage-calibration, business-pattern, and entity-overlap proof |
 | [`reports/bizhallu_confirmation_context_feasibility.html`](reports/bizhallu_confirmation_context_feasibility.html) | Aggregate-only proof that 48 unique complete-week context slots are feasible without selecting contexts or viewing model outcomes |
 | [`reports/bizhallu_confirmation_precision_review.html`](reports/bizhallu_confirmation_precision_review.html) | Outcome-blind simulation review, failed strong-comparison gate, and frozen estimation-only scope |
+| [`reports/bizhallu_confirmation_context_manifest.html`](reports/bizhallu_confirmation_context_manifest.html) | Aggregate public commitment to the frozen private 48-context inventory and seeded 6/15/27 split |
 | [`reports/bizhallu_confirmation_set_v1_design.html`](reports/bizhallu_confirmation_set_v1_design.html) | Human-readable Confirmation Set v1 design; no new experiment result |
 | [`docs/github_upload_checklist.md`](docs/github_upload_checklist.md) | Public upload checklist and claim guardrails |
 | [`docs/github_upload_dry_run.md`](docs/github_upload_dry_run.md) | Current GitHub safety and file-inclusion review |
@@ -200,6 +204,8 @@ The repository intentionally excludes:
 
 - raw Online Retail files under `data/raw/`
 - large cleaned line-level transaction tables
+- the detailed Confirmation Set v1 context manifest containing selected periods,
+  scope entities, context IDs, and context evidence-pool hashes
 - full Qwen generation JSONL files and token traces under `outputs/`
 - Hugging Face cache and model weights
 - external baseline repositories downloaded for local reference
@@ -224,6 +230,7 @@ python src\validate_confirmation_dataset_quality.py
 python src\validate_confirmation_dataset_overlap.py
 python src\validate_confirmation_context_feasibility.py
 python src\validate_confirmation_precision_review.py
+python src\validate_confirmation_context_manifest.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
 ```
@@ -238,6 +245,7 @@ Expected state:
 - `reports/bizhallu_confirmation_dataset_overlap_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_context_feasibility_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_precision_review_validation.json`: `num_failures=0`
+- `reports/bizhallu_confirmation_context_manifest_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_dataset_source_audit_validation.json`: `num_failures=0`
 - `reports/bizhallu_confirmation_set_v1_design_validation.json`: `num_failures=0`
 - all validation files report `num_failures=0`
@@ -263,6 +271,8 @@ python src\build_confirmation_dataset_overlap_report.py
 python src\profile_confirmation_context_feasibility.py
 python src\build_confirmation_context_feasibility_report.py
 python src\build_confirmation_precision_review_report.py
+python src\freeze_confirmation_context_manifest.py
+python src\build_confirmation_context_manifest_report.py
 python src\build_confirmation_dataset_source_audit.py
 python src\build_confirmation_set_v1_design.py
 python src\build_research_one_pager.py
@@ -299,10 +309,13 @@ python src\build_full100_preflight_report.py
   comparison rule; thresholds were not relaxed. The study scope is therefore
   estimation-focused and does not authorize detector-superiority claims. Fifty
   observed complete weeks support 48/48 period-to-family slots with minimum
-  Hall slack 2, but no assignment, context manifest, or split has been retained.
-  The next authorized step is only to freeze the outcome-blind 6/15/27 context
-  manifest and period-disjoint split. This is same-retailer, same-lineage
-  temporal separation, not external independence.
+  Hall slack 2. A Git-ignored private manifest now fixes 48 unique periods and
+  the 6/15/27 split, with two periods retained as source reserve; the public
+  report exposes only aggregate counts and a canonical SHA-256 commitment.
+  The next gate is deterministic question templates, gold calculations, and
+  question-level evidence payload fingerprint checks, without prompt generation
+  or model execution. This is same-retailer, same-lineage temporal separation,
+  not external independence.
 
 ## License and Data
 

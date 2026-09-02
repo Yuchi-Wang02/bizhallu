@@ -20,6 +20,7 @@ METHODOLOGY_PATH = PROJECT_ROOT / "reports" / "bizhallu_methodology_hardening_su
 PRECISION_AMENDMENT_PATH = (
     PROJECT_ROOT / "configs" / "confirmation_precision_scope_amendment_v1.json"
 )
+MANIFEST_REPORT_PATH = PROJECT_ROOT / "reports" / "bizhallu_confirmation_context_manifest_report.json"
 LOCAL_PROOF_PATH = (
     PROJECT_ROOT
     / "data"
@@ -94,10 +95,13 @@ REQUIRED_HTML_FRAGMENTS = [
     "100,207",
     "customer concentration stays blocked",
     "recorded return-to-positive-sales unit ratio",
-    "Freeze only the context manifest and seeded split.",
-    "precision review is complete with a narrower estimation claim",
+    "9 confirmation contexts per eligible family",
+    "The authorized manifest freeze is complete.",
+    "subsequent outcome-blind freeze now fixes 48 contexts and the 6/15/27 split",
+    "rejected the stronger comparison design and revised the plan",
     "No question, prompt, Qwen output",
-    "No context manifest or experiment result.",
+    "five downstream execution gates remain pending",
+    "No experiment result.",
     "overflow-x:auto;",
     "overflow-wrap:anywhere;",
     "@media (max-width:860px)",
@@ -158,6 +162,7 @@ def main() -> None:
         OVERLAP_PATH,
         METHODOLOGY_PATH,
         PRECISION_AMENDMENT_PATH,
+        MANIFEST_REPORT_PATH,
     ]
     missing = [repo_path(path) for path in required_paths if not path.exists()]
     if missing:
@@ -176,6 +181,7 @@ def main() -> None:
     overlap = load_json(OVERLAP_PATH)
     methodology = load_json(METHODOLOGY_PATH)
     precision_amendment = load_json(PRECISION_AMENDMENT_PATH)
+    manifest = load_json(MANIFEST_REPORT_PATH)
     html = HTML_PATH.read_text(encoding="utf-8")
 
     config_sha256 = file_sha256(CONFIG_PATH)
@@ -422,6 +428,26 @@ def main() -> None:
         precision_amendment.get("required_capacity_recheck", {}).get("status"),
         "complete",
     )
+    check_equal(
+        failures,
+        "subsequent_manifest_state",
+        {
+            "status": manifest.get("status"),
+            "selected": manifest.get("frozen_inventory", {}).get("selected_context_count"),
+            "reserve": manifest.get("frozen_inventory", {}).get("reserve_period_count"),
+            "splits": manifest.get("frozen_inventory", {}).get("split_counts"),
+            "question_created": manifest.get("execution_boundary", {}).get("question_created"),
+            "new_metrics": manifest.get("execution_boundary", {}).get("new_metrics_reported"),
+        },
+        {
+            "status": "confirmation_context_manifest_v1_frozen",
+            "selected": 48,
+            "reserve": 2,
+            "splits": {"protocol_pilot": 6, "development": 15, "confirmation": 27},
+            "question_created": False,
+            "new_metrics": False,
+        },
+    )
     for artifact_path, payload in [
         (CONFIG_PATH, config),
         (REPORT_PATH, report),
@@ -509,7 +535,9 @@ def main() -> None:
         "eligible_family_count": len(EXPECTED_ALLOWED_FAMILIES),
         "blocked_family_count": 1,
         "local_proof_checked": local_proof_checked,
-        "context_manifest_created": report.get("context_manifest_created"),
+        "capacity_checkpoint_context_manifest_created": report.get("context_manifest_created"),
+        "current_context_manifest_status": manifest.get("status"),
+        "current_selected_context_count": manifest.get("frozen_inventory", {}).get("selected_context_count"),
         "execution_ready": report.get("execution_ready"),
         "no_new_results": report.get("no_new_results"),
         "num_failures": len(failures),
