@@ -98,9 +98,9 @@
       "archive_notice": false,
       "source": "reports/bizhallu_portfolio_demo_v2.html",
       "dest": "docs/portfolio_demo_v2.html",
-      "source_sha256": "6d74caa880f82a4604580da2e7371e43f8791ce15e4a4c2ee406a85519cd80fe",
-      "dest_sha256": "6d74caa880f82a4604580da2e7371e43f8791ce15e4a4c2ee406a85519cd80fe",
-      "dest_size_bytes": 63030
+      "source_sha256": "bded1ef141dde58f977278cce22fbe49b4d2d94a935bcc417f95730d78e98f9e",
+      "dest_sha256": "bded1ef141dde58f977278cce22fbe49b4d2d94a935bcc417f95730d78e98f9e",
+      "dest_size_bytes": 63488
     },
     {
       "role": "portfolio_narrative",

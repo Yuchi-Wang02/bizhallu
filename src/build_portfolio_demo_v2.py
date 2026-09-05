@@ -313,7 +313,10 @@ def build_html(data: dict[str, Any]) -> str:
       .panel {{ border-bottom: 1px solid var(--line); }}
       details {{ margin: 16px 0; }}
       summary {{ cursor: pointer; font-weight: 700; }}
-      .table-scroll {{ overflow-x:auto; }}
+      .table-scroll {{ max-width: 100%; overflow-x: auto; }}
+      .table-scroll:focus-visible {{ outline: 2px solid var(--blue); outline-offset: 3px; }}
+      .table-scroll table {{ min-width: 720px; }}
+      .table-scroll th, .table-scroll td {{ overflow-wrap: normal; }}
       .statistical-review {{ padding:20px 0; }}
       .statistical-review th,.statistical-review td {{ min-width:95px; }}
       .case-button {{
@@ -336,6 +339,7 @@ def build_html(data: dict[str, Any]) -> str:
       .case-button strong {{ font-size: 14px; }}
       .case-button span {{ color: var(--muted); font-size: 12px; }}
       .content {{ display: grid; gap: 14px; }}
+      .content > * {{ min-width: 0; }}
       .toolbar {{
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -601,7 +605,7 @@ def build_html(data: dict[str, Any]) -> str:
         document.getElementById("relationshipPanel").innerHTML = audit ? `
           <h3>Product-amount fidelity versus ranking correctness</h3>
           <p>${{escapeHtml(audit.review_basis)}}.</p>
-          <div class="table-scroll"><table><thead><tr><th>Generated product / amount</th><th>Source row</th><th>Stated rank</th><th>Rank in shown evidence</th><th>Relationship</th></tr></thead><tbody>${{audit.claims.map(c=>`<tr><td>${{escapeHtml(c.product_name)}}<span class="small">GBP ${{escapeHtml(c.amount_lexical)}}</span></td><td>Row ${{c.source_row}}: amount matches</td><td>${{c.stated_rank}}</td><td>${{c.rank_in_shown_evidence}}</td><td>${{c.rank_supported_in_shown_evidence?'Supported ranking':'Incorrect binding'}}${{c.rank_supported_in_shown_evidence?'':`<span class="small">Rank ${{c.stated_rank}} belongs to ${{escapeHtml(c.expected_product_at_stated_rank)}} / GBP ${{escapeHtml(c.expected_amount_at_stated_rank)}}</span>`}}</td></tr>`).join('')}}</tbody></table></div>
+          <div class="table-scroll" role="region" aria-label="Ranked claims comparison" tabindex="0"><table><thead><tr><th>Generated product / amount</th><th>Source row</th><th>Stated rank</th><th>Rank in shown evidence</th><th>Relationship</th></tr></thead><tbody>${{audit.claims.map(c=>`<tr><td>${{escapeHtml(c.product_name)}}<span class="small">GBP ${{escapeHtml(c.amount_lexical)}}</span></td><td>Row ${{c.source_row}}: amount matches</td><td>${{c.stated_rank}}</td><td>${{c.rank_in_shown_evidence}}</td><td>${{c.rank_supported_in_shown_evidence?'Supported ranking':'Incorrect binding'}}${{c.rank_supported_in_shown_evidence?'':`<span class="small">Rank ${{c.stated_rank}} belongs to ${{escapeHtml(c.expected_product_at_stated_rank)}} / GBP ${{escapeHtml(c.expected_amount_at_stated_rank)}}</span>`}}</td></tr>`).join('')}}</tbody></table></div>
           <p>${{escapeHtml(audit.scope)}}</p><p>${{escapeHtml(audit.information_timing_note)}}</p>` : '<p>No new relationship audit is claimed for this historical case.</p>';
       }}
 
@@ -623,7 +627,7 @@ def build_html(data: dict[str, Any]) -> str:
         document.getElementById("spanPanel").innerHTML = `
           <h3>Historical selected spans</h3>
           <p>${{spans.length}} matching span(s). These are preserved provisional judgments; an early rank marker is not a completed-relationship confidence measure.</p>
-          <div class="table-scroll"><table>
+          <div class="table-scroll" role="region" aria-label="Historical span results" tabindex="0"><table>
             <thead><tr><th>Presentation label</th><th>Span</th><th>Selected detector</th><th>Why this label was selected</th></tr></thead>
             <tbody>${{rows || '<tr><td colspan="4">No spans match these filters.</td></tr>'}}</tbody>
           </table></div>
@@ -639,7 +643,7 @@ def build_html(data: dict[str, Any]) -> str:
         document.getElementById("evidencePanel").innerHTML = `
           <h3>Evidence rows shown to Qwen</h3>
           <p>${{escapeHtml(DEMO_DATA.meta.business_metric_note)}} Original evidence order and historical field names are preserved.</p>
-          <div class="table-scroll"><table><thead><tr>${{header}}</tr></thead><tbody>${{body}}</tbody></table></div>
+          <div class="table-scroll" role="region" aria-label="Original evidence rows" tabindex="0"><table><thead><tr>${{header}}</tr></thead><tbody>${{body}}</tbody></table></div>
         `;
       }}
 

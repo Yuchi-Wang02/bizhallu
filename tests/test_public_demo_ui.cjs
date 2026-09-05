@@ -51,6 +51,16 @@ test('answer precedes interpretive context in the reading order for every case',
   }
 });
 
+test('wide business tables remain labeled keyboard-focusable regions', () => {
+  const h = harness('?case=q_0064');
+  for (const [id, name] of [['relationshipPanel', 'Ranked claims comparison'],
+    ['evidencePanel', 'Original evidence rows'], ['spanPanel', 'Historical span results']]) {
+    assert.ok(h.el(id).innerHTML.includes(`role="region" aria-label="${name}" tabindex="0"`));
+  }
+  assert.match(html, /\.table-scroll table \{ min-width: 720px; \}/);
+  assert.match(html, /\.content > \* \{ min-width: 0; \}/);
+});
+
 test('case selection updates the question, comparison and URL', () => {
   const h = harness('?case=q_0064');
   h.change('caseSelect', 'q_0069');
