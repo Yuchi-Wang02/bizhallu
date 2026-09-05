@@ -309,6 +309,7 @@ def main() -> None:
       }}
       .snapshot strong {{ display: block; margin-top: 4px; font-size: 15px; }}
       section {{ padding: 28px 0; border-top: 1px solid var(--line); }}
+      #b2-dev-sensitivity, #statistical-review {{ scroll-margin-top: 82px; }}
       table {{ border-collapse: collapse; width: 100%; font-size: 14px; }}
       th, td {{ text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }}
       .b2-table {{ max-width: 100%; overflow-x: auto; margin: 14px 0; }}
@@ -324,18 +325,21 @@ def main() -> None:
       .claim-card {{ padding: 22px; box-shadow: none; background: var(--strong); }}
       .claim-card h3 {{ margin-bottom: 10px; }}
       .two-col {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }}
-      .panel {{ padding: 24px; box-shadow: none; background: var(--strong); }}
+      .panel {{ min-width: 0; padding: 24px; box-shadow: none; background: var(--strong); }}
       .panel h3 {{ margin-bottom: 12px; }}
       .error-list {{ display: grid; gap: 10px; padding: 0; margin: 16px 0 0; list-style: none; }}
       .error-list li {{
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        gap: 16px;
+        flex-wrap: wrap;
+        gap: 8px 16px;
         padding: 12px 0;
         border-top: 1px solid var(--line);
       }}
-      .error-list strong {{ font-size: 22px; }}
+      .error-list li > * {{ min-width: 0; max-width: 100%; overflow-wrap: anywhere; }}
+      .error-list span {{ flex: 1 1 120px; }}
+      .error-list strong {{ font-size: 16px; }}
       .callout {{
         margin-top: 18px;
         padding: 18px;
@@ -358,7 +362,7 @@ def main() -> None:
       .button {{ display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 18px; border-radius: 8px; background: var(--blue); color: #fff; font-weight: 800; }}
       @media (max-width: 900px) {{
         .topbar {{ padding: 0 20px; }}
-        .hero, .two-col, .claim-grid {{ grid-template-columns: 1fr; }}
+        .hero, .two-col, .claim-grid {{ grid-template-columns: minmax(0, 1fr); }}
         .metric-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
         .snapshot {{ grid-template-columns: repeat(2,minmax(0,1fr)); }}
         .row {{ grid-template-columns: 1fr 1fr; }}

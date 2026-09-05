@@ -359,7 +359,7 @@ def build_html(data: dict[str, Any]) -> str:
       .metric strong {{ display: block; margin-top: 6px; font-size: 26px; line-height: 1; }}
       .case-head {{ display: grid; gap: 8px; }}
       .case-head p, .panel p {{ color: var(--muted); }}
-      .answer-grid {{ display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 12px; }}
+      .answer-grid {{ display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 12px; }}
       pre {{
         white-space: pre-wrap;
         margin: 0;
@@ -586,15 +586,15 @@ def build_html(data: dict[str, Any]) -> str:
             <p>${{escapeHtml(caseRow.takeaway)}}</p>
           </div>
           <div class="answer-grid">
-            <div>
-              <h3>What the evidence establishes</h3>
-              <p>${{audit ? 'Every displayed product-amount pair below matches its own source row. The highlighted relationship is about rank, not whether every word or amount was fabricated.' : 'This is a historical selected example, not part of the new two-case relationship walkthrough.'}}</p>
-              <details><summary>Historical deterministic answer</summary><p>${{escapeHtml(caseRow.gold_short_answer)}}</p></details>
-              <p>${{escapeHtml(audit?.coverage_note || '')}}</p>
-            </div>
-            <div>
+            <div class="answer-output">
               <h3>Qwen answer</h3>
               <pre>${{highlightAnswer(caseRow.generated_text, marks)}}</pre>
+            </div>
+            <div class="answer-context">
+              <h3>What the evidence establishes</h3>
+              <p>${{audit ? 'Every highlighted product-amount pair matches its own source row. The highlighted relationship is about rank, not whether every word or amount was fabricated.' : 'This is a historical selected example, not part of the new two-case relationship walkthrough.'}}</p>
+              <details><summary>Historical deterministic answer</summary><p>${{escapeHtml(caseRow.gold_short_answer)}}</p></details>
+              <p>${{escapeHtml(audit?.coverage_note || '')}}</p>
             </div>
           </div>
         `;

@@ -98,9 +98,9 @@
       "archive_notice": false,
       "source": "reports/bizhallu_portfolio_demo_v2.html",
       "dest": "docs/portfolio_demo_v2.html",
-      "source_sha256": "75c5f3f1609023852d7be1badc7ff1de3ca97fe7bc24abeed4f0614bc54075fe",
-      "dest_sha256": "75c5f3f1609023852d7be1badc7ff1de3ca97fe7bc24abeed4f0614bc54075fe",
-      "dest_size_bytes": 62989
+      "source_sha256": "6d74caa880f82a4604580da2e7371e43f8791ce15e4a4c2ee406a85519cd80fe",
+      "dest_sha256": "6d74caa880f82a4604580da2e7371e43f8791ce15e4a4c2ee406a85519cd80fe",
+      "dest_size_bytes": 63030
     },
     {
       "role": "portfolio_narrative",
@@ -224,9 +224,9 @@
       "archive_notice": false,
       "source": "reports/full100_detector_interpretation.html",
       "dest": "docs/detector_interpretation.html",
-      "source_sha256": "d826aa5630c564dc095a892f1392bdf1ea308912e67545ad45d4f1748e9fd7a3",
-      "dest_sha256": "1149ef42de326fb919e30048ccb36ffcf2099d5b187f3d39a144c0b417a18997",
-      "dest_size_bytes": 28579
+      "source_sha256": "e82d9c47db6f1f827159dcb71118dcdf1ef4775cf5c60fd0f1ad8d06be2fb5d9",
+      "dest_sha256": "ebba28c0dba8be41fed0d784b7e851a43d0fb4f9fd47b4049f0acaf6c54f5fe2",
+      "dest_size_bytes": 28846
     },
     {
       "role": "label_lock_report",

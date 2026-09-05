@@ -44,6 +44,15 @@ class ReleaseSignpostingTests(unittest.TestCase):
     def test_current_pages_do_not_receive_an_archive_notice(self):
         self.assertEqual(add_archive_notice('<body>current</body>','interactive_demo_v2'),'<body>current</body>')
 
+    def test_methods_long_labels_keep_responsive_safety_rules(self):
+        # This guards the CSS contract; real viewport geometry is checked in-browser.
+        text=(ROOT/'docs/detector_interpretation.html').read_text(encoding='utf-8')
+        self.assertIn('.panel { min-width: 0;',text)
+        self.assertIn('.error-list li > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }',text)
+        self.assertIn('.hero, .two-col, .claim-grid { grid-template-columns: minmax(0, 1fr); }',text)
+        self.assertIn('.b2-table { max-width: 100%; overflow-x: auto;',text)
+        self.assertIn('#b2-dev-sensitivity, #statistical-review { scroll-margin-top: 82px; }',text)
+
 
 if __name__=='__main__':
     unittest.main()

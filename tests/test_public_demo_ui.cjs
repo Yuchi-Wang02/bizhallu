@@ -38,6 +38,19 @@ test('primary case renders complete relations and original evidence', () => {
   assert.equal((h.el('casePanel').innerHTML.match(/<mark /g) || []).length, 3);
 });
 
+test('answer precedes interpretive context in the reading order for every case', () => {
+  const h = harness();
+  for (const id of h.run('DEMO_DATA.cases.map(c=>c.question_id)')) {
+    h.change('caseSelect', id);
+    const panel = h.el('casePanel').innerHTML;
+    const answer = panel.indexOf('<div class="answer-output">');
+    const context = panel.indexOf('<div class="answer-context">');
+    assert.ok(answer >= 0 && context > answer);
+    assert.equal((panel.match(/<pre>/g) || []).length, 1);
+    assert.doesNotMatch(panel, /product-amount pair below/);
+  }
+});
+
 test('case selection updates the question, comparison and URL', () => {
   const h = harness('?case=q_0064');
   h.change('caseSelect', 'q_0069');
