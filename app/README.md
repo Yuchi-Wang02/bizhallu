@@ -88,6 +88,24 @@ benchmark. Current A/B1/C1 preparation does not count as completed owner review.
 JHU course projects and career feedback should inform these milestones, not be
 replaced by additional report-generation infrastructure.
 
+### Stage 1 Stop Point
+
+The assistant-prepared portion now has versioned metric definitions, the separate
+B1/B2 calculations, checked English case explanations, a ten-slide deck, scripts,
+and published browser-tested entry points. Three optional worked examples in
+`docs/career_package.html#practice` connect the lecture-style script to ledger
+arithmetic, complete ranking relations and the F1 false-alarm/miss tradeoff.
+These public historical exercises collect no answers or identities. They must
+not be imported into the private reviewer packet or counted as calibration.
+
+Do not keep expanding Stage 1 pages, validators or experiments simply because
+owner review is deferred. The materials can be shared as an exploratory,
+AI-assisted portfolio; independent mastery and human label quality remain open.
+Remaining owner acceptance is the actual case trial, five-case calibration and
+an explanation with follow-up questions. Stage 2 may prepare external-feedback
+materials without claiming those milestones occurred; any outreach still needs
+owner confirmation. Research execution remains outside this stop point.
+
 Assistant calculation notes for the other three calibration examples live only
 in `outputs/relation_calibration_admin_v2/source_checks.json`. They replay seven
 scope aggregates from quantity and unit price and preserve exact answer quotes.

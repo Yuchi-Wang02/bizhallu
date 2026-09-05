@@ -48,6 +48,10 @@ a visible B2 note identifies the separate omission sensitivity on the same old t
 The [career package](docs/career_package.html) includes a 191-word short pitch and
 a ten-part, 669-word walkthrough. Speaking times are planning budgets, not
 measured owner performance. The earlier PPTX remains historical provenance.
+Three optional [evidence-to-explanation exercises](docs/career_package.html#practice)
+add worked ledger reconciliation, product-ranking and F1 calculations. They are
+public historical learning examples, not blind annotation or an assessment of
+owner mastery; no responses or personal progress are collected.
 The [business risk lens](docs/business_risk_lens.html) now reconciles positive,
 negative and net transaction values by category, without treating negative value
 as verified physical returns. The [historical case readout](docs/portfolio_demo.html)

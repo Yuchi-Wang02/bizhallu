@@ -58,6 +58,76 @@ For an analyst role, I would emphasize metric definitions, reproducible calculat
 
 For a professor, my concrete request is feedback on the unit of annotation and comparison design. I would begin with a top-three verifier that uses the question, answer, metric contract and evidence, without evaluation labels or gold answers as inputs. Semantic consistency, attention methods and a faithful adjacent-step energy implementation remain comparison options. The new confirmation study stays sealed until the prediction and evaluation process is ready.
 
+## From Evidence to Explanation
+
+Optional worked historical examples, not blind annotation or a scored assessment. No responses, identity or progress are collected. Disclose prior exposure in any later review.
+
+### Reconcile the amount and its scope
+
+December 2010 through December 9, 2011; December 2011 is partial. Historical eligible population: 534,129 lines, GBP.
+
+Preserve existing valid-net flags: exclude normalized duplicate copies, missing/blank descriptions and nonpositive unit prices. Missing customer IDs are retained for aggregate analysis, not imputed. No anomaly is automatically removed.
+
+Positive transaction value: 10,642,110.80. Signed negative transaction value: -893,979.73. Merchandise net value: 9,771,708.99.
+
+Question: Calculate all-ledger net value and the net contribution outside merchandise. Does the negative value identify physical returns?
+
+Worked solution:
+
+10,642,110.80 + (-893,979.73) = GBP 9,748,131.07. The negative input is already signed: adding it reduces the total. Subtracting it would double-reverse its sign.
+
+All-ledger net minus merchandise net = 9,748,131.07 - 9,771,708.99 = GBP -23,577.92. Merchandise net is higher because the other categories have a negative net contribution. These are different scopes, not competing estimates of the same population.
+
+Physical returns are not separately identifiable. Negative entries may include fees and adjustments; merchandise is a stock-code heuristic. Net transaction value is not audited financial-statement revenue, profit or cash collected.
+
+Follow-up: What extra records would be needed to link returns to original sales? Why is a partial December unsuitable for an unqualified full-month comparison?
+
+Source: `reports/bizhallu_business_metric_audit_report.json`
+
+### Check the complete ranked statement
+
+April 2011, q_0064. Qwen's exact statement: 3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.
+
+Use the original eight-row evidence table in the April case. Preserve its product, period, metric and GBP scope.
+
+Question: Find the product and amount. Count shown rows with larger values. Which part is supported, which relationship is wrong, and what belongs at rank three?
+
+Worked solution:
+
+Source row 2 matches WOODEN UNION JACK BUNTING and GBP 4,173.18. Source-row fidelity is supported.
+
+6 shown rows have larger values. With no ties here, rank = 1 + that count = 7, not 3. The third product is PAPER CHAIN KIT EMPIRE at GBP 6,619.51.
+
+This is a curated check within the shown evidence, not automatic extraction or a population error rate. Low uncertainty on a list marker cannot establish confidence in its later completed product-rank-amount relationship.
+
+Follow-up: If a real amount appeared beside a different product, would a number-only lookup be enough? If evidence were incomplete or values tied, what scope or ranking rule would be needed?
+
+Source: `reports/bizhallu_demo_v2_data.json`
+
+### Recompute F1 before interpreting it
+
+Original B1: 103 pre-identified test spans with provisional labels. Positive means a span labeled hallucinated, not a positive sales value.
+
+Entropy: TP=53, FP=22, TN=20, FN=8. Flag every span: TP=61, FP=42, TN=0, FN=0.
+
+F1 = 2TP / (2TP + FP + FN). TP is a flagged labeled error; FP is a flagged labeled-correct span; FN is a missed labeled error.
+
+Question: Compute both F1 values. How many fewer false alarms and how many more misses does entropy have? Does its higher point estimate prove stable superiority?
+
+Worked solution:
+
+Entropy: 106 / (106 + 22 + 8) = 0.7794. Flag every span: 122 / (122 + 42 + 0) = 0.7439.
+
+Entropy makes 20 fewer false alarms, but misses 8 additional labeled errors. F1 does not include true negatives or monetary costs; this is not an estimate of avoided business loss.
+
+The paired question-bootstrap F1 difference is +0.0355, with exploratory 95% interval [-0.0356, 0.1047]. Crossing zero is not proof of equality, and this analysis does not establish stable superiority. It remains conditional on provisional labels and fixed thresholds, without resolving test-based signal selection or shared-period dependence.
+
+Separately, B2 adds nine provisional dev atoms and refits dev thresholds. Entropy F1 becomes 0.752 on the same old test. B1's interval is not a B2 interval; neither analysis is fresh confirmation.
+
+Follow-up: Why can flagging everything have a high F1 here? What false-alarm and missed-error costs would you need before choosing a reporting policy?
+
+Source: `reports/bizhallu_statistics_v2_report.json`
+
 ## Resume Bullets
 
 - Directed BizHallu with AI-assisted implementation, connecting retail metric definitions with evidence checks for generated business analysis.

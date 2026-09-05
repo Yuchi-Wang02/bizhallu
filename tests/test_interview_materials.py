@@ -10,6 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from presentation_story import build_story, timed_script_html
 from validate_interview_deck import validate_package
+from build_career_package import build_rehearsal, rehearsal_html, business_summary
 
 
 def changed_part(payload, name, old, new):
@@ -91,6 +92,56 @@ class InterviewMaterialsTests(unittest.TestCase):
         self.assertFalse(b2['confirmatory'])
         self.assertEqual(b2['entropy']['test_metrics_after']['f1'],.752)
         self.assertIn('not a B2 interval',self.story['slides'][5]['script'])
+
+    def test_practice_recomputes_business_and_metric_examples(self):
+        practice = build_rehearsal(self.story, business_summary())
+        self.assertEqual([e['id'] for e in practice['exercises']], ['ledger', 'binding', 'metrics'])
+        ledger, binding, metrics = [' '.join(e['solution']) for e in practice['exercises']]
+        self.assertIn('10,642,110.80 + (-893,979.73) = GBP 9,748,131.07', ledger)
+        self.assertIn('GBP -23,577.92', ledger)
+        self.assertIn('rank = 1 + that count = 7, not 3', binding)
+        self.assertIn('PAPER CHAIN KIT EMPIRE at GBP 6,619.51', binding)
+        self.assertIn('106 / (106 + 22 + 8) = 0.7794', metrics)
+        self.assertIn('122 / (122 + 42 + 0) = 0.7439', metrics)
+        self.assertIn('20 fewer false alarms', metrics)
+        self.assertIn('8 additional labeled errors', metrics)
+        self.assertIn('Crossing zero is not proof of equality', metrics)
+        self.assertIn('not a B2 interval', metrics)
+
+    def test_practice_rejects_wrong_ledger_sign_or_nonfinite_value(self):
+        for value in (893979.73, float('nan'), float('inf')):
+            business = business_summary()
+            business['ledger']['negative_transaction_value_gbp'] = value
+            with self.assertRaises(ValueError):
+                build_rehearsal(self.story, business)
+
+    def test_practice_rejects_wrong_counts_or_f1(self):
+        for key, value in [('tp', 54), ('fn', -1), ('f1', .9), ('f1', float('nan'))]:
+            story = copy.deepcopy(self.story)
+            row = next(r for r in story['statistical_review']['test_rows'] if r['signal'] == 'mean_token_entropy')
+            row[key] = value
+            with self.assertRaises(ValueError):
+                build_rehearsal(story, business_summary())
+
+    def test_practice_discloses_exposure_without_collecting_reviews(self):
+        practice = build_rehearsal(self.story, business_summary())
+        self.assertFalse(practice['owner_mastery_verified'])
+        self.assertFalse(practice['independent_human_review'])
+        self.assertFalse(practice['new_model_run'])
+        self.assertIn('not blind annotation', practice['scope'])
+        self.assertIn('No responses, identity or progress are collected', practice['scope'])
+        rendered = rehearsal_html(practice)
+        self.assertEqual(rendered.count('<details>'), 3)
+        for tag in ('<input', '<form', '<script'):
+            self.assertNotIn(tag, rendered)
+        practice['exercises'][0]['solution'] = ['<script>bad()</script>']
+        self.assertIn('&lt;script&gt;', rehearsal_html(practice))
+        self.assertNotIn('<script>', rehearsal_html(practice))
+
+    def test_committed_practice_matches_source_without_changing_story(self):
+        summary = json.loads((ROOT/'reports/bizhallu_career_package_summary.json').read_text(encoding='utf-8'))
+        self.assertEqual(summary['explanation_practice'], build_rehearsal(self.story, business_summary()))
+        self.assertEqual(summary['story'], self.story)
 
 
 if __name__=='__main__':

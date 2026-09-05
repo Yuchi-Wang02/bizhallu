@@ -2,6 +2,40 @@
 
 Date: 2026-09-05
 
+## Stage 1 Requirements Review and Worked Examples: 2026-09-05
+
+The final requirements review found a learning gap, not another detector gap:
+the English scripts explained the conclusions but did not ask the owner to
+reconstruct their arithmetic. The existing career package now includes three
+optional evidence-to-explanation exercises with collapsible worked solutions:
+
+- Ledger: GBP 10,642,110.80 + (-893,979.73) = 9,748,131.07; the difference
+  from merchandise net is -23,577.92, reflecting scope, not a reconciliation error.
+- April relationship: the product's GBP 4,173.18 is supported by source row 2;
+  six shown rows exceed it, so its rank is seven rather than three.
+- Original B1: entropy F1 is 106/136 = 0.7794, versus 122/164 = 0.7439 for
+  flagging every span. Entropy has 20 fewer false alarms and eight more misses.
+  The paired interval crossing zero does not prove equality or superiority.
+  B2's separate 0.752 result is not fresh confirmation and does not inherit B1's interval.
+
+Values are read from the existing Stage A, curated case and B1/B2 artifacts.
+Five added regression tests check calculations, sign/non-finite/count failures,
+HTML escaping and separation from review submissions. All 27 workflow commands
+passed locally. These checks do not establish rendered acceptance or deployment
+of this new addition; those are checked separately after publication.
+
+No pitch, speaker note, PPTX, model answer, old label, detector score, statistical
+appendix or confirmation input changed. This is not three new benchmark cases,
+an independent verifier or an owner submission. Exposure to worked answers must
+be disclosed in any later review. The exercises collect no identity or progress.
+
+**Stop decision:** assistant-prepared Stage 1 materials are sufficient for a
+caveated portfolio presentation. More pages and repeated checks are not a
+substitute for owner explanation or independent labels. The full Stage 1 personal
+acceptance remains open: the deferred case trial, five-case calibration and
+actual presentation with follow-up questions have not occurred. Keep that
+distinction visible; do not start confirmation or expand baselines to fill it.
+
 ## Public Browser Acceptance and Mobile Fixes: 2026-09-05
 
 This entry supersedes the public-browser-pending status below, within the tested

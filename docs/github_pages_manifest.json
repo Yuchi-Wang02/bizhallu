@@ -116,9 +116,9 @@
       "archive_notice": false,
       "source": "reports/bizhallu_career_package.html",
       "dest": "docs/career_package.html",
-      "source_sha256": "87bc3306bf59485e674fdecc6932ecd27d7f4e533aac6f4f433797bc6c2b5389",
-      "dest_sha256": "87bc3306bf59485e674fdecc6932ecd27d7f4e533aac6f4f433797bc6c2b5389",
-      "dest_size_bytes": 18060
+      "source_sha256": "2b421c27de6f738c75bb8fa00d9a8b39876d9a90bc4171d912d432bee488d4a9",
+      "dest_sha256": "2b421c27de6f738c75bb8fa00d9a8b39876d9a90bc4171d912d432bee488d4a9",
+      "dest_size_bytes": 23531
     },
     {
       "role": "business_risk_lens",

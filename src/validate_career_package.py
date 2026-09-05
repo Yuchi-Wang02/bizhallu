@@ -9,6 +9,7 @@ from typing import Any
 from public_paths import repo_path
 from presentation_story import build_story
 from presentation_evidence import statistics_html
+from build_career_package import build_rehearsal, rehearsal_html, business_summary
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +91,13 @@ def main() -> None:
             add_failure(failures, 'missing_or_changed_source_passage', passage[:90])
     if statistics_html(story['statistical_review']) not in html_text:
         add_failure(failures, 'statistical_context_missing', 'B1 comparison must remain visible')
+    rehearsal = build_rehearsal(story, business_summary())
+    if summary.get('explanation_practice') != rehearsal or rehearsal_html(rehearsal) not in html_text:
+        add_failure(failures, 'explanation_practice_mismatch', 'Worked examples must match ledger, case and B1/B2 sources')
+    for item in rehearsal['exercises']:
+        for passage in item['given'] + item['solution'] + [item['question'], item['follow_up']]:
+            if passage not in md_text:
+                add_failure(failures, 'explanation_practice_markdown_mismatch', passage[:90])
 
     if html_text:
         parser = HTMLCheckParser()
