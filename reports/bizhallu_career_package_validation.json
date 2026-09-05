@@ -2,6 +2,9 @@
   "career_html_path": "reports/bizhallu_career_package.html",
   "career_markdown_path": "reports/bizhallu_career_package.md",
   "ready_for_public_career_use": true,
+  "validation_scope": "source_and_wording_consistency_not_owner_mastery_or_visual_acceptance",
+  "owner_mastery_verified": false,
+  "visual_review_verified": false,
   "num_failures": 0,
   "failures": []
 }

@@ -7,6 +7,16 @@
   "purpose": "Create a prospectively sampled, context-separated evaluation that can test frozen detector and verifier families without reusing the current exploratory selection process.",
   "execution_ready": false,
   "no_new_results": true,
+  "active_business_definition": {
+    "amendment": "configs/confirmation_metric_amendment_v1_1.json",
+    "metric_contract": "configs/business_metric_contract_v1_1.json",
+    "report": "reports/bizhallu_metric_amendment_v1_1_report.json",
+    "private_question_manifest": "data/processed/confirmation_online_retail_ii/questions_gold_v1_1_private.json",
+    "private_question_manifest_commitment_sha256": "6d5fdd030fb1321da6c108be7f1ea40f505861faf625c172d83e91b842aa08ff",
+    "status": "gate3_revalidated_no_generation_authorized",
+    "precedence": "Use this amendment over the original v1 wording and field names below. The v1 references remain immutable historical provenance, not active prompt inputs. Contexts, split and numeric evidence are unchanged.",
+    "family_identifiers": "Legacy family and source-template IDs are retained for lineage; their names do not establish physical returns or recognized accounting revenue."
+  },
   "current_result_boundary": {
     "source": "reports/bizhallu_methodology_hardening_summary.json",
     "classification": "exploratory_retrospective",

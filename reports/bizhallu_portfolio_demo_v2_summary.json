@@ -16,6 +16,9 @@
   "independent_human_annotation": false,
   "automatic_claim_extraction": false,
   "metric_selection_status": "exploratory_test_maxima",
+  "presentation_revision": "english_evidence_review_2026_09_05",
+  "curated_relationship_count": 6,
+  "statistical_source_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
   "by_label": {
     "correct_key_fact": 8,
     "hallucinated_key_fact": 7

@@ -5,5 +5,8 @@
   "case_count": 9,
   "locked_span_count": 15,
   "num_failures": 0,
-  "failures": []
+  "failures": [],
+  "validation_scope": "content_source_offsets_scores_and_schema_only",
+  "visual_review_verified": false,
+  "independent_human_review_verified": false
 }

@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from public_paths import repo_path
+from presentation_evidence import statistical_context, statistics_html, TIMING_NOTE, METRIC_NOTE
+import q0048_dev_sensitivity as b2
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -110,6 +112,7 @@ def compact_baseline(row: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    b2_report, _ = b2.validate()
 
     family_report = load_json(FAMILY_REPORT_PATH)
     error_report = load_json(ERROR_REVIEW_REPORT_PATH)
@@ -151,7 +154,7 @@ def main() -> None:
         "Simple uncertainty has the strongest observed test maxima in this exploratory comparison: it leads both AUPRC and F1, using different signals.",
         "The best energy-family row is a probability-mass control, not pure adjacent-step Spilled Energy.",
         "AUPRC and F1 tell different stories: the best-AUPRC detector is more precise, while the best-F1 detector raises recall at the cost of specificity.",
-        "Top-3 product questions remain the clearest confident-error failure mode.",
+        "Top-3 examples separate product-amount fidelity from rank correctness; low list-marker uncertainty does not establish confidence in the completed relation.",
         "Correct numeric and context facts are still over-flagged, so detector claims must stay qualified.",
     ]
 
@@ -185,6 +188,9 @@ def main() -> None:
         },
         "num_failures": 0,
         "source_validation_num_failures": error_validation.get("num_failures"),
+        "statistical_review": statistical_context(),
+        "b2_sensitivity_report_text_sha256": b2.b1.digest(b2.REPORT),
+        "presentation_revision": "english_evidence_review_2026_09_05",
     }
 
     metric_cards = "\n".join(
@@ -268,12 +274,8 @@ def main() -> None:
       }}
       main {{ width: min(1120px, calc(100% - 40px)); margin: 0 auto; }}
       .hero {{
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-        gap: 30px;
-        align-items: center;
-        min-height: calc(100vh - 78px);
-        padding: 56px 0 42px;
+        display: block;
+        padding: 28px 0;
       }}
       .eyebrow {{
         margin: 0 0 12px;
@@ -284,10 +286,10 @@ def main() -> None:
         text-transform: uppercase;
       }}
       h1, h2, h3, p {{ overflow-wrap: anywhere; }}
-      h1 {{ max-width: 760px; margin: 0; font-size: 64px; line-height: 0.99; letter-spacing: 0; }}
-      h2 {{ margin: 0; font-size: 38px; line-height: 1.08; letter-spacing: 0; }}
+      h1 {{ max-width: 760px; margin: 0; font-size: 30px; line-height: 1.2; letter-spacing: 0; }}
+      h2 {{ margin: 0; font-size: 22px; line-height: 1.25; letter-spacing: 0; }}
       h3 {{ margin: 0; font-size: 18px; line-height: 1.25; letter-spacing: 0; }}
-      .lede {{ max-width: 760px; margin: 22px 0 0; color: var(--muted); font-size: 21px; }}
+      .lede {{ max-width: 860px; margin: 14px 0; color: var(--muted); font-size: 16px; }}
       .snapshot, .metric-card, .panel, .claim-card {{
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -295,8 +297,8 @@ def main() -> None:
         box-shadow: var(--shadow);
         backdrop-filter: blur(18px);
       }}
-      .snapshot {{ display: grid; overflow: hidden; }}
-      .snapshot div {{ padding: 20px; border-bottom: 1px solid var(--line); }}
+      .snapshot {{ display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: hidden; box-shadow: none; }}
+      .snapshot div {{ padding: 12px; border-bottom: 1px solid var(--line); }}
       .snapshot div:last-child {{ border-bottom: 0; }}
       .label, .metric-card span, .tag {{
         color: var(--muted);
@@ -305,8 +307,14 @@ def main() -> None:
         letter-spacing: 0;
         text-transform: uppercase;
       }}
-      .snapshot strong {{ display: block; margin-top: 4px; font-size: 22px; }}
-      section {{ padding: 64px 0; border-top: 1px solid var(--line); }}
+      .snapshot strong {{ display: block; margin-top: 4px; font-size: 15px; }}
+      section {{ padding: 28px 0; border-top: 1px solid var(--line); }}
+      table {{ border-collapse: collapse; width: 100%; font-size: 14px; }}
+      th, td {{ text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }}
+      .b2-table {{ max-width: 100%; overflow-x: auto; margin: 14px 0; }}
+      .b2-table table {{ min-width: 580px; }}
+      .b2-table th, .b2-table td {{ overflow-wrap: anywhere; }}
+      #b2-dev-sensitivity summary {{ cursor: pointer; padding: 12px 0; font-weight: 600; }}
       .section-heading {{ max-width: 780px; margin-bottom: 26px; }}
       .metric-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }}
       .metric-card {{ min-height: 178px; padding: 22px; box-shadow: none; background: var(--strong); }}
@@ -352,8 +360,7 @@ def main() -> None:
         .topbar {{ padding: 0 20px; }}
         .hero, .two-col, .claim-grid {{ grid-template-columns: 1fr; }}
         .metric-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-        h1 {{ font-size: 48px; }}
-        h2 {{ font-size: 32px; }}
+        .snapshot {{ grid-template-columns: repeat(2,minmax(0,1fr)); }}
         .row {{ grid-template-columns: 1fr 1fr; }}
         .row.head {{ display: none; }}
         .next {{ align-items: flex-start; flex-direction: column; }}
@@ -361,7 +368,6 @@ def main() -> None:
       @media (max-width: 560px) {{
         main {{ width: min(100% - 28px, 1120px); }}
         .metric-grid {{ grid-template-columns: 1fr; }}
-        h1 {{ font-size: 40px; }}
       }}
     </style>
   </head>
@@ -374,11 +380,10 @@ def main() -> None:
       <section class="hero">
         <div>
           <p class="eyebrow">Full100 exploratory test interpretation</p>
-          <h1>Internal uncertainty helps, but it is not a business fact checker.</h1>
+          <h1>BizHallu: methods and evidence limits</h1>
           <p class="lede">
-            On the provisional test-span set, simple token uncertainty gives the strongest observed maxima.
-            The best energy-family result is a probability-mass control, while pure adjacent-step Spilled
-            Energy rows can collapse into almost-all-positive behavior. Candidate winners were selected
+            The historical token-signal comparison is exploratory. Additional reference checks are
+            necessary before interpreting the original maxima. Candidate winners were selected
             after test comparison, so this is not a confirmatory model-selection result.
           </p>
         </div>
@@ -390,10 +395,14 @@ def main() -> None:
         </aside>
       </section>
 
+      {statistics_html(summary['statistical_review'])}
+      {b2.presentation_html(b2_report)}
+      <section><h2>Two different correctness questions</h2><p>In q_0064 and q_0069, the quoted product-amount pairs match their source rows, but some stated ranks do not. These are evidence-binding errors, not proof that the amounts were fabricated.</p><p>{esc(TIMING_NOTE)}</p><p>{esc(METRIC_NOTE)}</p><p>Only q_0048 is absent from the original dev annotations; B2 adds it as a separate assistant-provisional sensitivity. All 18 historical test questions are covered. The 15 selected presentation spans are not an independently reviewed replacement for the 205 provisional labels.</p></section>
+
       <section>
         <div class="section-heading">
-          <p class="eyebrow">Headline metrics</p>
-          <h2>The best rows are useful, but they optimize different behavior.</h2>
+          <p class="eyebrow">Historical candidate maxima</p>
+          <h2>Preserved for provenance, not a superiority claim.</h2>
         </div>
         <div class="metric-grid">
 {metric_cards}
@@ -431,9 +440,9 @@ def main() -> None:
         <div class="callout">
           <strong>Report wording</strong>
           <p>
-            The fair claim is not that internal-state detectors solve hallucination. The fair claim is that
-            uncertainty features expose a measurable signal, while many business errors remain confident or
-            context-dependent.
+            Some token signals rank the provisionally labeled spans usefully in this retrospective sample.
+            This does not establish a reliable deployment threshold, stable superiority over controls,
+            or a relation-level confidence estimate for a complete business answer.
           </p>
         </div>
       </section>

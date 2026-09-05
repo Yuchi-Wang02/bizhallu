@@ -8,6 +8,13 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from detector_metrics import METRIC_VERSION, finite_score
+except ModuleNotFoundError as exc:
+    if exc.name != "detector_metrics":
+        raise
+    from src.detector_metrics import METRIC_VERSION, finite_score
+
+try:
     from evaluate_pilot_simple_baselines import (
         average_precision,
         auroc,
@@ -68,14 +75,25 @@ def binary_label(row: dict[str, str]) -> int:
 
 def add_splits(score_rows: list[dict[str, str]], questions_path: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     questions = load_jsonl(questions_path)
+    if len({record["question_id"] for record in questions}) != len(questions):
+        raise ValueError("Duplicate question IDs in split source")
     split_by_qid = {str(record["question_id"]): str(record["split"]) for record in questions}
     failures: list[dict[str, Any]] = []
     enriched: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
     for row in score_rows:
+        annotation_id = row.get("annotation_id", "")
+        if not annotation_id or annotation_id in seen_ids:
+            failures.append({"annotation_id": annotation_id, "reason": "duplicate or missing annotation ID"})
+            continue
+        seen_ids.add(annotation_id)
         qid = str(row.get("question_id", ""))
         split = split_by_qid.get(qid)
         if split is None:
             failures.append({"annotation_id": row.get("annotation_id"), "question_id": qid, "reason": "missing question split"})
+            continue
+        if row.get("split") and row["split"] != split:
+            failures.append({"annotation_id": annotation_id, "reason": "score/question split conflict"})
             continue
         enriched.append({**row, "split": split, "binary_label_int": binary_label(row)})
     return enriched, failures
@@ -91,13 +109,13 @@ def validate_baseline_fields(rows: list[dict[str, Any]], baseline_configs: list[
             continue
         for row in rows:
             try:
-                float(row[score_field])
-            except ValueError:
+                finite_score(row[score_field])
+            except (KeyError, TypeError, ValueError):
                 failures.append(
                     {
                         "baseline": baseline_config["baseline"],
                         "annotation_id": row.get("annotation_id"),
-                        "reason": "non-numeric score",
+                        "reason": "missing, non-numeric or non-finite score",
                         "score_field": score_field,
                         "value": row.get(score_field),
                     }
@@ -174,6 +192,8 @@ def main() -> None:
     parser.add_argument("--dev-split", default=None)
     parser.add_argument("--test-split", default=None)
     args = parser.parse_args()
+    if args.output_prefix in {"full100_draft_simple_split", "full100_draft_energy_split"}:
+        raise SystemExit("Historical full100 reports are preserved. Choose a new versioned output prefix.")
 
     scores_path = resolve_project_path(args.scores_path)
     baseline_config_path = resolve_project_path(args.baseline_config)
@@ -187,6 +207,8 @@ def main() -> None:
     family_configs = config.get("families", {}).get(args.baseline_family)
 
     failures: list[dict[str, Any]] = []
+    if dev_split == test_split or dev_split != "dev" or test_split != "test":
+        failures.append({"reason": "This retrospective evaluator only accepts distinct dev/test splits; confirmation is prohibited"})
     if not family_configs:
         failures.append({"reason": "unknown or empty baseline family", "baseline_family": args.baseline_family})
 
@@ -288,6 +310,7 @@ def main() -> None:
     best_test_by_auprc = max(test_rows_by_metric, key=lambda row: (float(row["auprc"]), float(row["f1"]), float(row["auroc"])))
     best_test_by_f1 = max(test_rows_by_metric, key=lambda row: (float(row["f1"]), float(row["auprc"]), float(row["auroc"])))
     report = {
+        "metric_version": METRIC_VERSION,
         "scores_path": str(scores_path),
         "baseline_config_path": str(baseline_config_path),
         "questions_path": str(questions_path),
@@ -308,8 +331,9 @@ def main() -> None:
         "failures": [],
         "ready_for_split_metrics": True,
         "evaluation_note": (
-            "Thresholds are selected only on dev spans. Test metrics reuse the fixed dev threshold "
-            "and should be treated as held-out detector results."
+            "Thresholds are selected only on dev spans. Test metrics reuse the fixed dev threshold. "
+            "Best-test summaries are post-hoc exploratory maxima, not confirmatory model selection. "
+            "AP now groups tied scores; historical published artifacts have not been overwritten."
         ),
     }
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8")

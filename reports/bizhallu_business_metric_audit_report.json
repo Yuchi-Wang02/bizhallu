@@ -1,0 +1,197 @@
+{
+  "status": "business_metric_scope_audit_complete",
+  "contract": "configs/business_metric_contract_v1_1.json",
+  "contract_sha256": "6fd3e3e54bd542c6ed6dc981a49275637b5a80e740312268629b6661f8579ffc",
+  "historical_question_count": 100,
+  "historical_gold_replay_count": 100,
+  "scenario_row_count": 500,
+  "scenario_summary": [
+    {
+      "scenario": "wording_only",
+      "question_count": 100,
+      "answer_changed": 0,
+      "numeric_changed": 0,
+      "entity_rank_or_direction_changed": 0,
+      "interpretation_changed": 58
+    },
+    {
+      "scenario": "merchandise_scope",
+      "question_count": 100,
+      "answer_changed": 58,
+      "numeric_changed": 58,
+      "entity_rank_or_direction_changed": 1,
+      "interpretation_changed": 0
+    },
+    {
+      "scenario": "stock_code_grain",
+      "question_count": 100,
+      "answer_changed": 4,
+      "numeric_changed": 4,
+      "entity_rank_or_direction_changed": 0,
+      "interpretation_changed": 0
+    },
+    {
+      "scenario": "merchandise_scope_and_stock_code_grain",
+      "question_count": 100,
+      "answer_changed": 62,
+      "numeric_changed": 62,
+      "entity_rank_or_direction_changed": 1,
+      "interpretation_changed": 0
+    },
+    {
+      "scenario": "exclude_documented_candidate_pairs",
+      "question_count": 100,
+      "answer_changed": 6,
+      "numeric_changed": 6,
+      "entity_rank_or_direction_changed": 4,
+      "interpretation_changed": 0
+    }
+  ],
+  "historical_eligible_ledger": {
+    "eligible_line_count": 534129,
+    "positive_transaction_value_gbp": 10642110.8,
+    "negative_transaction_value_gbp": -893979.73,
+    "net_transaction_value_gbp": 9748131.07,
+    "non_merchandise_negative_magnitude_gbp": 418078.57,
+    "non_merchandise_share_of_negative_value_percentage": 46.77,
+    "positive_cancel_flagged_line_count": 0,
+    "positive_cancel_flagged_value_gbp": 0.0,
+    "negative_cancel_flagged_value_gbp": -893979.73,
+    "negative_value_without_cancel_flag_gbp": 0.0,
+    "categories": [
+      {
+        "category": "adjustment_or_discount_code",
+        "row_count": 78,
+        "positive_value_gbp": 11062.06,
+        "negative_value_gbp": -5696.22,
+        "net_value_gbp": 5365.84
+      },
+      {
+        "category": "fee_or_service_code",
+        "row_count": 2173,
+        "positive_value_gbp": 305327.74,
+        "negative_value_gbp": -254561.76,
+        "net_value_gbp": 50765.98
+      },
+      {
+        "category": "merchandise",
+        "row_count": 531212,
+        "positive_value_gbp": 10247610.15,
+        "negative_value_gbp": -475901.16,
+        "net_value_gbp": 9771708.99
+      },
+      {
+        "category": "unknown_non_merchandise",
+        "row_count": 666,
+        "positive_value_gbp": 78110.85,
+        "negative_value_gbp": -157820.59,
+        "net_value_gbp": -79709.74
+      }
+    ],
+    "reconciliation_residual_gbp": 0.0,
+    "physical_return_value": null,
+    "physical_return_value_status": "not_identifiable_from_source_fields"
+  },
+  "strict_prior_window_eligible_ledger": {
+    "eligible_line_count": 492887,
+    "positive_transaction_value_gbp": 9834505.21,
+    "negative_transaction_value_gbp": -568444.45,
+    "net_transaction_value_gbp": 9266060.76,
+    "non_merchandise_negative_magnitude_gbp": 327827.58,
+    "non_merchandise_share_of_negative_value_percentage": 57.67,
+    "positive_cancel_flagged_line_count": 1,
+    "positive_cancel_flagged_value_gbp": 373.57,
+    "negative_cancel_flagged_value_gbp": -568444.45,
+    "negative_value_without_cancel_flag_gbp": 0.0,
+    "categories": [
+      {
+        "category": "adjustment_or_discount_code",
+        "row_count": 96,
+        "positive_value_gbp": 397.89,
+        "negative_value_gbp": -7581.3,
+        "net_value_gbp": -7183.41
+      },
+      {
+        "category": "fee_or_service_code",
+        "row_count": 1733,
+        "positive_value_gbp": 164603.83,
+        "negative_value_gbp": -38980.05,
+        "net_value_gbp": 125623.78
+      },
+      {
+        "category": "merchandise",
+        "row_count": 490093,
+        "positive_value_gbp": 9398417.71,
+        "negative_value_gbp": -240616.87,
+        "net_value_gbp": 9157800.84
+      },
+      {
+        "category": "unknown_non_merchandise",
+        "row_count": 965,
+        "positive_value_gbp": 271085.78,
+        "negative_value_gbp": -281266.23,
+        "net_value_gbp": -10180.45
+      }
+    ],
+    "reconciliation_residual_gbp": 0.0,
+    "physical_return_value": null,
+    "physical_return_value_status": "not_identifiable_from_source_fields"
+  },
+  "source_raw_counts": {
+    "historical": 541909,
+    "strict_prior_window": 502938
+  },
+  "source_sha256": {
+    "data/processed/retail_net_revenue_lines.csv": "3b11d02e8727869f493305cadff5bc1ad9897a63ea4d00c2e440bc808bcd1e58",
+    "data/processed/business_questions_gold.jsonl": "baf7d6e50337251ff05febc14f76ea26dd6c38c8f2f99ec3a4445c341d35f5b6",
+    "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc"
+  },
+  "candidate_pair_sensitivity": {
+    "records": [
+      {
+        "invoice_no": "541431",
+        "stock_code": "23166",
+        "quantity": 74215,
+        "unit_price_gbp": "1.04",
+        "value_gbp": 77183.6,
+        "scope": "merchandise"
+      },
+      {
+        "invoice_no": "C541433",
+        "stock_code": "23166",
+        "quantity": -74215,
+        "unit_price_gbp": "1.04",
+        "value_gbp": -77183.6,
+        "scope": "merchandise"
+      },
+      {
+        "invoice_no": "556444",
+        "stock_code": "22502",
+        "quantity": 60,
+        "unit_price_gbp": "649.50",
+        "value_gbp": 38970.0,
+        "scope": "merchandise"
+      },
+      {
+        "invoice_no": "C556445",
+        "stock_code": "M",
+        "quantity": -1,
+        "unit_price_gbp": "38970.00",
+        "value_gbp": -38970.0,
+        "scope": "non_merchandise"
+      }
+    ],
+    "justification": "Same-code January reversal and cross-code June amount match flagged in retrospective audit. Matching magnitude and nearby time do not prove business linkage.",
+    "interpretation": "What-if excluding these four specified records only, preserving every other source row; not a corrected dataset or automatic offset."
+  },
+  "historical_metrics_changed": false,
+  "model_run_performed": false,
+  "new_confirmation_periods_disclosed": false,
+  "num_failures": 0,
+  "limitations": [
+    "Business categories are code heuristics, not physical-return adjudication.",
+    "Sensitivity counts describe gold answer changes, not model correctness or detector performance.",
+    "Product grain scenario uses modal description per stock code; name-only changes are separate from rank changes.",
+    "Legacy source filters and raw-data policy remain unchanged; partial December 2011 remains partial."
+  ]
+}

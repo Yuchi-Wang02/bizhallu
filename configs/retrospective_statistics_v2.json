@@ -1,0 +1,30 @@
+{
+  "version": "retrospective_statistics_v2_B1",
+  "status": "retrospective_analysis_recipe_not_preregistration",
+  "metric_version": "binary_metrics_v2_tied_ap",
+  "binary_label_policy": {"correct_key_fact": 0, "hallucinated_key_fact": 1, "unsupported_claim": 1},
+  "primary_signal": "one_minus_min_top2_margin",
+  "secondary_signal": "mean_token_entropy",
+  "selection_disclosure": "Primary is retrospective; secondary was the historical test-F1 maximum. Neither is an unbiased confirmatory model selection estimate.",
+  "arms": ["stored_six_decimal_scores", "saved_trace_precision"],
+  "references": ["all_positive", "all_negative", "dev_fact_type_prior"],
+  "threshold_policy": "dev maximum F1; ties by precision, recall, accuracy, then lower threshold; test fixed; no additional rounding",
+  "prior_policy": "Unsmoothed dev error prevalence by pre-annotated fact type; unseen types use overall dev prevalence. This is an annotation-composition diagnostic, not an information-matched detector: types are manually supplied and names such as malformed_number and unsupported_business_claim already convey correctness hints.",
+  "bootstrap": {
+    "replicates": 5000,
+    "seed": 20260904,
+    "cluster_fields": ["question_id", "evidence_cluster", "period_component"],
+    "comparison_references": ["all_positive", "dev_fact_type_prior"],
+    "policy": "Paired test-cluster percentile differences; both methods recomputed on each identical draw; dev fits held fixed. Conditional on provisional labels, not selection-adjusted. Period components join overlapping months transitively."
+  },
+  "signal_interpretation": {
+    "max_selected_step_energy_gap": "Mathematically max token NLL; floating-point alias audit, not independent evidence for an energy family.",
+    "mean_spilled_probability_mass_after_top1": "1 - top1 probability, a confidence control.",
+    "mean_spilled_probability_mass_after_top2": "Probability concentration control, not proof of a distinct energy mechanism.",
+    "negative_mean_spilled_energy_delta": "Opposite orientation control of the same signed statistic.",
+    "adjacent_step_energy": "Retained as historical diagnostics; paper-formula fidelity and time-index audit remain Stage F."
+  },
+  "missing_question_policy": "q_0048 is dev and has no spans. Do not infer labels or correctness. B2 must separately add reviewed labels and study threshold sensitivity.",
+  "probability_provenance": "Raw teacher-forced forward logits after generation, not the temperature/top-p/top-k sampling distribution. Saved float32 values are aggregated without additional decimal rounding; original logit precision is not recovered.",
+  "non_goals": ["new Qwen generation", "relabeling", "new headline maxima", "confirmation outcomes", "automatic relation extraction"]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "relation_calibration_packet_validated",
+  "validation_scope": "five_source_questions_answers_and_score_blind_projection_replayed; no_completed_reviews",
+  "num_failures": 0,
+  "independent_human_review_verified": false,
+  "ready_for_new_metrics": false,
+  "validated_report_text_sha256": "8758f28ae6f73678bb21a522794bdc70b8f6762a588662513b6c643232652f4f"
+}

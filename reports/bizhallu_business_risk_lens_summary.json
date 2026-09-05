@@ -1,31 +1,111 @@
 {
   "status": "business_risk_lens_ready",
+  "revision": "business_scope_review_2026_09_05",
   "business_risk_lens_html_path": "reports/bizhallu_business_risk_lens.html",
   "question_count": 100,
   "question_type_count": 7,
-  "split_counts": {
-    "train": 64,
-    "dev": 18,
-    "test": 18
+  "question_type_counts": {
+    "country_comparison_month": 20,
+    "monthly_revenue_change": 10,
+    "product_revenue_share_month": 16,
+    "return_impact_month": 12,
+    "top3_products_month": 13,
+    "top_country_month": 16,
+    "top_product_month": 13
   },
-  "lens_count": 4,
-  "next_question_count": 10,
   "data_rows_raw": 541909,
   "country_count": 38,
   "stock_code_count": 4070,
   "net_revenue": 9748131.07,
   "merchandise_net_revenue": 9771708.99,
-  "cancellation_or_return_rows": 10587,
-  "best_test_auprc": 0.835073,
-  "best_test_f1": 0.779412,
-  "simple_false_negative_top_fact_type": {
-    "group_value": "currency_amount",
-    "count": 9,
-    "family": "simple",
-    "baseline": "one_minus_min_top2_margin",
-    "baseline_role": "simple_best_test_auprc",
-    "error_type": "false_negative"
+  "legacy_value_key_note": "net_revenue aliases retain numbers, not financial-statement recognition claims",
+  "ledger": {
+    "eligible_line_count": 534129,
+    "positive_transaction_value_gbp": 10642110.8,
+    "negative_transaction_value_gbp": -893979.73,
+    "net_transaction_value_gbp": 9748131.07,
+    "non_merchandise_negative_magnitude_gbp": 418078.57,
+    "non_merchandise_share_of_negative_value_percentage": 46.77,
+    "positive_cancel_flagged_line_count": 0,
+    "positive_cancel_flagged_value_gbp": 0.0,
+    "negative_cancel_flagged_value_gbp": -893979.73,
+    "negative_value_without_cancel_flag_gbp": 0.0,
+    "categories": [
+      {
+        "category": "adjustment_or_discount_code",
+        "row_count": 78,
+        "positive_value_gbp": 11062.06,
+        "negative_value_gbp": -5696.22,
+        "net_value_gbp": 5365.84
+      },
+      {
+        "category": "fee_or_service_code",
+        "row_count": 2173,
+        "positive_value_gbp": 305327.74,
+        "negative_value_gbp": -254561.76,
+        "net_value_gbp": 50765.98
+      },
+      {
+        "category": "merchandise",
+        "row_count": 531212,
+        "positive_value_gbp": 10247610.15,
+        "negative_value_gbp": -475901.16,
+        "net_value_gbp": 9771708.99
+      },
+      {
+        "category": "unknown_non_merchandise",
+        "row_count": 666,
+        "positive_value_gbp": 78110.85,
+        "negative_value_gbp": -157820.59,
+        "net_value_gbp": -79709.74
+      }
+    ],
+    "reconciliation_residual_gbp": 0.0,
+    "physical_return_value": null,
+    "physical_return_value_status": "not_identifiable_from_source_fields"
   },
+  "lens_count": 4,
+  "lenses": [
+    {
+      "title": "Transaction-value reconciliation",
+      "audience": "Accounting and reporting",
+      "question": "Do positive and negative values reconcile to the reported net for the same period and scope?",
+      "control": "Check the sign, period, unit, eligibility policy and additive identity before interpreting change.",
+      "limit": "Net transaction value is not audited financial-statement revenue, profit or cash collected."
+    },
+    {
+      "title": "Negative-value review",
+      "audience": "Accounting and operations",
+      "question": "How much negative value comes from merchandise versus fees, adjustments and unknown codes?",
+      "control": "Keep sign, invoice cancellation flag and merchandise classification separate. Do not allocate unlinked adjustments to products.",
+      "limit": "Negative merchandise lines are not an original-sale-linked physical return rate; cause and timing remain unknown."
+    },
+    {
+      "title": "Product concentration and ranking",
+      "audience": "Supply management and performance reporting",
+      "question": "Are product, period, metric, rank and value supported by the same evidence scope?",
+      "control": "Check complete relationships and the concentration denominator. Preserve stock-code-plus-description grain for the historical study.",
+      "limit": "Sales-value concentration does not establish inventory requirements, demand forecasts, procurement savings or optimal replenishment."
+    },
+    {
+      "title": "Country exposure and comparison",
+      "audience": "Business and operations analysis",
+      "question": "Are the named countries, comparison direction and amount difference consistent?",
+      "control": "Subtract within the same month and scope; distinguish domestic/non-domestic exposure and disclose missing dimensions.",
+      "limit": "Transaction geography alone cannot explain market attractiveness, profitability, customer acquisition or causal growth drivers."
+    }
+  ],
+  "metric_contract_id": "bizhallu-business-metrics-v1.1",
+  "metric_contract_sha256": "6fd3e3e54bd542c6ed6dc981a49275637b5a80e740312268629b6661f8579ffc",
+  "source_limits": "UCI documents C-prefixed invoices as cancellations. Negative quantity alone does not establish a physical return, cause, original-sale linkage, cash collection, profit, or recognized accounting revenue.",
+  "eligible_line_policy": "Preserve existing valid-net flags: exclude normalized duplicate copies, missing/blank descriptions and nonpositive unit prices. Missing customer IDs are retained for aggregate analysis, not imputed. No anomaly is automatically removed.",
+  "source": "reports/bizhallu_business_metric_audit_report.json",
+  "source_text_sha256": "23148660d8250c7471aac15a00d7761b882a8585880a38d6914af8b474b45fac",
+  "period": "December 2010 through December 9, 2011; December 2011 is partial",
+  "new_questions": 0,
+  "new_model_run": false,
+  "independent_business_validation": false,
+  "measured_business_impact": null,
   "num_failures": 0,
   "failures": []
 }

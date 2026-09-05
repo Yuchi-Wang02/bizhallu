@@ -1,0 +1,35 @@
+{
+  "status": "computational_checks_passed_visual_review_pending",
+  "scope": "Stage A only; no generation, relabeling or detector re-evaluation",
+  "existing_public_validators_passed": 17,
+  "new_business_metric_tests_passed": 11,
+  "new_amendment_public_validation_passed": true,
+  "clean_public_copy_checks": {
+    "private_confirmation_files_absent": true,
+    "third_party_site_packages_disabled": true,
+    "unittest_passed": true,
+    "amendment_validation_passed": true,
+    "pages_bundle_validation_passed": true,
+    "limit": "A temporary copy of tracked plus intended new public files; not a remote GitHub Actions run."
+  },
+  "html": {
+    "path": "reports/bizhallu_stage_a_review.html",
+    "canonical_artifact": "reports/bizhallu_stage_a_artifact.json",
+    "structural_validation_passed": true,
+    "canonical_payload_matches_html": true,
+    "chart_count": 1,
+    "table_count": 4,
+    "desktop_mobile_visual_checks": "not_completed",
+    "source_dialog_interaction": "not_completed",
+    "blocker": "Installed renderer browser probe failed; in-app browser local-file navigation was blocked by URL policy. No workaround was attempted after the policy rejection."
+  },
+  "git": {
+    "base_commit": "4c6f72e227406d40235e9a9478a2180a072ddfa3",
+    "remote_main_checked_at_handoff": "4c6f72e227406d40235e9a9478a2180a072ddfa3",
+    "committed_or_pushed_this_batch": false,
+    "tracked_historical_results_annotations_gold_and_original_design_changed": false,
+    "unrelated_claude_files": "untouched"
+  },
+  "next_batch": "Stage B statistical hardening with versioned exploratory appendices",
+  "research_execution_authorized": false
+}

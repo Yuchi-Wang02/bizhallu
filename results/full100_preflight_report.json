@@ -822,7 +822,7 @@
     "best_test_auprc": 0.835073,
     "best_test_f1": 0.779412,
     "resume_bullet_count": 5,
-    "slide_count": 7,
+    "slide_count": 10,
     "ready_for_portfolio_narrative": true
   },
   "github_pages_bundle": {
@@ -854,7 +854,8 @@
   "full100_generation_run": true,
   "remaining_after_full100_generation": [
     "Keep docs/index.html as the GitHub Pages entry point and reports/ as the experiment-native report archive.",
-    "Use the linked 10-slide interview deck for concise portfolio walkthroughs.",
+    "Use the revised English cases, methods, career scripts and interview deck v2 for caveated content review; keep the earlier deck as history.",
+    "Owner review is deferred, not completed. Content checks do not establish visual acceptance, mastery, independent review or research validity.",
     "Keep large raw data, model traces, model weights, and external baseline repositories out of the public commit."
   ],
   "num_failures": 0,

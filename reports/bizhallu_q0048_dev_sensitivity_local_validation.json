@@ -1,0 +1,9 @@
+{
+  "status": "B2_dev_sensitivity_validated",
+  "validated_report_text_sha256": "6c79de033666a5f9af5bdcf18222a761b186bf6404ac566d7b7a1284b834494d",
+  "public_checks": "prepared_provisional_atoms_source_commitments_and_120_metric_rows_recomputed",
+  "local_checks": "q0048_nine_spans_two_precision_arms_replayed_no_inference",
+  "independent_human_review": false,
+  "num_failures": 0,
+  "failures": []
+}

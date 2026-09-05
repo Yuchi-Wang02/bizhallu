@@ -1,0 +1,8 @@
+{
+  "status": "metric_amendment_validation_passed",
+  "public_artifacts_valid": true,
+  "local_validation": "not_run_public_artifact_validation_only",
+  "research_execution_authorized": false,
+  "failures": [],
+  "num_failures": 0
+}

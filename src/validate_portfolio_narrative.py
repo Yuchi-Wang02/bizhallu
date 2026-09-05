@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import html
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
 from public_paths import repo_path
+from presentation_story import build_story
+from presentation_evidence import statistics_html
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +62,17 @@ def main() -> None:
             add_failure(failures, "html parser failed", repr(exc))
 
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
+    story = build_story()
+    for field, value in {'presentation_revision': story['revision'],
+                         'statistical_source_sha256': story['statistical_review']['source_sha256'],
+                         'independent_human_annotation': False, 'owner_mastery_verified': False}.items():
+        if summary.get(field) != value:
+            add_failure(failures, 'source or review scope differs', field)
+    for passage in story['pitch_90_seconds'] + [s['script'] for s in story['slides']] + story['guardrails']:
+        if html.escape(passage) not in html_text:
+            add_failure(failures, 'source passage missing or changed', passage[:90])
+    if statistics_html(story['statistical_review']) not in html_text:
+        add_failure(failures, 'B1 comparison missing')
     demo = load_json(DEMO_SUMMARY_PATH) if DEMO_SUMMARY_PATH.exists() else {}
     interpretation = load_json(INTERPRETATION_SUMMARY_PATH) if INTERPRETATION_SUMMARY_PATH.exists() else {}
     label_lock = load_json(LABEL_LOCK_SUMMARY_PATH) if LABEL_LOCK_SUMMARY_PATH.exists() else {}
@@ -112,26 +126,21 @@ def main() -> None:
 
     required_fragments = [
         "BizHallu Portfolio Narrative",
-        "Auditing hallucinated business facts",
-        "Personal Branding",
-        "One-minute pitch",
-        "Resume bullets",
-        "LinkedIn / portfolio blurb",
-        "Slide outline",
+        "90-second pitch",
+        "Five-minute walkthrough",
         "Presentation guardrails",
         "q_0064",
         "q_0069",
         "0.835",
         "0.779",
         "assistant_full_review",
-        "span-level hallucination detection",
-        "evidence-aware validation",
+        "source-row fidelity",
         "business analytics and AI reliability",
         "Qwen3-0.6B",
         "205",
         "100",
-        "AI-assisted provisional",
-        "exploratory max",
+        "provisional",
+        "exploratory",
         "15 selected spans",
     ]
     html_lower = html_text.lower()
@@ -140,9 +149,6 @@ def main() -> None:
             add_failure(failures, "html missing required fragment", fragment)
 
     stale_fragments = [
-        "pending human review",
-        "requires human confirmation",
-        "presentation-level confirmation required",
         "rigorous portfolio-scale benchmark",
         "Annotated 205 held-out",
     ]
@@ -159,6 +165,9 @@ def main() -> None:
         "resume_bullet_count": summary.get("resume_bullet_count"),
         "slide_count": summary.get("slide_count"),
         "ready_for_portfolio_narrative": len(failures) == 0,
+        "validation_scope": "source_and_wording_consistency_not_owner_mastery_or_visual_acceptance",
+        "owner_mastery_verified": False,
+        "visual_review_verified": False,
         "num_failures": len(failures),
         "failures": failures,
     }

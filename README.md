@@ -1,15 +1,8 @@
 # BizHallu
 
-[Live demo](https://yuchi-wang02.github.io/bizhallu/) |
 [Interactive cases](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) |
 [Methods and results](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html) |
-[Methodology audit](https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html) |
-[Confirmation capacity proof](https://yuchi-wang02.github.io/bizhallu/confirmation_context_feasibility.html) |
-[Confirmation precision review](https://yuchi-wang02.github.io/bizhallu/confirmation_precision_review.html) |
-[Confirmation manifest freeze](https://yuchi-wang02.github.io/bizhallu/confirmation_context_manifest.html) |
-[Confirmation study design](https://yuchi-wang02.github.io/bizhallu/confirmation_set_v1_design.html) |
-[Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
-[Presentation deck](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
+[Research one-pager](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html)
 
 ## TL;DR
 
@@ -25,6 +18,20 @@ from different signals. Thresholds were selected on dev spans, but the headline
 signal for each metric was selected after comparing test results, so these are
 exploratory test-set maxima rather than a preregistered confirmatory estimate.
 
+**September 4 statistical audit:** the [B1 retrospective appendix](reports/bizhallu_statistics_v2_review.html)
+adds corrected tied-score AP and stronger references without overwriting history.
+A dev-fitted fact-type prior yields F1 0.836 versus entropy's 0.779 on this
+pre-annotated subset; margin retains higher AP than that prior. Entropy's F1
+advantage over all-positive predictions has a paired question-bootstrap interval
+crossing zero. These are exploratory diagnostics, not detector-superiority claims.
+The fact-type prior is an annotation-composition control, not an information-matched
+detector: supplied type names can themselves contain correctness hints.
+
+**September 5 omission sensitivity:** the separate [B2 appendix](docs/detector_interpretation.html#b2-dev-sensitivity)
+adds nine assistant-provisional q_0048 dev atoms. Refitting on dev changes entropy's
+old-test F1 from 0.7794 to 0.7520; margin is unchanged. This is sensitivity of the
+same old test, not a new headline or independent validation. Original 205-span results remain intact.
+
 BizHallu is a span-level hallucination detection project for LLM-generated
 business analysis. It asks whether generated retail analytics claims are
 grounded in the underlying transaction evidence.
@@ -33,33 +40,107 @@ The project uses UCI Online Retail data, local `Qwen/Qwen3-0.6B` generations,
 business-fact span labels, token alignment, and split-safe detector baselines.
 It is designed as a business analytics and AI reliability portfolio artifact.
 
-![BizHallu deck preview](docs/assets/bizhallu_ai_reliability_deck_contact_sheet.png)
+**Current presentation revision:** the cases, methods page, research brief,
+career package and narrative separate correct product-amount copying from
+incorrect ranking. [English interview deck v2](docs/assets/bizhallu_interview_v2.pptx)
+contains ten editable slides and matching speaker notes. Its B1 chart is preserved;
+a visible B2 note identifies the separate omission sensitivity on the same old test.
+The [career package](docs/career_package.html) includes a 191-word short pitch and
+a ten-part, 669-word walkthrough. Speaking times are planning budgets, not
+measured owner performance. The earlier PPTX remains historical provenance.
+The [business risk lens](docs/business_risk_lens.html) now reconciles positive,
+negative and net transaction values by category, without treating negative value
+as verified physical returns. The [historical case readout](docs/portfolio_demo.html)
+preserves its seven selected span outcomes but uses the corrected relationship
+interpretation and statistical references.
 
 ## My Role
 
-I designed and implemented the full pipeline: data cleaning, deterministic
+I directed the project with AI-assisted implementation and review: data cleaning, deterministic
 question generation, prompt construction, local Qwen generation, the
 AI-assisted provisional annotation workflow, token alignment, detector
 evaluation, public GitHub Pages packaging, and interview/research-facing
 documentation. Fifteen selected demo spans received an additional assistant
 review for presentation use; the project does not claim independent human
-annotation.
+annotation. Owner calibration and independent review remain pending.
 
 ## How to Review This Project in 5 Minutes
 
 1. Open [Demo v2](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html)
    and inspect `q_0064` or `q_0069`.
-2. Read the highlighted presentation labels: supported facts can sit next to
-   incorrect rank, product, or amount bindings.
-3. Check the detector outcome column to see which internal uncertainty signals
-   missed confident wrong business facts.
-4. Open the [Methodology audit](https://yuchi-wang02.github.io/bizhallu/methodology_hardening.html)
-   to see the sample-selection, split-overlap, annotation, and confirmation-study boundaries.
-5. Use [Methods and results](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html)
-   for exploratory detector tradeoffs and the [precision review](https://yuchi-wang02.github.io/bizhallu/confirmation_precision_review.html)
-   for the outcome-blind next-study decision.
+2. Compare a complete ranked statement with its evidence row. In April, GBP
+   4,173.18 matches the named product, but that product is seventh among the
+   eight shown rows, not third. These are curated checks, not automatic extraction.
+3. Expand the historical detector readouts. A low score on an early list marker
+   is not confidence in the later completed product-rank-amount relationship.
+4. Read [Methods and results](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html)
+   for tied-score AP, simple references, paired uncertainty and provisional-label limits.
+5. Read the [research brief](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html)
+   for three open methodological questions and a specific collaboration request.
+
+<details>
+<summary>Supporting materials and study history</summary>
+
+- [Project homepage](https://yuchi-wang02.github.io/bizhallu/)
+- [Earlier deck retained as historical provenance](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx)
+- [Confirmation capacity proof](https://yuchi-wang02.github.io/bizhallu/confirmation_context_feasibility.html)
+- [Confirmation precision review](https://yuchi-wang02.github.io/bizhallu/confirmation_precision_review.html)
+- [Confirmation manifest freeze](https://yuchi-wang02.github.io/bizhallu/confirmation_context_manifest.html)
+- [Confirmation study design](https://yuchi-wang02.github.io/bizhallu/confirmation_set_v1_design.html)
+
+</details>
 
 ## Reproducibility Levels
+
+The public candidate has also passed an isolated local Git clone dry-run without
+raw data, model traces or third-party Python packages: 25 validators, 109 tests
+plus two optional skipped scikit-learn checks, and 23 Node tests. All 111 Python
+tests pass in the original environment. This was Windows/Python 3.13, not a new
+GitHub Ubuntu/Python 3.11 deployment or private-data reproduction.
+
+**Business-definition amendment (September 4, 2026).** Stage A preserves the
+historical gold and detector metrics. Its [metric contract](configs/business_metric_contract_v1_1.json)
+separates sign-based transaction value, merchandise scope and cancellation flags.
+The [100-question sensitivity table](reports/bizhallu_historical_metric_sensitivity.csv)
+describes changes to business answers, not new model performance. The
+[v1.1 amendment](reports/bizhallu_metric_amendment_v1_1_report.json) revalidates
+96 questions on the same 48 contexts without new generations. Original v1
+manifests remain provenance; `active_business_definition` in the study protocol
+identifies the active v1.1 inputs. Physical returns are not separately identifiable.
+
+Stage A public checks: `python -m unittest discover -s tests -v` and
+`python src/validate_metric_amendment.py`. Local source replay additionally uses
+`python src/validate_metric_amendment.py --require-local --output reports/bizhallu_metric_amendment_v1_1_local_validation.json`.
+That local check requires excluded source tables and both private manifests;
+it is not performed by public CI.
+
+Stage B1 calculations can be replayed from committed lightweight scores with
+`python src/validate_retrospective_statistics.py` (standard library, including
+15,000 paired cluster draws). Saved-trace verification additionally uses
+`python src/validate_retrospective_statistics.py --require-local --output reports/bizhallu_statistics_v2_local_validation.json`.
+The [analysis recipe](configs/retrospective_statistics_v2.json) and
+[metric table](results/full100_statistics_v2_metrics.csv) retain full available
+precision and do not change the provisional labels. The raw-logit traces are
+teacher-forced scores after generation, not sampling-distribution probabilities.
+B2 uses a [separate nine-atom supplement](data/annotations/span_annotations_q0048_b2_assistant_v1.jsonl)
+and [120-row sensitivity table](results/q0048_b2_sensitivity_metrics.csv), preserving B1.
+Run `python src/q0048_dev_sensitivity.py validate` for public calculation replay;
+add `--require-local` to verify q_0048 alignment and scores against excluded traces.
+The augmented 214-span package is retrospective and assistant-provisional, not a
+replacement for the original 205-span package or completed owner calibration.
+
+**Relation calibration, not completed annotation:** a five-case local review
+packet now separates neutral fact spans, formatting, source-row fidelity and
+full business relations. It hides old labels, scores, gold and split metadata;
+prior exposure remains a limitation. See the [protocol](configs/relation_annotation_v2.json)
+and [workbench notes](app/README.md). The packet is Git-ignored, starts with zero
+reviews, and does not change historical metrics. Public CI validates the protocol
+and form logic, not private reviews or independent human agreement.
+Owner review is currently deferred at the owner's request, not completed or
+replaced with assistant judgments. English evidence-backed explanations can be
+prepared meanwhile; independent review and owner mastery remain unverified.
+Single-case checks leave the remaining drafts incomplete. The adopted semester
+milestones and optional owner-session procedure are in the workbench notes.
 
 - Public review: GitHub Pages, README, reports, summaries, and committed
   lightweight validation artifacts.
@@ -110,7 +191,7 @@ business conclusion.
 | Claim-evidence review schema v0 | <https://yuchi-wang02.github.io/bizhallu/evidence_verifier_pilot.html> |
 | Portfolio narrative | <https://yuchi-wang02.github.io/bizhallu/portfolio_narrative.html> |
 | Detector interpretation | <https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html> |
-| Interview deck | <https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_ai_reliability_deck.pptx> |
+| English interview deck v2 | [Ten-slide walkthrough](docs/assets/bizhallu_interview_v2.pptx) |
 
 The main demo cases are `q_0064` and `q_0069`. They show Qwen3-0.6B producing
 plausible retail analysis while binding real transaction values to the wrong
@@ -151,8 +232,8 @@ confirmation protocol.
 - AI evaluation discipline: generated answers are represented with exact span
   offsets, token alignment, and dev-selected thresholds; public wording keeps
   the provisional label and exploratory model-selection limits visible.
-- Practical limitation: internal uncertainty is useful, but confident wrong
-  business bindings can still be missed.
+- Practical limitation: token signals can miss provisional wrong-relation labels.
+  An early list marker does not measure confidence in the later full relationship.
 - Research extension: Claim-Evidence Review Schema v0 organizes 15 Demo v2
   spans as claim-evidence rows. Its statuses are inherited from the selected
   presentation labels, so it is a protocol scaffold rather than an independent
@@ -160,7 +241,7 @@ confirmation protocol.
 - Portfolio relevance: the final pages and deck explain the work as AI
   reliability for business analysis, not as a generic sales dashboard.
 - Career relevance: the career package and business risk lens connect the work
-  to BA, DS, and AI Analyst interviews across accounting, supply-management,
+  to business, data and operations analyst interviews across accounting, supply-management,
   and evidence-grounded decision-support use cases.
 
 ## Repository Map

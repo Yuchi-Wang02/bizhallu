@@ -62,10 +62,9 @@ def main() -> None:
     best_f1 = interpretation["best_overall_by_test_f1"]
 
     research_questions = [
-        "When LLMs generate business analysis from structured evidence, which fact spans fail most often: products, ranks, amounts, percentages, countries, or comparison directions?",
-        "Can token-level uncertainty signals detect hallucinated business-fact spans when the generated answer is fluent and numerically plausible?",
-        "Where do internal uncertainty signals fail, especially when the model confidently binds a real evidence value to the wrong entity, rank, or conclusion?",
-        "How should evidence-aware verification be compared with internal-state hallucination signals rather than treated as a replacement for them?",
+        "How should amount fidelity and entity-rank-value correctness be annotated without repeated counting?",
+        "How should token-time uncertainty and completed-answer verification be compared under different information budgets?",
+        "What sample and independent-review design supports uncertainty estimates under shared evidence contexts?",
     ]
 
     method_steps = [
@@ -100,7 +99,7 @@ def main() -> None:
         "Semantic Entropy: useful for testing semantic consistency across sampled answers; requires multiple generations per question.",
         "TOHA: relevant as an attention-graph topology baseline; implementation depends on reliable access to attention tensors and runnable reference code.",
         "Real-time hallucinated entity detection: relevant for product, country, month, and stock-code spans; needs entity extraction and entity-level evidence matching.",
-        "Spilled Energy: already represented through current energy-family fields; future work can separate pure adjacent-step energy from probability-mass controls more explicitly.",
+        "Spilled Energy: audit adjacent-step formula and time indexing; same-step energy gap is NLL and probability-mass controls are not independent replications.",
     ]
 
     revised_counts = precision_amendment["revised_planning_counts"]
@@ -126,7 +125,7 @@ def main() -> None:
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations; no model execution, labels, scores, or new metrics yet",
+        "next_stage_scope": "English evidence-grounded presentation and assistant review; independent human review deferred, not claimed; no model execution or confirmation evaluation",
         "confirmation_precision_review_status": precision["status"],
         "confirmation_strong_candidate_pass_count": precision_pass_count,
         "confirmation_candidate_count": len(precision["candidate_summaries"]),
@@ -158,262 +157,62 @@ def main() -> None:
         "failures": [],
     }
 
+    from presentation_evidence import statistical_context, walkthrough, METRIC_NOTE, b2_context, b2_note_html
+    stats = statistical_context()
+    by_signal = {row['signal']: row for row in stats['test_rows']}
+    interval = stats['entropy_minus_all_positive']
+    demo_data = load_json(REPORTS_DIR / 'bizhallu_demo_v2_data.json')
+    example = walkthrough(next(c for c in demo_data['cases'] if c['question_id']=='q_0064'))['claims'][2]
+    summary['presentation_revision'] = 'english_evidence_review_2026_09_05'
+    summary['statistical_review'] = stats
+    summary['b2_sensitivity'] = b2_context()
+    summary['independent_human_annotation'] = False
+    summary['share_status'] = 'exploratory_project_for_method_feedback'
     html_text = f"""<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{esc(summary["title"])}</title>
-    <style>
-      :root {{
-        --bg: #f6f7f9;
-        --surface: #ffffff;
-        --ink: #1d1d1f;
-        --muted: #5f6368;
-        --line: rgba(29, 29, 31, 0.13);
-        --blue: #0066cc;
-        --green: #0f766e;
-        color-scheme: light;
-      }}
-      * {{ box-sizing: border-box; }}
-      body {{
-        margin: 0;
-        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 54%, #eef2f5 100%);
-        color: var(--ink);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-        line-height: 1.52;
-      }}
-      a {{ color: inherit; text-decoration: none; }}
-      .topbar {{
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        min-height: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 34px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(246, 247, 249, 0.88);
-        backdrop-filter: blur(16px);
-      }}
-      .brand {{ display: flex; align-items: center; gap: 10px; font-weight: 850; }}
-      .brand span {{
-        display: grid;
-        place-items: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: var(--ink);
-        color: white;
-        font-size: 12px;
-      }}
-      nav {{ display: flex; gap: 14px; color: var(--muted); font-size: 14px; font-weight: 750; }}
-      main {{ width: min(1080px, calc(100% - 40px)); margin: 0 auto; }}
-      section {{ padding: 48px 0; border-top: 1px solid var(--line); }}
-      .hero {{
-        min-height: calc(100vh - 62px);
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-        gap: 30px;
-        align-items: center;
-        border-top: 0;
-      }}
-      .eyebrow {{
-        margin: 0 0 12px;
-        color: var(--blue);
-        font-size: 12px;
-        font-weight: 850;
-        letter-spacing: 0;
-        text-transform: uppercase;
-      }}
-      h1, h2, h3, p, li {{ overflow-wrap: anywhere; }}
-      h1 {{ margin: 0; font-size: clamp(40px, 5.6vw, 66px); line-height: 1; letter-spacing: 0; }}
-      h2 {{ margin: 0; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: 0; }}
-      h3 {{ margin: 0; font-size: 19px; line-height: 1.24; letter-spacing: 0; }}
-      .lede {{ max-width: 820px; margin: 22px 0 0; color: var(--muted); font-size: 21px; }}
-      .snapshot, .panel, .metric {{
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface);
-      }}
-      .snapshot {{ display: grid; overflow: hidden; }}
-      .snapshot div {{ padding: 20px; border-bottom: 1px solid var(--line); }}
-      .snapshot div:last-child {{ border-bottom: 0; }}
-      .label {{ display: block; color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }}
-      .snapshot strong {{ display: block; margin-top: 6px; font-size: 20px; }}
-      .grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }}
-      .metric-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }}
-      .panel, .metric {{ padding: 22px; }}
-      .metric strong {{ display: block; margin-top: 8px; font-size: 30px; line-height: 1; }}
-      .panel p, .metric p, li {{ color: var(--muted); }}
-      ul {{ display: grid; gap: 10px; margin: 18px 0 0; padding-left: 20px; }}
-      .callout {{
-        margin-top: 22px;
-        padding: 22px;
-        border-radius: 8px;
-        border: 1px solid rgba(15, 118, 110, 0.22);
-        background: rgba(15, 118, 110, 0.08);
-      }}
-      .links {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }}
-      .links a {{
-        display: inline-flex;
-        align-items: center;
-        min-height: 40px;
-        padding: 9px 13px;
-        border-radius: 8px;
-        color: var(--blue);
-        border: 1px solid rgba(0, 102, 204, 0.22);
-        background: rgba(0, 102, 204, 0.07);
-        font-weight: 800;
-      }}
-      code {{
-        padding: 2px 5px;
-        border-radius: 6px;
-        background: rgba(0, 0, 0, 0.06);
-        font-family: "SFMono-Regular", Consolas, monospace;
-      }}
-      footer {{ padding: 34px 0 50px; color: var(--muted); border-top: 1px solid var(--line); }}
-      @media (max-width: 900px) {{
-        .topbar {{ padding: 0 20px; }}
-        nav {{ display: none; }}
-        main {{ width: min(100% - 28px, 720px); }}
-        .hero, .grid, .metric-grid {{ grid-template-columns: 1fr; }}
-        .hero {{ min-height: auto; padding-top: 46px; }}
-      }}
-    </style>
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="./index.html"><span>BH</span>BizHallu</a>
-      <nav>
-        <a href="./portfolio_demo_v2.html">Demo v2</a>
-        <a href="./business_risk_lens.html">Business lens</a>
-        <a href="./detector_interpretation.html">Metrics</a>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">Professor / research advisor one-pager</p>
-          <h1>{esc(summary["title"])}</h1>
-          <p class="lede">BizHallu studies evidence-grounding failures in LLM-generated business analysis: cases where the answer sounds fluent and may use real values, but binds them to the wrong product, rank, amount, comparison, or conclusion.</p>
-          <div class="links">
-            <a href="./portfolio_demo_v2.html">Open demo v2</a>
-            <a href="./evidence_verifier_pilot.html">Open claim-evidence schema</a>
-            <a href="./bizhallu_methodology_hardening.html">Open methodology audit</a>
-            <a href="./business_risk_lens.html">Open business risk lens</a>
-            <a href="./detector_interpretation.html">Open detector interpretation</a>
-          </div>
-        </div>
-        <aside class="snapshot">
-          <div><span class="label">Gold questions</span><strong>{summary["question_count"]}</strong></div>
-          <div><span class="label">Provisional aligned spans</span><strong>{summary["annotated_span_count"]}</strong></div>
-          <div><span class="label">Test spans scored</span><strong>{summary["heldout_test_span_count"]}</strong></div>
-          <div><span class="label">Exploratory test maxima</span><strong>{metric(summary["best_test_auprc"])} AUPRC / {metric(summary["best_test_f1"])} F1</strong></div>
-          <div><span class="label">Presentation review</span><strong>15 selected spans</strong></div>
-        </aside>
-      </section>
-
-      <section>
-        <p class="eyebrow">Research problem</p>
-        <h2>Business hallucinations are evidence-binding failures, not only unsupported text.</h2>
-        <div class="grid">
-          <article class="panel">
-            <h3>Problem</h3>
-            <p>In business analytics, an answer can be dangerous even when it contains real values from the source table. If the value is attached to the wrong product, rank, month, country, or conclusion, the resulting recommendation is still wrong.</p>
-          </article>
-          <article class="panel">
-            <h3>Dataset and task</h3>
-            <p>The current artifact uses UCI Online Retail transactions to build deterministic retail questions and gold answers. The evaluation unit is the individual business-fact span, not the whole generated answer.</p>
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <p class="eyebrow">Method</p>
-        <h2>Pipeline from transaction evidence to span-level detector metrics.</h2>
-        <div class="panel">{render_list(method_steps)}</div>
-        <div class="metric-grid">
-          <article class="metric"><span class="label">Questions</span><strong>{summary["question_count"]}</strong><p>Deterministic business questions across seven question types.</p></article>
-          <article class="metric"><span class="label">Demo cases</span><strong>{summary["demo_case_count"]}</strong><p>Presentation-locked cases available in demo v2.</p></article>
-          <article class="metric"><span class="label">Business lenses</span><strong>{summary["business_risk_lens_count"]}</strong><p>Accounting, operations, product, and market-risk framings.</p></article>
-          <article class="metric"><span class="label">Test spans</span><strong>{summary["heldout_test_span_count"]}</strong><p>Pre-identified span-level detector evaluation units.</p></article>
-        </div>
-      </section>
-
-      <section>
-        <p class="eyebrow">Findings</p>
-        <h2>Internal uncertainty has signal, but it is not the same as evidence verification.</h2>
-        <div class="panel">{render_list(key_findings)}</div>
-        <div class="callout"><strong>Main research seed:</strong> internal uncertainty signals can rank some risky spans, but confident wrong evidence bindings remain difficult. The next research step is to compare internal-state signals with evidence-aware verification for business-fact grounding.</div>
-      </section>
-
-      <section>
-        <p class="eyebrow">Possible JHU extensions</p>
-        <h2>Use this as a bridge into responsible AI, analytics, and operations research.</h2>
-        <div class="grid">
-          <article class="panel">
-            <h3>Research questions</h3>
-            {render_list(research_questions)}
-          </article>
-          <article class="panel">
-            <h3>Extension paths</h3>
-            {render_list(jhu_extensions)}
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <p class="eyebrow">Prospective confirmation design</p>
-        <h2>The next study preserves the failed precision gate instead of overstating it.</h2>
-        <div class="grid">
-          <article class="panel">
-            <h3>Outcome-blind decision</h3>
-            <p>{esc(summary["confirmation_strong_candidate_pass_count"])}/{esc(summary["confirmation_candidate_count"])} tested strong-design candidates passed every frozen rule. Thresholds were not relaxed, and the scope was narrowed to estimation rather than detector superiority.</p>
-          </article>
-          <article class="panel">
-            <h3>Revised capacity</h3>
-            <p>The frozen 6/15/{esc(summary["confirmation_context_count"])} plan uses {esc(summary["confirmation_total_context_count"])} period-disjoint contexts and {esc(summary["confirmation_question_count_frozen"])} frozen private questions. Aggregate matching fills {esc(summary["confirmation_capacity_matching_count"])}/{esc(summary["confirmation_total_context_count"])} slots with minimum Hall slack +{esc(summary["confirmation_capacity_hall_slack"])}; the private context manifest fixes the assignment with {esc(summary["confirmation_reserve_period_count"])} reserve weeks.</p>
-          </article>
-        </div>
-        <div class="callout"><strong>Current boundary:</strong> the outcome-blind context manifest and 6/15/27 split are frozen under one public SHA-256 commitment. A second private manifest freezes {esc(summary["confirmation_question_count_frozen"])} deterministic questions and gold answers across {esc(summary["confirmation_question_template_count"])} templates under a separate public commitment. All {esc(summary["confirmation_question_count_frozen"])} full payloads and normalized evidence-table contents are unique, and the normalized contents match 0 of {esc(summary["confirmation_historical_unique_evidence_content_fingerprint_count"])} unique historical full100 contents. No prompt, model output, annotation, detector score, or new empirical metric exists. Next freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations before protocol-pilot generation.</div>
-        <p><a href="./bizhallu_confirmation_precision_review.html"><strong>Open precision review</strong></a> · <a href="./bizhallu_confirmation_context_manifest.html"><strong>Open manifest commitment</strong></a> · <a href="./bizhallu_confirmation_set_v1_design.html"><strong>Open prospective study design</strong></a></p>
-      </section>
-
-      <section>
-        <p class="eyebrow">Research backlog</p>
-        <h2>Keep the academic route open while building the business-facing verifier.</h2>
-        <div class="grid">
-          <article class="panel">
-            <h3>Comparison tracks</h3>
-            {render_list(research_tracks)}
-          </article>
-          <article class="panel">
-            <h3>Baseline candidates</h3>
-            {render_list(baseline_backlog)}
-          </article>
-        </div>
-        <div class="callout"><strong>Implementation caution:</strong> Claim-Evidence Review Schema v0 covers {esc(summary["verifier_pilot_span_count"])} selected Demo v2 spans, including {esc(summary["verifier_pilot_contradicted_count"])} label-derived contradicted statuses. It does not make independent verifier predictions. Define and freeze an independent decision rule before reporting a verifier comparison.</div>
-      </section>
-
-      <section>
-        <p class="eyebrow">Scope guardrails</p>
-        <h2>How to describe this accurately.</h2>
-        <div class="panel">
-          <p>BizHallu is a portfolio-scale, span-level AI reliability artifact. The 205 labels are AI-assisted and provisional; 15 selected presentation spans received an additional assistant review. There is no independent human annotation or inter-annotator agreement.</p>
-          <p>The current evaluation scores pre-identified spans and does not automatically extract claims from unseen answers. The 0.835 AUPRC and 0.779 F1 values are exploratory test-set maxima from different candidate signals, not a confirmatory held-out model-selection estimate.</p>
-          <p>The score package covers 35 of 36 dev/test questions selected through an outcome-informed high-priority queue. The question-level split also shares months and exact evidence-row payloads across splits. Methodology Hardening v1 documents these limits and specifies a fresh context-separated confirmation protocol.</p>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <main>Research one-pager generated from validated BizHallu public artifacts.</main>
-    </footer>
-  </body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(summary['title'])}</title>
+<style>
+*{{box-sizing:border-box;letter-spacing:0}}body{{margin:0;background:#f6f7f9;color:#202124;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}}main,nav{{max-width:940px;margin:auto;padding:22px 28px}}nav{{display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #d9dee1}}a{{color:#155e75}}h1{{font-size:27px;line-height:1.22;margin:8px 0 12px}}h2{{font-size:17px;margin:17px 0 7px}}p{{margin:7px 0}}section{{padding:5px 0 12px;border-bottom:1px solid #d9dee1}}.eyebrow,.muted{{color:#58616a}}.eyebrow{{font-size:12px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:24px}}.case{{border-left:3px solid #1a7560;padding-left:14px}}table{{width:100%;border-collapse:collapse;font-size:13px}}td,th{{border-bottom:1px solid #d9dee1;padding:7px;text-align:left}}li{{margin:5px 0}}h1,p,li,td,th{{overflow-wrap:anywhere}}footer{{margin-top:14px;font-size:12px;color:#58616a}}@media(max-width:650px){{.grid{{grid-template-columns:1fr;gap:0}}main,nav{{padding:16px}}}}@page{{size:A4;margin:12mm}}@media print{{body{{background:white;font-size:10pt;line-height:1.32}}nav{{display:none}}main{{max-width:none;padding:0}}h1{{font-size:20pt}}h2{{font-size:12pt}}section{{break-inside:avoid}}a{{color:inherit}}}}
+</style></head>
+<body>
+<nav aria-label="Project"><a href="./portfolio_demo_v2.html">Cases</a><a href="./detector_interpretation.html">Methods</a><a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a></nav>
+<main>
+<p class="eyebrow">Professor / research advisor one-pager · Exploratory project</p>
+<h1>{esc(summary['title'])}</h1>
+<p>Yuchi Wang · Accounting and supply-management background · JHU Carey BAAI</p>
+<section><h2>Research problem</h2>
+<p>Can we distinguish correctly copied data from a correct business relationship? BizHallu studies evidence binding in LLM-generated retail analysis. Its contribution at this stage is an auditable experimental workflow and inspectable failure cases, not a validated production detector.</p>
+<div class="case"><strong>A concrete example: April 2011</strong>
+<p>Qwen assigns {esc(example['product_name'])} to rank {example['stated_rank']} at GBP {esc(example['amount_lexical'])}. The product and amount match source row {example['source_row']}, but the product ranks {example['rank_in_shown_evidence']} in the eight shown rows. Rank 3 belongs to {esc(example['expected_product_at_stated_rank'])} at GBP {esc(example['expected_amount_at_stated_rank'])}. <a href="./portfolio_demo_v2.html?case=q_0064">Inspect q_0064</a>.</p></div>
+</section>
+<div class="grid">
+<section><h2>Dataset and method</h2>
+<p>UCI Online Retail; 100 deterministic questions across seven task types; local Qwen3-0.6B answers; 205 AI-assisted provisional spans across 35 dev/test answers. Fifteen selected spans received additional assistant review. No independent human agreement has been measured.</p>
+<p>Transaction evidence → questions → answers → pre-identified spans → token alignment → detector scores. Thresholds were fitted on dev; candidate signals were compared on test. The quoted maxima therefore remain exploratory, not confirmatory.</p>
+<p>Negative transaction value is not verified physical returns. Product analysis uses a merchandise-code heuristic; metric scope and historical field meanings are documented separately.</p>
+</section>
+<section><h2>Historical B1 results</h2>
+<table><thead><tr><th>Reference / signal</th><th>Test AP</th><th>Test F1</th></tr></thead><tbody>
+<tr><td>Top-2 margin</td><td>{by_signal['one_minus_min_top2_margin']['average_precision']:.3f}</td><td>{by_signal['one_minus_min_top2_margin']['f1']:.3f}</td></tr>
+<tr><td>Token entropy</td><td>{by_signal['mean_token_entropy']['average_precision']:.3f}</td><td>{by_signal['mean_token_entropy']['f1']:.3f}</td></tr>
+<tr><td>Flag every span</td><td>{by_signal['all_positive']['average_precision']:.3f}</td><td>{by_signal['all_positive']['f1']:.3f}</td></tr>
+</tbody></table>
+<p>103 test spans from all 18 test questions. Entropy's F1 difference from flag-every-span is {interval['point_difference']:+.4f}; the exploratory paired question-bootstrap interval [{interval['lower_95']:.4f}, {interval['upper_95']:.4f}] crosses zero. No stable superiority claim follows.</p>
+<p>AP uses tied-score-aware average precision. A dev fact-type prior has F1 {by_signal['dev_fact_type_prior']['f1']:.3f}, but annotation-derived types can contain correctness hints: this is a composition control, not a fair automatic detector competitor.</p>
+{b2_note_html()}
+</section></div>
+<section><h2>Three questions for collaboration</h2>
+<ol><li>How should amount fidelity and full entity-rank-value correctness be annotated without counting one binding error several times?</li><li>How should token-time uncertainty and completed-answer verification be compared when their available information differs?</li><li>What sample and independent review design would support useful uncertainty estimates under shared evidence contexts?</li></ol>
+<p><strong>Specific request:</strong> feedback on the relation annotation unit and comparison design, plus a small calibration exercise with a second reviewer. Professor or career-facing discussion need not wait for a publication-scale benchmark.</p>
+</section>
+<section><h2>Limits and next comparisons</h2>
+<p>The historical labels are provisional and the queue was outcome-informed. Dev/test share periods and evidence. q_0048 was absent from original dev labels and is now included only in separate B2 sensitivity. Low uncertainty on an early list marker cannot establish confidence about the following full relationship.</p>
+<p>A future evidence-aware verifier must predict without gold or evaluation labels. Semantic Entropy remains a multi-generation consistency candidate; TOHA and entity probes need compatibility review. Adjacent-step Spilled Energy requires a formula/index audit: same-step energy gap is NLL, not an independent method.</p>
+<p>A 48-context / 96-question, estimation-focused next study is prepared but not executed. Confirmation remains sealed. <a href="./confirmation_set_v1_design.html">Study design</a> · <a href="./detector_interpretation.html#statistical-review">Statistical review</a>.</p>
+</section>
+<footer>English presentation revision: September 5, 2026. Assistant-reviewed presentation, not new annotations or model results. Prepared for method feedback and academic discussion.</footer>
+</main></body></html>
 """
 
     HTML_PATH.write_text(html_text, encoding="utf-8")

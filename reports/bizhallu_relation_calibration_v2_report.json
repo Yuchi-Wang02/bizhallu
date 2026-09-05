@@ -1,0 +1,64 @@
+{
+  "status": "C1_calibration_packet_prepared_not_reviewed",
+  "protocol_id": "relation-review-v2-calibration-1",
+  "packet_id": "1a5667535d1bd69745871cd0a1b537f548e68dbfdea24bd4f8ac7da58e6dce4e",
+  "case_count": 5,
+  "question_type_count": 4,
+  "contains_missing_dev_question": true,
+  "selection": "Purposive historical calibration; two already-public ranking cases; not representative or independently blind.",
+  "template_status": {
+    "case_count": 5,
+    "completed_case_count": 0,
+    "atom_count": 0,
+    "relation_count": 0,
+    "ready_for_adjudication": false,
+    "independent_human_review_verified": false,
+    "ready_for_detector_metrics": false
+  },
+  "reviewer_input_fields": [
+    "answer",
+    "case_id",
+    "evidence_rows",
+    "evidence_scope_note",
+    "messages",
+    "question"
+  ],
+  "excluded_fields": [
+    "gold_answer",
+    "gold_facts",
+    "old_annotation_spans",
+    "old_labels",
+    "detector_scores",
+    "detector_outcomes",
+    "split",
+    "source_question_id"
+  ],
+  "source_text_sha256": {
+    "configs/relation_annotation_v2.json": "ac23ae796c513bcf1c7e6b85494ef70c70faba71c7381579969282ad1b47c6a5",
+    "app/relation_review_template.html": "beb3d889b2eb85b45873a514b31c1e8fab57b6fd9b8a1b8c5d5ca09176fc258f",
+    "app/relation_review.js": "d4c96073c242a0f4c09f6aba9ec77e552eec154acd7918d7639fa4b2f14938a3",
+    "src/relation_review.py": "b303a5632888caca9ee82f19a7981ed430712de7752f940e54029ab90acb7e48",
+    "data/processed/business_questions_gold.jsonl": "e65bbd4924446c9b50e958ae8b43990eb932296f7c8519ab85a55dcf4c322e5d"
+  },
+  "local_source_text_sha256": {
+    "outputs/qwen_full100_generations.jsonl": "65f95957c526a2c9c42e9163040f77814d38f63831b104d27f6539eb5e56556a",
+    "outputs/qwen_input_prompts.jsonl": "b7a20e0ffb52585624c3f2ab850fedcd01e5cdb3af4fffadf913a23694eb4d75"
+  },
+  "local_outputs": {
+    "packet": "outputs/relation_calibration_v2/packet.json",
+    "page": "outputs/relation_calibration_v2/review.html",
+    "template": "outputs/relation_calibration_v2/review_template.json",
+    "admin_mapping": "outputs/relation_calibration_admin_v2/mapping.json"
+  },
+  "boundaries": {
+    "historical_label_policy": "Original 205 spans stay immutable. Any q_0048 v1 atomic-label sensitivity must be a separate reviewed version, not an automatic translation of this v2 relation draft.",
+    "reviewer_provenance": "Reviewer identity/type/exposure are self-reported, not verified human-review evidence. Assistant tests use synthetic fixtures and never populate real reviews.",
+    "future_comparison": "No detector sees review verdicts. Online token scoring and completed-answer relation checking have different information budgets. No verifier is implemented by this protocol.",
+    "numeric_policy": "Calibration records exact/display/legacy-tolerance categories separately. Do not silently change the historical tolerance or apply a new relation threshold to historical test results.",
+    "rollout_gate": "Owner calibration and policy revision first, then independent reviewer packets; no scaling or scoring until coverage and disagreements are reviewed."
+  },
+  "prepared_for_owner_trial": true,
+  "interface_acceptance": "pending_visual_and_owner_trial",
+  "ready_for_new_metrics": false,
+  "visual_review": "not_performed_browser_security_boundary; structural_and_node_tests_only"
+}

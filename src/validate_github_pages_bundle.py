@@ -11,6 +11,8 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from public_paths import contains_local_path, repo_path
+from presentation_evidence import statistics_html
+from build_github_pages_bundle import PAGE_COPIES, ARCHIVE_NOTICES, archive_notice
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,58 +22,25 @@ VALIDATION_PATH = DOCS_DIR / "github_pages_validation.json"
 TEXT_HASH_SUFFIXES = {".csv", ".html", ".json", ".md", ".txt", ".yml", ".yaml"}
 
 REQUIRED_INDEX_FRAGMENTS = [
-    "BizHallu GitHub Pages",
+    "Evidence-grounded business analysis",
+    "A correct amount, an incorrect rank",
+    "Cases",
+    "Methods",
+    "Research",
     "Open demo v2",
-    "Career package",
-    "Research direction",
-    "Open review schema",
-    "Business risk lens",
     "Research one-pager",
-    "Claim-evidence review schema",
-    "Methodology Hardening v1",
-    "Open methodology audit",
-    "Confirmation design gates",
-    "0 repeated historical records",
-    "50 observed complete weeks",
-    "48/48 unique period-to-family matching",
-    "minimum Hall slack +2",
-    "0/4 strong-design candidates passed every frozen rule.",
-    "Thresholds were not relaxed",
-    "scope was narrowed to estimation rather than detector superiority",
-    "private context manifest fixes 48 unique contexts and the 6/15/27 split",
-    "2 source weeks held in reserve",
-    "freezes 96 deterministic questions and gold answers across 6 templates",
-    "96 unique full-payload fingerprints and 96 unique normalized evidence-table content fingerprints",
-    "match 0 of 66 unique historical full100 contents",
-    "Three of seven execution gates are complete",
-    "Next freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations",
-    "Manifest commitment",
-    "Open precision review",
-    "Overlap proof",
-    "Capacity proof",
-    "35 of 36 dev/test answers",
-    "not an unseen-context test",
-    "Open narrative",
-    "Download PPTX",
-    "Preview slides",
-    "q_0064",
-    "q_0069",
+    "Historical B1 reference checks",
     "0.835",
     "0.779",
-    "span-level",
-    "business analytics and AI reliability",
-    "GitHub Pages bundle",
-    "BA / DS / AI Analyst",
-    "Recruiter",
-    "Professor",
-    "Technical interviewer",
-    "Business interviewer",
-    "claim-evidence rows",
-    "When the number is real but the business claim is wrong",
-    "Built by Yuchi Wang",
-    "Exploratory max test AUPRC",
-    "AI-assisted provisional spans",
+    "Flag every span",
+    "annotation-composition control",
+    "Negative value",
+    "q_0048",
+    "pre-identified test spans",
     "not an independent verifier",
+    "Confirmation remains sealed",
+    "Historical PPTX",
+    "Public artifact validation is separate from scientific validity",
 ]
 
 REQUIRED_PAGE_FILES = [
@@ -99,6 +68,8 @@ REQUIRED_PAGE_FILES = [
     "assets/bizhallu_evidence_verifier_pilot_rows.csv",
     "assets/bizhallu_evidence_verifier_pilot_rows.json",
     "assets/bizhallu_ai_reliability_deck.pptx",
+    "assets/bizhallu_interview_v2.pptx",
+    "assets/bizhallu_interview_v2_preview.png",
     "assets/bizhallu_ai_reliability_deck_contact_sheet.png",
 ]
 
@@ -112,9 +83,6 @@ FORBIDDEN_FRAGMENTS = [
     "./bizhallu_portfolio_demo.html",
     "./bizhallu_portfolio_demo_v2.html",
     "./bizhallu_confirmation_context_manifest.html",
-    "pending human review",
-    "requires human confirmation",
-    "presentation-level confirmation required",
 ]
 
 
@@ -226,6 +194,8 @@ def main() -> None:
     index_path = DOCS_DIR / "index.html"
     if index_path.exists():
         index_html = index_path.read_text(encoding="utf-8")
+        if statistics_html() not in index_html:
+            failures.append({'name': 'statistical_comparison_missing', 'detail': 'Homepage must display the current source-backed comparison'})
         for fragment in REQUIRED_INDEX_FRAGMENTS:
             if fragment not in index_html:
                 failures.append(
@@ -264,6 +234,10 @@ def main() -> None:
                     "reason": "page content no longer matches manifest hash",
                 }
             )
+
+    for _, dest, role in PAGE_COPIES:
+        if role in ARCHIVE_NOTICES and (not dest.exists() or archive_notice(role) not in dest.read_text(encoding='utf-8')):
+            failures.append({'name':'archive_notice_missing_or_stale','path':repo_path(dest),'role':role})
 
     for record in manifest.get("assets", []):
         dest = Path(record.get("dest", ""))
@@ -367,6 +341,10 @@ def main() -> None:
 
     validation = {
         "manifest_path": repo_path(MANIFEST_PATH),
+        "validation_scope": "local_bundle_content_links_and_source_hashes_only",
+        "live_deployment_verified": False,
+        "visual_review_verified": False,
+        "independent_human_review_verified": False,
         "ready_for_github_pages": len(failures) == 0,
         "required_file_count": len(REQUIRED_PAGE_FILES),
         "checked_html_file_count": len(html_files),

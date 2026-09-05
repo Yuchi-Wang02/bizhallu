@@ -1,0 +1,23 @@
+{
+  "version": "B2_q0048_dev_sensitivity_v1",
+  "status": "retrospective_assistant_provisional_supplement_not_preregistration",
+  "question_id": "q_0048",
+  "required_split": "dev",
+  "annotation_path": "data/annotations/span_annotations_q0048_b2_assistant_v1.jsonl",
+  "annotation_version": "0.5-B2-q0048-assistant-provisional-v1",
+  "expected_span_count": 9,
+  "label_basis": "assistant source review, not independent human review",
+  "source_review": "Arithmetic checked before examining this supplement's detector scores; prior familiarity with the historical project is disclosed. This is not independently blind annotation.",
+  "boundary_policy": "Existing v1 atomic fact types; first comparison predicate follows q_0043. Keep repeated entity/direction in the second difference claim, with correlation disclosed. No filler, new relation labels or duplicated overlapping spans.",
+  "numeric_policy": "Legacy tolerance retained; explicitly approximate GBP 27,508 is nearest-whole-pound rounding of GBP 27,507.89, not exact pence equality.",
+  "coverage_policy": "Review both sentences against supplied evidence. Missing stock codes, percentages, recommendations or causal explanations are not invented as annotation targets. Atomic coverage is an assistant judgment, not verified human completeness.",
+  "reference_protocol": "configs/retrospective_statistics_v2.json",
+  "arms": ["stored_six_decimal_scores", "saved_trace_precision"],
+  "conditions": ["original_dev17", "supplemented_dev18"],
+  "fit_policy": "Use B1's dev-only F1 threshold and fact-type prior policy without changes. All 12 existing signals and three references are tabulated; no new signal selection.",
+  "evaluation_policy": "Freeze the same 103 original test spans and scores. Compare thresholds, confusion matrices, F1, AP, balanced accuracy and MCC. Report every changed test prediction. These are retrospective sensitivity results, not fresh held-out evidence.",
+  "uncertainty_policy": "No new bootstrap or significance claim; this deterministic omission sensitivity does not measure annotation uncertainty, dev-sampling uncertainty or context generalization.",
+  "single_question_policy": "All nine supplement labels are negative class. Do not estimate hallucination recall/AP from this all-correct single-answer supplement; report how many spans are flagged instead.",
+  "publication_policy": "Keep original 205 labels and historical results immutable; 214 is an augmented sensitivity package, not a replacement public headline. No Qwen inference, confirmation access or independent-verifier comparison.",
+  "human_review_required_for_independent_annotation_claim": true
+}

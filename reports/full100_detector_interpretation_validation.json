@@ -4,7 +4,11 @@
   "source_family_report_path": "results/full100_draft_detector_family_comparison_report.json",
   "source_error_review_report_path": "results/full100_draft_detector_error_review_report.json",
   "ready_for_presentation_label_confirmation": true,
-  "ready_for_locked_presentation": true,
+  "ready_for_locked_presentation": false,
+  "ready_for_caveated_content_review": true,
   "num_failures": 0,
-  "failures": []
+  "failures": [],
+  "validation_scope": "retrospective_content_and_source_consistency_only",
+  "visual_review_verified": false,
+  "independent_human_review_verified": false
 }

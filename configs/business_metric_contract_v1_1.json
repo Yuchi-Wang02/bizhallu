@@ -1,0 +1,54 @@
+{
+  "contract_id": "bizhallu-business-metrics-v1.1",
+  "frozen_on": "2026-09-04",
+  "scope": "Outcome-blind business-definition amendment; historical v1 stays immutable.",
+  "currency": "GBP",
+  "line_grain": "One source invoice line after the historical normalized exact-duplicate exclusion; invoice number is not a unique line key.",
+  "source_references": [
+    "https://archive.ics.uci.edu/dataset/352/online+retail",
+    "https://archive.ics.uci.edu/dataset/502/online+retail+ii"
+  ],
+  "source_limits": "UCI documents C-prefixed invoices as cancellations. Negative quantity alone does not establish a physical return, cause, original-sale linkage, cash collection, profit, or recognized accounting revenue.",
+  "eligible_line_policy": "Preserve existing valid-net flags: exclude normalized duplicate copies, missing/blank descriptions and nonpositive unit prices. Missing customer IDs are retained for aggregate analysis, not imputed. No anomaly is automatically removed.",
+  "merchandise_policy": {
+    "method": "Historical project heuristic, not an externally verified product master",
+    "exclude_stock_codes": ["AMAZONFEE", "B", "BANK CHARGES", "C2", "CRUK", "D", "DOT", "M", "POST", "S"],
+    "also_exclude": "Normalized stock codes containing no digit",
+    "remaining_uncertainty": "Digit-containing unrecognized adjustment codes may remain. Product/customer linkage does not establish accounting recognition."
+  },
+  "non_merchandise_categories": {
+    "fee_or_service_code": ["AMAZONFEE", "BANK CHARGES", "C2", "DOT", "POST"],
+    "adjustment_or_discount_code": ["B", "D"],
+    "unknown_non_merchandise": ["M", "S", "CRUK"]
+  },
+  "category_policy": "Code-based descriptive buckets only. All unmatched excluded codes join unknown_non_merchandise. No monetary value is allocated to a product without documented linkage.",
+  "metrics": {
+    "positive_transaction_value_gbp": {"scope": "all eligible lines including non-merchandise", "formula": "sum(quantity * unit_price where line value > 0)", "sign": "nonnegative", "unit": "GBP"},
+    "negative_transaction_value_gbp": {"scope": "all eligible lines including non-merchandise", "formula": "sum(quantity * unit_price where line value < 0)", "sign": "nonpositive", "unit": "GBP"},
+    "negative_transaction_magnitude_gbp": {"scope": "all eligible lines", "formula": "abs(negative_transaction_value_gbp)", "sign": "nonnegative", "unit": "GBP"},
+    "net_transaction_value_gbp": {"scope": "all eligible lines", "formula": "positive_transaction_value_gbp + negative_transaction_value_gbp", "sign": "signed", "unit": "GBP"},
+    "negative_value_share_of_positive_percentage": {"scope": "all eligible lines in the same period", "formula": "100 * abs(negative_transaction_value_gbp) / positive_transaction_value_gbp", "unit": "percent", "zero_denominator": "undefined; never zero-filled"},
+    "merchandise_net_transaction_value_gbp": {"scope": "eligible lines not excluded by merchandise heuristic", "formula": "sum(quantity * unit_price)", "unit": "GBP", "interpretation": "Transaction-value proxy, not audited revenue or profit"},
+    "negative_to_positive_unit_ratio_percentage": {"scope": "same-period eligible merchandise lines for one stock code", "formula": "100 * abs(sum(quantity where quantity < 0)) / sum(quantity where quantity > 0)", "unit": "percent", "zero_denominator": "undefined", "interpretation": "May exceed 100%; not an original-sale-linked physical return rate"}
+  },
+  "cancellation_evidence": {
+    "invoice_flag": "Invoice number starts with C, case-insensitive; independent of value sign and merchandise scope",
+    "physical_returns": "Not separately identifiable with available fields; do not report as confirmed returns",
+    "positive_cancel_flagged_lines": "Retain by sign in positive value; report flag/sign conflict separately"
+  },
+  "precision": {
+    "audit_arithmetic": "Decimal from source quantity and unit-price strings; aggregate before ROUND_HALF_UP to GBP 0.01; percentages to 0.01 percentage points",
+    "historical_replay": "Keep historical rounding and grouping for exact v1 replay; alternatives are explicitly labeled sensitivity scenarios",
+    "confirmation_v1_1": "Keep v1 numeric payloads only after independent Decimal aggregate audit within GBP 0.01; any larger mismatch blocks the amendment",
+    "rank_ties": "Numeric value descending, normalized stock code then description ascending; expose cutoff ties rather than claim a unique economic winner"
+  },
+  "historical_scenarios": [
+    "wording_only",
+    "merchandise_scope",
+    "stock_code_grain",
+    "merchandise_scope_and_stock_code_grain",
+    "exclude_documented_candidate_pairs"
+  ],
+  "scenario_policy": "Scope and grain scenarios use the original question filters, not a newly sampled question set. Candidate-pair removal is retrospective sensitivity only; it does not prove linkage, delete source records, or change gold.",
+  "excluded_inferences": ["physical return causality", "automatic cross-product offset allocation", "profitability", "inventory availability", "audited financial-statement revenue"]
+}

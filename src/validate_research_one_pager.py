@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from public_paths import repo_path
+from presentation_evidence import statistical_context, b2_context, b2_note_html
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -19,46 +20,25 @@ REQUIRED_FRAGMENTS = [
     "Professor / research advisor one-pager",
     "BizHallu: Auditing Evidence Binding Errors in LLM-Generated Business Analysis",
     "Research problem",
-    "Dataset and task",
-    "Pipeline from transaction evidence",
-    "Exploratory test maxima",
+    "Dataset and method",
+    "Historical B1 results",
+    "Three questions for collaboration",
+    "Specific request:",
     "0.835",
     "0.779",
-    "Internal uncertainty has signal",
-    "evidence-aware verifier",
-    "Open claim-evidence schema",
-    "Open methodology audit",
-    "Claim-Evidence Review Schema v0",
-    "Possible JHU extensions",
-    "Research backlog",
+    "Flag every span",
+    "crosses zero",
+    "composition control",
+    "AI-assisted provisional",
+    "pre-identified spans",
+    "q_0048",
+    "token-time uncertainty",
     "Semantic Entropy",
     "TOHA",
-    "Real-time hallucinated entity detection",
     "Spilled Energy",
-    "compare internal-state signals with evidence-aware verification",
-    "AI-assisted and provisional",
-    "pre-identified spans",
-    "exploratory test-set maxima",
-    "35 of 36 dev/test questions",
-    "outcome-informed high-priority queue",
-    "fresh context-separated confirmation protocol",
-    "Prospective confirmation design",
-    "0/4 tested strong-design candidates",
-    "Thresholds were not relaxed",
-    "estimation rather than detector superiority",
-    "6/15/27",
-    "48 period-disjoint contexts",
-    "96 frozen private questions",
-    "48/48 slots",
-    "minimum Hall slack +2",
-    "A second private manifest freezes 96 deterministic questions and gold answers across 6 templates",
-    "All 96 full payloads and normalized evidence-table contents are unique",
-    "match 0 of 66 unique historical full100 contents",
-    "No prompt, model output, annotation, detector score, or new empirical metric exists",
-    "Next freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations",
-    "Open manifest commitment",
-    "Open precision review",
-    "Open prospective study design",
+    "same-step energy gap is NLL",
+    "Confirmation remains sealed",
+    "evidence-aware verifier",
 ]
 
 FORBIDDEN_FRAGMENTS = [
@@ -94,6 +74,8 @@ def main() -> None:
 
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
+    if b2_note_html() not in html_text:
+        add_failure(failures, 'B2 sensitivity note missing or stale', 'Source-backed note must remain visible')
 
     if html_text:
         parser = HTMLCheckParser()
@@ -120,7 +102,7 @@ def main() -> None:
         "verifier_pilot_contradicted_count": 7,
         "research_track_count": 3,
         "baseline_backlog_count": 4,
-        "next_stage_scope": "freeze model, tokenizer, prompt, decoding, detector-family, and metric configurations; no model execution, labels, scores, or new metrics yet",
+        "next_stage_scope": "English evidence-grounded presentation and assistant review; independent human review deferred, not claimed; no model execution or confirmation evaluation",
         "confirmation_precision_review_status": "outcome_blind_precision_review_blocked",
         "confirmation_strong_candidate_pass_count": 0,
         "confirmation_candidate_count": 4,
@@ -148,6 +130,12 @@ def main() -> None:
         "label_lock_basis": "assistant_full_review",
         "methodology_status": "methodology_hardening_v1_ready",
         "methodology_share_status": "share_with_caveats",
+        "presentation_revision": "english_evidence_review_2026_09_05",
+        "statistical_review": statistical_context(),
+        "b2_sensitivity": b2_context(),
+        "independent_human_annotation": False,
+        "share_status": "exploratory_project_for_method_feedback",
+        "research_question_count": 3,
     }
     for key, value in expected.items():
         if summary.get(key) != value:
@@ -162,6 +150,9 @@ def main() -> None:
         "ready_for_research_outreach": len(failures) == 0,
         "num_failures": len(failures),
         "failures": failures,
+        "validation_scope": "content_and_source_consistency_only",
+        "visual_review_verified": False,
+        "independent_human_review_verified": False,
     }
     VALIDATION_PATH.write_text(json.dumps(validation, indent=2, ensure_ascii=True), encoding="utf-8")
     print(json.dumps(validation, indent=2, ensure_ascii=True))

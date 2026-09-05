@@ -1,0 +1,37 @@
+{
+  "protocol_id": "relation-review-v2-calibration-1",
+  "status": "calibration_protocol_pending_owner_review",
+  "purpose": "Historical protocol calibration, not new evaluation labels or a confirmatory benchmark.",
+  "selection": {
+    "fixed_question_ids": ["q_0048", "q_0053", "q_0064", "q_0069", "q_0092"],
+    "rationale": "Missing dev question; first historical dev monthly-change and negative-value questions by ID; two already-public ranking examples. Purposive development examples, not a representative sample or outcome-blind new dataset.",
+    "ordering_salt": "relation-calibration-20260904"
+  },
+  "atom_types": ["period", "country", "product_code", "product_name", "amount", "percentage", "rank_marker", "comparison_phrase", "metric_phrase", "business_statement"],
+  "syntax_statuses": ["well_formed", "malformed", "unclear", "not_applicable"],
+  "relation_types": ["entity_value", "ranked_entity_value", "comparison", "period_change", "reconciliation", "share", "business_conclusion"],
+  "verdicts": ["supported", "contradicted", "unmatched", "needs_review"],
+  "row_verdicts": ["supported", "contradicted", "unmatched", "needs_review", "not_applicable"],
+  "numeric_checks": ["exact", "display_rounding_match", "within_legacy_tolerance_only", "outside_legacy_tolerance", "not_parseable", "not_applicable", "needs_review"],
+  "period_origins": ["answer", "question", "not_stated"],
+  "count_roles": ["primary", "repeat", "contradiction"],
+  "business_rules": [
+    "历史题面、证据与回答按 v1 原样保存。负交易金额不等于可确认的实物退货；业务命名问题单列，不偷偷改 gold。",
+    "先识别中性的事实片段，再记录完整关系。amount 是类型，malformed 是格式判断；不能把错误结论塞进类型名。",
+    "数据行忠实度与完整关系分别判断：产品对应金额抄对，仍可能处在错误排名。不能因后面的产品排错，就断言先生成的序号 token 本身应当不确定。",
+    "关系至少记录时期、实体、指标、排名或比较、金额和单位；没有说出的字段留空，不从 gold 补写。继承题面时期时标明 question 来源。",
+    "所有字符区间只针对完整回答，采用 Unicode code points，start 含、end 不含。关系可连接多个不连续片段，最晚证据字符位置决定完整关系何时才可被判断。",
+    "supported/contradicted 必须引用表中证据行并解释。解析不清、范围不足或因果/建议无法判断时使用 needs_review；unmatched 只用于可解析且已明确完整搜索范围仍无匹配的事实。",
+    "记录所有会影响业务判断的陈述，包括重复、后文自相矛盾、额外建议和解释；同一关系重复出现用同一个 claim_group 和 repeat，不把一个错绑扩写成多个独立错误。",
+    "精确值、显示舍入匹配和仅落在旧容差内分开记录。旧金额容差为 max(1 GBP, 0.5% of |reference|)，百分比为 0.5 percentage points；新关系协议尚未据此形成评分规则。",
+    "并列排名、负数符号、百分比分母、部分月份与商品范围必须核对；不根据语气、流畅度、旧标签或 detector scores 判断。",
+    "先记录是否看过原案例或标签。隐藏文件字段不消除既往接触，也不能证明独立人工标注。审查页不包含 gold、旧标注边界、split、Qwen uncertainty 或检测结果。"
+  ],
+  "boundaries": {
+    "historical_label_policy": "Original 205 spans stay immutable. Any q_0048 v1 atomic-label sensitivity must be a separate reviewed version, not an automatic translation of this v2 relation draft.",
+    "reviewer_provenance": "Reviewer identity/type/exposure are self-reported, not verified human-review evidence. Assistant tests use synthetic fixtures and never populate real reviews.",
+    "future_comparison": "No detector sees review verdicts. Online token scoring and completed-answer relation checking have different information budgets. No verifier is implemented by this protocol.",
+    "numeric_policy": "Calibration records exact/display/legacy-tolerance categories separately. Do not silently change the historical tolerance or apply a new relation threshold to historical test results.",
+    "rollout_gate": "Owner calibration and policy revision first, then independent reviewer packets; no scaling or scoring until coverage and disagreements are reviewed."
+  }
+}

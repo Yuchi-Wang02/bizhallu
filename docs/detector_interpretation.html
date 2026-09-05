@@ -54,12 +54,8 @@
       }
       main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
       .hero {
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-        gap: 30px;
-        align-items: center;
-        min-height: calc(100vh - 78px);
-        padding: 56px 0 42px;
+        display: block;
+        padding: 28px 0;
       }
       .eyebrow {
         margin: 0 0 12px;
@@ -70,10 +66,10 @@
         text-transform: uppercase;
       }
       h1, h2, h3, p { overflow-wrap: anywhere; }
-      h1 { max-width: 760px; margin: 0; font-size: 64px; line-height: 0.99; letter-spacing: 0; }
-      h2 { margin: 0; font-size: 38px; line-height: 1.08; letter-spacing: 0; }
+      h1 { max-width: 760px; margin: 0; font-size: 30px; line-height: 1.2; letter-spacing: 0; }
+      h2 { margin: 0; font-size: 22px; line-height: 1.25; letter-spacing: 0; }
       h3 { margin: 0; font-size: 18px; line-height: 1.25; letter-spacing: 0; }
-      .lede { max-width: 760px; margin: 22px 0 0; color: var(--muted); font-size: 21px; }
+      .lede { max-width: 860px; margin: 14px 0; color: var(--muted); font-size: 16px; }
       .snapshot, .metric-card, .panel, .claim-card {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -81,8 +77,8 @@
         box-shadow: var(--shadow);
         backdrop-filter: blur(18px);
       }
-      .snapshot { display: grid; overflow: hidden; }
-      .snapshot div { padding: 20px; border-bottom: 1px solid var(--line); }
+      .snapshot { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: hidden; box-shadow: none; }
+      .snapshot div { padding: 12px; border-bottom: 1px solid var(--line); }
       .snapshot div:last-child { border-bottom: 0; }
       .label, .metric-card span, .tag {
         color: var(--muted);
@@ -91,8 +87,14 @@
         letter-spacing: 0;
         text-transform: uppercase;
       }
-      .snapshot strong { display: block; margin-top: 4px; font-size: 22px; }
-      section { padding: 64px 0; border-top: 1px solid var(--line); }
+      .snapshot strong { display: block; margin-top: 4px; font-size: 15px; }
+      section { padding: 28px 0; border-top: 1px solid var(--line); }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }
+      .b2-table { max-width: 100%; overflow-x: auto; margin: 14px 0; }
+      .b2-table table { min-width: 580px; }
+      .b2-table th, .b2-table td { overflow-wrap: anywhere; }
+      #b2-dev-sensitivity summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
       .section-heading { max-width: 780px; margin-bottom: 26px; }
       .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
       .metric-card { min-height: 178px; padding: 22px; box-shadow: none; background: var(--strong); }
@@ -138,8 +140,7 @@
         .topbar { padding: 0 20px; }
         .hero, .two-col, .claim-grid { grid-template-columns: 1fr; }
         .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        h1 { font-size: 48px; }
-        h2 { font-size: 32px; }
+        .snapshot { grid-template-columns: repeat(2,minmax(0,1fr)); }
         .row { grid-template-columns: 1fr 1fr; }
         .row.head { display: none; }
         .next { align-items: flex-start; flex-direction: column; }
@@ -147,7 +148,6 @@
       @media (max-width: 560px) {
         main { width: min(100% - 28px, 1120px); }
         .metric-grid { grid-template-columns: 1fr; }
-        h1 { font-size: 40px; }
       }
     </style>
   </head>
@@ -160,11 +160,10 @@
       <section class="hero">
         <div>
           <p class="eyebrow">Full100 exploratory test interpretation</p>
-          <h1>Internal uncertainty helps, but it is not a business fact checker.</h1>
+          <h1>BizHallu: methods and evidence limits</h1>
           <p class="lede">
-            On the provisional test-span set, simple token uncertainty gives the strongest observed maxima.
-            The best energy-family result is a probability-mass control, while pure adjacent-step Spilled
-            Energy rows can collapse into almost-all-positive behavior. Candidate winners were selected
+            The historical token-signal comparison is exploratory. Additional reference checks are
+            necessary before interpreting the original maxima. Candidate winners were selected
             after test comparison, so this is not a confirmatory model-selection result.
           </p>
         </div>
@@ -176,10 +175,56 @@
         </aside>
       </section>
 
+      <section id="statistical-review" class="statistical-review">
+<h2>Historical B1 reference checks</h2>
+<p>103 test spans from 18 questions, with AI-assisted provisional labels. AP is tied-score-aware average precision, not trapezoidal PR area. Scores use saved-trace precision; historical files are unchanged.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Signal / reference</th><th>AP</th><th>F1</th><th>Balanced accuracy</th><th>MCC</th></tr></thead><tbody><tr><th scope="row">Top-2 margin</th><td>0.835</td><td>0.752</td><td>0.753</td><td>0.498</td></tr><tr><th scope="row">Token entropy</th><td>0.809</td><td>0.779</td><td>0.673</td><td>0.381</td></tr><tr><th scope="row">Flag every span</th><td>0.592</td><td>0.744</td><td>0.500</td><td>0.000</td></tr><tr><th scope="row">Flag no spans</th><td>0.592</td><td>0.000</td><td>0.500</td><td>0.000</td></tr><tr><th scope="row">Dev fact-type prior (composition control)</th><td>0.760</td><td>0.836</td><td>0.714</td><td>0.555</td></tr></tbody></table></div>
+<p>Entropy minus flag-every-span F1: +0.0355; exploratory paired question-bootstrap 95% interval [-0.0356, 0.1047]. This interval crosses zero; it is conditional on fixed dev thresholds and provisional labels, not adjusted for test-based signal selection or all shared-period dependence.</p>
+<p>The fact-type prior is an annotation-composition control, not an information-matched detector: supplied type names can contain correctness hints. Its higher F1 is not a new headline result. The two overlapping-period components are too few for reliable cluster inference.</p>
+<p>Same-step selected energy gap equals token NLL. Probability outside the top two choices is a concentration control, not an independent replication of Spilled Energy. No superiority claim follows from the historical 0.835 / 0.779 maxima.</p>
+<p class="b2-update"><strong>September 5 update.</strong> B2 sensitivity adds 9 assistant-provisional q_0048 dev atoms. Dev-only refitting changes entropy F1 from 0.779 to 0.752 on the same 103 old test spans; top-2 margin is unchanged. Original B1 results remain intact. This is not fresh held-out evidence or independent review. <a href="./detector_interpretation.html#b2-dev-sensitivity">B2 methods appendix</a>.</p>
+</section>
+      <section id="b2-dev-sensitivity" aria-labelledby="b2-title">
+<h2 id="b2-title">B2: one omitted dev answer changes some thresholds</h2>
+<p>September 5, 2026. Separate retrospective sensitivity, not a replacement benchmark.
+The original 205 provisional spans and all historical scores remain unchanged.
+Nine <strong>assistant-provisional, correct-key-fact</strong> atoms from q_0048 extend dev
+from 17 questions / 102 spans to 18 questions / 111 spans. The augmented package has
+214 spans; the same 18 test questions / 103 test spans are reused.</p>
+<p>All 12 existing signals and three references use the unchanged B1 dev-only fitting policy.
+The selected rows below explain the existing comparison, not a new winner.
+Both precision arms and all candidates are retained in the expanded table.</p>
+<div class="b2-table" tabindex="0" role="region" aria-label="B2 before and after comparison"><table><thead><tr><th scope="col">Signal / reference</th><th scope="col">Threshold<br>Before / after</th><th scope="col">Test F1<br>Before / after</th><th scope="col">Test AP<br>Before / after</th><th scope="col">Changed test flags</th></tr></thead><tbody><tr><th scope="row">Mean entropy</th><td>0.00481712<br>0.0818659</td><td>0.7794<br>0.7520</td><td>0.8095<br>0.8095</td><td>11</td></tr><tr><th scope="row">Minimum top-2 margin risk</th><td>0.334333<br>0.334333</td><td>0.7523<br>0.7523</td><td>0.8351<br>0.8351</td><td>0</td></tr><tr><th scope="row">Flag all spans</th><td>0.5<br>0.5</td><td>0.7439<br>0.7439</td><td>0.5922<br>0.5922</td><td>0</td></tr><tr><th scope="row">Dev fact-type prior (composition control)</th><td>0.575<br>0.5</td><td>0.8356<br>0.8143</td><td>0.7598<br>0.7389</td><td>6</td></tr></tbody></table></div>
+<p>Displayed values are rounded; fitting uses saved-trace precision. Entropy changes
+11 test decisions: TP / FP / TN / FN moves from
+<strong>53 / 22 / 20 / 8</strong> to <strong>47 / 17 / 25 / 14</strong>.
+That removes 5 false alarms while missing 6 more provisionally labeled errors.
+Top-2 margin is unchanged in this sensitivity; this is not evidence of general stability.</p>
+<p>AP for fixed internal scores cannot change merely because a threshold changes.
+The dev-fitted type prior is refitted, so its ranking can change. Its supplied fact types
+contain correctness hints; it is not an information-matched independent detector.</p>
+<details><summary>All candidates and both precision arms</summary><h3>stored_six_decimal_scores</h3><div class="b2-table" tabindex="0" role="region" aria-label="B2 before and after comparison"><table><thead><tr><th scope="col">Signal / reference</th><th scope="col">Threshold<br>Before / after</th><th scope="col">Test F1<br>Before / after</th><th scope="col">Test AP<br>Before / after</th><th scope="col">Changed test flags</th></tr></thead><tbody><tr><th scope="row">mean_token_nll</th><td>0.037151<br>0.044049</td><td>0.7414<br>0.7434</td><td>0.8320<br>0.8320</td><td>3</td></tr><tr><th scope="row">Mean entropy</th><td>0.004817<br>0.081866</td><td>0.7794<br>0.7520</td><td>0.8095<br>0.8095</td><td>11</td></tr><tr><th scope="row">max_token_entropy</th><td>0.466101<br>0.687115</td><td>0.7458<br>0.7222</td><td>0.8053<br>0.8053</td><td>10</td></tr><tr><th scope="row">one_minus_mean_top2_margin</th><td>0.061265<br>0.061265</td><td>0.7193<br>0.7193</td><td>0.8240<br>0.8240</td><td>0</td></tr><tr><th scope="row">Minimum top-2 margin risk</th><td>0.334333<br>0.334333</td><td>0.7523<br>0.7523</td><td>0.8351<br>0.8351</td><td>0</td></tr><tr><th scope="row">mean_spilled_energy_abs_delta</th><td>0.793505<br>0.793505</td><td>0.7375<br>0.7375</td><td>0.5877<br>0.5877</td><td>0</td></tr><tr><th scope="row">max_spilled_energy_abs_delta</th><td>0.793505<br>0.793505</td><td>0.7375<br>0.7375</td><td>0.5481<br>0.5481</td><td>0</td></tr><tr><th scope="row">mean_spilled_energy_delta</th><td>-2.39671<br>-2.39671</td><td>0.7439<br>0.7439</td><td>0.7190<br>0.7190</td><td>0</td></tr><tr><th scope="row">negative_mean_spilled_energy_delta</th><td>-5.59079<br>-5.59079</td><td>0.7439<br>0.7439</td><td>0.5757<br>0.5757</td><td>0</td></tr><tr><th scope="row">mean_spilled_probability_mass_after_top1</th><td>0.038461<br>0.040476</td><td>0.7321<br>0.7321</td><td>0.8212<br>0.8212</td><td>0</td></tr><tr><th scope="row">mean_spilled_probability_mass_after_top2</th><td>0.000225<br>0.000225</td><td>0.7727<br>0.7727</td><td>0.8080<br>0.8080</td><td>0</td></tr><tr><th scope="row">max_selected_step_energy_gap</th><td>0.195013<br>0.195013</td><td>0.7387<br>0.7387</td><td>0.8305<br>0.8305</td><td>0</td></tr><tr><th scope="row">Flag all spans</th><td>0.5<br>0.5</td><td>0.7439<br>0.7439</td><td>0.5922<br>0.5922</td><td>0</td></tr><tr><th scope="row">all_negative</th><td>0.5<br>0.5</td><td>0.0000<br>0.0000</td><td>0.5922<br>0.5922</td><td>0</td></tr><tr><th scope="row">Dev fact-type prior (composition control)</th><td>0.575<br>0.5</td><td>0.8356<br>0.8143</td><td>0.7598<br>0.7389</td><td>6</td></tr></tbody></table></div><h3>saved_trace_precision</h3><div class="b2-table" tabindex="0" role="region" aria-label="B2 before and after comparison"><table><thead><tr><th scope="col">Signal / reference</th><th scope="col">Threshold<br>Before / after</th><th scope="col">Test F1<br>Before / after</th><th scope="col">Test AP<br>Before / after</th><th scope="col">Changed test flags</th></tr></thead><tbody><tr><th scope="row">mean_token_nll</th><td>0.0371515<br>0.0440487</td><td>0.7414<br>0.7434</td><td>0.8321<br>0.8321</td><td>3</td></tr><tr><th scope="row">Mean entropy</th><td>0.00481712<br>0.0818659</td><td>0.7794<br>0.7520</td><td>0.8095<br>0.8095</td><td>11</td></tr><tr><th scope="row">max_token_entropy</th><td>0.466101<br>0.687115</td><td>0.7458<br>0.7222</td><td>0.8053<br>0.8053</td><td>10</td></tr><tr><th scope="row">one_minus_mean_top2_margin</th><td>0.0612654<br>0.0612654</td><td>0.7193<br>0.7193</td><td>0.8239<br>0.8239</td><td>0</td></tr><tr><th scope="row">Minimum top-2 margin risk</th><td>0.334333<br>0.334333</td><td>0.7523<br>0.7523</td><td>0.8351<br>0.8351</td><td>0</td></tr><tr><th scope="row">mean_spilled_energy_abs_delta</th><td>0.793505<br>0.793505</td><td>0.7375<br>0.7375</td><td>0.5877<br>0.5877</td><td>0</td></tr><tr><th scope="row">max_spilled_energy_abs_delta</th><td>0.793505<br>0.793505</td><td>0.7375<br>0.7375</td><td>0.5481<br>0.5481</td><td>0</td></tr><tr><th scope="row">mean_spilled_energy_delta</th><td>-2.39671<br>-2.39671</td><td>0.7439<br>0.7439</td><td>0.7190<br>0.7190</td><td>0</td></tr><tr><th scope="row">negative_mean_spilled_energy_delta</th><td>-5.59079<br>-5.59079</td><td>0.7439<br>0.7439</td><td>0.5757<br>0.5757</td><td>0</td></tr><tr><th scope="row">mean_spilled_probability_mass_after_top1</th><td>0.0384607<br>0.0404755</td><td>0.7321<br>0.7321</td><td>0.8213<br>0.8213</td><td>0</td></tr><tr><th scope="row">mean_spilled_probability_mass_after_top2</th><td>0.000224908<br>0.000224908</td><td>0.7727<br>0.7727</td><td>0.8079<br>0.8079</td><td>0</td></tr><tr><th scope="row">max_selected_step_energy_gap</th><td>0.195013<br>0.195013</td><td>0.7387<br>0.7387</td><td>0.8305<br>0.8305</td><td>0</td></tr><tr><th scope="row">Flag all spans</th><td>0.5<br>0.5</td><td>0.7439<br>0.7439</td><td>0.5922<br>0.5922</td><td>0</td></tr><tr><th scope="row">all_negative</th><td>0.5<br>0.5</td><td>0.0000<br>0.0000</td><td>0.5922<br>0.5922</td><td>0</td></tr><tr><th scope="row">Dev fact-type prior (composition control)</th><td>0.575<br>0.5</td><td>0.8356<br>0.8143</td><td>0.7598<br>0.7389</td><td>6</td></tr></tbody></table></div></details>
+<details><summary>q_0048 evidence, answer and nine provisional boundaries</summary>
+<p>The source values are Netherlands GBP 39,655.81 and EIRE GBP 12,147.92.
+Their difference is GBP 27,507.89. Approximately GBP 27,508 is correct whole-pound
+rounding, not exact pence equality. These are net transaction values under the historical ledger scope.</p>
+<blockquote>In August 2011, the Netherlands generated more net revenue (39,655.81 GBP) compared to EIRE (12,147.92 GBP). The Netherlands&#x27; net revenue was higher by approximately 27,508 GBP.</blockquote>
+<div class="b2-table" tabindex="0" role="region" aria-label="Supplement atomic boundaries"><table>
+<thead><tr><th>Text</th><th>Fact type</th><th>Character range</th></tr></thead><tbody><tr><td>August 2011</td><td>month</td><td>[3, 14)</td></tr><tr><td>Netherlands</td><td>country</td><td>[20, 31)</td></tr><tr><td>generated more net revenue</td><td>comparison_direction</td><td>[32, 58)</td></tr><tr><td>39,655.81 GBP</td><td>currency_amount</td><td>[60, 73)</td></tr><tr><td>EIRE</td><td>country</td><td>[87, 91)</td></tr><tr><td>12,147.92 GBP</td><td>currency_amount</td><td>[93, 106)</td></tr><tr><td>Netherlands</td><td>country</td><td>[113, 124)</td></tr><tr><td>higher</td><td>comparison_direction</td><td>[142, 148)</td></tr><tr><td>27,508 GBP</td><td>currency_amount</td><td>[166, 176)</td></tr></tbody></table></div>
+<p>The sequence and recipe were saved before this supplement's token scores were read;
+prior familiarity with the historical study remains. This is not independently blind
+annotation or prospective preregistration. Repeated comparison and country facts are correlated.</p></details>
+<p><strong>Limits:</strong> no independent human review, new model run, confirmation access,
+new uncertainty interval or superiority claim. The all-correct single-answer supplement
+supports flag counts, not an estimate of hallucination recall. Original test reuse cannot
+establish generalization. Owner calibration remains separate and incomplete.</p>
+</section>
+      <section><h2>Two different correctness questions</h2><p>In q_0064 and q_0069, the quoted product-amount pairs match their source rows, but some stated ranks do not. These are evidence-binding errors, not proof that the amounts were fabricated.</p><p>A list marker is generated before the following product and amount. Its low token uncertainty does not establish that the model was confident about the completed business relationship. Raw teacher-forced token scores and completed-answer evidence checks have different information budgets.</p><p>Positive and negative transaction values are sign-based accounting quantities. Negative value is not a verified measure of physical returns; fees and adjustments may be included. Merchandise scope uses a stock-code heuristic, and the historical product grain is stock code plus description.</p><p>Only q_0048 is absent from the original dev annotations; B2 adds it as a separate assistant-provisional sensitivity. All 18 historical test questions are covered. The 15 selected presentation spans are not an independently reviewed replacement for the 205 provisional labels.</p></section>
+
       <section>
         <div class="section-heading">
-          <p class="eyebrow">Headline metrics</p>
-          <h2>The best rows are useful, but they optimize different behavior.</h2>
+          <p class="eyebrow">Historical candidate maxima</p>
+          <h2>Preserved for provenance, not a superiority claim.</h2>
         </div>
         <div class="metric-grid">
 
@@ -240,9 +285,9 @@
         <div class="callout">
           <strong>Report wording</strong>
           <p>
-            The fair claim is not that internal-state detectors solve hallucination. The fair claim is that
-            uncertainty features expose a measurable signal, while many business errors remain confident or
-            context-dependent.
+            Some token signals rank the provisionally labeled spans usefully in this retrospective sample.
+            This does not establish a reliable deployment threshold, stable superiority over controls,
+            or a relation-level confidence estimate for a complete business answer.
           </p>
         </div>
       </section>

@@ -1,0 +1,18 @@
+{
+  "deck_path": "reports/bizhallu_interview_v2.pptx",
+  "sha256": "89cd8c99832e4abd8ce5156ebf3e82d6f73d58992a3f67523a5778e900dca1bb",
+  "status": "interview_deck_content_validated",
+  "slide_count": 10,
+  "native_table_slides": [
+    2,
+    3
+  ],
+  "native_chart_slides": [
+    6
+  ],
+  "validation_scope": "OOXML_content_source_and_chart_structure; not native application or human review",
+  "powerpoint_open_verified": false,
+  "independent_human_annotation": false,
+  "num_failures": 0,
+  "failures": []
+}

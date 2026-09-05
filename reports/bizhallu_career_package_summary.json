@@ -1,11 +1,7 @@
 {
-  "status": "career_package_ready",
-  "career_html_path": "reports/bizhallu_career_package.html",
-  "career_markdown_path": "reports/bizhallu_career_package.md",
   "question_count": 100,
   "question_type_count": 7,
   "annotated_span_count": 205,
-  "heldout_test_span_count": 103,
   "best_test_auprc": 0.835073,
   "best_test_auprc_baseline": "one_minus_min_top2_margin",
   "best_test_f1": 0.779412,
@@ -15,6 +11,10 @@
     "q_0069"
   ],
   "label_lock_basis": "assistant_full_review",
+  "status": "career_package_ready",
+  "career_html_path": "reports/bizhallu_career_package.html",
+  "career_markdown_path": "reports/bizhallu_career_package.md",
+  "heldout_test_span_count": 103,
   "provisional_annotation_count": 205,
   "presentation_reviewed_span_count": 15,
   "independent_human_annotation": false,
@@ -22,8 +22,575 @@
   "metric_selection_status": "exploratory_test_maxima",
   "resume_bullet_count": 5,
   "faq_count": 10,
-  "guardrail_count": 5,
+  "guardrail_count": 7,
   "ready_for_current_stage": true,
+  "presentation_revision": "english_interview_B1_B2_review_2026_09_05",
+  "owner_mastery_verified": false,
+  "statistical_source_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
+  "story": {
+    "revision": "english_interview_B1_B2_review_2026_09_05",
+    "positioning": "Business analytics with evidence checks for AI-generated analysis",
+    "pitch_90_seconds": [
+      "BizHallu is my business analytics project on checking AI-generated analysis against transaction evidence. My accounting and supply-management background makes me interested in the difference between a number that reconciles and a business conclusion that is actually supported.",
+      "One retail example makes that distinction concrete. Qwen lists WOODEN UNION JACK BUNTING third at 4,173.18 pounds. That product and amount match a source row, but the product is seventh among the eight rows shown to the model. The copying is correct; the ranking is wrong.",
+      "I directed the project with AI-assisted implementation and review. The pipeline contains 100 deterministic questions, local Qwen3-0.6B answers, and 205 provisional fact spans aligned to saved token traces. It checks whether uncertainty signals identify the labeled errors.",
+      "The original entropy F1 was 0.779, versus 0.744 for flagging every span. Adding one omitted dev answer changes entropy F1 to 0.752 on the same old test. That sensitivity and provisional labels rule out a stable superiority claim.",
+      "The business lesson is that source-row accuracy and relationship accuracy need separate checks. My next technical step is a small independent verifier, while keeping statistical evaluation and alternative uncertainty methods open for comparison."
+    ],
+    "pitch_word_count": 191,
+    "timing_basis": "planning budget, not a recorded speaking-time measurement",
+    "slides": [
+      {
+        "title": "BizHallu",
+        "seconds": 20,
+        "kind": "title",
+        "lines": [
+          "Business analytics with evidence checks for AI-generated analysis",
+          "Yuchi Wang | Accounting and supply management | JHU Carey BAAI",
+          "Exploratory portfolio study"
+        ],
+        "script": "BizHallu studies a practical reporting problem: when an AI writes business analysis, can we trace its claims back to the evidence? I directed the project with AI-assisted implementation and review. My focus is on the accounting and operational decisions behind the numbers, alongside the model evaluation.",
+        "sources": [
+          "reports/bizhallu_demo_v2_data.json"
+        ]
+      },
+      {
+        "title": "April product ranking",
+        "seconds": 35,
+        "kind": "case",
+        "lines": [
+          "WOODEN UNION JACK BUNTING",
+          "Qwen: rank 3 | GBP 4,173.18",
+          "Source row 2: amount matches | rank 7 of 8 shown rows"
+        ],
+        "script": "Here is April 2011. The answer places WOODEN UNION JACK BUNTING third with revenue of 4,173.18 pounds. We can locate that exact product and amount in the source table. But six shown products have larger values. The correct third product is PAPER CHAIN KIT EMPIRE at 6,619.51 pounds. A check that only asks whether the amount appears in the table would miss the ranking error.",
+        "sources": [
+          "reports/bizhallu_demo_v2_data.json"
+        ]
+      },
+      {
+        "title": "September: all three ranks differ",
+        "seconds": 30,
+        "kind": "relations",
+        "lines": [
+          "Each product-amount pair matches its own row.",
+          "The stated ranks are 1 / 2 / 3; evidence ranks are 3 / 8 / 2.",
+          "Ranking scope: eight rows shown to Qwen. Both examples omit requested stock codes."
+        ],
+        "script": "The September answer repeats the pattern across all three listed products. Their stated ranks are one, two and three, while their ranks in the eight shown evidence rows are three, eight and two. Every product still matches its own amount. I use these cases to distinguish row fidelity from relationship correctness. They are selected historical examples, not evidence of a general error rate or an automatic verifier.",
+        "sources": [
+          "reports/bizhallu_demo_v2_data.json"
+        ]
+      },
+      {
+        "title": "Business metric scope",
+        "seconds": 30,
+        "kind": "definition",
+        "lines": [
+          "Positive / negative transaction value: sign-based ledger quantities",
+          "Negative value can include fees and adjustments; physical returns are not separately verified.",
+          "Merchandise scope: stock-code heuristic; historical product grain: code + description"
+        ],
+        "script": "Metric definitions matter before we judge an answer. Negative transaction value is not the same as confirmed physical returns, because fee and adjustment records can contribute. Merchandise scope also depends on a documented stock-code rule. I preserve the historical calculation and provide a versioned definition amendment instead of silently rewriting old gold answers. Without cost, inventory or delivery data, I cannot claim profit analysis or inventory optimization.",
+        "sources": [
+          "configs/business_metric_contract_v1_1.json"
+        ]
+      },
+      {
+        "title": "The historical evaluation pipeline",
+        "seconds": 35,
+        "kind": "pipeline",
+        "lines": [
+          "100 deterministic questions / 7 task types / Qwen3-0.6B",
+          "Original B1: 205 provisional spans across 35 dev/test answers",
+          "103 test spans / all 18 test questions; B2 separately assesses omitted dev q_0048",
+          "Evidence > answer > pre-identified spans > saved token scores > evaluation"
+        ],
+        "script": "The pipeline turns retail transactions into deterministic questions and evidence tables, then captures local Qwen answers and token traces. B1 retains the original 205 provisional spans across 35 development and test answers. A separate B2 sensitivity adds nine assistant-provisional atoms for the omitted dev answer, without changing the 103 old test spans. Fifteen selected original spans received additional assistant review. None of this is independent human annotation or end-to-end claim extraction.",
+        "sources": [
+          "reports/bizhallu_statistics_v2_report.json",
+          "reports/bizhallu_demo_v2_data.json",
+          "reports/bizhallu_q0048_dev_sensitivity_report.json"
+        ]
+      },
+      {
+        "title": "Historical B1 references and B2 sensitivity",
+        "seconds": 45,
+        "kind": "metrics",
+        "lines": [
+          "Entropy F1 0.779; flag-every-span F1 0.744.",
+          "Paired F1 difference +0.0355; exploratory 95% interval [-0.0356, 0.1047].",
+          "Top-2 margin has exploratory maximum AP 0.835; entropy has maximum F1 0.779.",
+          "Different retrospectively selected signals; no stable superiority claim"
+        ],
+        "script": "The chart preserves B1's original test results. Entropy F1 0.779; flag-every-span F1 0.744. Paired F1 difference +0.0355; exploratory 95% interval [-0.0356, 0.1047]. That interval is conditional on fixed thresholds and is not a B2 interval. B2 adds one previously omitted dev answer with nine provisional correct facts. Refitting on dev lowers entropy F1 to 0.752 on the same old test, with five fewer false alarms and six more missed errors. Margin is unchanged in this check. We report sensitivity, not a new winner or fresh confirmation.",
+        "sources": [
+          "reports/bizhallu_statistics_v2_report.json",
+          "reports/bizhallu_q0048_dev_sensitivity_report.json"
+        ]
+      },
+      {
+        "title": "Token timing and completed relationships",
+        "seconds": 30,
+        "kind": "timing",
+        "lines": [
+          "The model generates the list marker before the product and amount.",
+          "Low uncertainty on \"3.\" does not establish confidence in the completed relationship.",
+          "Raw teacher-forced logits are not the sampling distribution.",
+          "Same-step energy gap equals token NLL; residual mass is a probability control."
+        ],
+        "script": "One methodological correction is especially important. A list marker is generated before the product and amount that follow it. Low uncertainty on that marker cannot establish that the completed relationship was confidently wrong. The saved raw teacher-forced logits also differ from generation probabilities after sampling transformations. Some nominally different features are mathematical aliases: same-step energy gap is token negative log probability. These distinctions prevent an unfair comparison with a checker that sees the whole answer.",
+        "sources": [
+          "reports/bizhallu_statistics_v2_report.json",
+          "reports/bizhallu_demo_v2_data.json"
+        ]
+      },
+      {
+        "title": "Scope of the evidence",
+        "seconds": 25,
+        "kind": "limits",
+        "lines": [
+          "Provisional labels; no independent human agreement",
+          "Outcome-informed annotation queue; shared business periods and evidence",
+          "One small model; pre-identified fact spans; no production performance estimate"
+        ],
+        "script": "The results describe a limited retrospective study. The annotation queue depended on generated-answer status, development and test share contexts, and independent human agreement has not been measured. The six curated relationships clarify particular cases; they do not replace the 205 labels. No result here establishes performance on larger models, unseen periods, automatically extracted claims or production business reports.",
+        "sources": [
+          "reports/bizhallu_statistics_v2_report.json",
+          "configs/relation_annotation_v2.json"
+        ]
+      },
+      {
+        "title": "Analyst contribution and business use",
+        "seconds": 25,
+        "kind": "role",
+        "lines": [
+          "Project direction with AI-assisted coding and review",
+          "Auditable metric definitions, traceable evidence and reproducible calculations",
+          "Potential use: review AI-generated reporting before a business decision",
+          "No measured cost saving, deployed control or verified independent mastery"
+        ],
+        "script": "For an analyst role, I would emphasize metric definitions, reproducible calculations and explaining what evidence supports. The potential use is reviewing generated reports before a business decision, not a claim that I have deployed a control or measured savings. AI assistance is part of the provenance. My next learning step is to explain and modify the analysis directly, supported by a small SQL and BI companion project.",
+        "sources": [
+          "configs/business_metric_contract_v1_1.json",
+          "reports/bizhallu_statistics_v2_report.json"
+        ]
+      },
+      {
+        "title": "Research questions and next steps",
+        "seconds": 25,
+        "kind": "next",
+        "lines": [
+          "Calibrate relation labels and independent review",
+          "Build a top3 verifier without gold, labels or detector outcomes as prediction inputs",
+          "Compare information budgets, coverage and costs before expanding methods",
+          "Feedback request: annotation unit and comparison design"
+        ],
+        "script": "For a professor, my concrete request is feedback on the unit of annotation and comparison design. I would begin with a top-three verifier that uses the question, answer, metric contract and evidence, without evaluation labels or gold answers as inputs. Semantic consistency, attention methods and a faithful adjacent-step energy implementation remain comparison options. The new confirmation study stays sealed until the prediction and evaluation process is ready.",
+        "sources": [
+          "configs/relation_annotation_v2.json",
+          "reports/bizhallu_statistics_v2_report.json"
+        ]
+      }
+    ],
+    "five_minute_seconds": 300,
+    "five_minute_word_count": 669,
+    "resume_bullets": [
+      "Directed BizHallu with AI-assisted implementation, connecting retail metric definitions with evidence checks for generated business analysis.",
+      "Developed a documented pipeline for 100 deterministic retail questions and local Qwen3-0.6B answers with saved token-level traces.",
+      "Built an AI-assisted provisional review workflow for 205 pre-identified fact spans and separated source-row fidelity from product-ranking correctness.",
+      "Audited retrospective detector evaluation with tied-score AP, simple reference policies and paired cluster uncertainty; retained historical maxima as exploratory.",
+      "Created inspectable business cases and English methods materials for explaining model errors, metric scope and limitations to business and technical readers."
+    ],
+    "faq": [
+      {
+        "question": "What is the main business finding?",
+        "answer": "A copied amount can match its product while the product has the wrong rank. April and September demonstrate that distinction within the shown evidence; they do not establish a population error rate."
+      },
+      {
+        "question": "Why examine spans and also full relationships?",
+        "answer": "Atomic spans locate an error, but a rank belongs to a product, period and metric. A relationship record preserves those dependencies and avoids interpreting an early list marker as the completed claim."
+      },
+      {
+        "question": "Why use Qwen3-0.6B?",
+        "answer": "It fit the local compute budget and exposed inspectable failures. Small size does not establish external validity. Reproduction also needs frozen model/tokenizer versions, decoding settings, data policies and saved artifacts."
+      },
+      {
+        "question": "Did the detector beat simple references?",
+        "answer": "Entropy F1 0.779; flag-every-span F1 0.744. Paired F1 difference +0.0355; exploratory 95% interval [-0.0356, 0.1047]. B2 sensitivity adds 9 assistant-provisional q_0048 dev atoms. Dev-only refitting changes entropy F1 from 0.779 to 0.752 on the same 103 old test spans; top-2 margin is unchanged. Original B1 results remain intact. This is not fresh held-out evidence or independent review. These checks do not establish stable F1 superiority."
+      },
+      {
+        "question": "Why is the fact-type prior not a new winning detector?",
+        "answer": "It uses supplied annotation categories, some with correctness hints. It diagnoses sample composition rather than providing an information-matched automatic prediction system."
+      },
+      {
+        "question": "Is this an independently human-labeled benchmark?",
+        "answer": "No. There are 205 AI-assisted provisional labels and 15 selected presentation spans with additional assistant review. Independent human annotation and agreement remain uncompleted; owner review is currently deferred."
+      },
+      {
+        "question": "What changed about the energy interpretation?",
+        "answer": "Same-step selected energy gap equals NLL. Probability outside the top two choices is a concentration control. A faithful adjacent-step Spilled Energy comparison still needs a separate formula and time-index audit."
+      },
+      {
+        "question": "Does negative transaction value measure returns?",
+        "answer": "Positive and negative transaction values are sign-based accounting quantities. Negative value is not a verified measure of physical returns; fees and adjustments may be included. Merchandise scope uses a stock-code heuristic, and the historical product grain is stock code plus description. Without separate inventory, cost and delivery records, this project cannot prove inventory optimization, profit improvement or supply-chain optimization."
+      },
+      {
+        "question": "What did you do, and where did AI assist?",
+        "answer": "I directed the project with AI-assisted implementation and review. The repository documents the calculation, annotation and evaluation work. These artifacts are not evidence that every step was coded unaided or that independent human review occurred."
+      },
+      {
+        "question": "What is the next comparison?",
+        "answer": "A small independent top3 verifier versus internal uncertainty, with extraction coverage, abstention and information conditions reported. Semantic Entropy, TOHA and entity probes remain research candidates subject to compatibility and cost checks, not promised results."
+      }
+    ],
+    "guardrails": [
+      "205 provisional labels; 15 additionally assistant-reviewed spans; no independent human agreement.",
+      "0.835 AP and 0.779 F1 are exploratory maxima from different signals, not a single confirmatory detector result.",
+      "B2 adds nine assistant-provisional dev atoms separately; the same 103 old test spans are reused, not newly held out.",
+      "Complete relation correctness is different from source-row fidelity and early-token confidence.",
+      "Negative transaction value is not verified physical returns; no inventory or profit optimization claim.",
+      "The public review schema uses existing labels; it is not an independent verifier.",
+      "Sharing a project does not establish owner mastery, a deployed business control or measured financial benefit."
+    ],
+    "statistical_review": {
+      "source": "reports/bizhallu_statistics_v2_report.json",
+      "source_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
+      "metric_version": "binary_metrics_v2_tied_ap",
+      "scope": {
+        "dev": {
+          "questions": 17,
+          "spans": 102,
+          "positive_spans": 61,
+          "missing_question_ids": [
+            "q_0048"
+          ]
+        },
+        "test": {
+          "questions": 18,
+          "spans": 103,
+          "positive_spans": 61,
+          "missing_question_ids": []
+        }
+      },
+      "test_rows": [
+        {
+          "arm": "saved_trace_precision",
+          "signal": "one_minus_min_top2_margin",
+          "split": "test",
+          "threshold": 0.33433282375335693,
+          "tp": 41,
+          "fp": 7,
+          "tn": 35,
+          "fn": 20,
+          "precision": 0.8541666666666666,
+          "recall": 0.6721311475409836,
+          "specificity": 0.8333333333333334,
+          "f1": 0.7522935779816514,
+          "accuracy": 0.7378640776699029,
+          "balanced_accuracy": 0.7527322404371585,
+          "mcc": 0.4979414071698933,
+          "average_precision": 0.8350726705510306,
+          "auroc": 0.7568306010928961,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        {
+          "arm": "saved_trace_precision",
+          "signal": "mean_token_entropy",
+          "split": "test",
+          "threshold": 0.004817123346063974,
+          "tp": 53,
+          "fp": 22,
+          "tn": 20,
+          "fn": 8,
+          "precision": 0.7066666666666667,
+          "recall": 0.8688524590163934,
+          "specificity": 0.47619047619047616,
+          "f1": 0.7794117647058824,
+          "accuracy": 0.7087378640776699,
+          "balanced_accuracy": 0.6725214676034348,
+          "mcc": 0.3811123785789828,
+          "average_precision": 0.8094737529413718,
+          "auroc": 0.7361436377829821,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        {
+          "arm": "saved_trace_precision",
+          "signal": "all_positive",
+          "split": "test",
+          "threshold": 0.5,
+          "tp": 61,
+          "fp": 42,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.5922330097087378,
+          "recall": 1.0,
+          "specificity": 0.0,
+          "f1": 0.7439024390243902,
+          "accuracy": 0.5922330097087378,
+          "balanced_accuracy": 0.5,
+          "mcc": 0.0,
+          "average_precision": 0.5922330097087378,
+          "auroc": 0.5,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        {
+          "arm": "saved_trace_precision",
+          "signal": "all_negative",
+          "split": "test",
+          "threshold": 0.5,
+          "tp": 0,
+          "fp": 0,
+          "tn": 42,
+          "fn": 61,
+          "precision": 0.0,
+          "recall": 0.0,
+          "specificity": 1.0,
+          "f1": 0.0,
+          "accuracy": 0.4077669902912621,
+          "balanced_accuracy": 0.5,
+          "mcc": 0.0,
+          "average_precision": 0.5922330097087378,
+          "auroc": 0.5,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        {
+          "arm": "saved_trace_precision",
+          "signal": "dev_fact_type_prior",
+          "split": "test",
+          "threshold": 0.575,
+          "tp": 61,
+          "fp": 24,
+          "tn": 18,
+          "fn": 0,
+          "precision": 0.7176470588235294,
+          "recall": 1.0,
+          "specificity": 0.42857142857142855,
+          "f1": 0.8356164383561644,
+          "accuracy": 0.7669902912621359,
+          "balanced_accuracy": 0.7142857142857143,
+          "mcc": 0.5545836503270576,
+          "average_precision": 0.7598384536560515,
+          "auroc": 0.7681498829039812,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        }
+      ],
+      "entropy_minus_all_positive": {
+        "signal": "mean_token_entropy",
+        "reference": "all_positive",
+        "metric": "f1",
+        "point_difference": 0.03550932568149212,
+        "lower_95": -0.035603741496598666,
+        "upper_95": 0.10473150125972673,
+        "valid_replicates": 5000,
+        "undefined_replicates": 0
+      },
+      "independent_human_annotation": false,
+      "confirmatory": false
+    },
+    "april": {
+      "quote": "3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.",
+      "start": 217,
+      "end": 294,
+      "period": "April 2011",
+      "product_name": "WOODEN UNION JACK BUNTING",
+      "stock_code_from_evidence": "22499",
+      "stated_rank": 3,
+      "rank_in_shown_evidence": 7,
+      "amount_lexical": "4,173.18",
+      "row_value_supported": true,
+      "rank_supported_in_shown_evidence": false,
+      "source_row": 2,
+      "expected_product_at_stated_rank": "PAPER CHAIN KIT EMPIRE",
+      "expected_amount_at_stated_rank": "6,619.51"
+    },
+    "b2_sensitivity": {
+      "source": "reports/bizhallu_q0048_dev_sensitivity_report.json",
+      "source_sha256": "6c79de033666a5f9af5bdcf18222a761b186bf6404ac566d7b7a1284b834494d",
+      "entropy": {
+        "arm": "saved_trace_precision",
+        "signal": "mean_token_entropy",
+        "original_threshold": 0.004817123346063974,
+        "supplemented_threshold": 0.08186590504324572,
+        "threshold_changed": true,
+        "test_prediction_changes": 11,
+        "test_metrics_before": {
+          "arm": "saved_trace_precision",
+          "condition": "original_dev17",
+          "signal": "mean_token_entropy",
+          "split": "test",
+          "threshold": 0.004817123346063974,
+          "tp": 53,
+          "fp": 22,
+          "tn": 20,
+          "fn": 8,
+          "precision": 0.7066666666666667,
+          "recall": 0.8688524590163934,
+          "specificity": 0.47619047619047616,
+          "f1": 0.7794117647058824,
+          "accuracy": 0.7087378640776699,
+          "balanced_accuracy": 0.6725214676034348,
+          "mcc": 0.3811123785789828,
+          "average_precision": 0.8094737529413718,
+          "auroc": 0.7361436377829821,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        "test_metrics_after": {
+          "arm": "saved_trace_precision",
+          "condition": "supplemented_dev18",
+          "signal": "mean_token_entropy",
+          "split": "test",
+          "threshold": 0.08186590504324572,
+          "tp": 47,
+          "fp": 17,
+          "tn": 25,
+          "fn": 14,
+          "precision": 0.734375,
+          "recall": 0.7704918032786885,
+          "specificity": 0.5952380952380952,
+          "f1": 0.752,
+          "accuracy": 0.6990291262135923,
+          "balanced_accuracy": 0.6828649492583918,
+          "mcc": 0.3705337209289368,
+          "average_precision": 0.8094737529413718,
+          "auroc": 0.7361436377829821,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        "supplement_flag_counts_not_heldout_metrics": {
+          "original_dev17": 7,
+          "supplemented_dev18": 6
+        }
+      },
+      "margin": {
+        "arm": "saved_trace_precision",
+        "signal": "one_minus_min_top2_margin",
+        "original_threshold": 0.33433282375335693,
+        "supplemented_threshold": 0.33433282375335693,
+        "threshold_changed": false,
+        "test_prediction_changes": 0,
+        "test_metrics_before": {
+          "arm": "saved_trace_precision",
+          "condition": "original_dev17",
+          "signal": "one_minus_min_top2_margin",
+          "split": "test",
+          "threshold": 0.33433282375335693,
+          "tp": 41,
+          "fp": 7,
+          "tn": 35,
+          "fn": 20,
+          "precision": 0.8541666666666666,
+          "recall": 0.6721311475409836,
+          "specificity": 0.8333333333333334,
+          "f1": 0.7522935779816514,
+          "accuracy": 0.7378640776699029,
+          "balanced_accuracy": 0.7527322404371585,
+          "mcc": 0.4979414071698933,
+          "average_precision": 0.8350726705510306,
+          "auroc": 0.7568306010928961,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        "test_metrics_after": {
+          "arm": "saved_trace_precision",
+          "condition": "supplemented_dev18",
+          "signal": "one_minus_min_top2_margin",
+          "split": "test",
+          "threshold": 0.33433282375335693,
+          "tp": 41,
+          "fp": 7,
+          "tn": 35,
+          "fn": 20,
+          "precision": 0.8541666666666666,
+          "recall": 0.6721311475409836,
+          "specificity": 0.8333333333333334,
+          "f1": 0.7522935779816514,
+          "accuracy": 0.7378640776699029,
+          "balanced_accuracy": 0.7527322404371585,
+          "mcc": 0.4979414071698933,
+          "average_precision": 0.8350726705510306,
+          "auroc": 0.7568306010928961,
+          "positive_prevalence": 0.5922330097087378,
+          "span_count": 103
+        },
+        "supplement_flag_counts_not_heldout_metrics": {
+          "original_dev17": 4,
+          "supplemented_dev18": 4
+        }
+      },
+      "supplement_span_count": 9,
+      "original_span_count": 205,
+      "test_span_count": 103,
+      "independent_human_review": false,
+      "confirmatory": false
+    },
+    "september": [
+      {
+        "quote": "1. **JUMBO BAG RED RETROSPOT** (rank 1) with a net revenue of GBP 8630.45.",
+        "start": 72,
+        "end": 146,
+        "period": "September 2011",
+        "product_name": "JUMBO BAG RED RETROSPOT",
+        "stock_code_from_evidence": "85099B",
+        "stated_rank": 1,
+        "rank_in_shown_evidence": 3,
+        "amount_lexical": "8630.45",
+        "row_value_supported": true,
+        "rank_supported_in_shown_evidence": false,
+        "source_row": 7,
+        "expected_product_at_stated_rank": "SET OF TEA COFFEE SUGAR TINS PANTRY",
+        "expected_amount_at_stated_rank": "9,971.51"
+      },
+      {
+        "quote": "2. **PAPER CHAIN KIT 50'S CHRISTMAS** (rank 2) with a net revenue of GBP 5997.25.",
+        "start": 149,
+        "end": 230,
+        "period": "September 2011",
+        "product_name": "PAPER CHAIN KIT 50'S CHRISTMAS",
+        "stock_code_from_evidence": "22086",
+        "stated_rank": 2,
+        "rank_in_shown_evidence": 8,
+        "amount_lexical": "5997.25",
+        "row_value_supported": true,
+        "rank_supported_in_shown_evidence": false,
+        "source_row": 6,
+        "expected_product_at_stated_rank": "REGENCY CAKESTAND 3 TIER",
+        "expected_amount_at_stated_rank": "9,315.03"
+      },
+      {
+        "quote": "3. **REGENCY CAKESTAND 3 TIER** (rank 3) with a net revenue of GBP 9315.03.",
+        "start": 233,
+        "end": 308,
+        "period": "September 2011",
+        "product_name": "REGENCY CAKESTAND 3 TIER",
+        "stock_code_from_evidence": "22423",
+        "stated_rank": 3,
+        "rank_in_shown_evidence": 2,
+        "amount_lexical": "9315.03",
+        "row_value_supported": true,
+        "rank_supported_in_shown_evidence": false,
+        "source_row": 3,
+        "expected_product_at_stated_rank": "JUMBO BAG RED RETROSPOT",
+        "expected_amount_at_stated_rank": "8,630.45"
+      }
+    ],
+    "sources": {
+      "cases": "reports/bizhallu_demo_v2_data.json",
+      "statistics": "reports/bizhallu_statistics_v2_report.json",
+      "contract": "configs/business_metric_contract_v1_1.json",
+      "protocol": "configs/relation_annotation_v2.json",
+      "dev_sensitivity": "reports/bizhallu_q0048_dev_sensitivity_report.json"
+    },
+    "independent_human_annotation": false,
+    "linkedin_blurb": "I am developing business analytics skills through BizHallu, an AI-assisted project on auditing generated retail analysis. The work connects metric definitions, transaction evidence and retrospective model evaluation. Its selected cases show that correctly copied product amounts can still support an incorrect ranking. The results remain exploratory and the labels provisional.",
+    "profile_blurb": "Business and operations analytics | Accounting and supply management | Evidence checks for AI-generated analysis"
+  },
   "num_failures": 0,
   "failures": []
 }

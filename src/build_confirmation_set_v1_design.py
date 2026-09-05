@@ -42,6 +42,17 @@ def main() -> None:
     precision_review = load_json(PRECISION_REVIEW_PATH)
     context_manifest = load_json(CONTEXT_MANIFEST_PATH)
     question_design = load_json(QUESTION_DESIGN_PATH)
+    active_definition = protocol.get("active_business_definition", {})
+    amendment_notice = ""
+    if active_definition:
+        amendment_notice = (
+            '<div class="callout"><strong>Active business-definition amendment: v1.1.</strong> '
+            'Positive and negative transaction value include eligible non-merchandise lines; '
+            'negative value is not a measure of confirmed physical returns. The same 48 contexts, '
+            'split and 96 numeric/entity gold answers are preserved. Legacy v1 fields below are '
+            'historical provenance; future inputs must follow active_business_definition in the protocol. '
+            'Gate 3 has been revalidated; no model run is authorized.</div>'
+        )
 
     sampling = protocol["sampling_plan"]
     gates = protocol["execution_gates"]
@@ -53,6 +64,7 @@ def main() -> None:
         "status": "confirmation_set_v1_design_ready",
         "execution_ready": protocol["execution_ready"],
         "no_new_results": protocol["no_new_results"],
+        "active_business_definition": active_definition,
         "protocol_path": repo_path(PROTOCOL_PATH),
         "html_path": repo_path(HTML_PATH),
         "study_role": protocol["study_role"],
@@ -225,6 +237,7 @@ def main() -> None:
           <div><span>Execution gates</span><strong>{len(pending_gates)} pending</strong></div>
         </div>
         <div class="callout"><strong>Not execution-ready.</strong> The source, context-manifest, and question-design gates are complete. Private, Git-ignored manifests now fix 48 complete-week contexts, the 6/15/27 split, and 96 deterministic questions with gold answers and evidence payloads. Prompts, model outputs, labels, detector scores, and Confirmation Set v1 metrics do not exist yet.</div>
+        {amendment_notice}
       </section>
 
       <section>

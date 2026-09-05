@@ -17,6 +17,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Node for dependency-free review form tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
       - name: Validate public path hygiene
         run: python src/validate_public_path_hygiene.py
 
@@ -26,8 +31,20 @@ jobs:
       - name: Validate portfolio demo v2
         run: python src/validate_portfolio_demo_v2.py
 
+      - name: Validate historical case readout against committed sources
+        run: python src/validate_portfolio_demo.py
+
+      - name: Validate source-backed methods interpretation
+        run: python src/validate_full100_detector_interpretation.py
+
       - name: Validate career package
         run: python src/validate_career_package.py
+
+      - name: Validate shared English narrative
+        run: python src/validate_portfolio_narrative.py
+
+      - name: Validate interview deck content and native evidence (no Office)
+        run: python src/validate_interview_deck.py
 
       - name: Validate business risk lens
         run: python src/validate_business_risk_lens.py
@@ -67,3 +84,21 @@ jobs:
 
       - name: Validate Confirmation Set v1 design
         run: python src/validate_confirmation_set_v1_design.py
+
+      - name: Test business definitions and statistical algorithms (standard library)
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate Stage A public amendment (no private source replay)
+        run: python src/validate_metric_amendment.py
+
+      - name: Recompute retrospective statistics and paired intervals (no private traces)
+        run: python src/validate_retrospective_statistics.py
+
+      - name: Recompute versioned q0048 dev omission sensitivity (no private traces)
+        run: python src/q0048_dev_sensitivity.py validate
+
+      - name: Test review form and generated public demo logic (no browser or model)
+        run: node --test tests/test_relation_review_ui.cjs tests/test_public_demo_ui.cjs
+
+      - name: Validate relation calibration protocol (no private review packet)
+        run: python src/relation_review.py validate

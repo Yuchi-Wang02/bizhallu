@@ -13,21 +13,6 @@
     "correct_key_fact": 2,
     "hallucinated_key_fact": 5
   },
-  "simple_threshold": 0.334333,
-  "entropy_threshold": 0.004817,
-  "energy_threshold": 0.000225,
-  "simple_outcomes": {
-    "false alarm": 2,
-    "missed": 5
-  },
-  "entropy_outcomes": {
-    "false alarm": 2,
-    "missed": 5
-  },
-  "energy_outcomes": {
-    "false alarm": 2,
-    "missed": 5
-  },
   "best_test_auprc": 0.835073,
   "best_test_auprc_baseline": "one_minus_min_top2_margin",
   "best_test_f1": 0.779412,
@@ -36,6 +21,25 @@
   "label_lock_basis": "assistant_full_review",
   "labels_locked": true,
   "human_confirmation_required": false,
+  "historical_lock_scope": "Seven primary-demo spans among fifteen additional assistant-reviewed spans; not human confirmation",
+  "revision": "historical_case_interpretation_2026_09_05",
+  "independent_human_review": false,
+  "statistical_source_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
   "num_failures": 0,
-  "failures": []
+  "failures": [],
+  "simple_threshold": 0.334333,
+  "simple_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  },
+  "entropy_threshold": 0.004817,
+  "entropy_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  },
+  "energy_threshold": 0.000225,
+  "energy_outcomes": {
+    "false alarm": 2,
+    "missed": 5
+  }
 }

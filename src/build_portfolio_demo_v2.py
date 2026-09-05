@@ -3,11 +3,13 @@ from __future__ import annotations
 import csv
 import html
 import json
+import math
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from public_paths import repo_path
+from presentation_evidence import walkthrough, statistical_context, statistics_html, METRIC_NOTE
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -49,7 +51,10 @@ def load_csv(path: Path) -> list[dict[str, str]]:
 
 
 def as_float(value: Any) -> float:
-    return float(value)
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError('Non-finite public detector score')
+    return result
 
 
 def detector_outcome(label: str, predicted_positive: bool) -> str:
@@ -66,18 +71,18 @@ def detector_outcome(label: str, predicted_positive: bool) -> str:
 def case_takeaway(question_id: str, spans: list[dict[str, Any]]) -> str:
     if question_id == "q_0064":
         return (
-            "Best paired contrast: Qwen states correct rank-1 and rank-2 facts, then binds rank 3 to the wrong product and amount."
+            "The third product and its amount match a source row, but that product is seventh in the shown evidence, not third."
         )
     if question_id == "q_0069":
         return (
-            "Best confident-miss case: plausible product and revenue statements stay below detector thresholds while the rank binding is wrong."
+            "All three product-amount pairs match source rows; their stated ranks do not. Correct copying is not correct ranking."
         )
     outcomes = Counter(span["simple_outcome"] for span in spans)
     if outcomes.get("false alarm"):
-        return "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning."
+        return "A historically correct-labeled span was flagged. This example does not establish the cause of the false alarm."
     if outcomes.get("missed"):
-        return "Useful false-negative case: the generated span is wrong, but the internal uncertainty signal is low."
-    return "Locked support case for explaining span-level labeling and detector readouts."
+        return "A historically incorrect-labeled span was not flagged. Its score is not a whole-relationship confidence estimate."
+    return "Historical selected span for inspecting provisional labels and detector readouts."
 
 
 def evidence_columns(rows: list[dict[str, Any]]) -> list[str]:
@@ -121,10 +126,10 @@ def build_demo_data() -> dict[str, Any]:
     spans_by_question: dict[str, list[dict[str, Any]]] = {}
     for lock in lock_rows:
         annotation = annotations[lock["annotation_id"]]
-        score = scores.get(lock["annotation_id"], {})
-        simple_score = as_float(score.get(SIMPLE_FIELD, 0))
-        entropy_score = as_float(score.get(ENTROPY_FIELD, 0))
-        energy_score = as_float(score.get(ENERGY_FIELD, 0))
+        score = scores[lock["annotation_id"]]
+        simple_score = as_float(score[SIMPLE_FIELD])
+        entropy_score = as_float(score[ENTROPY_FIELD])
+        energy_score = as_float(score[ENERGY_FIELD])
         simple_pred = simple_score >= simple_threshold
         entropy_pred = entropy_score >= entropy_threshold
         energy_pred = energy_score >= energy_threshold
@@ -178,6 +183,8 @@ def build_demo_data() -> dict[str, Any]:
             }
         )
 
+    for case in cases:
+        case['presentation_walkthrough'] = walkthrough(case)
     all_spans = [span for spans in spans_by_question.values() for span in spans]
     data = {
         "meta": {
@@ -197,6 +204,8 @@ def build_demo_data() -> dict[str, Any]:
             "independent_human_annotation": False,
             "automatic_claim_extraction": False,
             "metric_selection_status": "exploratory_test_maxima",
+            "presentation_revision": "english_evidence_review_2026_09_05",
+            "business_metric_note": METRIC_NOTE,
             "guardrail": "Selected presentation spans only; no independent human annotation, automatic claim extraction, or production detector claim.",
         },
         "filters": {
@@ -206,10 +215,11 @@ def build_demo_data() -> dict[str, Any]:
             "detectors": [
                 {"id": "simple", "label": "Top-2 margin", "score_field": SIMPLE_FIELD, "description": "Flags spans when the model's top two token choices were close at the least-certain token."},
                 {"id": "entropy", "label": "Entropy", "score_field": ENTROPY_FIELD, "description": "Flags spans with higher average uncertainty across their generated tokens."},
-                {"id": "energy", "label": "Energy-family", "score_field": ENERGY_FIELD, "description": "Uses probability mass outside the top two token choices; this is an energy-family control, not a semantic verifier."},
+                {"id": "energy", "label": "Top-2 residual mass", "score_field": ENERGY_FIELD, "description": "Probability mass outside the top two token choices is a concentration control, not an independent energy method or semantic verifier."},
             ],
         },
         "cases": cases,
+        "statistical_review": statistical_context(),
     }
     return data
 
@@ -235,10 +245,10 @@ def build_html(data: dict[str, Any]) -> str:
         --red: #b3261e;
         --amber: #9a6700;
       }}
-      * {{ box-sizing: border-box; }}
+      * {{ box-sizing: border-box; letter-spacing: 0; }}
       body {{
         margin: 0;
-        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #eef2f5 100%);
+        background: var(--bg);
         color: var(--ink);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
         line-height: 1.5;
@@ -271,7 +281,7 @@ def build_html(data: dict[str, Any]) -> str:
       }}
       .nav {{ display: flex; gap: 14px; color: var(--muted); font-size: 14px; font-weight: 750; }}
       main {{ width: min(1240px, calc(100% - 40px)); margin: 0 auto; }}
-      .hero {{ padding: 56px 0 34px; }}
+      .hero {{ padding: 22px 0 12px; }}
       .eyebrow {{
         margin: 0 0 12px;
         color: var(--blue);
@@ -281,29 +291,31 @@ def build_html(data: dict[str, Any]) -> str:
         text-transform: uppercase;
       }}
       h1, h2, h3, p, td, th, li, button, select {{ overflow-wrap: anywhere; }}
-      h1 {{ margin: 0; max-width: 960px; font-size: clamp(42px, 6vw, 70px); line-height: 1; letter-spacing: 0; }}
-      h2 {{ margin: 0; font-size: 30px; line-height: 1.1; letter-spacing: 0; }}
+      h1 {{ margin: 0; max-width: 960px; font-size: 30px; line-height: 1.2; }}
+      h2 {{ margin: 0; font-size: 21px; line-height: 1.3; }}
       h3 {{ margin: 0; font-size: 18px; line-height: 1.22; letter-spacing: 0; }}
-      .lede {{ margin: 20px 0 0; max-width: 920px; color: var(--muted); font-size: 21px; }}
+      .lede {{ margin: 10px 0 0; max-width: 920px; color: var(--muted); font-size: 15px; }}
       .layout {{
-        display: grid;
-        grid-template-columns: 300px minmax(0, 1fr);
+        display: block;
         gap: 18px;
         align-items: start;
-        padding: 22px 0 64px;
+        padding: 8px 0 32px;
       }}
-      .sidebar, .panel, .toolbar, .metric {{
+      .metric {{
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--surface);
       }}
       .sidebar {{
-        position: sticky;
-        top: 82px;
-        display: grid;
-        gap: 8px;
-        padding: 12px;
+        padding: 0 0 14px;
       }}
+      .sidebar select {{ width: min(100%, 580px); }}
+      .panel {{ border-bottom: 1px solid var(--line); }}
+      details {{ margin: 16px 0; }}
+      summary {{ cursor: pointer; font-weight: 700; }}
+      .table-scroll {{ overflow-x:auto; }}
+      .statistical-review {{ padding:20px 0; }}
+      .statistical-review th,.statistical-review td {{ min-width:95px; }}
       .case-button {{
         display: grid;
         gap: 4px;
@@ -340,7 +352,7 @@ def build_html(data: dict[str, Any]) -> str:
         color: var(--ink);
       }}
       .detector-help {{ margin: -2px 2px 0; color: var(--muted); font-size: 13px; }}
-      .panel {{ padding: 22px; }}
+      .panel {{ padding: 12px 0 20px; }}
       .metric-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }}
       .metric {{ padding: 16px; }}
       .metric span {{ color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }}
@@ -396,7 +408,7 @@ def build_html(data: dict[str, Any]) -> str:
       }}
       @media (max-width: 980px) {{
         .topbar {{ padding: 0 20px; }}
-        .nav {{ flex-wrap: wrap; justify-content: flex-end; gap: 8px; font-size: 12px; }}
+        .nav {{ flex-wrap: wrap; justify-content: flex-end; gap: 8px; }}
         main {{ width: min(100% - 28px, 760px); }}
         .layout, .answer-grid, .toolbar, .metric-grid {{ grid-template-columns: 1fr; }}
         .sidebar {{ position: static; }}
@@ -416,18 +428,18 @@ def build_html(data: dict[str, Any]) -> str:
     <main>
       <section class="hero">
         <p class="eyebrow">Interactive demo v2</p>
-        <h1>See when a real number is bound to the wrong business claim.</h1>
-        <p class="lede">Explore 15 selected presentation spans across nine cases. The labels received additional assistant review; they are not an independent human benchmark. Detector scores apply to pre-identified spans and do not discover claims automatically.</p>
-        <div class="links">
-          <a href="./assets/bizhallu_demo_v2_data.json">Open JSON data bundle</a>
-          <a href="./portfolio_narrative.html">Read project narrative</a>
-        </div>
+        <h1>BizHallu: evidence binding in business analysis</h1>
+        <p class="lede">A real product and its correct revenue can still be the wrong answer to a ranking question. Two curated walkthroughs separate source-row accuracy from ranking accuracy.</p>
       </section>
 
-      <section class="metric-grid" id="metrics"></section>
       <section class="layout">
         <aside class="sidebar" id="caseList"></aside>
         <div class="content">
+          <article class="panel" id="casePanel"></article>
+          <article class="panel" id="relationshipPanel"></article>
+          <article class="panel" id="evidencePanel"></article>
+          <details id="historicalSpans"><summary>Historical selected spans and detector readouts</summary>
+          <p>These 15 selected spans across nine cases received additional assistant review; they are not an independent human benchmark. Detector scores apply to pre-identified spans and do not discover claims automatically. Filters below affect only this historical span table, not the complete case walkthrough.</p>
           <div class="toolbar">
             <label>Detector<select id="detectorFilter"></select></label>
             <label>Fact type<select id="factTypeFilter"></select></label>
@@ -435,11 +447,12 @@ def build_html(data: dict[str, Any]) -> str:
             <label>Outcome<select id="outcomeFilter"></select></label>
           </div>
           <p class="detector-help" id="detectorHelp"></p>
-          <article class="panel" id="casePanel"></article>
           <article class="panel" id="spanPanel"></article>
-          <article class="panel" id="evidencePanel"></article>
+          </details>
         </div>
       </section>
+      {statistics_html(data['statistical_review'])}
+      <details><summary>Historical maxima and data bundle</summary><section class="metric-grid" id="metrics"></section><a href="./assets/bizhallu_demo_v2_data.json">Open JSON data bundle</a></details>
     </main>
 
     <script>
@@ -479,7 +492,7 @@ def build_html(data: dict[str, Any]) -> str:
           caught: "Flagged incorrect binding",
           missed: "Missed incorrect binding",
           "false alarm": "Flagged supported fact",
-          cleared: "Cleared supported fact"
+          cleared: "Did not flag correct-labeled span"
         }}[value] || value;
       }}
 
@@ -508,17 +521,18 @@ def build_html(data: dict[str, Any]) -> str:
       }}
 
       function highlightAnswer(text, spans) {{
+        const characters = Array.from(text);
         const sorted = [...spans].sort((a, b) => a.span_start_char - b.span_start_char);
         let cursor = 0;
         let html = "";
         for (const span of sorted) {{
           if (span.span_start_char < cursor) continue;
-          html += escapeHtml(text.slice(cursor, span.span_start_char));
+          html += escapeHtml(characters.slice(cursor, span.span_start_char).join(""));
           const cls = span.label === "correct_key_fact" ? "ok" : "bad";
-          html += `<mark class="${{cls}}" title="${{escapeHtml(span.fact_type)}} / ${{escapeHtml(labelText(span.label))}}">${{escapeHtml(text.slice(span.span_start_char, span.span_end_char))}}</mark>`;
+          html += `<mark class="${{cls}}" title="${{escapeHtml(span.fact_type)}} / ${{escapeHtml(labelText(span.label))}}">${{escapeHtml(characters.slice(span.span_start_char, span.span_end_char).join(""))}}</mark>`;
           cursor = span.span_end_char;
         }}
-        html += escapeHtml(text.slice(cursor));
+        html += escapeHtml(characters.slice(cursor).join(""));
         return html;
       }}
 
@@ -552,24 +566,19 @@ def build_html(data: dict[str, Any]) -> str:
       }}
 
       function renderCaseList() {{
-        document.getElementById("caseList").innerHTML = DEMO_DATA.cases.map((caseRow) => `
-          <button class="case-button ${{caseRow.question_id === currentCaseId ? "active" : ""}}" data-case="${{escapeHtml(caseRow.question_id)}}">
-            <strong>${{escapeHtml(caseRow.question_id)}}${{caseRow.is_primary ? " / primary" : ""}}</strong>
-            <span>${{escapeHtml(caseRow.question_type)}} / ${{caseRow.span_count}} spans</span>
-          </button>
-        `).join("");
-        document.querySelectorAll(".case-button").forEach((button) => {{
-          button.addEventListener("click", () => {{
-            currentCaseId = button.dataset.case;
+        document.getElementById("caseList").innerHTML = '<label>Case<select id="caseSelect">' + DEMO_DATA.cases.map((c) => `<option value="${{escapeHtml(c.question_id)}}" ${{c.question_id === currentCaseId ? 'selected' : ''}}>${{escapeHtml(c.question_id)}} / ${{escapeHtml(c.presentation_walkthrough?.claims[0].period || c.question_type)}}</option>`).join('') + '</select></label>';
+        document.getElementById("caseSelect").addEventListener("change", (event) => {{
+            currentCaseId = event.target.value;
             const url = new URL(window.location.href);
             url.searchParams.set("case", currentCaseId);
             window.history.replaceState({{}}, "", url);
             render();
-          }});
         }});
       }}
 
       function renderCase(caseRow, spans) {{
+        const audit = caseRow.presentation_walkthrough;
+        const marks = audit ? audit.claims.map(c => ({{span_start_char:c.start,span_end_char:c.end,fact_type:'complete ranking relation',label:c.rank_supported_in_shown_evidence?'correct_key_fact':'hallucinated_key_fact'}})) : [];
         document.getElementById("casePanel").innerHTML = `
           <div class="case-head">
             <p class="eyebrow">${{escapeHtml(caseRow.question_id)}} / ${{escapeHtml(caseRow.split)}} / ${{escapeHtml(caseRow.question_type)}}</p>
@@ -578,15 +587,22 @@ def build_html(data: dict[str, Any]) -> str:
           </div>
           <div class="answer-grid">
             <div>
-              <h3>Gold answer</h3>
-              <p>${{escapeHtml(caseRow.gold_short_answer)}}</p>
+              <h3>What the evidence establishes</h3>
+              <p>${{audit ? 'Every displayed product-amount pair below matches its own source row. The highlighted relationship is about rank, not whether every word or amount was fabricated.' : 'This is a historical selected example, not part of the new two-case relationship walkthrough.'}}</p>
+              <details><summary>Historical deterministic answer</summary><p>${{escapeHtml(caseRow.gold_short_answer)}}</p></details>
+              <p>${{escapeHtml(audit?.coverage_note || '')}}</p>
             </div>
             <div>
               <h3>Qwen answer</h3>
-              <pre>${{highlightAnswer(caseRow.generated_text, spans)}}</pre>
+              <pre>${{highlightAnswer(caseRow.generated_text, marks)}}</pre>
             </div>
           </div>
         `;
+        document.getElementById("relationshipPanel").innerHTML = audit ? `
+          <h3>Product-amount fidelity versus ranking correctness</h3>
+          <p>${{escapeHtml(audit.review_basis)}}.</p>
+          <div class="table-scroll"><table><thead><tr><th>Generated product / amount</th><th>Source row</th><th>Stated rank</th><th>Rank in shown evidence</th><th>Relationship</th></tr></thead><tbody>${{audit.claims.map(c=>`<tr><td>${{escapeHtml(c.product_name)}}<span class="small">GBP ${{escapeHtml(c.amount_lexical)}}</span></td><td>Row ${{c.source_row}}: amount matches</td><td>${{c.stated_rank}}</td><td>${{c.rank_in_shown_evidence}}</td><td>${{c.rank_supported_in_shown_evidence?'Supported ranking':'Incorrect binding'}}${{c.rank_supported_in_shown_evidence?'':`<span class="small">Rank ${{c.stated_rank}} belongs to ${{escapeHtml(c.expected_product_at_stated_rank)}} / GBP ${{escapeHtml(c.expected_amount_at_stated_rank)}}</span>`}}</td></tr>`).join('')}}</tbody></table></div>
+          <p>${{escapeHtml(audit.scope)}}</p><p>${{escapeHtml(audit.information_timing_note)}}</p>` : '<p>No new relationship audit is claimed for this historical case.</p>';
       }}
 
       function renderSpans(spans) {{
@@ -605,25 +621,25 @@ def build_html(data: dict[str, Any]) -> str:
           `;
         }}).join("");
         document.getElementById("spanPanel").innerHTML = `
-          <h3>Filtered locked spans</h3>
-          <p>${{spans.length}} span(s) match the current filters. Outcomes use the selected detector in the toolbar.</p>
-          <table>
+          <h3>Historical selected spans</h3>
+          <p>${{spans.length}} matching span(s). These are preserved provisional judgments; an early rank marker is not a completed-relationship confidence measure.</p>
+          <div class="table-scroll"><table>
             <thead><tr><th>Presentation label</th><th>Span</th><th>Selected detector</th><th>Why this label was selected</th></tr></thead>
             <tbody>${{rows || '<tr><td colspan="4">No spans match these filters.</td></tr>'}}</tbody>
-          </table>
+          </table></div>
         `;
       }}
 
       function renderEvidence(caseRow) {{
         const cols = caseRow.evidence_columns;
-        const header = cols.map((col) => `<th>${{escapeHtml(col)}}</th>`).join("");
-        const body = caseRow.prompt_evidence_rows.map((row) => `
-          <tr>${{cols.map((col) => `<td>${{escapeHtml(row[col])}}</td>`).join("")}}</tr>
+        const header = '<th>Row</th>' + cols.map((col) => `<th>${{escapeHtml(col)}}</th>`).join("");
+        const body = caseRow.prompt_evidence_rows.map((row, index) => `
+          <tr><td>${{index + 1}}</td>${{cols.map((col) => `<td>${{escapeHtml(row[col])}}</td>`).join("")}}</tr>
         `).join("");
         document.getElementById("evidencePanel").innerHTML = `
           <h3>Evidence rows shown to Qwen</h3>
-          <p>The page includes only compact public evidence fields, not raw line-level transaction data or token traces.</p>
-          <table><thead><tr>${{header}}</tr></thead><tbody>${{body}}</tbody></table>
+          <p>${{escapeHtml(DEMO_DATA.meta.business_metric_note)}} Original evidence order and historical field names are preserved.</p>
+          <div class="table-scroll"><table><thead><tr>${{header}}</tr></thead><tbody>${{body}}</tbody></table></div>
         `;
       }}
 
@@ -668,6 +684,9 @@ def main() -> None:
         "independent_human_annotation": data["meta"]["independent_human_annotation"],
         "automatic_claim_extraction": data["meta"]["automatic_claim_extraction"],
         "metric_selection_status": data["meta"]["metric_selection_status"],
+        "presentation_revision": data["meta"]["presentation_revision"],
+        "curated_relationship_count": sum(len(c['presentation_walkthrough']['claims']) for c in data['cases'] if c['presentation_walkthrough']),
+        "statistical_source_sha256": data['statistical_review']['source_sha256'],
         "by_label": dict(Counter(span["label"] for span in all_spans)),
         "by_simple_outcome": dict(Counter(span["simple_outcome"] for span in all_spans)),
         "by_entropy_outcome": dict(Counter(span["entropy_outcome"] for span in all_spans)),

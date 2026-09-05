@@ -723,7 +723,8 @@ def main() -> None:
     if github_pages_ready:
         remaining_after_full100_generation = [
             "Keep docs/index.html as the GitHub Pages entry point and reports/ as the experiment-native report archive.",
-            "Use the linked 10-slide interview deck for concise portfolio walkthroughs.",
+            "Use the revised English cases, methods, career scripts and interview deck v2 for caveated content review; keep the earlier deck as history.",
+            "Owner review is deferred, not completed. Content checks do not establish visual acceptance, mastery, independent review or research validity.",
             "Keep large raw data, model traces, model weights, and external baseline repositories out of the public commit.",
         ]
     elif portfolio_narrative_ready:
@@ -1184,6 +1185,9 @@ def main() -> None:
     }
     validation = {
         "report_path": str(REPORT_PATH),
+        "validation_scope": "historical_pipeline_and_local_artifact_readiness_not_scientific_validity",
+        "live_deployment_verified": False,
+        "independent_human_review_verified": False,
         "current_stage": current_stage,
         "ready_for_current_stage": ready_for_current_stage,
         "num_failures": len(failures),

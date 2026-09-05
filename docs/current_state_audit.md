@@ -1,6 +1,432 @@
 # BizHallu Current State Audit
 
-Date: 2026-09-02
+Date: 2026-09-05
+
+## English Release Candidate and Isolated Clone: 2026-09-05
+
+This entry supersedes the pending B2 presentation synchronization below.
+The homepage, current and historical case readouts, methods, research brief,
+career package and narrative now expose the separate B2 sensitivity alongside
+the preserved B1 results. The short pitch is 191 words; the ten-part walkthrough
+is 669 words with a 300-second planning budget, not measured owner performance.
+No labels, token scores or model generations changed in this release batch.
+
+The unpublished English interview deck v2 was revised in its existing ten-slide
+structure. Slide 5 distinguishes original B1 coverage from the separate B2
+supplement. Slide 6 retains its original native B1 chart and interval, with a
+visible note that B2 refitting yields entropy F1 0.752 on the same old test.
+Speaker notes identify both source hashes and do not call the B1 interval a B2
+interval. The final current deck SHA-256 is
+`89cd8c99832e4abd8ce5156ebf3e82d6f73d58992a3f67523a5778e900dca1bb`.
+The prior unpublished revision remains in ignored local build output; the
+original historical public PPTX remains unchanged. All ten final slides were
+rendered. Slides 5 and 6 were inspected at full size; the other eight renders
+are byte-identical to the previously inspected revision. The complete contact
+sheet was also checked. There were no package/layout warnings. Native desktop
+PowerPoint and browser/mobile/print layout remain unverified.
+
+Four copied historical Pages reports now carry explicit archive notices:
+methodology hardening, label-lock report, label-confirmation packet and the
+label-derived verifier schema. Their experiment-native source HTML remains
+unchanged. Tests check that removing only the notice recovers the original
+link-rewritten page, and that current reader paths include the source-backed
+B2 caveat. A schema status is not a prediction; a presentation lock is not
+independent annotation or completed owner review.
+
+Release preparation uses an explicit inventory: 323 tracked files plus 63
+reviewed additions, totaling about 8.6 MB. The three unrelated untracked Claude
+files stay excluded and untouched. Raw transactions, full generations, token
+traces, model weights and private C1/confirmation artifacts are not copied.
+A temporary local repository was created from the candidate and freshly cloned;
+the original repository HEAD and index were preserved. The dry-run script,
+inventories, command logs and receipts remain Git-ignored under
+`outputs/release_stage1/`. This is not a commit or push to the real repository.
+
+The isolated clone uses Windows, Python 3.13.5 in a new virtual environment without
+pip or third-party packages, and Node 24.19.0. All 27 current workflow commands
+pass: 25 validators plus Python and Node test suites. Two additional commands
+rebuild and validate Pages entirely from the cloned public artifacts; resulting
+HTML and asset hashes match the source candidate. The Python suite discovers
+111 tests: 109 pass and two optional scikit-learn cross-checks skip because that
+package is absent. All 111 pass in the original environment, including those
+cross-checks. All 23 Node tests pass. Public B1/B2 calculation replay passes;
+private trace replay is explicitly not performed in the isolated clone.
+
+The first clone attempt found two stale heading assertions in public validators.
+They were updated to the new Historical B1 headings, without removing source,
+numeric, claim-boundary or B2 checks. A second complete clone run passed. This
+shows why a content edit and its validator must be reviewed together; it does
+not establish research validity. GitHub's Ubuntu/Python 3.11 runner and a new
+deployment have not yet been tested for this candidate.
+
+Remote main was checked and remains `4c6f72e227406d40235e9a9478a2180a072ddfa3`.
+Stage 1 now has a source-backed English release candidate with independent
+algorithm checks and public-only clone evidence. Remaining work is controlled
+publication and actual browser/owner acceptance, not more experimental scope.
+Owner review stays deferred with zero completed submissions. Do not count this
+release work as independent annotation, speaking practice or owner mastery.
+
+## B2 Omitted-Dev Sensitivity: 2026-09-05
+
+This entry supersedes earlier B2-pending notes below. B2 computation is now
+complete locally with assistant-provisional labels, not independent annotation
+or owner calibration. It does not replace the historical B1 or full100 packages.
+
+Nine q_0048 atomic facts were saved under
+`data/annotations/span_annotations_q0048_b2_assistant_v1.jsonl` and checked for
+schema, exact character offsets and source arithmetic before this batch read
+their token scores. The fixed recipe and prepared public-safe source projection
+retain hashes and the sequencing disclosure. Historical familiarity remains;
+this is not blind annotation or prospective preregistration. All nine judgments
+are correct-key-fact. Approximately GBP 27,508 is whole-pound rounding of the
+GBP 27,507.89 difference, not a new hallucination. Repeated entities/comparisons
+are correlated facts, not independent observations.
+
+`src/q0048_dev_sensitivity.py` aligns these nine spans to the saved q_0048 trace
+and generates two precision arms. The original 205 labels, original detector
+reports, B1 scores/report, 15 presentation judgments and private C1 reviewer
+packet/template remain unchanged. Only the new sensitivity uses 214 spans:
+dev grows from 17 questions / 102 spans to 18 / 111; test remains 18 / 103.
+No Qwen inference, confirmation execution or owner submission occurred.
+
+All 12 existing signals and three references are refitted with the unchanged
+B1 dev-only rule. The 120-row metric table includes both conditions, precision
+arms and splits, not 120 independent experiments. Original-condition calculations
+exactly reproduce all 60 B1 metric rows. Saved-trace precision results include:
+
+| Signal / reference | Original dev threshold | Supplemented dev threshold | Old-test F1 before / after | Changed test decisions |
+| --- | ---: | ---: | ---: | ---: |
+| Mean entropy | 0.004817123346 | 0.081865905043 | 0.779412 / 0.752000 | 11 |
+| Minimum top-2 margin risk | 0.334332823753 | 0.334332823753 | 0.752294 / 0.752294 | 0 |
+| All-positive | 0.5 | 0.5 | 0.743902 / 0.743902 | 0 |
+| Dev fact-type prior | 0.575 | 0.5 | 0.835616 / 0.814286 | 6 |
+
+Entropy's TP / FP / TN / FN changes from 53 / 22 / 20 / 8 to 47 / 17 / 25 / 14:
+five fewer false alarms and six additional missed provisional errors. Fixed
+internal-score AP is unchanged by threshold refitting; the prior's AP changes
+because dev refitting changes its scores. The prior remains an annotation-type
+composition control with correctness hints, not an independent detector.
+Both arms have five changed thresholds and 30 changed signal-span predictions;
+these are repeated analysis rows, not 60 unique errors or new observations.
+No new method winner, interval, significance or generalization claim is made.
+
+The existing English methods page now contains an expandable B2 appendix,
+all candidates/both precision arms, the q_0048 answer and nine boundaries. No
+new top-level page was created. README, annotation notes, agent instructions
+and semester milestones distinguish original results from B2. The earlier
+English deck and shared B1 presentation remain an explicitly historical view;
+the release audit must add a concise B2 pointer where needed, not silently
+replace their metric/chart data or describe the old threshold as newly validated.
+
+Verification: 105 Python tests and 23 Node tests pass. Twelve new tests include
+independent rational-arithmetic threshold enumeration, independent test confusion
+counts, changed-prediction membership, invalid offsets/IDs/splits/non-finite
+scores, all-correct single-answer limits and preserved source commitments.
+All 25 public-tier workflow validation commands pass locally, including B1's
+15,000 paired draws and B2 calculation replay. q_0048 local token replay and
+legacy annotation-schema validation also pass. Full100 preflight passes and
+the Pages bundle remains 27 required assets / 19 HTML files. C1 local replay
+again confirms zero completed reviews and the unchanged private projection.
+These checks do not establish browser rendering, independent labels, owner
+mastery, clean-clone execution or a successful new GitHub deployment.
+
+Plan versus reality: q_0048 was not just administrative cleanup. A single
+all-correct dev answer changes entropy's operating threshold materially, while
+margin is unchanged in this particular sensitivity. The omission check is now
+available for discussion; independent review and broader stability remain open.
+Stage 1 still needs a cumulative release audit, archived-content signposting and
+browser/owner acceptance. No commit or push was made in this batch. Next batch
+should audit and consolidate the existing release, not expand experiments,
+rerun Qwen, add baselines or open confirmation outcomes.
+
+## Business Scope and Remaining Calibration Sources: 2026-09-05
+
+This batch completes source-led explanations for the three remaining calibration
+examples without completing owner calibration or creating evaluation labels.
+`src/audit_calibration_sources.py` independently aggregates quantity times unit
+price from the local historical eligible-line CSV for seven evidence scopes.
+All seven agree with the displayed evidence and their relevant gold arithmetic.
+Exact answer quote ranges and calculations are recorded only in the ignored
+`outputs/relation_calibration_admin_v2/source_checks.json`, outside the blinded
+reviewer packet. This is a curated assistant calculation note, not a verifier.
+
+- q_0048: Netherlands exceeds EIRE by GBP 27,507.89. The answer's approximately
+  GBP 27,508 is correct whole-pound rounding, with GBP 0.11 display difference.
+  This does not supply the missing v1 atomic labels or complete B2.
+- q_0053: April/May amounts and GBP 229,726.26 difference are correct; using April
+  as the denominator gives 46.66%, not the answer's 48.97%. Absence of an explicit
+  increase keyword is not evidence of a reversed-direction claim. The cause of
+  the model's percentage error remains unknown.
+- q_0092: the correct negative-value magnitude is GBP 34,201.28, not
+  GBP 342,012.88. Its final net GBP 682,013.98 is copied correctly but does not
+  reconcile with the generated reduction. The positive-magnitude sign explanation
+  is reasonable; the historical question's physical-returns wording is not
+  established by the source. A percentage was not requested.
+
+The existing business risk lens is now an English, source-backed ledger view:
+positive GBP 10,642,110.80 plus negative GBP -893,979.73 equals net
+GBP 9,748,131.07. Merchandise net GBP 9,771,708.99 has a different scope.
+The four category subtotals and their row counts reconcile; 46.77% of absolute
+negative value is non-merchandise under the stock-code heuristic. This is not a
+physical-return rate or a finding that those rows are erroneous. No avoided
+loss, analyst time saving or inventory benefit is claimed. The old unconditional
+10-20-question expansion advice is removed; no new public page was added.
+
+The original case page now retains its seven selected spans and all original
+outcomes while separating product-amount fidelity from completed ranking.
+The source evidence order, values, label offsets and three dev thresholds are
+preserved. Its readout is explicitly atomic/historical; it cannot establish
+confidence in a completed relationship or detector superiority. The B1 reference
+table and timing limitation are visible. Public threshold checks now read the
+original split reports, preventing two regenerated summaries from corroborating
+each other's drift. Existing legacy report values are not overwritten.
+
+Verification: 93 Python tests and 23 Node tests pass, including 15 new tests for
+rounding, percentage denominators, reconciliation, non-finite values, duplicate
+rows/quotes, quantity-price replay, altered display values, threshold drift and
+exact model-whitespace preservation through HTML serialization.
+Twenty-one public artifact validators and full100 preflight pass locally. The
+Pages bundle remains 27 required assets and 19 HTML files. C1 local validation
+again confirms the unchanged five-case projection and zero completed reviews.
+No Qwen inference, confirmation execution, label promotion, commit, push or
+new deployment occurred. Browser/owner acceptance remains unverified.
+
+Next: prepare q_0048's separate v1 atomic supplement and dev-threshold sensitivity
+without translating these relation notes into labels automatically; explicitly
+retain assistant-provisional provenance if personal review stays deferred.
+Then audit the cumulative release and remaining archived-content signposting.
+Stage 1 is not complete, but five-case source preparation and the current English
+business/case explanations no longer depend on waiting for an owner submission.
+
+## English Interview Materials: 2026-09-05
+
+This entry supersedes the pending career/narrative/deck synchronization in the
+earlier entry below. The existing career package and portfolio narrative now
+share `src/presentation_story.py`, which links their English content to the
+curated evidence checks and the B1 statistical appendix. There is a 185-word
+90-second introduction and a 665-word, ten-segment walkthrough budgeted for 300
+seconds. These are planned speaking times, not measured owner performance.
+Five resume bullets, ten interview questions and explicit role/annotation limits
+are included. No owner's review or independent mastery is inferred.
+
+`reports/bizhallu_interview_v2.pptx` is a separate ten-slide English presentation;
+the historical `bizhallu_ai_reliability_deck.pptx` remains unchanged. Two editable
+evidence tables show the April and September cases, and an editable F1 chart
+compares entropy, all-positive and margin on a full 0-to-1 scale. The chart and
+notes disclose the paired uncertainty interval, retrospective signal selection,
+provisional annotations and shared-period dependence. The chart workbook stores
+six-decimal presentation values, not rounded replacements for analysis inputs.
+The April display is explicitly sorted for explanation; original model input
+order remains intact in the demo. Speaker notes contain the shared script and
+source references. This is local packaging, not a new model/verifier result.
+
+The final PPTX SHA-256 is
+`33312a344e95f65196c86c7338412632fec232d6243840d67d97f269858a0459`.
+Artifact Tool finalization reported zero warnings/findings. All ten final-slide
+renders were visually inspected; after the final April-caption revision, that
+slide was rechecked and the other nine renders were byte-identical to the
+previous inspected revision. Native PowerPoint opening, browser page layout,
+mobile/print behavior and actual speaking time are not verified. Temporary
+chart-workbook materialization files are kept in ignored local build output,
+not treated as public assets.
+
+Local checks: 78 Python tests and 23 Node tests pass, including source/notes
+agreement and mutations of deck amounts and chart axes. Twenty public artifact
+validators and full100 preflight pass. The Pages bundle validates 27 required
+files and 19 HTML files. B1 local replay again verifies 100 saved answers, 205
+spans, 12 signals and 15,000 paired cluster draws without inference, with the
+unchanged source commitment
+`096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727`.
+The five-case calibration packet validates with zero completed reviews; it is
+not ready for new metrics. Original annotations, historical scores, locked
+judgments and the original deck were not changed.
+
+Status: Stage 1 presentation preparation has advanced; Stage 1 itself is not
+complete. The other calibration cases and B2 q_0048 need separate source-led
+review, older case-demo/business-risk explanations still need a consistency
+audit, and browser/owner acceptance remains open. The owner has deferred personal
+review, so assistant-led preparation can continue without inventing reviews.
+Release requires a separate audit of the cumulative A/B1/C1 and presentation
+diff. No commit, push, deployment, Qwen run, confirmation execution or new
+baseline is asserted for this batch. No plugin installation was needed.
+
+## English Evidence Review: 2026-09-05
+
+This update supersedes the owner-first blocking sequence below. The owner has
+deferred personal review and asked for English presentation progress. No review
+has been filled in on the owner's behalf, and zero independent reviews remains
+the status. This is a local content revision, not a deployed GitHub release.
+
+The existing homepage, Demo v2, methods interpretation and research brief now
+lead with business evidence and preserve the original experiment. A shared
+source checker confirms six explicitly curated ranked statements: q_0064's
+products rank 1/2/7 in the eight shown rows, and q_0069's rank 3/8/2. All six
+product-amount pairs match their own rows; the wrong relation is ranking, not
+necessarily copying the amount onto another product. Requested stock codes are
+omitted. This walkthrough does not create new labels or perform automatic claim
+extraction. Early list-marker uncertainty cannot establish confidence in the
+later completed relation.
+
+The four primary pages now display B1 reference results and uncertainty rather
+than relying on historical maxima. Entropy F1 is 0.779412 versus all-positive
+0.743902; the paired question-bootstrap difference interval crosses zero. The
+dev fact-type prior remains a composition diagnostic, not a fair automatic
+detector competitor. Same-step energy gap is NLL, and residual probability mass
+is not independent replication of adjacent-step Spilled Energy.
+
+The demo puts complete relations before its collapsible historical span table,
+preserves evidence order, and uses codepoint-aware highlighting. The compact
+research brief includes one concrete case, three open questions and a specific
+request for annotation-unit/comparison-design feedback. Older deck, career
+package, narrative and original case demo remain historical and need wording
+synchronization; they should not be treated as newly reviewed presentation.
+
+Verification includes source-row arithmetic, exact quote ranges, historical
+score/threshold/label preservation, embedded/downloadable JSON equality and
+generated-script tests for navigation, all detector filters, empty states,
+escaping and Unicode. These are content and logic tests, not browser layout,
+print pagination, independent human review or evidence of owner mastery.
+The methods validator no longer calls a content-only pass locked presentation.
+Next: synchronize the English 90-second/five-minute scripts and deck, then review
+the other calibration examples separately from owner labels and B2 q_0048.
+No new Qwen run, confirmation execution, baseline expansion or plugin is needed.
+
+Local verification receipt: 70 Python tests (including installed scikit-learn
+cross-checks) and 23 Node tests pass; all 18 public validators and historical
+full100 preflight pass. Stage A local replay verifies 96 questions/48 contexts
+and source arithmetic. B1 local replay verifies 100 answers, 205 spans, 12 signals
+and 15,000 paired cluster draws. The B1 report commitment remains
+`096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727`.
+The primary pages and README are local changes; neither a commit/push nor a new
+deployment is asserted. Browser layout/print pagination and owner review remain
+explicitly unverified, regardless of a green local artifact result.
+
+## Semester Plan and First Owner Trial: 2026-09-05
+
+The adopted priority is employment-facing business/data/operations analysis with
+a research option and 7-10 hours of owner participation per week. The detailed
+milestone table and first-session procedure live in `app/README.md`; there is no
+new public progress page. README now starts with cases, methods and research,
+with supporting study history retained in a secondary section.
+
+The current batch improves the existing local workbench, not the labels:
+Chinese display labels retain the frozen protocol values; a one-case draft check
+and scoped CLI submission check allow B01 to precede the other four cases.
+Annotation/note edits clear the previous coverage attestation, and switching
+relation editors warns before discarding an unsaved edit. Download requests are
+not reported as verified saves. Four neutral oral-review questions use the
+existing notes field; no answers, labels or identities are filled in.
+
+The generated packet/template remain unchanged and contain zero completed
+reviews. Validation means schema and declared coverage, not verified human work,
+semantic correctness or mastery. Real browser layout and owner selection,
+download/import and spoken explanation remain pending. B2 q_0048 sensitivity,
+five-case owner calibration and public HTML/deck synchronization are not complete.
+These local changes are not a GitHub deployment; publication needs a separate
+review of the accumulated A/B1/C1 changes. Next: owner tries B01 and provides an
+export or a specific usability issue; inspect it before expanding calibration.
+
+Verification for this batch: 55 Python tests and 15 Node tests pass. The 17
+existing public validators and full100 preflight pass locally. Stage A replays
+the 96-question/48-context amendment against source arithmetic; B1 replays 100
+answers, 205 aligned spans, 12 signals and 15,000 paired cluster draws without
+inference. A 34-file before/after hash comparison shows no changes to the
+protected inputs, packet/template or full100 result files. A blank B01 passes
+draft structure checks and is rejected as a completed submission. No review is
+invented to make a gate green. Browser and human-review gates remain open.
+
+## Stage C1 Calibration Preparation: 2026-09-04
+
+Five historical cases are prepared, with zero completed reviews and zero new
+labels. Selection includes missing dev q_0048, the first dev monthly-change and
+negative-value questions, and the two already-public top3 examples. This is
+purposive protocol calibration, not new held-out evaluation. The reviewer page
+uses B01-B05 aliases without gold, old boundaries/labels, split or detector scores;
+aliases do not erase prior familiarity. Original prompt wording and evidence
+order are preserved. A separate warning distinguishes transaction signs from
+confirmed physical returns and forbids retroactive gold changes.
+
+Neutral atom types, format checks, row fidelity, full-relation verdicts, evidence
+references, claim groups and character information endpoints are defined. The
+offline form supports partial JSON export/import. Python and Node enforce schema,
+Unicode offsets, no bare-rank decisive judgment, complete-scope unmatched rules,
+and explicit coverage attestation. These checks do not adjudicate correctness or
+verify that a human worked independently. Reviewer exports stay Git-ignored.
+
+The packet is prepared for an owner trial; visual acceptance remains pending
+because browser security prevented local-file inspection in prior work. Existing
+Python/Node runtimes suffice; no plugin, model or new dependency was installed.
+Next: owner tests one case, then calibrates all five; revise protocol if necessary,
+prepare a separate second-reviewer pass, and only then consider 36-answer coverage.
+B2 q_0048 atomic-label completion and threshold sensitivity are still pending;
+v2 relation judgments must not be automatically substituted for v1 span labels.
+
+## Stage B1 Statistical Appendix: 2026-09-04
+
+This update supersedes earlier statements about the next stage and relative
+detector strength. Original full100 result files and labels remain unchanged.
+The separate `reports/bizhallu_statistics_v2_review.html` is the current
+reader-facing statistical appendix, not a new Pages entry or confirmation result.
+
+- Standard non-interpolated AP now groups tied scores; NaN/Inf and split/ID
+  mismatches are rejected. Independent tests include randomized sklearn checks.
+- All 100 saved answers reconstruct, and all 205 span alignments and 12 original
+  six-decimal scores replay. A second arm aggregates saved float32 values without
+  extra rounding. All 12 signals retain the same test confusion matrices.
+- Test has 103 spans from all 18 test questions. Dev has 102 spans from 17
+  questions; only dev q_0048 is missing. Positive labels include one unsupported
+  claim along with 121 hallucinated spans across dev/test, not 122 hallucinations.
+- The dev-only fact-type prior has test F1 0.835616, above entropy's 0.779412.
+  It mainly removes correct month spans; it uses supplied annotation types and
+  is not an automatic detector. Types include outcome-hinting names such as
+  malformed_number; this is not an information-matched detector comparison.
+  Its test binary predictions equal non-month = positive. Margin AP remains
+  0.835073 versus prior 0.759838.
+- Entropy versus all-positive F1 difference is 0.035509; a 5,000-draw paired
+  question-bootstrap 95% interval is [-0.035604, 0.104732]. This is conditional on
+  fixed dev policies and provisional labels, not selection-adjusted inference.
+- Test resampling units are 18 questions, 15 normalized evidence contents, or
+  two overlapping-month components built from the 35 evaluated questions.
+  The two-component interval is a dependency diagnostic, not a reliable CI.
+  Three normalized contents cross dev/test in this annotated subset; historical
+  full100 overlap counts below use different populations/fingerprints.
+- Same-step selected energy gap is mathematically NLL, and non-top1 mass is
+  1 minus top1 probability. These are controls/aliases, not independent families.
+- Raw teacher-forced logits are distinct from the generation sampling
+  distribution. Additional decimal precision does not restore pre-float32 logits.
+
+Public validation recomputes every new metric, dev fit and 15,000 paired draws.
+The separate `--require-local` tier also reconstructs excluded traces. CI never
+runs Qwen. Next is B2/C: calibrate relation annotations on five historical answers,
+review q_0048 without detector scores, then version its dev-threshold sensitivity.
+Independent human review is still required; no confirmation outcome is available.
+
+## Stage A Business-Definition Amendment: 2026-09-04
+
+This update supersedes the business wording in the original confirmation v1
+question design, not its source periods, split or numeric evidence. The active
+version is `configs/confirmation_metric_amendment_v1_1.json`; the study protocol
+contains the active private-manifest path and commitment. Original v1 files are
+retained for historical replay.
+
+- Historical 100-question gold replay passed. Five explicitly separated
+  scenarios produce a 500-row sensitivity table, not new model results.
+- Switching all-ledger questions to merchandise scope changes 58 answers and
+  one country leader. Stock-code grouping changes four product answers without
+  changing their leading stock codes. Neither scenario overwrites the old gold.
+- Non-merchandise lines account for 46.77% of historical negative value and
+  57.67% of strict-prior-window negative value. Sign-based negative amounts are
+  not confirmed physical-return amounts.
+- v1.1 preserves all 48 contexts and all 96 numeric/entity gold answers, with
+  revised wording/fields and new commitments. Source replay includes 798
+  independent arithmetic checks. Gate 3 is revalidated; four other gates remain
+  pending. No Qwen generation, annotation or detector scoring was performed.
+- Public validators do not replay excluded private source data. The separate
+  `--require-local` check is mandatory before calling this source-reproduced.
+
+The next authorized batch is Stage B statistical hardening, not model
+generation. Relation-level annotation, independent human review and a true
+verifier follow; they are not complete because Stage A passed.
 
 ## Integrity Update: 2026-08-31
 

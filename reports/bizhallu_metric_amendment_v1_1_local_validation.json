@@ -1,0 +1,8 @@
+{
+  "status": "metric_amendment_validation_passed",
+  "public_artifacts_valid": true,
+  "local_validation": "96_questions_48_contexts_and_source_arithmetic_replayed",
+  "research_execution_authorized": false,
+  "failures": [],
+  "num_failures": 0
+}

@@ -1,6 +1,10 @@
 {
   "business_risk_lens_html_path": "reports/bizhallu_business_risk_lens.html",
   "ready_for_public_business_lens": true,
+  "validation_scope": "public_source_contract_category_reconciliation_and_exact_display; not raw replay, visual QA or deployed business impact",
+  "live_deployment_verified": false,
+  "visual_review_verified": false,
+  "independent_business_validation": false,
   "num_failures": 0,
   "failures": []
 }

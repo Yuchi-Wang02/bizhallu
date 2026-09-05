@@ -1,0 +1,137 @@
+{
+  "version": "B2_q0048_dev_sensitivity_v1",
+  "status": "assistant_provisional_atoms_prepared_before_B2_scoring",
+  "prepared_at_utc": "2026-09-05T20:38:59.582447+00:00",
+  "config": {
+    "version": "B2_q0048_dev_sensitivity_v1",
+    "status": "retrospective_assistant_provisional_supplement_not_preregistration",
+    "question_id": "q_0048",
+    "required_split": "dev",
+    "annotation_path": "data/annotations/span_annotations_q0048_b2_assistant_v1.jsonl",
+    "annotation_version": "0.5-B2-q0048-assistant-provisional-v1",
+    "expected_span_count": 9,
+    "label_basis": "assistant source review, not independent human review",
+    "source_review": "Arithmetic checked before examining this supplement's detector scores; prior familiarity with the historical project is disclosed. This is not independently blind annotation.",
+    "boundary_policy": "Existing v1 atomic fact types; first comparison predicate follows q_0043. Keep repeated entity/direction in the second difference claim, with correlation disclosed. No filler, new relation labels or duplicated overlapping spans.",
+    "numeric_policy": "Legacy tolerance retained; explicitly approximate GBP 27,508 is nearest-whole-pound rounding of GBP 27,507.89, not exact pence equality.",
+    "coverage_policy": "Review both sentences against supplied evidence. Missing stock codes, percentages, recommendations or causal explanations are not invented as annotation targets. Atomic coverage is an assistant judgment, not verified human completeness.",
+    "reference_protocol": "configs/retrospective_statistics_v2.json",
+    "arms": [
+      "stored_six_decimal_scores",
+      "saved_trace_precision"
+    ],
+    "conditions": [
+      "original_dev17",
+      "supplemented_dev18"
+    ],
+    "fit_policy": "Use B1's dev-only F1 threshold and fact-type prior policy without changes. All 12 existing signals and three references are tabulated; no new signal selection.",
+    "evaluation_policy": "Freeze the same 103 original test spans and scores. Compare thresholds, confusion matrices, F1, AP, balanced accuracy and MCC. Report every changed test prediction. These are retrospective sensitivity results, not fresh held-out evidence.",
+    "uncertainty_policy": "No new bootstrap or significance claim; this deterministic omission sensitivity does not measure annotation uncertainty, dev-sampling uncertainty or context generalization.",
+    "single_question_policy": "All nine supplement labels are negative class. Do not estimate hallucination recall/AP from this all-correct single-answer supplement; report how many spans are flagged instead.",
+    "publication_policy": "Keep original 205 labels and historical results immutable; 214 is an augmented sensitivity package, not a replacement public headline. No Qwen inference, confirmation access or independent-verifier comparison.",
+    "human_review_required_for_independent_annotation_claim": true
+  },
+  "config_text_sha256": "31fd08583624e3f753bddf057ff1530072c45171d20d8656c6b7a5b53eecabf4",
+  "annotation_text_sha256": "f63886401dddcf1329f6cbf212301501fbf7cfd98b3a046ed0fb81fc93fb25d2",
+  "case": {
+    "question_id": "q_0048",
+    "prompt_id": "p_0048",
+    "split": "dev",
+    "question": "In August 2011, did Netherlands or EIRE generate more net revenue, and by how much?",
+    "gold_answer": {
+      "year_month": "2011-08",
+      "month_label": "August 2011",
+      "country_a": "Netherlands",
+      "country_b": "EIRE",
+      "country_a_net_revenue": 39655.81,
+      "country_b_net_revenue": 12147.92,
+      "higher_country": "Netherlands",
+      "lower_country": "EIRE",
+      "revenue_delta": 27507.89,
+      "currency": "GBP"
+    },
+    "prompt_evidence_rows": [
+      {
+        "country": "Australia",
+        "net_revenue": 22489.2,
+        "gross_positive_revenue": 22489.2,
+        "cancellation_revenue": 0.0,
+        "invoice_count": 2
+      },
+      {
+        "country": "EIRE",
+        "net_revenue": 12147.92,
+        "gross_positive_revenue": 18344.2,
+        "cancellation_revenue": -6196.28,
+        "invoice_count": 28
+      },
+      {
+        "country": "Netherlands",
+        "net_revenue": 39655.81,
+        "gross_positive_revenue": 40327.81,
+        "cancellation_revenue": -672.0,
+        "invoice_count": 9
+      },
+      {
+        "country": "United Kingdom",
+        "net_revenue": 559995.02,
+        "gross_positive_revenue": 606784.93,
+        "cancellation_revenue": -46789.91,
+        "invoice_count": 1449
+      }
+    ],
+    "generated_text": "In August 2011, the Netherlands generated more net revenue (39,655.81 GBP) compared to EIRE (12,147.92 GBP). The Netherlands' net revenue was higher by approximately 27,508 GBP."
+  },
+  "source_arithmetic": {
+    "question_id": "q_0048",
+    "source_quotes": [
+      {
+        "text": "the Netherlands generated more net revenue (39,655.81 GBP) compared to EIRE (12,147.92 GBP)",
+        "start": 16,
+        "end": 107
+      },
+      {
+        "text": "The Netherlands' net revenue was higher by approximately 27,508 GBP.",
+        "start": 109,
+        "end": 177
+      }
+    ],
+    "calculations": [
+      {
+        "field": "Netherlands amount",
+        "observed": "39655.81",
+        "reference": "39655.81",
+        "exact": true
+      },
+      {
+        "field": "EIRE amount",
+        "observed": "12147.92",
+        "reference": "12147.92",
+        "exact": true
+      },
+      {
+        "field": "comparison",
+        "higher_country": "Netherlands",
+        "supported_by_subtraction": true
+      },
+      {
+        "field": "difference",
+        "observed": "27508",
+        "reference": "27507.89",
+        "exact": false,
+        "nearest_whole_GBP_match": true,
+        "absolute_rounding_difference_GBP": "0.11"
+      }
+    ],
+    "interpretation": "Approximately 27,508 GBP is correct whole-pound rounding, not exact pence equality and not a hallucination merely because the gold has pence. This note does not create the missing v1 atomic labels.",
+    "gold_replay_values": {
+      "country_a_net_revenue": "39655.81",
+      "country_b_net_revenue": "12147.92",
+      "revenue_delta": "27507.89"
+    }
+  },
+  "generated_text_sha256": "2427277a447a499360a5c4cc6a4fd03ac32354eeda98c39b7f59438714050f48",
+  "independent_human_review": false,
+  "new_owner_submissions": 0,
+  "sequence_disclosure": "This batch saved and schema-checked the supplement before reading its token scores; historical study familiarity remains. This is not a prospective preregistration."
+}

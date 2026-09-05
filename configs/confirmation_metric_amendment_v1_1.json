@@ -1,0 +1,43 @@
+{
+  "amendment_id": "confirmation-metric-amendment-v1.1",
+  "frozen_on": "2026-09-04",
+  "basis": "Outcome-blind source-definition audit before any new model response; not detector-score driven.",
+  "historical_design": "configs/confirmation_question_design_v1.json",
+  "metric_contract": "configs/business_metric_contract_v1_1.json",
+  "source_context_commitment": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+  "source_question_commitment": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+  "private_output": "data/processed/confirmation_online_retail_ii/questions_gold_v1_1_private.json",
+  "public_report": "reports/bizhallu_metric_amendment_v1_1_report.json",
+  "commitment_domain": "bizhallu:confirmation-private-question-manifest:v1.1",
+  "payload_domain": "bizhallu:question-evidence-payload:v1.1",
+  "question_id_domain": "bizhallu:confirmation-question-id:v1.1",
+  "preserve": ["48 contexts", "6/15/27 context split", "12/30/54 question split", "selected entities", "numeric values", "evidence row order", "two questions per context"],
+  "field_renames": {
+    "gross_positive_revenue_gbp": "positive_transaction_value_gbp",
+    "cancellation_return_revenue_gbp": "negative_transaction_value_gbp",
+    "cancellation_return_reduction_gbp": "negative_transaction_magnitude_gbp",
+    "net_revenue_gbp": "net_transaction_value_gbp",
+    "reduction_percentage_of_gross": "negative_value_share_of_positive_percentage",
+    "returned_units": "negative_units_magnitude",
+    "return_invoice_count": "negative_quantity_invoice_count",
+    "product_merchandise_net_revenue_gbp": "product_merchandise_net_transaction_value_gbp",
+    "country_merchandise_net_revenue_gbp": "country_merchandise_net_transaction_value_gbp",
+    "share_of_country_merchandise_net_revenue_percentage": "share_of_country_merchandise_net_transaction_value_percentage"
+  },
+  "templates": {
+    "nrr_weekly_reconciliation_v1": "For the complete week from {period_start} through {period_end_inclusive}, reconcile positive transaction value, negative transaction value, and net transaction value across all eligible lines, including non-merchandise fees and adjustments. Report the positive amount, the negative magnitude as a positive amount, and net value in GBP, then show the arithmetic relationship. Do not interpret all negative value as physical returns.",
+    "nrr_daily_cancellation_hotspot_v1": "During the complete week from {period_start} through {period_end_inclusive}, among observed days with positive transaction value and negative transaction value, which day had the largest negative transaction-value magnitude? Include all eligible lines, not just merchandise. Report the date, magnitude as a positive amount in GBP, that day's positive transaction value, and the magnitude as a percentage of positive transaction value.",
+    "prr_pair_comparison_1_v1": "For the complete week from {period_start} through {period_end_inclusive}, compare the recorded negative-to-positive unit ratios for {product_a_name} ({product_a_code}) and {product_b_name} ({product_b_code}) using eligible merchandise lines. Which ratio was higher, what was each ratio, and what was the percentage-point difference? Negative units are not linked to original sales and do not establish a physical return rate.",
+    "prr_pair_comparison_2_v1": "For the complete week from {period_start} through {period_end_inclusive}, compare the recorded negative-to-positive unit ratios for {product_a_name} ({product_a_code}) and {product_b_name} ({product_b_code}) using eligible merchandise lines. Which ratio was higher, what was each ratio, and what was the percentage-point difference? Negative units are not linked to original sales and do not establish a physical return rate.",
+    "cpe_candidate_product_exposure_1_v1": "For {country} during the complete week from {period_start} through {period_end_inclusive}, which of the five listed products had the highest merchandise net transaction value? Report the stock code, product name, net value in GBP, and its share of the country's total merchandise net transaction value. Use the provided merchandise scope, excluding non-merchandise fees and adjustments; this is a transaction-value measure, not profit.",
+    "cpe_candidate_product_exposure_2_v1": "For {country} during the complete week from {period_start} through {period_end_inclusive}, which of the five listed products had the highest merchandise net transaction value? Report the stock code, product name, net value in GBP, and its share of the country's total merchandise net transaction value. Use the provided merchandise scope, excluding non-merchandise fees and adjustments; this is a transaction-value measure, not profit."
+  },
+  "metadata_rules": {
+    "nrr": "All eligible lines, including non-merchandise. Positive and negative refer only to the sign of quantity times unit price. Cancellation invoice flag is separate from sign. Physical returns are not identified.",
+    "prr": "Eligible merchandise only. Ratio is absolute negative quantity divided by positive quantity within the same complete week. No original-sale linkage; not a physical return rate.",
+    "cpe": "Eligible merchandise only. Rank among the five listed candidates, not all products. Divide selected product net transaction value by all eligible merchandise net transaction value in the country and period."
+  },
+  "gold_numeric_policy": "Keep all numeric values after inverse-schema equality and independent source/evidence arithmetic checks. No manual gold edits.",
+  "execution_boundary": {"prompt_generation_allowed": false, "model_run_allowed": false, "annotation_allowed": false, "detector_scoring_allowed": false},
+  "public_disclosure": "Aggregate counts and whole-manifest commitments only; no selected periods, entities, private IDs, private evidence or gold."
+}

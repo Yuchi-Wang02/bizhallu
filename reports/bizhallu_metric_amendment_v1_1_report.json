@@ -1,0 +1,45 @@
+{
+  "status": "metric_amendment_v1_1_gate3_revalidated",
+  "amendment_id": "confirmation-metric-amendment-v1.1",
+  "config_sha256": "ee0f990dc01c3d38475b2d762dfbf256488afa5c0c5f5a28a09bee22711bb486",
+  "metric_contract_sha256": "6fd3e3e54bd542c6ed6dc981a49275637b5a80e740312268629b6661f8579ffc",
+  "source_context_commitment": "002b484b3b59c52db0a2213b8d896750cdb2bb9157998d48bf015eff27f19e5a",
+  "source_question_commitment": "b72ffaf715afef85867522fb0c7264377350ce146709962e420c16eaa6d9e80c",
+  "amended_question_commitment": "6d5fdd030fb1321da6c108be7f1ea40f505861faf625c172d83e91b842aa08ff",
+  "question_count": 96,
+  "context_count": 48,
+  "question_counts_by_split": {
+    "protocol_pilot": 12,
+    "development": 30,
+    "confirmation": 54
+  },
+  "question_counts_by_family": {
+    "country_product_exposure": 32,
+    "net_revenue_reconciliation_by_period": 32,
+    "product_return_rate_comparison": 32
+  },
+  "replayed_original_question_count": 96,
+  "independent_source_arithmetic_checks": 798,
+  "unchanged_gold_numeric_and_entity_payloads": 96,
+  "unchanged_evidence_content_count": 96,
+  "changed_question_wording_count": 96,
+  "unique_amended_payloads": 96,
+  "cross_split_evidence_overlap": 0,
+  "historical_evidence_overlap": 0,
+  "source_artifacts_unchanged": true,
+  "protected_source_sha256": {
+    "data/processed/confirmation_online_retail_ii/context_manifest_v1_private.json": "558a41cc908fe98af47a22417bdb28e9d31f9ecf7d74b683e0bac990f208ee25",
+    "data/processed/confirmation_online_retail_ii/questions_gold_v1_private.json": "9c621c30e943d279cf40944cab10c0dc3ab2ea5f8c7531a3035e860e0ba9bff1",
+    "data/processed/confirmation_online_retail_ii/strict_window_lines.csv.gz": "ab875caaf527d5d528f4edad4fd372b15d4e1ae9c39f6cea20f8211178e256fc",
+    "configs/confirmation_question_design_v1.json": "e855816ed4f716d1ac4b3a261db8215f4c6ef6339da39b830486233fc9ab26d1"
+  },
+  "execution_boundary": {
+    "prompt_generation_allowed": false,
+    "model_run_allowed": false,
+    "annotation_allowed": false,
+    "detector_scoring_allowed": false
+  },
+  "gate_status": "3_complete_4_pending_no_run_authorized",
+  "num_failures": 0,
+  "scope_note": "Gate 3 business-definition amendment only. Independent human review, metric hardening, model freeze and verifier remain incomplete."
+}

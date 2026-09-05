@@ -1,5 +1,8 @@
 {
   "report_path": "results/full100_preflight_report.json",
+  "validation_scope": "historical_pipeline_and_local_artifact_readiness_not_scientific_validity",
+  "live_deployment_verified": false,
+  "independent_human_review_verified": false,
   "current_stage": "github_pages_ready",
   "ready_for_current_stage": true,
   "num_failures": 0,

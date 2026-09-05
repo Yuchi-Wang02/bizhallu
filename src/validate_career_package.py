@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import html
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
 from public_paths import repo_path
+from presentation_story import build_story
+from presentation_evidence import statistics_html
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -17,13 +20,13 @@ SUMMARY_PATH = REPORTS_DIR / "bizhallu_career_package_summary.json"
 VALIDATION_PATH = REPORTS_DIR / "bizhallu_career_package_validation.json"
 
 REQUIRED_HTML_FRAGMENTS = [
-    "Career package for BA / DS / AI analyst roles",
-    "One-page project brief",
+    "Career package for business, data and operations analyst conversations",
+    "Project Brief",
     "Interview FAQ",
     "Resume bullets",
-    "60-second version",
+    "90-second version",
     "5-minute version",
-    "AI-assisted provisional",
+    "AI-assisted implementation and review",
     "15 selected presentation spans",
     "exploratory maximum",
     "not production estimates",
@@ -46,8 +49,6 @@ FORBIDDEN_FRAGMENTS = [
     "is a large human-labeled benchmark",
     "production-ready hallucination detection system",
     "evaluates whole-answer correctness",
-    "pending human review",
-    "requires human confirmation",
     "Reviewed 35 held-out dev/test questions, labeled 205",
 ]
 
@@ -79,6 +80,16 @@ def main() -> None:
     html_text = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
     md_text = MD_PATH.read_text(encoding="utf-8") if MD_PATH.exists() else ""
     summary = load_json(SUMMARY_PATH) if SUMMARY_PATH.exists() else {}
+    story = build_story()
+    if summary.get('story') != story:
+        add_failure(failures, 'story_source_mismatch', 'Regenerate from checked presentation evidence')
+    passages = story['pitch_90_seconds'] + [s['script'] for s in story['slides']] + story['resume_bullets']
+    passages += [q['answer'] for q in story['faq']] + story['guardrails']
+    for passage in passages:
+        if html.escape(passage) not in html_text or passage not in md_text:
+            add_failure(failures, 'missing_or_changed_source_passage', passage[:90])
+    if statistics_html(story['statistical_review']) not in html_text:
+        add_failure(failures, 'statistical_context_missing', 'B1 comparison must remain visible')
 
     if html_text:
         parser = HTMLCheckParser()
@@ -113,6 +124,9 @@ def main() -> None:
         "metric_selection_status": "exploratory_test_maxima",
         "resume_bullet_count": 5,
         "faq_count": 10,
+        "presentation_revision": story['revision'],
+        "owner_mastery_verified": False,
+        "statistical_source_sha256": story['statistical_review']['source_sha256'],
     }
     for key, value in expected.items():
         if summary.get(key) != value:
@@ -126,6 +140,9 @@ def main() -> None:
         "career_html_path": repo_path(HTML_PATH),
         "career_markdown_path": repo_path(MD_PATH),
         "ready_for_public_career_use": len(failures) == 0,
+        "validation_scope": "source_and_wording_consistency_not_owner_mastery_or_visual_acceptance",
+        "owner_mastery_verified": False,
+        "visual_review_verified": False,
         "num_failures": len(failures),
         "failures": failures,
     }

@@ -5,6 +5,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+try:
+    from detector_metrics import average_precision as tied_average_precision, finite_score
+except ModuleNotFoundError as exc:
+    if exc.name != "detector_metrics":
+        raise
+    from src.detector_metrics import average_precision as tied_average_precision, finite_score
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ALIGNMENT_PATH = PROJECT_ROOT / "outputs" / "pilot20_span_token_alignment.jsonl"
@@ -67,7 +74,7 @@ def binary_label(label: str) -> int | None:
 def safe_float(value: Any, field: str, annotation_id: str) -> float:
     if value is None:
         raise ValueError(f"{annotation_id} has null {field}")
-    return float(value)
+    return finite_score(value)
 
 
 def build_score_rows(alignment_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -163,17 +170,8 @@ def auroc(y_true: list[int], scores: list[float]) -> float | None:
 
 
 def average_precision(y_true: list[int], scores: list[float]) -> float | None:
-    positives = sum(y_true)
-    if positives == 0:
-        return None
-    ordered = sorted(zip(scores, y_true), key=lambda item: item[0], reverse=True)
-    true_positives = 0
-    precision_sum = 0.0
-    for rank, (_, label) in enumerate(ordered, start=1):
-        if label == 1:
-            true_positives += 1
-            precision_sum += true_positives / rank
-    return precision_sum / positives
+    # Historical artifacts retain their original AP; new calculations group ties.
+    return tied_average_precision(y_true, scores)
 
 
 def best_threshold_metrics(y_true: list[int], scores: list[float]) -> tuple[float, dict[str, int], dict[str, float]]:

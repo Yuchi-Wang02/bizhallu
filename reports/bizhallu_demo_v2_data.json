@@ -19,6 +19,8 @@
     "independent_human_annotation": false,
     "automatic_claim_extraction": false,
     "metric_selection_status": "exploratory_test_maxima",
+    "presentation_revision": "english_evidence_review_2026_09_05",
+    "business_metric_note": "Positive and negative transaction values are sign-based accounting quantities. Negative value is not a verified measure of physical returns; fees and adjustments may be included. Merchandise scope uses a stock-code heuristic, and the historical product grain is stock code plus description.",
     "guardrail": "Selected presentation spans only; no independent human annotation, automatic claim extraction, or production detector claim."
   },
   "filters": {
@@ -54,9 +56,9 @@
       },
       {
         "id": "energy",
-        "label": "Energy-family",
+        "label": "Top-2 residual mass",
         "score_field": "mean_spilled_probability_mass_after_top2",
-        "description": "Uses probability mass outside the top two token choices; this is an energy-family control, not a semantic verifier."
+        "description": "Probability mass outside the top two token choices is a concentration control, not an independent energy method or semantic verifier."
       }
     ]
   },
@@ -135,7 +137,7 @@
           "cancellation_revenue": -67.45
         }
       ],
-      "takeaway": "Best paired contrast: Qwen states correct rank-1 and rank-2 facts, then binds rank 3 to the wrong product and amount.",
+      "takeaway": "The third product and its amount match a source row, but that product is seventh in the shown evidence, not third.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0064_004",
@@ -226,7 +228,64 @@
           "gold_short_answer": "Top 3 products in April 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 14,280.90; 2. 47566 (PARTY BUNTING), GBP 10,323.87; 3. 22084 (PAPER CHAIN KIT EMPIRE), GBP 6,619.51."
         }
       ],
-      "span_count": 4
+      "span_count": 4,
+      "presentation_walkthrough": {
+        "review_basis": "assistant-curated historical walkthrough with deterministic source checks; not independent human labels or verifier predictions",
+        "automatic_claim_extraction": false,
+        "scope": "Ranking within the eight rows shown to Qwen; historical corpus scope is separately documented.",
+        "claims": [
+          {
+            "quote": "1. **REGENCY CAKESTAND 3 TIER** (rank 1) with a net revenue of GBP 14,280.90.",
+            "start": 68,
+            "end": 145,
+            "period": "April 2011",
+            "product_name": "REGENCY CAKESTAND 3 TIER",
+            "stock_code_from_evidence": "22423",
+            "stated_rank": 1,
+            "rank_in_shown_evidence": 1,
+            "amount_lexical": "14,280.90",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": true,
+            "source_row": 1,
+            "expected_product_at_stated_rank": "REGENCY CAKESTAND 3 TIER",
+            "expected_amount_at_stated_rank": "14,280.90"
+          },
+          {
+            "quote": "2. **PARTY BUNTING** (rank 2) with a net revenue of GBP 10,323.87.",
+            "start": 148,
+            "end": 214,
+            "period": "April 2011",
+            "product_name": "PARTY BUNTING",
+            "stock_code_from_evidence": "47566",
+            "stated_rank": 2,
+            "rank_in_shown_evidence": 2,
+            "amount_lexical": "10,323.87",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": true,
+            "source_row": 3,
+            "expected_product_at_stated_rank": "PARTY BUNTING",
+            "expected_amount_at_stated_rank": "10,323.87"
+          },
+          {
+            "quote": "3. **WOODEN UNION JACK BUNTING** (rank 3) with a net revenue of GBP 4,173.18.",
+            "start": 217,
+            "end": 294,
+            "period": "April 2011",
+            "product_name": "WOODEN UNION JACK BUNTING",
+            "stock_code_from_evidence": "22499",
+            "stated_rank": 3,
+            "rank_in_shown_evidence": 7,
+            "amount_lexical": "4,173.18",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": false,
+            "source_row": 2,
+            "expected_product_at_stated_rank": "PAPER CHAIN KIT EMPIRE",
+            "expected_amount_at_stated_rank": "6,619.51"
+          }
+        ],
+        "information_timing_note": "A list marker is generated before the following product and amount. Its low token uncertainty does not establish that the model was confident about the completed business relationship. Raw teacher-forced token scores and completed-answer evidence checks have different information budgets.",
+        "coverage_note": "Both answers omit the requested stock codes. The six curated relationships are not a whole-answer correctness score."
+      }
     },
     {
       "question_id": "q_0069",
@@ -302,7 +361,7 @@
           "cancellation_revenue": -269.45
         }
       ],
-      "takeaway": "Best confident-miss case: plausible product and revenue statements stay below detector thresholds while the rank binding is wrong.",
+      "takeaway": "All three product-amount pairs match source rows; their stated ranks do not. Correct copying is not correct ranking.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0069_005",
@@ -371,7 +430,64 @@
           "gold_short_answer": "Top 3 products in September 2011: 1. 23243 (SET OF TEA COFFEE SUGAR TINS PANTRY), GBP 9,971.51; 2. 22423 (REGENCY CAKESTAND 3 TIER), GBP 9,315.03; 3. 85099B (JUMBO BAG RED RETROSPOT), GBP 8,630.45."
         }
       ],
-      "span_count": 3
+      "span_count": 3,
+      "presentation_walkthrough": {
+        "review_basis": "assistant-curated historical walkthrough with deterministic source checks; not independent human labels or verifier predictions",
+        "automatic_claim_extraction": false,
+        "scope": "Ranking within the eight rows shown to Qwen; historical corpus scope is separately documented.",
+        "claims": [
+          {
+            "quote": "1. **JUMBO BAG RED RETROSPOT** (rank 1) with a net revenue of GBP 8630.45.",
+            "start": 72,
+            "end": 146,
+            "period": "September 2011",
+            "product_name": "JUMBO BAG RED RETROSPOT",
+            "stock_code_from_evidence": "85099B",
+            "stated_rank": 1,
+            "rank_in_shown_evidence": 3,
+            "amount_lexical": "8630.45",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": false,
+            "source_row": 7,
+            "expected_product_at_stated_rank": "SET OF TEA COFFEE SUGAR TINS PANTRY",
+            "expected_amount_at_stated_rank": "9,971.51"
+          },
+          {
+            "quote": "2. **PAPER CHAIN KIT 50'S CHRISTMAS** (rank 2) with a net revenue of GBP 5997.25.",
+            "start": 149,
+            "end": 230,
+            "period": "September 2011",
+            "product_name": "PAPER CHAIN KIT 50'S CHRISTMAS",
+            "stock_code_from_evidence": "22086",
+            "stated_rank": 2,
+            "rank_in_shown_evidence": 8,
+            "amount_lexical": "5997.25",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": false,
+            "source_row": 6,
+            "expected_product_at_stated_rank": "REGENCY CAKESTAND 3 TIER",
+            "expected_amount_at_stated_rank": "9,315.03"
+          },
+          {
+            "quote": "3. **REGENCY CAKESTAND 3 TIER** (rank 3) with a net revenue of GBP 9315.03.",
+            "start": 233,
+            "end": 308,
+            "period": "September 2011",
+            "product_name": "REGENCY CAKESTAND 3 TIER",
+            "stock_code_from_evidence": "22423",
+            "stated_rank": 3,
+            "rank_in_shown_evidence": 2,
+            "amount_lexical": "9315.03",
+            "row_value_supported": true,
+            "rank_supported_in_shown_evidence": false,
+            "source_row": 3,
+            "expected_product_at_stated_rank": "JUMBO BAG RED RETROSPOT",
+            "expected_amount_at_stated_rank": "8,630.45"
+          }
+        ],
+        "information_timing_note": "A list marker is generated before the following product and amount. Its low token uncertainty does not establish that the model was confident about the completed business relationship. Raw teacher-forced token scores and completed-answer evidence checks have different information budgets.",
+        "coverage_note": "Both answers omit the requested stock codes. The six curated relationships are not a whole-answer correctness score."
+      }
     },
     {
       "question_id": "q_0039",
@@ -419,7 +535,7 @@
           "invoice_count": 2126
         }
       ],
-      "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.",
+      "takeaway": "A historically correct-labeled span was flagged. This example does not establish the cause of the false alarm.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0039_006",
@@ -444,7 +560,8 @@
           "gold_short_answer": "Germany generated more net revenue than France by GBP 5,586.63 in October 2011."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0054",
@@ -478,7 +595,7 @@
           "invoice_count": 1862
         }
       ],
-      "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.",
+      "takeaway": "A historically correct-labeled span was flagged. This example does not establish the cause of the false alarm.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0054_003",
@@ -525,7 +642,8 @@
           "gold_short_answer": "Net revenue decreased by GBP 32,116.87 (-4.45%) from May 2011 to June 2011."
         }
       ],
-      "span_count": 2
+      "span_count": 2,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0059",
@@ -559,7 +677,7 @@
           "invoice_count": 3210
         }
       ],
-      "takeaway": "Locked support case for explaining span-level labeling and detector readouts.",
+      "takeaway": "Historical selected span for inspecting provisional labels and detector readouts.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0059_004",
@@ -584,7 +702,8 @@
           "gold_short_answer": "Net revenue increased by GBP 386,777.57 (36.17%) from October 2011 to November 2011."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0063",
@@ -660,7 +779,7 @@
           "cancellation_revenue": -1.95
         }
       ],
-      "takeaway": "Useful false-negative case: the generated span is wrong, but the internal uncertainty signal is low.",
+      "takeaway": "A historically incorrect-labeled span was not flagged. Its score is not a whole-relationship confidence estimate.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0063_010",
@@ -685,7 +804,8 @@
           "gold_short_answer": "Top 3 products in March 2011: 1. 22423 (REGENCY CAKESTAND 3 TIER), GBP 16,817.85; 2. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,116.43; 3. 47566 (PARTY BUNTING), GBP 9,098.27."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0068",
@@ -761,7 +881,7 @@
           "cancellation_revenue": -2127.75
         }
       ],
-      "takeaway": "Useful false-negative case: the generated span is wrong, but the internal uncertainty signal is low.",
+      "takeaway": "A historically incorrect-labeled span was not flagged. Its score is not a whole-relationship confidence estimate.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0068_008",
@@ -786,7 +906,8 @@
           "gold_short_answer": "Top 3 products in August 2011: 1. 85099B (JUMBO BAG RED RETROSPOT), GBP 10,441.77; 2. 84879 (ASSORTED COLOUR BIRD ORNAMENT), GBP 9,867.04; 3. 47566 (PARTY BUNTING), GBP 9,655.25."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0093",
@@ -813,7 +934,7 @@
           "invoice_count": 1486
         }
       ],
-      "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.",
+      "takeaway": "A historically correct-labeled span was flagged. This example does not establish the cause of the false alarm.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0093_002",
@@ -838,7 +959,8 @@
           "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 44,600.65 (8.31% of gross), leaving net revenue of GBP 492,367.84."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     },
     {
       "question_id": "q_0098",
@@ -865,7 +987,7 @@
           "invoice_count": 2170
         }
       ],
-      "takeaway": "Useful caveat case: a supported span is over-flagged because nearby answer context contains difficult numeric reasoning.",
+      "takeaway": "A historically correct-labeled span was flagged. This example does not establish the cause of the false alarm.",
       "spans": [
         {
           "annotation_id": "ann_full100_draft_q_0098_002",
@@ -890,7 +1012,148 @@
           "gold_short_answer": "Cancellations and returns reduced gross positive revenue by GBP 38,838.51 (3.68% of gross), leaving net revenue of GBP 1,017,596.68."
         }
       ],
-      "span_count": 1
+      "span_count": 1,
+      "presentation_walkthrough": null
     }
-  ]
+  ],
+  "statistical_review": {
+    "source": "reports/bizhallu_statistics_v2_report.json",
+    "source_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
+    "metric_version": "binary_metrics_v2_tied_ap",
+    "scope": {
+      "dev": {
+        "questions": 17,
+        "spans": 102,
+        "positive_spans": 61,
+        "missing_question_ids": [
+          "q_0048"
+        ]
+      },
+      "test": {
+        "questions": 18,
+        "spans": 103,
+        "positive_spans": 61,
+        "missing_question_ids": []
+      }
+    },
+    "test_rows": [
+      {
+        "arm": "saved_trace_precision",
+        "signal": "one_minus_min_top2_margin",
+        "split": "test",
+        "threshold": 0.33433282375335693,
+        "tp": 41,
+        "fp": 7,
+        "tn": 35,
+        "fn": 20,
+        "precision": 0.8541666666666666,
+        "recall": 0.6721311475409836,
+        "specificity": 0.8333333333333334,
+        "f1": 0.7522935779816514,
+        "accuracy": 0.7378640776699029,
+        "balanced_accuracy": 0.7527322404371585,
+        "mcc": 0.4979414071698933,
+        "average_precision": 0.8350726705510306,
+        "auroc": 0.7568306010928961,
+        "positive_prevalence": 0.5922330097087378,
+        "span_count": 103
+      },
+      {
+        "arm": "saved_trace_precision",
+        "signal": "mean_token_entropy",
+        "split": "test",
+        "threshold": 0.004817123346063974,
+        "tp": 53,
+        "fp": 22,
+        "tn": 20,
+        "fn": 8,
+        "precision": 0.7066666666666667,
+        "recall": 0.8688524590163934,
+        "specificity": 0.47619047619047616,
+        "f1": 0.7794117647058824,
+        "accuracy": 0.7087378640776699,
+        "balanced_accuracy": 0.6725214676034348,
+        "mcc": 0.3811123785789828,
+        "average_precision": 0.8094737529413718,
+        "auroc": 0.7361436377829821,
+        "positive_prevalence": 0.5922330097087378,
+        "span_count": 103
+      },
+      {
+        "arm": "saved_trace_precision",
+        "signal": "all_positive",
+        "split": "test",
+        "threshold": 0.5,
+        "tp": 61,
+        "fp": 42,
+        "tn": 0,
+        "fn": 0,
+        "precision": 0.5922330097087378,
+        "recall": 1.0,
+        "specificity": 0.0,
+        "f1": 0.7439024390243902,
+        "accuracy": 0.5922330097087378,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "average_precision": 0.5922330097087378,
+        "auroc": 0.5,
+        "positive_prevalence": 0.5922330097087378,
+        "span_count": 103
+      },
+      {
+        "arm": "saved_trace_precision",
+        "signal": "all_negative",
+        "split": "test",
+        "threshold": 0.5,
+        "tp": 0,
+        "fp": 0,
+        "tn": 42,
+        "fn": 61,
+        "precision": 0.0,
+        "recall": 0.0,
+        "specificity": 1.0,
+        "f1": 0.0,
+        "accuracy": 0.4077669902912621,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "average_precision": 0.5922330097087378,
+        "auroc": 0.5,
+        "positive_prevalence": 0.5922330097087378,
+        "span_count": 103
+      },
+      {
+        "arm": "saved_trace_precision",
+        "signal": "dev_fact_type_prior",
+        "split": "test",
+        "threshold": 0.575,
+        "tp": 61,
+        "fp": 24,
+        "tn": 18,
+        "fn": 0,
+        "precision": 0.7176470588235294,
+        "recall": 1.0,
+        "specificity": 0.42857142857142855,
+        "f1": 0.8356164383561644,
+        "accuracy": 0.7669902912621359,
+        "balanced_accuracy": 0.7142857142857143,
+        "mcc": 0.5545836503270576,
+        "average_precision": 0.7598384536560515,
+        "auroc": 0.7681498829039812,
+        "positive_prevalence": 0.5922330097087378,
+        "span_count": 103
+      }
+    ],
+    "entropy_minus_all_positive": {
+      "signal": "mean_token_entropy",
+      "reference": "all_positive",
+      "metric": "f1",
+      "point_difference": 0.03550932568149212,
+      "lower_95": -0.035603741496598666,
+      "upper_95": 0.10473150125972673,
+      "valid_replicates": 5000,
+      "undefined_replicates": 0
+    },
+    "independent_human_annotation": false,
+    "confirmatory": false
+  }
 }

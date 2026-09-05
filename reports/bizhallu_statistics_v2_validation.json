@@ -1,0 +1,9 @@
+{
+  "status": "retrospective_statistics_B1_validated",
+  "validated_report_text_sha256": "096bae57edec06e74c6f4e029419b844adb421d252a1f8c60335ae1859dc0727",
+  "public_checks": "recompute_60_metric_rows_dev_fits_15000_paired_cluster_draws_source_and_output_hashes",
+  "local_checks": "not_run_public_tier_cannot_verify_private_traces",
+  "research_validity": "not_confirmatory_not_independently_human_annotated",
+  "num_failures": 0,
+  "failures": []
+}

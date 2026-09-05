@@ -1,7 +1,11 @@
 {
   "manifest_path": "docs/github_pages_manifest.json",
+  "validation_scope": "local_bundle_content_links_and_source_hashes_only",
+  "live_deployment_verified": false,
+  "visual_review_verified": false,
+  "independent_human_review_verified": false,
   "ready_for_github_pages": true,
-  "required_file_count": 25,
+  "required_file_count": 27,
   "checked_html_file_count": 19,
   "current_stage": "github_pages_ready",
   "primary_question_ids": [

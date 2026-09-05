@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>BizHallu | 关系审查</title>
+<style>
+*{box-sizing:border-box;letter-spacing:0}body{margin:0;background:#f6f7f8;color:#202124;font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header,main{max-width:1180px;margin:auto;padding:20px 24px}header{border-bottom:1px solid #d8dde2}h1{font-size:25px;margin:0 0 6px}h2{font-size:19px;margin:20px 0 10px}h3{font-size:16px;margin:12px 0}p{margin:6px 0 12px}.muted{color:#555e67}.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.bar>*{min-width:0}button,select,input,textarea{font:inherit;color:inherit}button{background:#fff;border:1px solid #aab3bb;border-radius:5px;padding:7px 12px;cursor:pointer;min-height:38px}button.primary{background:#185f47;color:white;border-color:#185f47}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #569bc0;outline-offset:2px}input,select,textarea{border:1px solid #abb4bd;border-radius:4px;padding:7px;background:white;max-width:100%}input[type=checkbox]{width:18px;height:18px;vertical-align:middle}label{display:block}label>span{display:block;color:#414b55;font-size:13px;margin-bottom:3px}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.fields input,.fields select{width:100%}.full{grid-column:1/-1}section{border-bottom:1px solid #d8dde2;padding:12px 0 20px}#answer{width:100%;height:190px;min-height:150px;resize:vertical;line-height:1.7;font:15px/1.7 ui-monospace,Consolas,monospace;white-space:pre-wrap}#question{font-size:17px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.6 ui-monospace,Consolas,monospace}.scroll{overflow:auto;max-width:100%}table{border-collapse:collapse;width:100%;background:white;font-size:13px}th,td{text-align:left;border-bottom:1px solid #dce1e5;padding:8px;vertical-align:top}td{overflow-wrap:anywhere}th{background:#eaf0f2;font-weight:600}.facts{table-layout:fixed}.facts th:nth-child(1){width:70px}.facts th:nth-child(3){width:175px}.facts th:nth-child(4){width:160px}.facts th:last-child{width:75px}.facts select{width:100%}#notice{min-height:28px;padding-top:8px;color:#87421c;overflow-wrap:anywhere}#relation-editor{border-left:3px solid #608a7e;padding:12px 16px;background:#eef3f1;margin:14px 0}#relation-editor[hidden]{display:none}details{margin:12px 0}summary{cursor:pointer;font-weight:600}#atom-links{display:flex;flex-wrap:wrap;gap:12px}#atom-links label{max-width:100%;overflow-wrap:anywhere}#relations td{max-width:400px}#coverage-note{width:100%;min-height:65px}.stamp{font-size:13px;color:#555e67}footer{font-size:13px;padding:20px 0;color:#555e67}#import-file{display:none}@media(max-width:720px){header,main{padding:16px}.fields{grid-template-columns:1fr}h1{font-size:23px}.facts{min-width:710px}#evidence{min-width:650px}.bar button{flex-grow:1}#case-select{width:100%}#relation-editor{padding:10px}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><h1>BizHallu · 关系审查</h1><p class="muted">历史校准材料 · 旧标签与检测分数未提供 · 非确认性评价</p>
+<div class="bar"><button id="import-button">导入草稿</button><button id="export-button" class="primary">导出草稿 JSON</button><input id="import-file" type="file" accept="application/json,.json"><span id="progress" class="stamp"></span></div>
+<div id="notice" role="status" aria-live="polite"></div></header>
+<main>
+<section><div class="fields">
+<label><span>审查者代号</span><input id="reviewer-id" autocomplete="off"></label>
+<label><span>审查者身份（自报）</span><select id="reviewer-type"><option value="">未填写</option><option value="owner_self_reported">项目本人</option><option value="independent_reviewer_self_reported">独立复核者</option><option value="assistant">AI 辅助审查</option></select></label>
+<label><span>是否看过旧标签或分数</span><select id="legacy-seen"><option value="unknown">不确定 / 未填写</option><option value="yes">看过</option><option value="no">未看过</option></select></label>
+</div><details><summary>业务判定规则与边界</summary><ol id="rules"></ol></details></section>
+<section><div class="bar"><label><span>当前案例</span><select id="case-select"></select></label><label><span>是否见过本案例</span><select id="prior-exposure"><option value="unknown">不确定 / 未填写</option><option value="yes">见过</option><option value="no">未见过</option></select></label><span id="case-status" class="stamp"></span></div>
+<h2>问题</h2><p id="question"></p><h2>原始证据表</h2><p id="scope" class="muted"></p><div class="scroll"><table id="evidence"></table></div>
+<details><summary>原始输入与指标定义</summary><pre id="messages"></pre></details>
+<h2>完整模型回答</h2><textarea id="answer" readonly aria-label="完整模型回答"></textarea><div class="bar"><button id="add-atom">添加所选事实片段</button></div></section>
+<section><h2>事实片段</h2><div class="scroll"><table class="facts"><thead><tr><th>ID / 位置</th><th>原文</th><th>中性类型</th><th>格式判断</th><th>操作</th></tr></thead><tbody id="atoms"></tbody></table></div></section>
+<section><div class="bar"><h2>业务关系</h2><button id="add-relation">新增关系</button></div>
+<div id="relation-editor" hidden><h3 id="editor-title"></h3><div id="relation-fields" class="fields"></div><h3>关联事实片段</h3><div id="atom-links"></div><label><span>判断理由 / 不确定之处</span><textarea id="reason" style="width:100%;min-height:75px"></textarea></label><div class="bar"><button id="save-relation" class="primary">保存关系</button><button id="cancel-relation">取消编辑</button></div></div>
+<div class="scroll"><table id="relations"><thead><tr><th>关系 / 计数组</th><th>时期 · 实体 · 指标 · 比较 · 数值</th><th>数据行 / 完整关系</th><th>理由</th><th>操作</th></tr></thead><tbody></tbody></table></div></section>
+<section><h2>判断依据与完整性</h2><details><summary>本轮口述问题</summary><ol><li>这道问题服务什么业务判断？</li><li>指标的范围、符号和单位是什么？</li><li>哪些证据支持你的判断，哪些地方仍然不确定？</li><li>如果把分析交给业务同事，需要披露什么限制？</li></ol></details><label><span>口述提纲、漏标、保留意见或无可标关系的说明</span><textarea id="coverage-note"></textarea></label><label><input type="checkbox" id="coverage"> 已逐句核对全部业务事实，包括额外结论与重复陈述</label><div class="bar"><button id="check-case">检查本案例草稿</button><button id="complete-case" class="primary">提交本案例供复核</button><button id="reopen-case">恢复草稿状态</button></div></section>
+<footer>所有判断均为审查者输入。字段校验不能证明判断正确、真正盲态或独立人工一致性；草稿不自动进入指标计算。</footer>
+</main>
+<script id="packet-data" type="application/json">__PACKET_JSON__</script>
+<script>__REVIEW_JS__</script>
+</body></html>
