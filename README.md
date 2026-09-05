@@ -98,6 +98,13 @@ plus two optional skipped scikit-learn checks, and 23 Node tests. All 111 Python
 tests pass in the original environment. This was Windows/Python 3.13, not a new
 GitHub Ubuntu/Python 3.11 deployment or private-data reproduction.
 
+**Publication verified, September 5:** commit `24c7f5a` subsequently passed
+[GitHub Ubuntu/Python 3.11 CI](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992015667)
+and [Pages deployment](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992015366).
+Eight primary/supporting HTML pages and both deck assets returned HTTP 200 and
+matched the committed content. This verifies publication, not browser rendering,
+private-data reproduction, independent annotation or owner presentation mastery.
+
 **Business-definition amendment (September 4, 2026).** Stage A preserves the
 historical gold and detector metrics. Its [metric contract](configs/business_metric_contract_v1_1.json)
 separates sign-based transaction value, merchandise scope and cancellation flags.

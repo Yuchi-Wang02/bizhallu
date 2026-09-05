@@ -74,7 +74,7 @@ not calendar guarantees; keep at most two active workstreams.
 
 | Stage | Target window | Deliverable and acceptance | Current state |
 | --- | --- | --- | --- |
-| Credible portfolio and ownership | Weeks 1-2 | First-case trial, five-case calibration, separately versioned q_0048 sensitivity, three main public entry points, 90-second and five-minute explanations | English B1/B2 presentation and separate supplement prepared; public-only candidate passes an isolated Windows clone; owner calibration, browser QA, actual publication and mastery remain open |
+| Credible portfolio and ownership | Weeks 1-2 | First-case trial, five-case calibration, separately versioned q_0048 sensitivity, three main public entry points, 90-second and five-minute explanations | English B1/B2 materials and separate supplement published at 24c7f5a; isolated Windows clone, GitHub Linux CI and Pages/content checks pass; owner calibration, browser QA and mastery remain open |
 | External feedback | Weeks 2-4 | 15 current employer-posted roles, skill-gap table, 3-5 faculty candidates, three tailored outreach drafts and two practice presentations | Not started; owner confirms any sending |
 | Core analyst skills | Weeks 3-6 | Six SQL queries, at most two Power BI pages, one business note; reconcile numbers and explain query changes | Not started |
 | Independent verifier | Weeks 6-9 | top3 relation extraction and evidence checking; no evaluation-only inputs; coverage/abstention/error analysis | Not started; public schema is not a detector |

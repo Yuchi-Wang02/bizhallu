@@ -131,15 +131,18 @@ Test generated demo logic with `node --test tests/test_public_demo_ui.cjs`.
 Deck source checks use only standard-library OOXML parsing; authoring requires
 the bundled Artifact Tool runtime and never runs in CI. Rendered-slide review
 does not establish behavior in desktop PowerPoint or owner presentation mastery.
-The current unpublished deck v2 and speaking script now include the B2 caveat;
+The published English deck v2 and speaking script include the B2 caveat;
 keep the original B1 chart/interval distinct from sensitivity results. Four
 historical Pages reports receive archive notices during copying, without editing
 their source records. Preserve those notices and their tests. A reviewed public
 candidate was tested via a temporary local commit and clean clone with a
-standard-library-only environment; original HEAD/index remain untouched.
-The ignored `outputs/release_stage1/` receipts are Windows dry-run evidence,
-not GitHub Linux CI, browser rendering or deployment verification. Do not add
-the unrelated Claude files or private review/confirmation artifacts to a release.
+standard-library-only environment before the real release. The ignored
+`outputs/release_stage1/` receipts describe that Windows dry-run, not deployment.
+The candidate was subsequently published as `24c7f5a`; GitHub Linux CI and Pages
+passed for that exact commit, and ten live HTML/deck responses matched local
+content. See the current-state audit for run links. Browser/mobile/print and
+owner acceptance remain unverified. Do not add the unrelated Claude files or
+private review/confirmation artifacts to a release.
 
 The next research extension should keep two tracks open. The current public
 `Claim-Evidence Review Schema v0` organizes the 15 Demo v2 spans for comparison,

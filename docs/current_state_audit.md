@@ -2,6 +2,42 @@
 
 Date: 2026-09-05
 
+## English Portfolio Published: 2026-09-05
+
+This entry supersedes the publication-pending status in the release-candidate
+record below. The reviewed candidate was committed in English as
+`24c7f5ac28097e8c1189bee0b2b14df3db9cc53c` and pushed once to `main`.
+The remote branch was independently checked against that exact commit.
+[Public CI](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992015667)
+and [Pages deployment](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992015366)
+both completed successfully for that revision. CI runs the 27 reviewed commands
+on Ubuntu with Python 3.11 and Node 24; it does not replay private traces or run a model.
+
+After deployment, the homepage, current and historical cases, methods, research
+brief, career package, business risk lens, narrative and both deck assets all
+returned HTTP 200. Each HTML response matched the local committed content after
+newline normalization; both PPTX files matched byte-for-byte SHA-256 hashes.
+The current deck remains
+`89cd8c99832e4abd8ce5156ebf3e82d6f73d58992a3f67523a5778e900dca1bb`.
+Initial checks during deployment saw stale HTML and a temporary new-deck 404;
+waiting for the same deployment resolved them without another content push.
+
+The release contains 386 public files, including 63 reviewed additions. Raw data,
+full generations, token traces, model weights and private review/confirmation
+packets remain excluded. Three unrelated untracked Claude files remain untouched;
+their presence is not a reason to add them or claim the entire workspace is clean.
+Original 205-span labels, historical split reports and the original deck were not
+overwritten. The q_0048 supplement remains a separate assistant-provisional
+sensitivity appendix, not nine independent human judgments or new test evidence.
+
+Stage 1's assistant-led source checks, English materials and controlled publication
+are now complete. Actual browser/mobile/print and desktop PowerPoint acceptance
+remain unverified. Owner review is deferred with zero completed submissions;
+neither deployment nor prepared speaker notes establishes owner mastery.
+Next, keep the public experiment scope stable. Use the existing cases and notes
+for a later explanation trial and external feedback; do not add a new detector,
+rerun Qwen or open confirmation outcomes to fill these remaining acceptance gaps.
+
 ## English Release Candidate and Isolated Clone: 2026-09-05
 
 This entry supersedes the pending B2 presentation synchronization below.
