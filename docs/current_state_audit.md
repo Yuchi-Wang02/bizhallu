@@ -2,6 +2,49 @@
 
 Date: 2026-09-05
 
+## Public Browser Acceptance and Mobile Fixes: 2026-09-05
+
+This entry supersedes the public-browser-pending status below, within the tested
+scope only. Actual browser work used the published HTTPS site in the Codex
+in-app browser, not a local-file workaround. The earlier blocked local review
+reports and private calibration packet were not opened. Viewport overrides were
+reset and the temporary browser tab was closed after testing.
+
+Two scoped fixes were published: `c019a1a` moves the unchanged Qwen answer before
+interpretive context and fixes narrow methods-page overflow; `51caaa1` keeps
+business-table columns readable in named, keyboard-focusable scroll regions.
+[CI](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992918952) and
+[Pages](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/33992917864) passed
+for `51caaa156fbbd0309623cf04ec36502d229d599f`. Browser refreshes were necessary
+to replace cached earlier pages; no content was repushed as a cache workaround.
+
+| Check | Observed evidence |
+| --- | --- |
+| Homepage and research brief | Desktop 1280 x 800 and narrow 320 x 740 viewport inspection; the concrete business case is visible and text stays within the page |
+| Demo reading order | At 390 x 844, the original answer starts about 290 CSS pixels earlier (1003 to 713); desktop columns remain separate; the source answer and three April relationship highlights are preserved |
+| Nine-case navigation | Final narrow-viewport pass checks all nine question IDs, one answer block per case and evidence row counts 8/8/4/2/2/8/8/1/1; no whole-page horizontal overflow |
+| Historical filters | Percentage produces the expected empty April selection; restoring filters recovers rows; Supported returns two rows; all three detector choices support outcome filtering without replacing the relationship walkthrough |
+| Methods overflow | Before the fix, 305 CSS pixels of available width produced a 409-pixel page; afterward the page is 305 pixels wide and each error panel is 277 pixels wide |
+| Appendix navigation | B2 target starts about 82 pixels below the viewport top; its heading is below the 62-pixel sticky header |
+| Table readability and keyboard access | Tables retain 720-pixel column space within the narrow container; ArrowRight moves each named region; the ranking region reaches its right boundary without scrolling the whole page horizontally |
+| Runtime errors | No warning/error entries were returned by the tab console-log check during the exercised workflows |
+
+The table-width fix followed a second visual finding: avoiding page overflow
+alone had still allowed product names and headers to collapse into individual
+letters. The bounded scrolling layout fixes that readability problem without
+shrinking text or removing source columns. The Node suite now has 25 passing
+tests, including new reading-order and focus-region guards. A Python CSS-contract
+regression also passes; those tests are not substitutes for the observations above.
+
+No public data bundle, label, score, statistical appendix or deck changed in this
+batch. Generic validators intentionally retain `visual_review_verified=false`:
+they do not themselves perform browser inspection. This dated acceptance record
+is separate evidence, not permission to make their validation scope broader.
+Physical phones, other browser engines, printing and native desktop PowerPoint
+remain unverified. The private workbench has logic tests but no completed user
+trial. Owner calibration, independent annotation and speaking mastery remain
+deferred/unverified, not inferred from these assistant actions.
+
 ## English Portfolio Published: 2026-09-05
 
 This entry supersedes the publication-pending status in the release-candidate

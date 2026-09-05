@@ -140,8 +140,13 @@ standard-library-only environment before the real release. The ignored
 `outputs/release_stage1/` receipts describe that Windows dry-run, not deployment.
 The candidate was subsequently published as `24c7f5a`; GitHub Linux CI and Pages
 passed for that exact commit, and ten live HTML/deck responses matched local
-content. See the current-state audit for run links. Browser/mobile/print and
-owner acceptance remain unverified. Do not add the unrelated Claude files or
+content. See the current-state audit for run links. The subsequent HTTPS-browser
+acceptance at `51caaa1` covers the named public workflows and specified desktop/
+narrow viewports. Preserve answer-first DOM order, bounded keyboard-focusable
+table regions, long-label wrapping and appendix scroll margins. Physical-device,
+cross-browser, print, native PowerPoint and private-workbench acceptance remain
+unverified; owner review remains deferred. Do not change content-only validators
+to claim they performed visual review. Do not add the unrelated Claude files or
 private review/confirmation artifacts to a release.
 
 The next research extension should keep two tracks open. The current public

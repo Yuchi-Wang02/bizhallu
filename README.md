@@ -92,7 +92,7 @@ annotation. Owner calibration and independent review remain pending.
 
 ## Reproducibility Levels
 
-The public candidate has also passed an isolated local Git clone dry-run without
+The `24c7f5a` candidate passed an isolated local Git clone dry-run without
 raw data, model traces or third-party Python packages: 25 validators, 109 tests
 plus two optional skipped scikit-learn checks, and 23 Node tests. All 111 Python
 tests pass in the original environment. This was Windows/Python 3.13, not a new
@@ -104,6 +104,13 @@ and [Pages deployment](https://github.com/Yuchi-Wang02/bizhallu/actions/runs/339
 Eight primary/supporting HTML pages and both deck assets returned HTTP 200 and
 matched the committed content. This verifies publication, not browser rendering,
 private-data reproduction, independent annotation or owner presentation mastery.
+
+**Public browser acceptance:** subsequent mobile fixes at `51caaa1` were checked
+on the published HTTPS site at desktop and narrow browser viewports. All nine
+case selections, empty-filter recovery, detector filters and keyboard-scrollable
+business tables were exercised. Long methods labels no longer widen the page.
+See the [scoped acceptance record](docs/current_state_audit.md) for observations;
+this is not physical-device, cross-browser, print or independent-human validation.
 
 **Business-definition amendment (September 4, 2026).** Stage A preserves the
 historical gold and detector metrics. Its [metric contract](configs/business_metric_contract_v1_1.json)
