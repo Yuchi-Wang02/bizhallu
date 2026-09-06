@@ -22,7 +22,7 @@ def build_story():
     rows = {r['signal']: r for r in stats['test_rows']}
     diff = stats['entropy_minus_all_positive']
     pitch = [
-        'BizHallu studies whether AI-generated business analysis is supported by transaction evidence. My accounting and supply-management background motivates a practical question: can an answer copy the right numbers and still reach the wrong business conclusion?',
+        'I am a current MS student at Johns Hopkins Carey Business School, pursuing the Master of Science in Business Analytics and Artificial Intelligence. My accounting and supply-management background motivates BizHallu: can AI copy the right numbers and still reach the wrong business conclusion?',
         f"One retail example makes that distinction concrete. Qwen lists {april['product_name']} third at {april['amount_lexical']} pounds. That product and amount match a source row, but the product is seventh among the eight rows shown to the model. The copying is correct; the ranking is wrong.",
         'I directed the project with AI-assisted implementation and review. The pipeline contains 100 deterministic questions, local Qwen3-0.6B answers, and 205 provisional fact spans aligned to saved token traces. It checks whether uncertainty signals identify the labeled errors.',
         f"The original entropy F1 was {rows['mean_token_entropy']['f1']:.3f}, versus {rows['all_positive']['f1']:.3f} for flagging every span. Adding one omitted dev answer changes entropy F1 to {sensitivity['entropy']['test_metrics_after']['f1']:.3f} on the same old test. That sensitivity and provisional labels rule out a stable superiority claim.",
@@ -42,8 +42,8 @@ def build_story():
     }
     slides = [
         {'title': 'BizHallu', 'seconds': 20, 'kind': 'title',
-         'lines': [POSITIONING, 'Yuchi Wang\nAccounting and supply management', 'Exploratory study of fact spans and business relationships'],
-         'script': 'BizHallu asks whether AI-generated business conclusions follow from the transaction evidence. I directed the project with AI-assisted implementation and review. My accounting and supply-management background motivates the distinction between a number that reconciles and a relationship that supports a decision. I will begin with a concrete ranking error, then discuss the evaluation and a proposed comparison.', 'sources': [sources['cases'], sources['data_source']]},
+         'lines': [POSITIONING, 'Yuchi Wang, MS student in Business Analytics and AI\nJohns Hopkins Carey Business School', 'Exploratory study of fact spans and business relationships'],
+         'script': 'I am a current MS student at Johns Hopkins Carey Business School, pursuing the Master of Science in Business Analytics and Artificial Intelligence. BizHallu asks whether AI-generated business conclusions follow from transaction evidence. I directed the project with AI-assisted implementation and review. My accounting and supply-management background motivates the distinction between a number that reconciles and a relationship that supports a decision.', 'sources': [sources['cases'], sources['data_source']]},
         {'title': 'April: a correct amount with an incorrect rank', 'seconds': 35, 'kind': 'case',
          'lines': [april['product_name'], f"Qwen: rank 3 | GBP {april['amount_lexical']}",
                    f"Source row {april['source_row']}: amount matches | rank {april['rank_in_shown_evidence']} of 8 shown rows"],
@@ -109,8 +109,8 @@ def build_story():
             'guardrails': guardrails, 'statistical_review': stats, 'april': april,
             'b2_sensitivity': sensitivity,
             'september': september, 'sources': sources, 'independent_human_annotation': False,
-            'linkedin_blurb': 'I am developing business analytics skills through BizHallu, an AI-assisted project on auditing generated retail analysis. The work connects metric definitions, transaction evidence and retrospective model evaluation. Its selected cases show that correctly copied product amounts can still support an incorrect ranking. The results remain exploratory and the labels provisional.',
-            'profile_blurb': 'Business and operations analytics | Accounting and supply management | Evidence checks for AI-generated analysis'}
+            'linkedin_blurb': 'I am a current MS student at Johns Hopkins Carey Business School, pursuing the Master of Science in Business Analytics and Artificial Intelligence. With a background in accounting and supply management, I am developing BizHallu, an AI-assisted project on auditing generated retail analysis. The work connects metric definitions, transaction evidence and retrospective model evaluation. Its selected cases show that correctly copied product amounts can still support an incorrect ranking. The results remain exploratory and the labels provisional.',
+            'profile_blurb': 'MS student, Business Analytics and AI, Johns Hopkins Carey Business School | Accounting and supply management | Evidence checks for AI-generated analysis'}
 
 
 def paragraphs(items):

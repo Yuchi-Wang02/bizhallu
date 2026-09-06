@@ -1,7 +1,7 @@
 {
   "status": "github_pages_bundle_ready",
   "index_path": "docs/index.html",
-  "index_sha256": "aa03012dfe55ee7f06e72cba1786350dfce8de42c77596d7578d58c1dc509cdf",
+  "index_sha256": "626b939466abc3226997810d2c6e3fcc37adf5b8eed9d43f53eb8b145da72ffb",
   "source_demo_summary_path": "reports/bizhallu_portfolio_demo_summary.json",
   "source_demo_v2_summary_path": "reports/bizhallu_portfolio_demo_v2_summary.json",
   "source_career_summary_path": "reports/bizhallu_career_package_summary.json",
@@ -107,18 +107,18 @@
       "archive_notice": false,
       "source": "reports/bizhallu_portfolio_narrative.html",
       "dest": "docs/portfolio_narrative.html",
-      "source_sha256": "73c643b53650d69b02a8b5299c7149786746bb5603ecf3305f86917b65574e47",
-      "dest_sha256": "be444329ed015f58ec6a6b92a84823b717c287c846bcf502ffab08b2143aaf66",
-      "dest_size_bytes": 14266
+      "source_sha256": "8fe7f221249a68829fbc272fa7b541a77f89f12e2a8c834e07dded4efc737ffd",
+      "dest_sha256": "7b35e073e012d514ef9c30fcdc5d7535288e3780a6c92f39ca3c935c3d475374",
+      "dest_size_bytes": 14346
     },
     {
       "role": "career_package",
       "archive_notice": false,
       "source": "reports/bizhallu_career_package.html",
       "dest": "docs/career_package.html",
-      "source_sha256": "889d40de559e395d9730fef4a8234e6c086637ee7d7201de8f103bcf01e21073",
-      "dest_sha256": "a9560de874ab953cac0388f5a5561f7c0826f983c5e5912e6d15830723b86226",
-      "dest_size_bytes": 25127
+      "source_sha256": "db7245f1b92a641d3c26b4cca5adbd22b3ed4c929f9c1a3792cdb82048061313",
+      "dest_sha256": "4293a886d918a58461bce8a5a6667c96688c7b7b701bee8f7d08dd48e7588767",
+      "dest_size_bytes": 25417
     },
     {
       "role": "business_risk_lens",
@@ -134,9 +134,9 @@
       "archive_notice": false,
       "source": "reports/bizhallu_research_one_pager.html",
       "dest": "docs/research_one_pager.html",
-      "source_sha256": "b3b9278fed07607992f5aaba0359a603300fa372ab4e381bc16e05d5f544bc46",
-      "dest_sha256": "511143eaf3cc46559fa5a64be79fb04e4c71cec6ccc4c8695127de5c20df3a9b",
-      "dest_size_bytes": 10030
+      "source_sha256": "62df8e17c636f62cda361e8b285507f746e2c1c0c3ab4f24d90c43ea0a9e92c7",
+      "dest_sha256": "4f849cde62e99723247ec1c5d182157eec4a17452cc953f50629749bd6c946c5",
+      "dest_size_bytes": 10131
     },
     {
       "role": "evidence_verifier_pilot",
@@ -252,9 +252,9 @@
       "role": "research_brief_pdf",
       "source": "reports/bizhallu_research_brief.pdf",
       "dest": "docs/assets/bizhallu_research_brief.pdf",
-      "source_sha256": "7f438501a42299c222e7b4f5ef243a62e5156ca62bcdfcdbec357401c0fe0597",
-      "dest_sha256": "7f438501a42299c222e7b4f5ef243a62e5156ca62bcdfcdbec357401c0fe0597",
-      "dest_size_bytes": 44483
+      "source_sha256": "7c93b20d5856eb826f375f46a224a2d7dac96148d1de713f6406223d041dd6cd",
+      "dest_sha256": "7c93b20d5856eb826f375f46a224a2d7dac96148d1de713f6406223d041dd6cd",
+      "dest_size_bytes": 44577
     },
     {
       "role": "site_icon_svg",
@@ -308,9 +308,9 @@
       "role": "current_interview_deck_pptx",
       "source": "reports/bizhallu_interview_v2.pptx",
       "dest": "docs/assets/bizhallu_interview_v2.pptx",
-      "source_sha256": "03a4df823c7ce4ae7a5a688a03e480de7796cb373ec269b866ca9ac35d4926c3",
-      "dest_sha256": "03a4df823c7ce4ae7a5a688a03e480de7796cb373ec269b866ca9ac35d4926c3",
-      "dest_size_bytes": 45361
+      "source_sha256": "f683060e06a0ce7d3b95d79a95926f575e11722b6acc95282236b85370f9e099",
+      "dest_sha256": "f683060e06a0ce7d3b95d79a95926f575e11722b6acc95282236b85370f9e099",
+      "dest_size_bytes": 45416
     },
     {
       "role": "current_interview_deck_preview_png",
@@ -324,9 +324,9 @@
       "role": "current_interview_deck_overview_png",
       "source": "reports/bizhallu_interview_v2_overview.png",
       "dest": "docs/assets/bizhallu_interview_v2_overview.png",
-      "source_sha256": "0428b1198bb0316548f9990e1a50a07d8ff03fe5b4daaa3b3a16c3338a7ec2b0",
-      "dest_sha256": "0428b1198bb0316548f9990e1a50a07d8ff03fe5b4daaa3b3a16c3338a7ec2b0",
-      "dest_size_bytes": 466507
+      "source_sha256": "83f156b5b9fac5c621fee064ff8c15961a8f78cd0647e025dcfc93ce4131c5e6",
+      "dest_sha256": "83f156b5b9fac5c621fee064ff8c15961a8f78cd0647e025dcfc93ce4131c5e6",
+      "dest_size_bytes": 469850
     },
     {
       "role": "presentation_deck_contact_sheet_png",

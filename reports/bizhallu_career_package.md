@@ -6,7 +6,7 @@ Auditing AI-generated business analysis against transaction evidence
 
 ## 90-Second Pitch
 
-BizHallu studies whether AI-generated business analysis is supported by transaction evidence. My accounting and supply-management background motivates a practical question: can an answer copy the right numbers and still reach the wrong business conclusion?
+I am a current MS student at Johns Hopkins Carey Business School, pursuing the Master of Science in Business Analytics and Artificial Intelligence. My accounting and supply-management background motivates BizHallu: can AI copy the right numbers and still reach the wrong business conclusion?
 
 One retail example makes that distinction concrete. Qwen lists WOODEN UNION JACK BUNTING third at 4,173.18 pounds. That product and amount match a source row, but the product is seventh among the eight rows shown to the model. The copying is correct; the ranking is wrong.
 
@@ -20,7 +20,7 @@ The next study will compare internal uncertainty with an independent evidence ch
 
 ### 1. BizHallu (20 seconds planned)
 
-BizHallu asks whether AI-generated business conclusions follow from the transaction evidence. I directed the project with AI-assisted implementation and review. My accounting and supply-management background motivates the distinction between a number that reconciles and a relationship that supports a decision. I will begin with a concrete ranking error, then discuss the evaluation and a proposed comparison.
+I am a current MS student at Johns Hopkins Carey Business School, pursuing the Master of Science in Business Analytics and Artificial Intelligence. BizHallu asks whether AI-generated business conclusions follow from transaction evidence. I directed the project with AI-assisted implementation and review. My accounting and supply-management background motivates the distinction between a number that reconciles and a relationship that supports a decision.
 
 ### 2. April: a correct amount with an incorrect rank (35 seconds planned)
 

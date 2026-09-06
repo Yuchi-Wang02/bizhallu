@@ -94,8 +94,11 @@ These are related work and future comparison context, not methods evaluated here
 
 ## Project authorship and AI assistance
 
-I am [Yuchi Wang](https://github.com/Yuchi-Wang02), with a background in accounting
-and supply management and an interest in evidence-grounded business analytics.
+I am [Yuchi Wang](https://github.com/Yuchi-Wang02), currently an MS student in
+[Business Analytics and Artificial Intelligence](https://carey.jhu.edu/programs/master-science/business-analytics-artificial-intelligence)
+at Johns Hopkins Carey Business School. My background is in accounting and supply
+management, and my research interests center on evidence-grounded business analytics.
+BizHallu is my independent exploratory project.
 I directed this project with AI-assisted implementation and review across the
 data workflow, experiment code, provisional annotation, analysis and presentation.
 The repository does not claim unaided implementation or independent human

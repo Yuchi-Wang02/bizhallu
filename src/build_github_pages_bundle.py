@@ -309,7 +309,8 @@ def render_index(
 <main id="main">
 <section><p class="eyebrow">BizHallu · Exploratory research in business analytics and AI reliability</p><h1>Can the right number support the wrong business claim?</h1>
 <p>AI-generated analysis can copy a real product and its exact transaction value, yet assign it the wrong rank. BizHallu studies these evidence-binding errors through retail transactions, inspectable model answers and span-level evaluation.</p>
-<p class="muted">Built by Yuchi Wang · Accounting and supply management · JHU Carey BAAI · AI-assisted implementation and review</p>
+<p class="muted">Yuchi Wang · MS student in Business Analytics and Artificial Intelligence · Johns Hopkins Carey Business School</p>
+<p class="muted">Independent exploratory project · Accounting and supply-management background · AI-assisted implementation and review</p>
 <div class="entry-links"><a href="./research_one_pager.html">Start with the research brief</a><a href="./portfolio_demo_v2.html?case=q_0064">Inspect one worked case</a></div>
 <div class="case-proof"><h2>A correct amount, an incorrect rank</h2>
 <p>April 2011: Qwen placed <strong>{escape(example['product_name'])}</strong> at rank {example['stated_rank']}, with GBP {escape(example['amount_lexical'])}. That amount matches its product row, but the product is <strong>rank {example['rank_in_shown_evidence']}</strong> in the eight evidence rows shown to the model.</p>
