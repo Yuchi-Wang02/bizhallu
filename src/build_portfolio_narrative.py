@@ -44,9 +44,10 @@ def main():
         statistical_source_sha256=s['statistical_review']['source_sha256'], independent_human_annotation=False,
         owner_mastery_verified=False, metric_selection_status='exploratory_test_maxima', num_failures=0, failures=[])
     guards = ''.join(f'<li>{html.escape(x)}</li>' for x in s['guardrails'])
-    body = f'''<p>A five-minute account of the business problem, inspectable evidence and limits of the retrospective study. The cases were selected for explanation, not as a fresh evaluation sample.</p>
+    body = f'''<p>A guided account of the business problem, inspectable evidence and limits of the retrospective study. The cases were selected for explanation, not as a fresh evaluation sample.</p>
+<p><a href="./assets/bizhallu_interview_v2.pptx">Download the editable presentation (PPTX)</a> or read the <a href="./research_one_pager.html">research brief</a> for the proposed annotation pilot.</p>
 <section><h2>90-second pitch</h2>{paragraphs(s['pitch_90_seconds'])}</section>
-<section><h2>Five-minute walkthrough</h2><p>Ten segments total 300 planned seconds. No recorded timing or owner-mastery assessment has been completed.</p>{timed_script_html(s)}</section>
+<section><h2>Five-minute walkthrough</h2><p>Ten segments with a suggested total of five minutes. Adjust the timing to the discussion.</p>{timed_script_html(s)}</section>
 {statistics_html(s['statistical_review'])}
 <section><h2>Presentation guardrails</h2><ul>{guards}</ul><p>The historical <code>assistant_full_review</code> field applies to 15 selected spans, not independent review of all 205 labels. These artifacts support discussion of business analytics and AI reliability, not a production claim.</p></section>
 <section><h2>Reader paths</h2><p><a href="./portfolio_demo_v2.html?case=q_0064">q_0064</a> and <a href="./portfolio_demo_v2.html?case=q_0069">q_0069</a> show source-row fidelity versus ranking. The <a href="./career_package.html">career package</a> contains resume wording and interview FAQ. The <a href="./research_one_pager.html">research brief</a> proposes a limited feedback request and preserves alternative comparison methods.</p></section>'''

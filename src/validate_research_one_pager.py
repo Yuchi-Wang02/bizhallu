@@ -17,12 +17,14 @@ SUMMARY_PATH = REPORTS_DIR / "bizhallu_research_one_pager_summary.json"
 VALIDATION_PATH = REPORTS_DIR / "bizhallu_research_one_pager_validation.json"
 
 REQUIRED_FRAGMENTS = [
-    "Professor / research advisor one-pager",
+    "Research brief",
     "BizHallu: Auditing Evidence Binding Errors in LLM-Generated Business Analysis",
     "Research problem",
     "Dataset and method",
     "Historical B1 results",
-    "Three questions for collaboration",
+    "Research question and immediate pilot",
+    "Longer-term study design",
+    "Related work and intended distinction",
     "Specific request:",
     "0.835",
     "0.779",
@@ -34,9 +36,9 @@ REQUIRED_FRAGMENTS = [
     "q_0048",
     "token-time uncertainty",
     "Semantic Entropy",
-    "TOHA",
-    "Spilled Energy",
-    "same-step energy gap is NLL",
+    "FActScore",
+    "TabFact",
+    "not execution-ready",
     "Confirmation remains sealed",
     "evidence-aware verifier",
 ]
@@ -102,7 +104,7 @@ def main() -> None:
         "verifier_pilot_contradicted_count": 7,
         "research_track_count": 3,
         "baseline_backlog_count": 4,
-        "next_stage_scope": "English evidence-grounded presentation and assistant review; independent human review deferred, not claimed; no model execution or confirmation evaluation",
+        "next_stage_scope": "Proposed relation-annotation calibration and independent verifier design; no completed human review, model execution or confirmation evaluation",
         "confirmation_precision_review_status": "outcome_blind_precision_review_blocked",
         "confirmation_strong_candidate_pass_count": 0,
         "confirmation_candidate_count": 4,
@@ -130,12 +132,13 @@ def main() -> None:
         "label_lock_basis": "assistant_full_review",
         "methodology_status": "methodology_hardening_v1_ready",
         "methodology_share_status": "share_with_caveats",
-        "presentation_revision": "english_evidence_review_2026_09_05",
+        "presentation_revision": "professor_review_2026_09_06",
         "statistical_review": statistical_context(),
         "b2_sensitivity": b2_context(),
         "independent_human_annotation": False,
         "share_status": "exploratory_project_for_method_feedback",
         "research_question_count": 3,
+        "immediate_pilot_status": "proposed_not_executed",
     }
     for key, value in expected.items():
         if summary.get(key) != value:
@@ -144,6 +147,19 @@ def main() -> None:
                 "summary_value_mismatch",
                 {"field": key, "expected": value, "actual": summary.get(key)},
             )
+
+    related_work = summary.get('related_work', [])
+    expected_sources = {
+        'FActScore': 'https://aclanthology.org/2023.emnlp-main.741/',
+        'TabFact': 'https://openreview.net/pdf?id=rkeJRhNYDH',
+        'Semantic Entropy': 'https://www.nature.com/articles/s41586-024-07421-0',
+    }
+    if {row.get('name'): row.get('url') for row in related_work} != expected_sources or any(
+            row.get('evaluated_in_bizhallu') is not False for row in related_work):
+        add_failure(failures, 'related_work_provenance', 'Three primary sources must remain unevaluated comparison context')
+    for url in expected_sources.values():
+        if url not in html_text:
+            add_failure(failures, 'related_work_link_missing', url)
 
     validation = {
         "research_one_pager_html_path": repo_path(HTML_PATH),

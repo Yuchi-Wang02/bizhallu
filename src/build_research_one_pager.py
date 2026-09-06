@@ -62,29 +62,14 @@ def main() -> None:
     best_f1 = interpretation["best_overall_by_test_f1"]
 
     research_questions = [
-        "How should amount fidelity and entity-rank-value correctness be annotated without repeated counting?",
+        "How should complete entity-rank-amount relationships be annotated and checked without counting one binding error several times?",
         "How should token-time uncertainty and completed-answer verification be compared under different information budgets?",
         "What sample and independent-review design supports uncertainty estimates under shared evidence contexts?",
     ]
 
-    method_steps = [
-        "Clean UCI Online Retail transactions into auditable business evidence tables.",
-        "Generate deterministic business questions and gold answers across seven retail analytics question types.",
-        "Run local Qwen3-0.6B generations and preserve token-level probability, entropy, margin, and energy-style traces.",
-        "Build AI-assisted provisional business-fact span labels and align pre-identified spans to generated tokens.",
-        "Select thresholds on dev spans, then compare candidate-signal metrics on the test spans as an exploratory analysis.",
-    ]
-
-    key_findings = [
-        f"The exploratory maximum test AUPRC is {metric(best_auprc['test_auprc'])} from {best_auprc['baseline']}.",
-        f"The exploratory maximum test F1 is {metric(best_f1['test_f1'])} from {best_f1['baseline']}; it is a different signal.",
-        "Top-3 product questions expose the most presentation-friendly failure mode: the model can use real values while assigning them to the wrong rank or product.",
-        "Internal uncertainty has signal, but confident wrong evidence binding remains hard; this motivates a comparison with explicit evidence-aware verification.",
-    ]
-
     jhu_extensions = [
         "Healthcare analytics: audit whether AI-generated utilization, cost, or quality summaries are grounded in source tables.",
-        "Operations analytics: verify product-performance, return-impact, and revenue-exposure claims before they influence prioritization decisions.",
+        "Operations analytics: verify product-ranking and transaction-value claims before they influence prioritization decisions.",
         "Responsible AI governance: turn evidence-grounding checks into an audit layer for business decision-support tools.",
         "Capstone direction: compare internal-state signals, literature-grounded baselines, and evidence-aware verifiers on business claims.",
     ]
@@ -92,7 +77,7 @@ def main() -> None:
     research_tracks = [
         "Internal uncertainty: entropy, top-2 margin, and energy-style probability-mass signals already used in this project.",
         "Literature-grounded baselines: Semantic Entropy, TOHA, and entity-level hallucination detection as future comparison candidates.",
-        "Evidence-aware verification: future independent claim-evidence decisions against structured source rows and deterministic gold answers; the current v0 is only a label-derived review schema.",
+        "Evidence-aware verification: future independent decisions from the question, answer, metric contract and evidence; gold answers and evaluation labels are excluded from prediction. The current v0 is only a label-derived review schema.",
     ]
 
     baseline_backlog = [
@@ -125,7 +110,7 @@ def main() -> None:
         "extension_count": len(jhu_extensions),
         "research_track_count": len(research_tracks),
         "baseline_backlog_count": len(baseline_backlog),
-        "next_stage_scope": "English evidence-grounded presentation and assistant review; independent human review deferred, not claimed; no model execution or confirmation evaluation",
+        "next_stage_scope": "Proposed relation-annotation calibration and independent verifier design; no completed human review, model execution or confirmation evaluation",
         "confirmation_precision_review_status": precision["status"],
         "confirmation_strong_candidate_pass_count": precision_pass_count,
         "confirmation_candidate_count": len(precision["candidate_summaries"]),
@@ -157,61 +142,100 @@ def main() -> None:
         "failures": [],
     }
 
-    from presentation_evidence import statistical_context, walkthrough, METRIC_NOTE, b2_context, b2_note_html
+    from presentation_evidence import statistical_context, walkthrough, b2_context, b2_note_html
     stats = statistical_context()
     by_signal = {row['signal']: row for row in stats['test_rows']}
     interval = stats['entropy_minus_all_positive']
     demo_data = load_json(REPORTS_DIR / 'bizhallu_demo_v2_data.json')
     example = walkthrough(next(c for c in demo_data['cases'] if c['question_id']=='q_0064'))['claims'][2]
-    summary['presentation_revision'] = 'english_evidence_review_2026_09_05'
+    summary['presentation_revision'] = 'professor_review_2026_09_06'
     summary['statistical_review'] = stats
     summary['b2_sensitivity'] = b2_context()
     summary['independent_human_annotation'] = False
     summary['share_status'] = 'exploratory_project_for_method_feedback'
+    summary['primary_research_question'] = research_questions[0]
+    summary['design_questions'] = research_questions[1:]
+    summary['immediate_pilot_status'] = 'proposed_not_executed'
+    summary['related_work'] = [
+        {
+            'name': 'FActScore',
+            'citation': 'Min et al., EMNLP 2023',
+            'url': 'https://aclanthology.org/2023.emnlp-main.741/',
+            'relevance': 'Atomic factual precision motivates explicit units; business relationships also require grouping related facts.',
+            'evaluated_in_bizhallu': False,
+        },
+        {
+            'name': 'TabFact',
+            'citation': 'Chen et al., ICLR 2020',
+            'url': 'https://openreview.net/pdf?id=rkeJRhNYDH',
+            'relevance': 'Table-based fact verification motivates structured evidence; this proposal targets transaction scope and generated rankings.',
+            'evaluated_in_bizhallu': False,
+        },
+        {
+            'name': 'Semantic Entropy',
+            'citation': 'Farquhar et al., Nature 2024',
+            'url': 'https://www.nature.com/articles/s41586-024-07421-0',
+            'relevance': 'Meaning-level uncertainty requires multiple generations; the current study evaluates token entropy.',
+            'evaluated_in_bizhallu': False,
+        },
+    ]
+    related_work_html = ''.join(
+        f"<li><a href=\"{esc(item['url'])}\"><strong>{esc(item['name'])}</strong></a> "
+        f"<span class=\"muted\">({esc(item['citation'])})</span>. {esc(item['relevance'])}</li>"
+        for item in summary['related_work']
+    )
     html_text = f"""<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(summary['title'])}</title>
 <style>
-*{{box-sizing:border-box;letter-spacing:0}}body{{margin:0;background:#f6f7f9;color:#202124;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}}main,nav{{max-width:940px;margin:auto;padding:22px 28px}}nav{{display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #d9dee1}}a{{color:#155e75}}h1{{font-size:27px;line-height:1.22;margin:8px 0 12px}}h2{{font-size:17px;margin:17px 0 7px}}p{{margin:7px 0}}section{{padding:5px 0 12px;border-bottom:1px solid #d9dee1}}.eyebrow,.muted{{color:#58616a}}.eyebrow{{font-size:12px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:24px}}.case{{border-left:3px solid #1a7560;padding-left:14px}}table{{width:100%;border-collapse:collapse;font-size:13px}}td,th{{border-bottom:1px solid #d9dee1;padding:7px;text-align:left}}li{{margin:5px 0}}h1,p,li,td,th{{overflow-wrap:anywhere}}footer{{margin-top:14px;font-size:12px;color:#58616a}}@media(max-width:650px){{.grid{{grid-template-columns:1fr;gap:0}}main,nav{{padding:16px}}}}@page{{size:A4;margin:12mm}}@media print{{body{{background:white;font-size:10pt;line-height:1.32}}nav{{display:none}}main{{max-width:none;padding:0}}h1{{font-size:20pt}}h2{{font-size:12pt}}section{{break-inside:avoid}}a{{color:inherit}}}}
+*{{box-sizing:border-box;letter-spacing:0}}body{{margin:0;background:#f6f7f9;color:#202124;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}}main,nav{{max-width:1040px;margin:auto;padding:22px 28px}}nav{{display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #d9dee1;font-size:14px}}a{{color:#155e75;text-underline-offset:3px}}a:focus-visible,summary:focus-visible{{outline:3px solid #155e75;outline-offset:4px}}[aria-current="page"]{{font-weight:700}}.skip{{position:absolute;left:12px;top:-100px;background:white;padding:10px;z-index:5}}.skip:focus{{top:10px}}h1{{font-size:29px;line-height:1.2;margin:7px 0 12px;max-width:900px}}h2{{font-size:17px;margin:15px 0 7px}}p{{margin:7px 0}}section{{padding:4px 0 12px;border-bottom:1px solid #d9dee1}}.eyebrow,.muted{{color:#58616a}}.eyebrow{{font-size:12px;text-transform:uppercase;letter-spacing:.05em}}.grid{{display:grid;grid-template-columns:1.08fr 1fr;gap:28px}}.grid>div{{min-width:0}}.case{{border-left:3px solid #1a7560;padding:2px 14px;margin:14px 0 4px}}.question{{font-weight:650}}table{{width:100%;border-collapse:collapse;font-size:13px}}td,th{{border-bottom:1px solid #d9dee1;padding:7px;text-align:left}}caption{{text-align:left;color:#58616a;font-size:12px;margin:8px 0}}ul{{padding-left:18px}}li{{margin:7px 0}}.related{{font-size:13px;line-height:1.45}}h1,h2,p,li,td,th,a{{overflow-wrap:anywhere}}footer{{margin-top:14px;font-size:12px;color:#58616a}}.print-url{{display:none}}@media(max-width:700px){{.grid{{grid-template-columns:1fr;gap:0}}main,nav{{padding:16px}}h1{{font-size:25px}}}}@page{{size:A4;margin:11mm}}@media print{{body{{background:white;font-size:9pt;line-height:1.27}}nav,.skip{{display:none}}main{{max-width:none;padding:0}}h1{{font-size:18pt;margin:4px 0 7px}}h2{{font-size:11pt;margin:9px 0 5px}}p{{margin:5px 0}}.eyebrow{{font-size:8pt}}.grid{{gap:18px;grid-template-columns:1.08fr 1fr}}section{{padding:2px 0 7px;break-inside:avoid}}.case{{margin:9px 0 2px;padding-left:10px}}table{{font-size:8.5pt}}td,th{{padding:4px}}caption{{font-size:8pt}}.related{{font-size:8.5pt;line-height:1.25}}li{{margin:5px 0}}footer{{font-size:8pt;margin-top:9px}}a{{color:inherit}}.print-url{{display:inline}}}}
 </style></head>
 <body>
-<nav aria-label="Project"><a href="./portfolio_demo_v2.html">Cases</a><a href="./detector_interpretation.html">Methods</a><a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a></nav>
-<main>
-<p class="eyebrow">Professor / research advisor one-pager · Exploratory project</p>
+<a class="skip" href="#main">Skip to content</a>
+<nav aria-label="Primary"><a href="./index.html">Home</a><a href="./portfolio_demo_v2.html">Cases</a><a href="./detector_interpretation.html">Methods</a><a href="./research_one_pager.html" aria-current="page">Research</a><a href="./assets/bizhallu_research_brief.pdf" download>Download PDF</a><a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a></nav>
+<main id="main">
+<p class="eyebrow">Research brief · Exploratory project</p>
 <h1>{esc(summary['title'])}</h1>
-<p>Yuchi Wang · Accounting and supply-management background · JHU Carey BAAI</p>
+<p><a href="https://github.com/Yuchi-Wang02">Yuchi Wang</a> · Accounting and supply-management background</p>
 <section><h2>Research problem</h2>
-<p>Can we distinguish correctly copied data from a correct business relationship? BizHallu studies evidence binding in LLM-generated retail analysis. Its contribution at this stage is an auditable experimental workflow and inspectable failure cases, not a validated production detector.</p>
+<p>Can we distinguish correctly copied data from a correct business relationship? BizHallu audits generated retail claims against transaction evidence. The current contribution is an inspectable workflow and a retrospective evaluation audit; an independent relation verifier remains proposed.</p>
 <div class="case"><strong>A concrete example: April 2011</strong>
-<p>Qwen assigns {esc(example['product_name'])} to rank {example['stated_rank']} at GBP {esc(example['amount_lexical'])}. The product and amount match source row {example['source_row']}, but the product ranks {example['rank_in_shown_evidence']} in the eight shown rows. Rank 3 belongs to {esc(example['expected_product_at_stated_rank'])} at GBP {esc(example['expected_amount_at_stated_rank'])}. <a href="./portfolio_demo_v2.html?case=q_0064">Inspect q_0064</a>.</p></div>
+<p>Qwen assigns {esc(example['product_name'])} to rank {example['stated_rank']} at GBP {esc(example['amount_lexical'])}. The product and amount match source row {example['source_row']}, but the product ranks {example['rank_in_shown_evidence']} in the eight shown rows. Rank 3 belongs to {esc(example['expected_product_at_stated_rank'])} at GBP {esc(example['expected_amount_at_stated_rank'])}. <a href="./portfolio_demo_v2.html?case=q_0064">Inspect q_0064</a>.</p><p class="muted">Curated evidence check; not an independent verifier prediction or a population error rate.</p></div>
 </section>
-<div class="grid">
+<div class="grid"><div>
 <section><h2>Dataset and method</h2>
-<p>UCI Online Retail; 100 deterministic questions across seven task types; local Qwen3-0.6B answers; 205 AI-assisted provisional spans across 35 dev/test answers. Fifteen selected spans received additional assistant review. No independent human agreement has been measured.</p>
-<p>Transaction evidence → questions → answers → pre-identified spans → token alignment → detector scores. Thresholds were fitted on dev; candidate signals were compared on test. The quoted maxima therefore remain exploratory, not confirmatory.</p>
-<p>Negative transaction value is not verified physical returns. Product analysis uses a merchandise-code heuristic; metric scope and historical field meanings are documented separately.</p>
+<p>UCI Online Retail; 100 questions across seven types; local Qwen3-0.6B answers; 205 AI-assisted provisional spans from 35 of 36 dev/test answers. Fifteen selected spans received additional assistant review. Independent human annotation and agreement remain pending.</p>
+<p>Transaction evidence → questions → answers → pre-identified spans → token alignment → detector scores. Automatic extraction from new responses and whole-answer accuracy are outside the current evaluation.</p>
+<p><strong>Evidence status.</strong> Labels come from an outcome-informed, error-enriched queue. Dev/test share periods and exact evidence-row payloads. Thresholds were fitted on dev, but headline signals were selected after test comparison: exploratory, not confirmatory.</p>
 </section>
+<section><h2>Research question and immediate pilot</h2>
+<p class="question">{esc(research_questions[0])}</p>
+<p><strong>Specific request:</strong> feedback on one relation schema and one worked case, to define a small calibration exercise with a second reviewer. No independent review is yet complete.</p>
+<p>A proposed evidence-aware verifier would use the question, answer, metric contract and evidence, excluding gold answers and evaluation labels from prediction. Report extraction coverage, abstention and errors separately. The current review schema is label-derived, not that verifier.</p>
+<p>The design must account for shared contexts and different information available to token-time uncertainty and completed-answer checks. Early list-marker scores do not establish confidence in the later relationship.</p>
+</section>
+<section><h2>Longer-term study design</h2>
+<p>The 48-context / 96-question plan is estimation-focused, design-only and not execution-ready. Three of seven execution gates are complete. Confirmation remains sealed. <a href="./confirmation_set_v1_design.html">Protocol and remaining gates</a>.</p>
+</section>
+</div><div>
 <section><h2>Historical B1 results</h2>
-<table><thead><tr><th>Reference / signal</th><th>Test AP</th><th>Test F1</th></tr></thead><tbody>
+<table><caption>103 pre-identified test spans from 18 questions; provisional labels.</caption><thead><tr><th scope="col">Reference / signal</th><th scope="col">Test AP</th><th scope="col">Test F1</th></tr></thead><tbody>
 <tr><td>Top-2 margin</td><td>{by_signal['one_minus_min_top2_margin']['average_precision']:.3f}</td><td>{by_signal['one_minus_min_top2_margin']['f1']:.3f}</td></tr>
 <tr><td>Token entropy</td><td>{by_signal['mean_token_entropy']['average_precision']:.3f}</td><td>{by_signal['mean_token_entropy']['f1']:.3f}</td></tr>
 <tr><td>Flag every span</td><td>{by_signal['all_positive']['average_precision']:.3f}</td><td>{by_signal['all_positive']['f1']:.3f}</td></tr>
 </tbody></table>
-<p>103 test spans from all 18 test questions. Entropy's F1 difference from flag-every-span is {interval['point_difference']:+.4f}; the exploratory paired question-bootstrap interval [{interval['lower_95']:.4f}, {interval['upper_95']:.4f}] crosses zero. No stable superiority claim follows.</p>
-<p>AP uses tied-score-aware average precision. A dev fact-type prior has F1 {by_signal['dev_fact_type_prior']['f1']:.3f}, but annotation-derived types can contain correctness hints: this is a composition control, not a fair automatic detector competitor.</p>
+<p>Entropy minus flag-every-span F1: {interval['point_difference']:+.4f}; exploratory paired question-bootstrap 95% interval [{interval['lower_95']:.4f}, {interval['upper_95']:.4f}] crosses zero. Shared periods and test-based selection limit inference.</p>
+<p>AP is tied-score-aware. AP/F1 maxima come from different signals. The dev fact-type prior (F1 {by_signal['dev_fact_type_prior']['f1']:.3f}) is a composition control: supplied categories can reveal correctness.</p>
 {b2_note_html()}
-</section></div>
-<section><h2>Three questions for collaboration</h2>
-<ol><li>How should amount fidelity and full entity-rank-value correctness be annotated without counting one binding error several times?</li><li>How should token-time uncertainty and completed-answer verification be compared when their available information differs?</li><li>What sample and independent review design would support useful uncertainty estimates under shared evidence contexts?</li></ol>
-<p><strong>Specific request:</strong> feedback on the relation annotation unit and comparison design, plus a small calibration exercise with a second reviewer. Professor or career-facing discussion need not wait for a publication-scale benchmark.</p>
+<p><a href="./detector_interpretation.html">Full methods, controls and source replay</a></p>
 </section>
-<section><h2>Limits and next comparisons</h2>
-<p>The historical labels are provisional and the queue was outcome-informed. Dev/test share periods and evidence. q_0048 was absent from original dev labels and is now included only in separate B2 sensitivity. Low uncertainty on an early list marker cannot establish confidence about the following full relationship.</p>
-<p>A future evidence-aware verifier must predict without gold or evaluation labels. Semantic Entropy remains a multi-generation consistency candidate; TOHA and entity probes need compatibility review. Adjacent-step Spilled Energy requires a formula/index audit: same-step energy gap is NLL, not an independent method.</p>
-<p>A 48-context / 96-question, estimation-focused next study is prepared but not executed. Confirmation remains sealed. <a href="./confirmation_set_v1_design.html">Study design</a> · <a href="./detector_interpretation.html#statistical-review">Statistical review</a>.</p>
+<section id="related-work"><h2>Related work and intended distinction</h2>
+<ul class="related">{related_work_html}</ul>
+<p class="muted">Related work only; none is an evaluated BizHallu baseline.</p>
 </section>
-<footer>English presentation revision: September 5, 2026. Assistant-reviewed presentation, not new annotations or model results. Prepared for method feedback and academic discussion.</footer>
+</div></div>
+<footer><p><strong>Contribution and provenance.</strong> Yuchi Wang directed the project with AI-assisted implementation and review across the workflow, provisional annotation, analysis and presentation. Independent human validation remains pending.</p><p><strong>Business scope.</strong> Negative transaction value is not verified physical returns; merchandise uses a code-based heuristic. No production readiness, realized savings or inventory optimization is established.</p><p>Research brief revised September 6, 2026 · <a href="https://github.com/Yuchi-Wang02">Author profile</a> · <a href="https://github.com/Yuchi-Wang02/bizhallu/blob/main/docs/reproducibility.md">Reproducibility guide</a><span class="print-url"> · yuchi-wang02.github.io/bizhallu</span></p></footer>
 </main></body></html>
 """
 

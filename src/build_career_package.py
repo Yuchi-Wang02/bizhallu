@@ -90,16 +90,17 @@ def main():
     bullets = ''.join(f'<li>{html.escape(x)}</li>' for x in s['resume_bullets'])
     faq = ''.join(f'<section><h3>{html.escape(x["question"])}</h3><p>{html.escape(x["answer"])}</p></section>' for x in s['faq'])
     guards = ''.join(f'<li>{html.escape(x)}</li>' for x in s['guardrails'])
-    body = f'''<p>Career package for business, data and operations analyst conversations. Accounting and supply management provide the business context; AI reliability is a differentiator, not readiness for every data-science role.</p>
+    body = f'''<p>Career package for business, data and operations analyst conversations. The project connects accounting and supply management with evidence checks for AI-generated analysis.</p>
+<p>For an academic discussion, start with the <a href="./research_one_pager.html">research brief</a>. The <a href="./assets/bizhallu_interview_v2.pptx">editable presentation (PPTX)</a> follows the same evidence and discussion questions as the script below.</p>
 <p><a href="#pitch">Short pitch</a> | <a href="#practice">Evidence exercises</a> | <a href="#walkthrough">Presentation script</a> | <a href="#faq">Interview FAQ</a></p>
 <section id="brief"><h2>Project Brief</h2><p>BizHallu connects transaction evidence, deterministic questions, local Qwen3-0.6B answers and retrospective evaluation of pre-identified fact spans. Its potential business use is reviewing AI-generated analysis before a reporting decision. It has not demonstrated deployed savings or operational impact.</p><p>Project direction used AI-assisted implementation and review. The 205 labels are provisional; 15 selected presentation spans received additional assistant review. There is no independent human annotation. The historical exploratory maximum AP and F1 remain 0.835 and 0.779 from different signals, not production estimates.</p></section>
-<section id="pitch"><h2>90-second version</h2>{paragraphs(s['pitch_90_seconds'])}<p class="muted">{s['pitch_word_count']} words. A rehearsal draft; timing and owner mastery have not been measured.</p></section>
+<section id="pitch"><h2>90-second version</h2>{paragraphs(s['pitch_90_seconds'])}<p class="muted">{s['pitch_word_count']} words. Suggested speaking time, to be adjusted during rehearsal.</p></section>
 <section id="walkthrough"><h2>5-minute version</h2><p>Ten segments total a 300-second planning budget, not a recorded presentation time. <a href="./portfolio_demo_v2.html?case=q_0064">April case</a> · <a href="./portfolio_demo_v2.html?case=q_0069">September case</a>.</p>{timed_script_html(s)}</section>
 {rehearsal_html(rehearsal)}
 {statistics_html(s['statistical_review'])}
-<section id="resume"><h2>Resume bullets</h2><p>Candidate wording for discussion and practice. Use only claims you can explain with a source or a fresh calculation; the draft does not certify independent mastery.</p><ul>{bullets}</ul><h3>LinkedIn / GitHub profile</h3><p>{html.escape(s['linkedin_blurb'])}</p><p>{html.escape(s['profile_blurb'])}</p></section>
+<section id="resume"><h2>Resume bullets</h2><p>Adapt these examples to your actual contribution. Retain the AI-assistance disclosure and exploratory study scope.</p><ul>{bullets}</ul><h3>LinkedIn / GitHub profile</h3><p>{html.escape(s['linkedin_blurb'])}</p><p>{html.escape(s['profile_blurb'])}</p></section>
 <section id="faq"><h2>Interview FAQ</h2>{faq}</section>
-<section id="guardrails"><h2>Public Claim Guardrails</h2><ul>{guards}</ul><p>Personal review is deferred, not completed. New comparisons require an independent predictor and a frozen evaluation protocol; confirmation remains sealed.</p></section>'''
+<section id="guardrails"><h2>Public Claim Guardrails</h2><ul>{guards}</ul><p>Independent human annotation and agreement assessment are pending. New comparisons require an independent predictor and a frozen evaluation protocol; confirmation remains sealed.</p></section>'''
     summary = {k:n[k] for k in ['question_count','question_type_count','annotated_span_count','best_test_auprc',
         'best_test_auprc_baseline','best_test_f1','best_test_f1_baseline','primary_question_ids','label_lock_basis']}
     summary.update(status='career_package_ready', career_html_path='reports/bizhallu_career_package.html',

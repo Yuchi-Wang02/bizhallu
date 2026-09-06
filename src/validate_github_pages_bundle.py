@@ -8,7 +8,7 @@ import re
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 from public_paths import contains_local_path, repo_path
 from presentation_evidence import statistics_html
@@ -90,11 +90,14 @@ class LinkParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.links: list[str] = []
+        self.ids: set[str] = set()
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         for name, value in attrs:
             if name.lower() == "href" and value:
                 self.links.append(value)
+            if value and (name.lower() == "id" or (tag.lower() == "a" and name.lower() == "name")):
+                self.ids.add(value)
 
 
 class HTMLCheckParser(HTMLParser):
@@ -140,12 +143,13 @@ def is_external_link(href: str) -> bool:
 
 def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
     for href in local_links(path):
-        if not href or href.startswith("#") or is_external_link(href):
+        if not href or is_external_link(href) or urlsplit(href).netloc:
             continue
-        target_text = urlsplit(href).path
-        if not target_text:
-            continue
-        target = (path.parent / target_text).resolve()
+        parts = urlsplit(href)
+        target_text = unquote(parts.path)
+        target = (path.parent / target_text).resolve() if target_text else path.resolve()
+        if target.is_dir():
+            target = target / "index.html"
         try:
             target.relative_to(ROOT.resolve())
         except ValueError:
@@ -168,10 +172,28 @@ def validate_local_links(path: Path, failures: list[dict[str, Any]]) -> None:
                     "reason": "linked file is missing",
                 }
             )
+        elif parts.fragment and target.suffix.lower() == ".html":
+            parser = LinkParser()
+            parser.feed(target.read_text(encoding="utf-8"))
+            if unquote(parts.fragment) not in parser.ids:
+                failures.append({"name": "local_link_anchor", "path": repo_path(path),
+                                 "href": href, "reason": "linked HTML section is missing"})
+
+
+def validate_readme_reader_links(text: str, failures: list[dict[str, Any]]) -> None:
+    """HTML reading links must reach rendered Pages instead of GitHub source views."""
+    for label, href in re.findall(r"\[([^\]]+)\]\(([^\s)]+)\)", text):
+        parts = urlsplit(href)
+        if parts.path.lower().endswith(".html") and (not parts.scheme or
+                (parts.netloc == "github.com" and "/blob/" in parts.path)):
+            if "source" not in label.lower():
+                failures.append({"name": "readme_html_reader_link", "href": href,
+                                 "reason": "use rendered Pages or label this explicitly as source"})
 
 
 def main() -> None:
     failures: list[dict[str, Any]] = []
+    validate_readme_reader_links((ROOT / "README.md").read_text(encoding="utf-8"), failures)
     manifest = load_json(MANIFEST_PATH) if MANIFEST_PATH.exists() else {}
 
     if manifest.get("status") != "github_pages_bundle_ready":

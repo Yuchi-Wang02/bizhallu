@@ -5,7 +5,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from build_github_pages_bundle import PAGE_COPIES, ARCHIVE_NOTICES, archive_notice, add_archive_notice, rewrite_links
+from build_github_pages_bundle import PAGE_COPIES, ARCHIVE_NOTICES, archive_notice, add_archive_notice, rewrite_links, add_public_metadata
 from presentation_evidence import b2_note_html
 
 
@@ -28,7 +28,8 @@ class ReleaseSignpostingTests(unittest.TestCase):
                 copied=dest.read_text(encoding='utf-8')
                 notice=archive_notice(role)
                 self.assertEqual(copied.count(notice),1)
-                self.assertEqual(copied.replace(notice,''),rewrite_links(original))
+                self.assertEqual(copied.replace(notice,''),add_public_metadata(rewrite_links(original),dest))
+                self.assertEqual(copied.split('</head>',1)[1].replace(notice,''),rewrite_links(original).split('</head>',1)[1])
                 self.assertNotIn('id="archive-notice"',original)
 
     def test_archive_insertion_handles_body_attributes_and_rejects_duplicates(self):

@@ -1,59 +1,42 @@
-# Docs
+# Documentation and public pages
 
-This directory has two roles:
+Start at the [project homepage](https://yuchi-wang02.github.io/bizhallu/).
+The current reader-facing route is **Cases → Methods → Research**.
 
-- project design notes and audit documents
-- GitHub Pages-ready public pages
+| Read or present | Link |
+| --- | --- |
+| Inspect original answers and transaction evidence | [Interactive cases](https://yuchi-wang02.github.io/bizhallu/portfolio_demo_v2.html) |
+| Understand the exploratory evaluation | [Methods and results](https://yuchi-wang02.github.io/bizhallu/detector_interpretation.html) |
+| Discuss a small annotation pilot | [Research brief](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html) |
+| Present the evidence and its limits | [English interview deck v2](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_interview_v2.pptx) |
+| Connect evidence checks to business decisions | [Business risk lens](https://yuchi-wang02.github.io/bizhallu/business_risk_lens.html) |
+| Prepare a spoken explanation | [Career package](https://yuchi-wang02.github.io/bizhallu/career_package.html) |
 
-Recommended GitHub Pages entry point:
+## Reproduction and design
 
-- `index.html`
+- [Reproducibility guide](reproducibility.md): public checks, local replay,
+  dependencies and what stays excluded from Git.
+- [Current-state audit](current_state_audit.md): detailed records, publication
+  receipts and scoped acceptance checks.
+- [Data definitions and cleaning](data_source_and_cleaning.md) and
+  [experiment design](experiment_design.md): historical experiment provenance.
+- [Evidence-aware verifier design](evidence_aware_verifier_design.md): comparison
+  proposal; the current label-derived schema is not an independent detector.
+- [Confirmation study design](https://yuchi-wang02.github.io/bizhallu/confirmation_set_v1_design.html):
+  a prospective, estimation-focused plan, not an executed experiment.
 
-Public pages:
+Earlier case readouts, the original presentation deck, annotation reports and
+confirmation preparation records remain linked from the homepage's historical
+materials section. Their original labels and metrics are preserved. Current
+Cases, Methods and Research pages explain the interpretation to use now.
 
-- `portfolio_demo_v2.html`
-- `portfolio_demo.html`
-- `career_package.html`
-- `business_risk_lens.html`
-- `research_one_pager.html`
-- `evidence_verifier_pilot.html`
-- `portfolio_narrative.html`
-- `detector_interpretation.html`
-- `label_lock_report.html`
-- `label_confirmation_packet.html`
+## Maintaining the pages
 
-Public assets:
+`docs/` is the GitHub Pages source of truth. Generated pages are copied from
+report artifacts; edit their builders in `src/`, then rebuild and validate the
+bundle. Do not hand-edit a generated page or overwrite historical evaluation
+artifacts to change presentation wording.
 
-- `assets/bizhallu_ai_reliability_deck.pptx`
-- `assets/bizhallu_ai_reliability_deck_contact_sheet.png`
-- `assets/full100_draft_detector_error_review_examples.csv`
-- `assets/bizhallu_demo_v2_data.json`
-- `assets/bizhallu_evidence_verifier_pilot_rows.csv`
-- `assets/bizhallu_evidence_verifier_pilot_rows.json`
-
-Upload support:
-
-- `github_upload_checklist.md`
-- `github_upload_dry_run.md`
-
-Research planning:
-
-- `evidence_aware_verifier_design.md`
-- `evidence_verifier_pilot.html`
-
-Refresh command:
-
-```powershell
-python src\build_evidence_verifier_pilot.py
-python src\build_research_one_pager.py
-python src\build_github_pages_bundle.py
-python src\sanitize_public_json_paths.py
-python src\validate_public_path_hygiene.py
-python src\validate_github_pages_bundle.py
-python src\validate_research_one_pager.py
-python src\validate_evidence_verifier_pilot.py
-python src\build_full100_preflight_report.py
-```
-
-The public pages are generated from validated report artifacts. Edit the source
-builders in `src/` rather than hand-editing generated HTML pages.
+The [reproducibility guide](reproducibility.md) separates rendering public pages
+from data preparation, model execution and frozen study design. The
+[upload checklist](github_upload_checklist.md) records public-file boundaries.

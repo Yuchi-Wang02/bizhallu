@@ -18,7 +18,7 @@ await fs.mkdir(work,{recursive:true});
 await fs.mkdir(path.join(work,'final'),{recursive:true});
 const summary = JSON.parse(await fs.readFile(path.join(root,'reports/bizhallu_career_package_summary.json'),'utf8'));
 const story = summary.story;
-if(story.revision !== 'english_interview_B1_B2_review_2026_09_05' || story.slides.length!==10 || story.five_minute_seconds!==300) throw new Error('Unexpected story revision');
+if(story.revision !== 'english_research_B1_B2_2026_09_06' || story.slides.length!==10 || story.five_minute_seconds!==300) throw new Error('Unexpected story revision');
 const data = JSON.parse(await fs.readFile(path.join(root,'reports/bizhallu_demo_v2_data.json'),'utf8'));
 const presentation = Presentation.create({slideSize:{width:1280,height:720}});
 const ink='#202124', muted='#52616B', teal='#18765E', red='#A13238';
@@ -48,20 +48,30 @@ for(const [index,item] of story.slides.entries()){
   if(item.kind==='title'){
     text(slide,'BizHallu',64,165,1130,110,72,ink,true);
     text(slide,item.lines[0],66,293,1080,100,38,teal);
-    text(slide,item.lines[1],66,445,1100,60,24,muted);
-    text(slide,item.lines[2],66,528,1050,42,23,muted);
+    text(slide,item.lines[1],66,440,1100,74,24,muted);
+    text(slide,item.lines[2],66,562,1050,42,23,muted);
   }else{
     text(slide,item.title,64,44,1152,98,44,ink,true);
     if(item.kind==='case'){
-      text(slide,'Qwen: rank 3 | WOODEN UNION JACK BUNTING | GBP 4,173.18',64,150,1152,64,26,red,true);
+      text(slide,`Qwen assigns rank 3 to ${story.april.product_name} at GBP ${story.april.amount_lexical}`,64,150,1152,54,25,red,true);
       const rows=data.cases.find(c=>c.question_id==='q_0064').prompt_evidence_rows;
       const ordered=[...rows].sort((a,b)=>b.net_revenue-a.net_revenue);
       const values=[['Rank','Product','GBP net value'],...ordered.map((r,i)=>[String(i+1),r.description,Number(r.net_revenue).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})])];
-      table(slide,values,206,[85,785,282],44);
-      text(slide,'Display sorted by net value; original prompt order is preserved in the demo.\nProduct-amount match; actual rank 7, not 3 (eight shown rows).',64,612,1152,65,22,muted);
+      const evidenceTable=table(slide,values,206,[85,785,282],44);
+      for(const [rank,fill,color] of [[3,'#EAF5F1',teal],[story.april.rank_in_shown_evidence,'#FCEDEF',red]]){
+        for(let c=0;c<3;c++){
+          const cell=evidenceTable.getCell(rank,c);
+          cell.fill=fill;
+          cell.text.style={typeface:family,fontSize:23,color,bold:true,autoFit:'none'};
+        }
+      }
+      text(slide,'Eight evidence rows, sorted here for comparison. The demo preserves original prompt order.\nThe copied amount matches its product. Six products have larger values.',64,612,1152,65,22,muted);
     }else if(item.kind==='relations'){
       text(slide,item.lines[0],64,158,1152,54,29,teal,true);
-      table(slide,[['Product','GBP','Stated rank','Evidence rank'],...story.september.map(c=>[c.product_name,c.amount_lexical,String(c.stated_rank),String(c.rank_in_shown_evidence)])],242,[572,220,180,180],76);
+      const relationTable=table(slide,[['Product','GBP','Stated rank','Evidence rank'],...story.september.map(c=>[c.product_name,c.amount_lexical,String(c.stated_rank),String(c.rank_in_shown_evidence)])],242,[572,220,180,180],76);
+      for(let r=1;r<4;r++){
+        relationTable.getCell(r,3).text.style={typeface:family,fontSize:26,color:red,bold:true,autoFit:'none'};
+      }
       text(slide,item.lines[2],64,589,1152,65,23,muted);
     }else if(item.kind==='metrics'){
       const signals=['mean_token_entropy','all_positive','one_minus_min_top2_margin'];
@@ -88,8 +98,8 @@ for(const [index,item] of story.slides.entries()){
       item.lines.forEach((line,i)=>text(slide,line,64,172+i*gap,1136,gap-18,29,i===0?teal:ink,i===0));
     }
   }
-  text(slide,`${String(index+1).padStart(2,'0')} / 10  |  BizHallu  |  Exploratory study`,64,685,1140,24,16,muted);
-  slide.speakerNotes.textFrame.setText(item.script+'\n\nSources:\n'+item.sources.map(s=>'https://github.com/Yuchi-Wang02/bizhallu/blob/main/'+s).join('\n')+'\nStatistical source SHA-256: '+story.statistical_review.source_sha256+'\nB2 sensitivity source SHA-256: '+story.b2_sensitivity.source_sha256+'\nSpeaking time: '+item.seconds+' seconds planned, not measured.'+(item.kind==='metrics'?'\nChart workbook stores six-decimal presentation values; source analysis retains full saved-trace precision. Labels show three decimals.':''));
+  text(slide,`BizHallu   ${String(index+1).padStart(2,'0')} / 10`,64,687,1140,22,16,muted);
+  slide.speakerNotes.textFrame.setText(item.script+'\n\nSources:\n'+item.sources.map(s=>s.startsWith('https://')?s:'https://github.com/Yuchi-Wang02/bizhallu/blob/main/'+s).join('\n')+'\nStatistical source SHA-256: '+story.statistical_review.source_sha256+'\nB2 sensitivity source SHA-256: '+story.b2_sensitivity.source_sha256+(item.kind==='metrics'?'\nChart workbook stores six-decimal presentation values; source analysis retains full saved-trace precision. Labels show three decimals.':''));
 }
 const candidate=path.join(work,'candidate.pptx');
 await (await PresentationFile.exportPptx(presentation)).save(candidate);
@@ -115,5 +125,15 @@ for(let i=0;i<10;i++){
   const png=await finalPresentation.export({slide:finalPresentation.slides.items[i],format:'png',scale:1});
   await fs.writeFile(path.join(work,`final-slide-${i+1}.png`),new Uint8Array(await png.arrayBuffer()));
 }
+// Compose rendered evidence only; all underlying slide objects remain editable.
+const {default:sharp}=await import(pathToFileURL(path.join(runtime,'node/node_modules/sharp/dist/index.mjs')));
+const thumbnails=[];
+for(let i=0;i<10;i++){
+  thumbnails.push({input:await sharp(path.join(work,`final-slide-${i+1}.png`)).resize(640,360).png().toBuffer(),
+    left:16+(i%2)*656,top:16+Math.floor(i/2)*376});
+}
+await sharp({create:{width:1328,height:1896,channels:3,background:'#D5DEE2'}})
+  .composite(thumbnails).png().toFile(path.join(work,'overview.png'));
+await fs.copyFile(path.join(work,'final-slide-6.png'),path.join(work,'preview.png'));
 console.log(JSON.stringify({font:family,finalPath:result.finalPath,sha256:result.finalSha256,
   warnings:result.presentationLayout.warnings,slidesRendered:10},null,2));

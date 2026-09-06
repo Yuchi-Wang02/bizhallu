@@ -2,11 +2,11 @@
 
 ## Project Brief
 
-Business analytics with evidence checks for AI-generated analysis
+Auditing AI-generated business analysis against transaction evidence
 
 ## 90-Second Pitch
 
-BizHallu is my business analytics project on checking AI-generated analysis against transaction evidence. My accounting and supply-management background makes me interested in the difference between a number that reconciles and a business conclusion that is actually supported.
+BizHallu studies whether AI-generated business analysis is supported by transaction evidence. My accounting and supply-management background motivates a practical question: can an answer copy the right numbers and still reach the wrong business conclusion?
 
 One retail example makes that distinction concrete. Qwen lists WOODEN UNION JACK BUNTING third at 4,173.18 pounds. That product and amount match a source row, but the product is seventh among the eight rows shown to the model. The copying is correct; the ranking is wrong.
 
@@ -14,49 +14,49 @@ I directed the project with AI-assisted implementation and review. The pipeline 
 
 The original entropy F1 was 0.779, versus 0.744 for flagging every span. Adding one omitted dev answer changes entropy F1 to 0.752 on the same old test. That sensitivity and provisional labels rule out a stable superiority claim.
 
-The business lesson is that source-row accuracy and relationship accuracy need separate checks. My next technical step is a small independent verifier, while keeping statistical evaluation and alternative uncertainty methods open for comparison.
+The next study will compare internal uncertainty with an independent evidence checker on complete product-ranking relationships. I am seeking feedback on relation annotation and a fair comparison design before expanding the evaluation.
 
 ## 5-Minute Interview Flow
 
 ### 1. BizHallu (20 seconds planned)
 
-BizHallu studies a practical reporting problem: when an AI writes business analysis, can we trace its claims back to the evidence? I directed the project with AI-assisted implementation and review. My focus is on the accounting and operational decisions behind the numbers, alongside the model evaluation.
+BizHallu asks whether AI-generated business conclusions follow from the transaction evidence. I directed the project with AI-assisted implementation and review. My accounting and supply-management background motivates the distinction between a number that reconciles and a relationship that supports a decision. I will begin with a concrete ranking error, then discuss the evaluation and a proposed comparison.
 
-### 2. April product ranking (35 seconds planned)
+### 2. April: a correct amount with an incorrect rank (35 seconds planned)
 
 Here is April 2011. The answer places WOODEN UNION JACK BUNTING third with revenue of 4,173.18 pounds. We can locate that exact product and amount in the source table. But six shown products have larger values. The correct third product is PAPER CHAIN KIT EMPIRE at 6,619.51 pounds. A check that only asks whether the amount appears in the table would miss the ranking error.
 
-### 3. September: all three ranks differ (30 seconds planned)
+### 3. September: the same relationship error (30 seconds planned)
 
 The September answer repeats the pattern across all three listed products. Their stated ranks are one, two and three, while their ranks in the eight shown evidence rows are three, eight and two. Every product still matches its own amount. I use these cases to distinguish row fidelity from relationship correctness. They are selected historical examples, not evidence of a general error rate or an automatic verifier.
 
-### 4. Business metric scope (30 seconds planned)
+### 4. Research question: complete business relationships (30 seconds planned)
 
-Metric definitions matter before we judge an answer. Negative transaction value is not the same as confirmed physical returns, because fee and adjustment records can contribute. Merchandise scope also depends on a documented stock-code rule. I preserve the historical calculation and provide a versioned definition amendment instead of silently rewriting old gold answers. Without cost, inventory or delivery data, I cannot claim profit analysis or inventory optimization.
+The research question is what uncertainty signals miss when copied facts form an incorrect business relationship. A rank only makes sense with its product, metric and comparison scope. The proposed comparison asks whether an evidence checker adds useful information under matched conditions. Business definitions remain part of the task: negative transaction value can include fees and adjustments, so it cannot establish physical returns. The historical merchandise definition uses a documented stock-code heuristic.
 
-### 5. The historical evaluation pipeline (35 seconds planned)
+### 5. Historical evaluation and its sample (35 seconds planned)
 
 The pipeline turns retail transactions into deterministic questions and evidence tables, then captures local Qwen answers and token traces. B1 retains the original 205 provisional spans across 35 development and test answers. A separate B2 sensitivity adds nine assistant-provisional atoms for the omitted dev answer, without changing the 103 old test spans. Fifteen selected original spans received additional assistant review. None of this is independent human annotation or end-to-end claim extraction.
 
-### 6. Historical B1 references and B2 sensitivity (45 seconds planned)
+### 6. The F1 advantage remains uncertain (45 seconds planned)
 
 The chart preserves B1's original test results. Entropy F1 0.779; flag-every-span F1 0.744. Paired F1 difference +0.0355; exploratory 95% interval [-0.0356, 0.1047]. That interval is conditional on fixed thresholds and is not a B2 interval. B2 adds one previously omitted dev answer with nine provisional correct facts. Refitting on dev lowers entropy F1 to 0.752 on the same old test, with five fewer false alarms and six more missed errors. Margin is unchanged in this check. We report sensitivity, not a new winner or fresh confirmation.
 
-### 7. Token timing and completed relationships (30 seconds planned)
+### 7. A fair comparison needs the same information (30 seconds planned)
 
 One methodological correction is especially important. A list marker is generated before the product and amount that follow it. Low uncertainty on that marker cannot establish that the completed relationship was confidently wrong. The saved raw teacher-forced logits also differ from generation probabilities after sampling transformations. Some nominally different features are mathematical aliases: same-step energy gap is token negative log probability. These distinctions prevent an unfair comparison with a checker that sees the whole answer.
 
-### 8. Scope of the evidence (25 seconds planned)
+### 8. What the current evidence supports (25 seconds planned)
 
 The results describe a limited retrospective study. The annotation queue depended on generated-answer status, development and test share contexts, and independent human agreement has not been measured. The six curated relationships clarify particular cases; they do not replace the 205 labels. No result here establishes performance on larger models, unseen periods, automatically extracted claims or production business reports.
 
-### 9. Analyst contribution and business use (25 seconds planned)
+### 9. Proposed comparison: product-ranking verification (25 seconds planned)
 
-For an analyst role, I would emphasize metric definitions, reproducible calculations and explaining what evidence supports. The potential use is reviewing generated reports before a business decision, not a claim that I have deployed a control or measured savings. AI assistance is part of the provenance. My next learning step is to explain and modify the analysis directly, supported by a small SQL and BI companion project.
+The next implementation targets product rankings. It will use the question, generated answer, metric contract and evidence rows to return a support decision, evidence reference and abstention when needed. Gold answers and evaluation labels stay outside prediction. Two independent reviewers will establish relation labels. The comparison will report extraction coverage and abstentions, because a checker can appear accurate by avoiding difficult claims. This verifier is proposed work, not a completed result.
 
-### 10. Research questions and next steps (25 seconds planned)
+### 10. A focused discussion with a research mentor (25 seconds planned)
 
-For a professor, my concrete request is feedback on the unit of annotation and comparison design. I would begin with a top-three verifier that uses the question, answer, metric contract and evidence, without evaluation labels or gold answers as inputs. Semantic consistency, attention methods and a faithful adjacent-step energy implementation remain comparison options. The new confirmation study stays sealed until the prediction and evaluation process is ready.
+My request is a focused discussion of the annotation unit and comparison design. The immediate deliverable would be a small independently reviewed relation set and one evidence checker. The existing 48-context design offers a later evaluation path, but it remains unexecuted and estimation-focused. Model and prompt settings, reviewers, and the prediction protocol must be ready first. A second dataset or model would follow only after this smaller comparison is credible.
 
 ## From Evidence to Explanation
 
@@ -160,7 +160,7 @@ It uses supplied annotation categories, some with correctness hints. It diagnose
 
 ### Is this an independently human-labeled benchmark?
 
-No. There are 205 AI-assisted provisional labels and 15 selected presentation spans with additional assistant review. Independent human annotation and agreement remain uncompleted; owner review is currently deferred.
+No. There are 205 AI-assisted provisional labels and 15 selected presentation spans with additional assistant review. Independent human annotation and agreement remain uncompleted.
 
 ### What changed about the energy interpretation?
 
@@ -186,4 +186,4 @@ A small independent top3 verifier versus internal uncertainty, with extraction c
 - Complete relation correctness is different from source-row fidelity and early-token confidence.
 - Negative transaction value is not verified physical returns; no inventory or profit optimization claim.
 - The public review schema uses existing labels; it is not an independent verifier.
-- Sharing a project does not establish owner mastery, a deployed business control or measured financial benefit.
+- Potential reporting applications have no measured deployment outcome or financial benefit in this study.

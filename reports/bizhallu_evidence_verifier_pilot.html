@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BizHallu Claim-Evidence Review Schema v0</title>
+    <meta name="description" content="Historical label-derived claim-evidence review schema for 15 selected BizHallu spans. A protocol scaffold, not an independent verifier.">
     <style>
       :root {
         --bg: #f6f7f9;
@@ -26,16 +27,23 @@
         line-height: 1.5;
       }
       a { color: var(--blue); font-weight: 800; text-decoration: none; }
+      a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; border-radius: 3px; }
+      .skip-link { position: absolute; top: -100px; left: 16px; z-index: 30; padding: 12px; background: #fff; }
+      .skip-link:focus { top: 12px; }
+      .site-nav { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 16px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-bottom: 1px solid var(--line); font-size: 14px; }
+      .site-nav .brand { margin-right: auto; color: var(--ink); }
+      .site-nav a { min-height: 36px; display: inline-flex; align-items: center; }
       main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-      header { padding: 48px 0 26px; }
-      h1 { max-width: 880px; margin: 0; font-size: clamp(38px, 6vw, 68px); line-height: 1.02; letter-spacing: 0; }
-      h2 { margin: 0; font-size: clamp(26px, 4vw, 42px); letter-spacing: 0; }
-      p { color: var(--muted); font-size: 17px; }
+      header { padding: 28px 0; }
+      h1 { max-width: 880px; margin: 0; font-size: 30px; line-height: 1.2; letter-spacing: 0; }
+      h2 { margin: 0; font-size: 22px; letter-spacing: 0; }
+      h1, h2, p, li, td, th { overflow-wrap: anywhere; }
+      p { color: var(--muted); font-size: 16px; }
       .eyebrow { color: var(--blue); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0; }
-      .lede { max-width: 900px; font-size: 21px; }
+      .lede { max-width: 900px; font-size: 16px; }
       .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
       .button { display: inline-flex; min-height: 42px; align-items: center; padding: 10px 16px; border: 1px solid rgba(0, 102, 204, 0.18); border-radius: 8px; background: rgba(0, 102, 204, 0.08); }
-      .section { padding: 52px 0; border-top: 1px solid var(--line); }
+      .section { padding: 28px 0; border-top: 1px solid var(--line); }
       .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
       .metric, .callout { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); }
       .metric { min-height: 140px; padding: 20px; }
@@ -44,6 +52,8 @@
       .callout { margin-top: 24px; padding: 22px; box-shadow: none; }
       .callout strong { color: var(--green); }
       table { width: 100%; margin-top: 22px; border-collapse: collapse; border: 1px solid var(--line); background: var(--surface); }
+      .table-scroll { max-width: 100%; overflow-x: auto; }
+      .table-scroll table { min-width: 780px; }
       th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 14px; }
       th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0; }
       code { padding: 2px 5px; border-radius: 6px; background: rgba(0, 0, 0, 0.06); }
@@ -55,16 +65,18 @@
       ul { display: grid; gap: 10px; margin-top: 18px; padding-left: 22px; color: var(--muted); }
       @media (max-width: 900px) {
         main { width: min(100% - 28px, 720px); }
+        .site-nav { width: min(100% - 28px, 720px); }
         .metric-grid { grid-template-columns: 1fr; }
-        table { display: block; overflow-x: auto; }
       }
     </style>
   </head>
   <body>
-    <main>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="site-nav" aria-label="Primary"><a class="brand" href="./index.html">BizHallu</a><a href="./index.html">Home</a><a href="./portfolio_demo_v2.html">Cases</a><a href="./detector_interpretation.html">Methods</a><a href="./research_one_pager.html">Research</a><a href="https://github.com/Yuchi-Wang02/bizhallu">GitHub</a></nav>
+    <main id="main">
       <header>
         <p class="eyebrow">Claim-evidence review schema v0</p>
-        <h1>Preparing an honest comparison between uncertainty and evidence checking.</h1>
+        <h1>A historical schema for claim-evidence review.</h1>
         <p class="lede">
           This v0 schema covers 15 selected Demo v2 presentation spans. It organizes
           claims, compact evidence, and detector outcomes for a future comparison.
@@ -128,16 +140,16 @@
       <section class="section">
         <p class="eyebrow">Review rows</p>
         <h2>Each row connects a selected span to evidence fields and detector outcomes.</h2>
-        <table>
+        <div class="table-scroll" role="region" aria-label="Historical label-derived review rows" tabindex="0"><table>
           <thead>
             <tr>
-              <th>Question</th>
-              <th>Fact type</th>
-              <th>Derived review status</th>
-              <th>Span</th>
-              <th>Generated claim line</th>
-              <th>Detector outcomes</th>
-              <th>Protocol note</th>
+              <th scope="col">Question</th>
+              <th scope="col">Fact type</th>
+              <th scope="col">Derived review status</th>
+              <th scope="col">Span</th>
+              <th scope="col">Generated claim line</th>
+              <th scope="col">Detector outcomes</th>
+              <th scope="col">Protocol note</th>
             </tr>
           </thead>
           <tbody>
@@ -307,7 +319,7 @@
           </tr>
         
           </tbody>
-        </table>
+        </table></div>
       </section>
     </main>
   </body>

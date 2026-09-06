@@ -1,6 +1,48 @@
 # BizHallu Current State Audit
 
-Date: 2026-09-05
+Date: 2026-09-06
+
+## Professor-facing presentation revision: 2026-09-06
+
+The current public entry is the case-first [README](../README.md), followed by the
+[research brief](https://yuchi-wang02.github.io/bizhallu/research_one_pager.html),
+its [one-page PDF](https://yuchi-wang02.github.io/bizhallu/assets/bizhallu_research_brief.pdf),
+the original-evidence cases and the revised ten-slide PPTX. Technical commands
+and research boundaries are organized in [reproducibility.md](reproducibility.md).
+The sections below retain earlier dated workflow records.
+
+This revision changes presentation and navigation, not experimental outcomes.
+It removes personal practice administration from the main reader paths, retains
+AI-assisted label provenance, and focuses the research request on a small
+relation-annotation pilot. FActScore, TabFact and Semantic Entropy are related
+work, not evaluated BizHallu baselines. B1/B2 results, original labels and frozen
+study inputs are unchanged; independent human annotation remains pending.
+
+Local validation for this revision:
+
+- All 27 commands in the public GitHub workflow passed. Python: 120 tests,
+  118 passed and two optional scikit-learn checks skipped in the bundled
+  standard-library environment. Node: 25 tests passed.
+- Eight primary/supporting pages were exercised in headless Microsoft Edge at
+  browser widths 1280, 390 and 320 pixels. No page-level horizontal overflow,
+  broken images or page-script errors were observed. All nine case selections,
+  three detector choices, an empty-filter state and recovery were exercised.
+  At 320 pixels, a focused 292-pixel evidence region scrolled horizontally with
+  ArrowRight while the page stayed within the viewport. The B2 link reached its
+  named section with an 82-pixel scroll margin.
+- All ten final PPTX slides were re-imported and rendered for visual review.
+  Native evidence tables, the chart workbook, the 0–1 axis and the separate B2
+  note passed source checks. The research PDF was rendered and inspected as one
+  A4 page with public hyperlinks.
+- Link validation now checks HTML fragments and rejects unlabelled README links
+  that open GitHub HTML source instead of the rendered report. Archive tests
+  separately preserve the exact source body while allowing site metadata in
+  the generated page head.
+
+These observations establish the stated local artifact and browser scope.
+Deployment is tracked separately by [GitHub Actions](https://github.com/Yuchi-Wang02/bizhallu/actions).
+They do not establish native PowerPoint, physical-device, cross-browser,
+independent-human or scientific validation.
 
 ## Stage 1 Requirements Review and Worked Examples: 2026-09-05
 
