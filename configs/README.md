@@ -28,6 +28,8 @@ Current config files:
 - `confirmation_precision_review_v1.json`
 - `confirmation_precision_scope_amendment_v1.json`
 - `confirmation_set_v1_protocol.json`
+- `jev_battery_v1.json` (frozen typed-question wording and state contract for the
+  Jev evidence-binding battery; see `src/jev_evidence_battery.py`)
 
 `detector_baseline_suite.json` defines the score fields used by the
 split-safe evaluator. Thresholds are selected on dev spans and reused on test

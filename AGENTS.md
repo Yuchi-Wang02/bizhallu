@@ -77,6 +77,7 @@ python src\validate_confirmation_context_manifest.py
 python src\validate_confirmation_question_design.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
+python src\jev_evidence_battery.py validate
 ```
 
 When local full100 artifacts are available, also run:
@@ -169,6 +170,21 @@ Do not call the current schema an implemented verifier, use its label-derived
 statuses as predictions, expand it beyond Demo v2, or report verifier metrics until
 an independent claim-evidence decision rule and comparison protocol are fixed and
 validated.
+
+`configs/jev_battery_v1.json` and `src/jev_evidence_battery.py` add a separate
+retrospective battery that poses each of the 205 pre-identified spans as typed
+questions to the non-generative TypeSafe Jev decision model over the same
+evidence table the generator saw. Its state contract excludes gold answers,
+labels, fact types, splits, detector scores and `share_numerator_label`, and
+rebuilds the generator's row order. The bundled deterministic checker recomputes
+the quantities the labels were derived from; its agreement with labels is a
+label-consistency audit, not detection ability, and it must not be reported as
+a detector result. `validate` runs offline on the nine public demo answers; the
+`run` command needs the local generation file and `TYPESAFE_API_KEY` in the
+environment (never in a file) and writes only under the Git-ignored
+`outputs/jev_battery_v1/`. Any Jev result is a separate estimation study: it
+does not change the published historical values, does not touch the sealed
+Confirmation Set v1 manifests, and must report the pinned model version.
 
 Use `configs/methodology_protocol_v1.json` and the generated Methodology
 Hardening v1 report as the source of truth for the limitations of the current
