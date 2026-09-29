@@ -35,6 +35,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter, defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -42,17 +43,27 @@ import detector_metrics as metrics  # noqa: E402
 from bizhallu import evidence, rule_checker  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_PATH = PROJECT_ROOT / "configs" / "jev_battery_v1.json"
+V1_CONFIG_PATH = PROJECT_ROOT / "configs" / "jev_battery_v1.json"
+V2_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_v2.json"
+CONFIG_PATH = V2_CONFIG_PATH
+ARMS_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_arms_v1.json"
+HELDOUT_SLICE_PATH = PROJECT_ROOT / "configs" / "heldout_slice_v1.json"
 GOLD_PATH = PROJECT_ROOT / "data" / "processed" / "business_questions_gold.jsonl"
 ANNOTATIONS_PATH = PROJECT_ROOT / "data" / "annotations" / "span_annotations_full100_draft.jsonl"
 DEMO_PATH = PROJECT_ROOT / "reports" / "bizhallu_demo_v2_data.json"
 SCORES_PATH = PROJECT_ROOT / "results" / "full100_statistics_v2_scores.csv"
 DEFAULT_GENERATIONS = PROJECT_ROOT / "outputs" / "qwen_full100_generations.jsonl"
 DEFAULT_TRACES = PROJECT_ROOT / "outputs" / "qwen_full100_token_traces.jsonl"
-OUTPUT_DIR = PROJECT_ROOT / "outputs" / "jev_battery_v1"
-V2_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_v2.json"
-ARMS_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_arms_v1.json"
-HELDOUT_SLICE_PATH = PROJECT_ROOT / "configs" / "heldout_slice_v1.json"
+OUTPUT_ROOT = PROJECT_ROOT / "outputs" / "decision_battery_v2"
+OUTPUT_DIR = OUTPUT_ROOT
+SPAN_SET_FILES = {
+    "spans_full100_v1.jsonl": "full100_205",
+    "spans_extractor_only_devtest_v1.jsonl": "extractor_only_devtest_v1",
+    "spans_heldout_v1.jsonl": "heldout_v1",
+    "span_annotations_full100_draft.jsonl": "full100_205",
+}
+NUMERIC_DISPLAY_COLUMNS = ["net_revenue_gbp", "gross_positive_revenue_gbp", "cancellation_return_revenue_gbp", "invoice_count"]
+CONFIG_STATUSES = {"draft_wording_not_frozen_not_run", "final_wording_not_frozen", "frozen"}
 
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
           "September", "October", "November", "December"]
@@ -360,25 +371,41 @@ def check_state_contract(state, record, span, config=None, questions=None, contr
     return problems
 
 
+def _dynamic_criteria(kind, template, state):
+    """Option lists that depend only on the table shape, from the config's criteria_template."""
+    if kind not in {"rank_positions", "row_ids", "numeric_columns"}:
+        raise ValueError(f"unknown dynamic_criteria: {kind}")
+    rows = state["evidence_rows"]
+    criteria = {}
+    for key, text in template.items():
+        if key == "p{i}":
+            for index in range(1, len(rows) + 1):
+                criteria[f"p{index}"] = text.replace("{i}", str(index))
+        elif key == "{row_id}":
+            for row in rows:
+                criteria[row["row_id"]] = text.replace("{row_id}", row["row_id"])
+        elif key == "c{i}":
+            columns = [column for column in rows[0] if column in NUMERIC_DISPLAY_COLUMNS]
+            for index, column in enumerate(columns, start=1):
+                criteria[f"c{index}"] = text.replace("{column_name}", column)
+        elif "{" in key:
+            raise ValueError(f"unknown criteria template key: {key}")
+        else:
+            criteria[key] = text
+    return criteria
+
+
 def build_questions(config, state):
-    """Frozen wording from the config; dynamic option lists depend only on the table shape."""
+    """Question wording from the config; dynamic option lists depend only on the table shape."""
     questions = {}
-    row_ids = [row["row_id"] for row in state["evidence_rows"]]
-    numeric = [column for column in state["evidence_rows"][0] if column not in {"row_id", "country", "year_month", "stock_code", "product_name"}]
     for key, spec in config["questions"].items():
         question = {"type": spec["type"], "instructions": spec["instructions"]}
-        dynamic = spec.get("dynamic_criteria")
-        if dynamic == "row_ids_plus_none":
-            question["criteria"] = {**{rid: f"Row {rid} of evidence_rows" for rid in row_ids}, "none": "Not tied to a single row"}
-        elif dynamic == "numeric_columns_plus_not_a_number_plus_derived":
-            question["criteria"] = {**{column: f"Copied from column {column}" for column in numeric},
-                                    "derived": "A number computed from the table, such as a difference, sum or percentage",
-                                    "not_a_number": "The marked text is not a number"}
-        elif dynamic == "rank_positions_plus_unranked":
-            question["criteria"] = {**{f"rank_{i}": f"Rank position {i}" for i in range(1, len(row_ids) + 1)},
-                                    "unranked": "No rank position is assigned"}
+        if "dynamic_criteria" in spec:
+            question["criteria"] = _dynamic_criteria(spec["dynamic_criteria"], spec["criteria_template"], state)
         elif "criteria" in spec:
             question["criteria"] = spec["criteria"]
+        else:
+            raise ValueError(f"question {key} has no criteria in the config")
         questions[key] = question
     return questions
 
@@ -403,11 +430,93 @@ def build_states(config, gold, annotations, texts, sources):
             "annotation_id": span["annotation_id"],
             "question_id": qid,
             "question_type": record["question_type"],
+            "role": record["split"],
             "text_source": sources[qid],
             "state": state,
             "questions": questions,
         })
     return states, skipped
+
+
+# ------------------------------------------------------------ states files ---
+
+MODULE_DIR = Path(__file__).resolve().parent
+ENFORCED_MODULES = ["evidence.py", "rule_checker.py", "span_signals.py"]
+
+
+def file_sha256(path):
+    """SHA-256 of the file with line endings normalised to LF, so Windows and Git checkouts agree."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _sha_or_none(path):
+    return file_sha256(path) if path and Path(path).exists() else None
+
+
+def span_set_id_for(path):
+    name = Path(path).name
+    if name not in SPAN_SET_FILES:
+        raise SystemExit(f"unknown span file name: {name}; expected one of {sorted(SPAN_SET_FILES)}")
+    return SPAN_SET_FILES[name]
+
+
+def states_paths(span_set_id, root=None):
+    root = Path(root or OUTPUT_ROOT)
+    return root / f"states_{span_set_id}.jsonl", root / f"states_{span_set_id}_manifest.json"
+
+
+def manifest_inputs(config_path, arms_path, spans_path, generations_path):
+    """Enforced input hashes (they decide what is sent) and informational module hashes."""
+    enforced = {
+        "config": _sha_or_none(config_path),
+        "arms_config": _sha_or_none(arms_path),
+        "gold": _sha_or_none(GOLD_PATH),
+        "spans": _sha_or_none(spans_path),
+        "generations": _sha_or_none(generations_path),
+    }
+    for module in ENFORCED_MODULES:
+        enforced[f"module:{module}"] = _sha_or_none(MODULE_DIR / module)
+    informational = {f"module:{path.name}": file_sha256(path)
+                     for path in sorted(MODULE_DIR.glob("*.py")) if path.name not in ENFORCED_MODULES}
+    return enforced, informational
+
+
+def _canonical_sha256(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def write_states(states, span_set_id, config_path, arms_path, spans_path, generations_path, root=None):
+    """Write every state of one span set, each with its role, plus the manifest that run checks."""
+    states_path, manifest_path = states_paths(span_set_id, root)
+    states_path.parent.mkdir(parents=True, exist_ok=True)
+    with states_path.open("w", encoding="utf-8", newline="\n") as handle:
+        for state in states:
+            handle.write(json.dumps(state, ensure_ascii=False) + "\n")
+    enforced, informational = manifest_inputs(config_path, arms_path, spans_path, generations_path)
+    enforced["states"] = file_sha256(states_path)
+    manifest = {"span_set_id": span_set_id, "state_count": len(states),
+                "roles": dict(Counter(state["role"] for state in states)),
+                "enforced": enforced, "enforced_sha256": _canonical_sha256(enforced),
+                "informational": informational}
+    with manifest_path.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(manifest, handle, indent=2, ensure_ascii=False)
+    return states_path, manifest_path
+
+
+def load_states(span_set_id, config_path, arms_path, spans_path, generations_path, root=None):
+    """States as reviewed at build time; stop if any enforced input changed since then."""
+    states_path, manifest_path = states_paths(span_set_id, root)
+    if not states_path.exists() or not manifest_path.exists():
+        raise SystemExit(f"{states_path.name} or its manifest is missing; run build first")
+    with manifest_path.open("r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    enforced, _ = manifest_inputs(config_path, arms_path, spans_path, generations_path)
+    enforced["states"] = file_sha256(states_path)
+    changed = sorted(key for key in set(enforced) | set(manifest["enforced"])
+                     if enforced.get(key) != manifest["enforced"].get(key))
+    if changed:
+        raise SystemExit(f"states manifest does not match the current inputs: {changed}; run build again")
+    return read_jsonl(states_path), manifest
 
 
 # ------------------------------------------------------------- API runner ---
@@ -468,8 +577,10 @@ def request_payload(state_record, model):
     return {"state": state_record["state"], "model": model, "questions": state_record["questions"]}
 
 
-def cache_key(payload, repeat):
-    return hashlib.sha256((json.dumps(payload, sort_keys=True, ensure_ascii=False) + f"|repeat={repeat}").encode("utf-8")).hexdigest()
+def cache_key(payload, repeat, arm_id="", endpoint=""):
+    """One cache entry per request, repeat, arm and endpoint, so a new endpoint never reuses old rows."""
+    return hashlib.sha256((json.dumps(payload, sort_keys=True, ensure_ascii=False)
+                           + f"|repeat={repeat}|arm={arm_id}|endpoint={endpoint}").encode("utf-8")).hexdigest()
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -579,7 +690,7 @@ def read_response_rows(path, log=_stderr):
 
 
 def run_battery(states, arm, api_key, repeats, responses_path, limit=None, policy=None, sender=None,
-                sleeper=time.sleep, log=print):
+                sleeper=time.sleep, log=print, provenance=None):
     """Send every (span, repeat) that has no usable cached response yet."""
     policy = policy or api_policy()
     endpoint = check_arm_endpoint(arm)
@@ -599,7 +710,7 @@ def run_battery(states, arm, api_key, repeats, responses_path, limit=None, polic
         for state_record in states[:limit]:
             payload = request_payload(state_record, arm["model"])
             for repeat in range(repeats):
-                key = cache_key(payload, repeat)
+                key = cache_key(payload, repeat, arm["arm_id"], endpoint)
                 if key in usable_keys:
                     succeeded_spans.add(state_record["annotation_id"])
                     continue
@@ -607,7 +718,12 @@ def run_battery(states, arm, api_key, repeats, responses_path, limit=None, polic
                 started = time.time()
                 outcome = call_with_retry(payload, endpoint, api_key, policy=policy, sender=sender, sleeper=sleeper)
                 row = {"annotation_id": state_record["annotation_id"], "question_id": state_record["question_id"],
-                       "repeat": repeat, "cache_key": key, "request_sha256": cache_key(payload, -1),
+                       "role": state_record.get("role"), "repeat": repeat, "cache_key": key,
+                       "request_sha256": request_hash(payload, arm["arm_id"], endpoint),
+                       "battery_id": (provenance or {}).get("battery_id"),
+                       "config_sha256": (provenance or {}).get("config_sha256"),
+                       "arm_id": arm["arm_id"], "endpoint": endpoint, "requested_model": arm["model"],
+                       "called_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                        "status": outcome["status"], "attempts": outcome["attempts"],
                        "elapsed_seconds": round(time.time() - started, 3), "response": outcome["body"]}
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -710,24 +826,72 @@ def _flatten_probabilities(answers):
 
 # ------------------------------------------------------------------ score ---
 
-def derived_scores(response):
-    answers = response.get("answers", {})
+_FORMULA = re.compile(r"^probabilities\.(\w+)(?:\s*\+\s*probabilities\.(\w+))?$")
+
+
+def evaluate_formula(formula, answer):
+    """The three formula forms allowed by derived_scores_policy; anything else is an error."""
+    formula = formula.strip()
+    if formula == "1 - noul":
+        return 1.0 - float(answer["noul"])
+    match = _FORMULA.match(formula)
+    if not match:
+        raise ValueError(f"unsupported derived-score formula: {formula}")
+    total = float(answer["probabilities"][match.group(1)])
+    if match.group(2):
+        total += float(answer["probabilities"][match.group(2)])
+    return total
+
+
+def derived_scores(response, config):
+    """Scores named in the config plus the argmax choice of every descriptive question and of status."""
+    answers = response["answers"]
     scores = {}
-    if "supported" in answers:
-        scores["jev_risk"] = 1.0 - float(answers["supported"]["noul"])
-    if "status" in answers:
-        scores["jev_conflict"] = float(answers["status"]["probabilities"].get("m2", 0.0))
-    if "present" in answers:
-        scores["jev_absent"] = 1.0 - float(answers["present"]["noul"])
-    if "conclusion" in answers:
-        scores["jev_conclusion"] = float(answers["conclusion"]["noul"])
-    for key in ("relation", "source_row", "source_column", "rank_claim", "direction_claim"):
-        if key in answers:
+    for name, spec in config["derived_scores"].items():
+        scores[name] = evaluate_formula(spec["formula"], answers[spec["question"]])
+    for key, spec in config["questions"].items():
+        if (spec.get("role") == "descriptive" or key == "status") and key in answers:
             scores[f"{key}_choice"] = answers[key].get("choice")
     return scores
 
 
-def aggregate_responses(response_rows):
+def request_hash(payload, arm_id, endpoint):
+    return hashlib.sha256((json.dumps(payload, sort_keys=True, ensure_ascii=False)
+                           + f"|arm={arm_id}|endpoint={endpoint}").encode("utf-8")).hexdigest()
+
+
+def expected_request_hashes(states, arm):
+    endpoint = arm.get("endpoint") or ""
+    return {state["annotation_id"]: request_hash(request_payload(state, arm["model"]), arm["arm_id"], endpoint)
+            for state in states}
+
+
+def select_scored_rows(response_rows, expected):
+    """Keep only 200 rows produced by the current config, arm and endpoint; count the rest."""
+    kept, excluded = [], 0
+    for row in response_rows:
+        if row.get("status") != 200:
+            continue
+        if expected.get(row.get("annotation_id")) == row.get("request_sha256"):
+            kept.append(row)
+        else:
+            excluded += 1
+    return kept, excluded
+
+
+def repeat_shortfalls(aggregated, states, arm):
+    """Spans whose number of scored repeats differs from the arm's setting for their role."""
+    roles = {state["annotation_id"]: state.get("role") for state in states}
+    problems = []
+    for annotation_id, item in aggregated.items():
+        role_key = "dev" if roles.get(annotation_id) == "dev" else "eval"
+        required = (arm.get("repeats") or {}).get(role_key)
+        if required is not None and item["repeats"] != required:
+            problems.append(annotation_id)
+    return sorted(problems)
+
+
+def aggregate_responses(response_rows, config):
     """Mean probability per span across repeats plus argmax flip rates."""
     per_span = defaultdict(list)
     for row in response_rows:
@@ -740,7 +904,7 @@ def aggregate_responses(response_rows):
         models = Counter()
         for response in responses:
             models[response.get("model")] += 1
-            for key, value in derived_scores(response).items():
+            for key, value in derived_scores(response, config).items():
                 (choices if key.endswith("_choice") else numeric)[key].append(value)
         item = {key: sum(values) / len(values) for key, values in numeric.items()}
         item["repeats"] = len(responses)
@@ -759,7 +923,7 @@ def score_rows(aggregated, annotations, signals, checker_results):
         if aid not in aggregated or span["binary_label"] is None:
             continue
         stored = signals.get(aid, {})
-        row = {"annotation_id": aid, "question_id": span["question_id"], "split": span["split"] if "split" in span else None,
+        row = {"annotation_id": aid, "question_id": span["question_id"], "split": span.get("split"),
                "fact_type": span["fact_type"], "binary_label": span["binary_label"],
                "evidence_cluster": stored.get("evidence_cluster"), "is_month": span["fact_type"] == "month",
                "checker_verdict": checker.get(aid, {}).get("verdict"), "checker_mechanism": checker.get(aid, {}).get("mechanism"),
@@ -807,7 +971,7 @@ def paired_intervals(rows, thresholds, comparisons, replicates, seed):
     return metrics.paired_cluster_bootstrap(test, thresholds, comparisons, "question_id", replicates=replicates, seed=seed)
 
 
-def mechanism_table(rows, score="jev_risk", threshold=None):
+def mechanism_table(rows, score="dm_risk", threshold=None):
     table = {}
     for mechanism, group in groupby_key(rows, "checker_mechanism").items():
         positives = [r for r in group if r["binary_label"] == 1]
@@ -824,46 +988,59 @@ def groupby_key(rows, key):
     return groups
 
 
+def _fmt(value):
+    return "n/a" if value is None else f"{value:.3f}"
+
+
 def render_markdown(report):
-    lines = ["# Jev evidence battery v1: retrospective comparison", "",
-             f"Spans scored: dev {report['evaluation']['counts']['dev']}, test {report['evaluation']['counts']['test']} "
-             f"(non-month {report['evaluation']['counts']['test_non_month']}).", "",
-             "| arm | dev threshold | test AP | test AUROC | test F1 | non-month test AP |", "| --- | ---: | ---: | ---: | ---: | ---: |"]
+    lines = []
+    if report.get("partial"):
+        lines += ["PARTIAL: some spans have fewer scored repeats than the arm setting; see repeat_shortfalls.", ""]
+    lines += [f"# Decision battery: {report['battery_id']}, arm {report.get('arm_id')}", "",
+              f"Spans scored: dev {report['evaluation']['counts']['dev']}, test {report['evaluation']['counts']['test']} "
+              f"(non-month {report['evaluation']['counts']['test_non_month']}). "
+              f"Response rows from another config, arm or endpoint excluded: {report.get('excluded_rows', 0)}.", "",
+              "| arm | dev threshold | test AP | test AUROC | test F1 | non-month test AP |", "| --- | ---: | ---: | ---: | ---: | ---: |"]
     for arm, values in report["evaluation"]["arms"].items():
         if "test" not in values:
             lines.append(f"| {arm} | n/a | {values.get('status', '')} | | | |")
             continue
         t, m = values["test"], values.get("test_non_month", {})
-        fmt = lambda x: "n/a" if x is None else f"{x:.3f}"  # noqa: E731
-        lines.append(f"| {arm} | {report['evaluation']['thresholds'][arm]:.4f} | {fmt(t['average_precision'])} | {fmt(t['auroc'])} | {fmt(t['f1'])} | {fmt(m.get('average_precision'))} |")
+        lines.append(f"| {arm} | {report['evaluation']['thresholds'][arm]:.4f} | {_fmt(t['average_precision'])} | "
+                     f"{_fmt(t['auroc'])} | {_fmt(t['f1'])} | {_fmt(m.get('average_precision'))} |")
     lines += ["", "Paired test intervals (question clusters):", ""]
     for interval in report.get("paired_intervals", {}).get("intervals", []):
         if interval["metric"] in {"average_precision", "f1"}:
             lines.append(f"- {interval['signal']} minus {interval['reference']} {interval['metric']}: "
                          f"{interval['point_difference']:+.4f} [{interval['lower_95']:+.4f}, {interval['upper_95']:+.4f}]")
-    lines += ["", "Mechanism strata (checker, label-blind) and jev_risk recall at the dev threshold:", "",
+    lines += ["", "Mechanism strata (checker, exploratory) and dm_risk recall at the dev threshold:", "",
               "| mechanism | spans | hallucinated | flagged | recall |", "| --- | ---: | ---: | ---: | --- |"]
     for mechanism, values in report["mechanisms"].items():
         recall = values["recall"]
         text = "n/a" if recall is None else f"{recall['point']:.2f} [{recall['lower_95']:.2f}, {recall['upper_95']:.2f}]"
         lines.append(f"| {mechanism} | {values['spans']} | {values['hallucinated']} | {values['flagged_hallucinated']} | {text} |")
-    lines += ["", "Model versions seen: " + json.dumps(report["model_versions"]),
-              "", "Claim boundary: retrospective estimation on AI-assisted provisional labels; historical published values unchanged; "
+    lines += ["", f"Requested model: {report['model_pinned']}. Model versions seen: {json.dumps(report['model_versions'])}."]
+    if report["unexpected_model_versions"]:
+        lines.append(f"Responses from a model other than the requested one: {report['unexpected_model_versions']}.")
+    lines += ["", "Claim boundary: retrospective estimation on AI-assisted provisional labels; historical published values unchanged; "
               "the checker replicates the label rule and is an audit reference, not an independent detector."]
     return "\n".join(lines) + "\n"
 
 
-def score_battery(config, gold, annotations, responses_path, checker_results, signals, replicates, seed):
-    responses = read_jsonl(responses_path) if responses_path.exists() else []
-    aggregated = aggregate_responses(responses)
+def score_battery(config, gold, annotations, response_rows, checker_results, signals, replicates, seed,
+                  arm=None, excluded_rows=0, partial=False, repeat_shortfall_ids=()):
+    aggregated = aggregate_responses(response_rows, config)
     rows = attach_splits(score_rows(aggregated, annotations, signals, checker_results), gold)
     if not rows:
         raise SystemExit("No successful responses to score; run the battery first.")
-    jev_arms = [key for key in ("jev_risk", "jev_conflict", "jev_absent") if all(key in row for row in rows)]
-    arms = jev_arms + [arm for arm in REFERENCE_ARMS if all(arm in row for row in rows)]
+    dm_arms = [name for name, spec in config["derived_scores"].items() if spec.get("label_axis") == "slot"]
+    arms = dm_arms + [name for name in REFERENCE_ARMS if all(name in row for row in rows)]
     evaluation = evaluate_arms(rows, arms)
-    comparisons = [(a, b) for a in jev_arms[:1] for b in ("one_minus_min_top2_margin", "dev_fact_type_prior", "all_positive") if b in evaluation["thresholds"]]
-    intervals = paired_intervals(rows, evaluation["thresholds"], comparisons, replicates, seed) if comparisons and jev_arms and jev_arms[0] in evaluation["thresholds"] else {"status": "not computed"}
+    primary = "dm_risk"
+    comparisons = [(primary, other) for other in ("one_minus_min_top2_margin", "dev_fact_type_prior", "all_positive")
+                   if other in evaluation["thresholds"]]
+    intervals = (paired_intervals(rows, evaluation["thresholds"], comparisons, replicates, seed)
+                 if comparisons and primary in evaluation["thresholds"] else {"status": f"not computed: {primary} unavailable"})
     models = Counter()
     for item in aggregated.values():
         for model, count in item["models"].items():
@@ -872,11 +1049,14 @@ def score_battery(config, gold, annotations, responses_path, checker_results, si
     for item in aggregated.values():
         for key, value in item["choice_flip_rate"].items():
             flip[key].append(value)
+    requested = (arm or {}).get("model")
     report = {
-        "battery_id": config["battery_id"], "model_pinned": config["api"]["model"], "model_versions": dict(models),
-        "unexpected_model_versions": [m for m in models if m != config["api"]["model"]],
+        "battery_id": config["battery_id"], "arm_id": (arm or {}).get("arm_id"),
+        "model_pinned": requested, "model_versions": dict(models),
+        "unexpected_model_versions": sorted(m for m in models if m != requested),
+        "excluded_rows": excluded_rows, "partial": bool(partial), "repeat_shortfalls": list(repeat_shortfall_ids),
         "evaluation": evaluation, "paired_intervals": intervals,
-        "mechanisms": mechanism_table(rows, "jev_risk", evaluation["thresholds"].get("jev_risk")),
+        "mechanisms": mechanism_table(rows, primary, evaluation["thresholds"].get(primary)),
         "choice_flip_rate_mean": {key: sum(values) / len(values) for key, values in flip.items()},
         "repeats_per_span": Counter(item["repeats"] for item in aggregated.values()),
         "claim_boundary": config["claim_boundary"],
@@ -886,23 +1066,48 @@ def score_battery(config, gold, annotations, responses_path, checker_results, si
 
 # --------------------------------------------------------------- validate ---
 
-def file_sha256(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=None, require_local=False):
-    """Public tier by default (nine demo answers); require_local checks the full local package."""
-    config = load_config(config_path)
-    failures = []
-    for key in ("supported", "present", "status", "relation", "conclusion", "source_row", "source_column", "rank_claim", "direction_claim"):
-        if key not in config["questions"]:
-            failures.append(f"missing question {key}")
-    for key, spec in config["questions"].items():
+def config_problems(config, arms):
+    """Structural checks of the wording config and the arms config; reads every key from the config."""
+    problems = []
+    if config.get("status") not in CONFIG_STATUSES:
+        problems.append(f"config status {config.get('status')!r} is not one of {sorted(CONFIG_STATUSES)}")
+    questions = config["questions"]
+    for key, spec in questions.items():
+        if "dynamic_criteria" not in spec and "criteria" not in spec:
+            problems.append(f"question {key} has no criteria")
         text = json.dumps(spec).lower()
         if "gold" in text or "label" in text.replace("labelled", ""):
-            failures.append(f"question {key} mentions gold or labels")
-    if config["api"]["model"] == "jev-latest":
-        failures.append("model must be pinned, not jev-latest")
+            problems.append(f"question {key} mentions gold or labels")
+    allowed = config["derived_scores_policy"]["allowed_formula_forms"]
+    for name, spec in config["derived_scores"].items():
+        question = questions.get(spec.get("question"))
+        if question is None:
+            problems.append(f"derived score {name} names a missing question")
+            continue
+        formula = spec["formula"].strip()
+        if formula == "1 - noul":
+            if question["type"] != "noul":
+                problems.append(f"derived score {name} uses noul on a {question['type']} question")
+            continue
+        match = _FORMULA.match(formula)
+        if not match or not allowed:
+            problems.append(f"derived score {name} has an unsupported formula: {formula}")
+            continue
+        options = question.get("criteria") or {}
+        for option in [match.group(1), match.group(2)]:
+            if option and option not in options:
+                problems.append(f"derived score {name} names option {option} that {spec['question']} does not have")
+    for arm in arms.values():
+        if arm.get("model") in {"jev-latest", "jev-preview"}:
+            problems.append(f"arm {arm['arm_id']} uses an alias model id; pin a version")
+    return problems
+
+
+def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=None, require_local=False,
+             arms_path=ARMS_CONFIG_PATH):
+    """Public tier by default (nine demo answers); require_local checks the full local package."""
+    config = load_config(config_path)
+    failures = config_problems(config, load_arms(arms_path))
     gold = load_gold()
     annotations = load_annotations()
     if require_local and not (generations_path and Path(generations_path).exists()):
@@ -927,39 +1132,48 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
               "states_built": len(states), "states_skipped": len(skipped), "text_sources": dict(Counter(sources.values())),
               "checker_audit": audit, "num_failures": len(failures), "failures": failures,
               "scope": "offline; no API call; the sealed confirmation manifests are never read"}
+    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    with (output_dir / "validation.json").open("w", encoding="utf-8") as handle:
+    with (output_dir / "validation.json").open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(result, handle, indent=2, ensure_ascii=False)
     return result
 
 
 # ------------------------------------------------------------------- main ---
 
+def _write_jsonl(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", choices=["build", "check", "run", "smoke", "score", "validate"])
+    parser.add_argument("--config", default=str(CONFIG_PATH), help="wording and analysis config")
     parser.add_argument("--generations", default=str(DEFAULT_GENERATIONS), help="local qwen_full100_generations.jsonl")
-    parser.add_argument("--output-dir", default=str(OUTPUT_DIR))
     parser.add_argument("--repeats", type=int, default=None)
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--split", choices=["dev", "test", "all"], default="all")
+    parser.add_argument("--split", choices=["dev", "test", "all"], default=None)
     parser.add_argument("--replicates", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=20260904)
-    parser.add_argument("--model", default=None, help="override the pinned model id (recorded in the report)")
     parser.add_argument("--require-local", action="store_true",
                         help="validate: require the local generation file and all 205 states")
-    parser.add_argument("--arm", default=None, help="run, smoke: arm_id from the arms config")
+    parser.add_argument("--arm", default=None, help="run, smoke, score: arm_id from the arms config")
+    parser.add_argument("--allow-partial", action="store_true",
+                        help="score: report even if some spans have fewer repeats than the arm setting")
     parser.add_argument("--public-demo", action="store_true",
                         help="run, score: allow the nine public demo answers instead of the local generation file")
     args = parser.parse_args(argv)
     if args.repeats is not None and (args.repeats < 1 or args.limit is None):
         parser.error("--repeats must be at least 1 and is only allowed together with --limit")
+    if args.command == "build" and args.split is not None:
+        parser.error("build writes every state of the span set; it does not take --split")
+    split = args.split or "all"
 
-    config = load_config()
-    if args.model:
-        config["api"]["model"] = args.model
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    config_path = Path(args.config)
+    config = load_config(config_path)
     gold = load_gold()
     annotations = load_annotations()
     texts, sources = load_generated_texts(args.generations)
@@ -969,75 +1183,83 @@ def main(argv=None):
                          "pass --public-demo to use the nine public demo answers")
     if uses_demo and args.command in {"build", "check"}:
         _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
+    span_set_id = span_set_id_for(ANNOTATIONS_PATH)
+    manifest_args = (config_path, ARMS_CONFIG_PATH, ANNOTATIONS_PATH, args.generations)
 
     if args.command == "smoke":
         if not args.arm:
             parser.error("smoke needs --arm")
-        v2 = load_config(V2_CONFIG_PATH)
         arm = load_arms()[args.arm]
-        out_path = PROJECT_ROOT / "outputs" / "decision_battery_v2" / arm["arm_id"] / "smoke.json"
-        report = run_smoke(v2, arm, read_api_key(arm), out_path)
+        report = run_smoke(config, arm, read_api_key(arm), OUTPUT_ROOT / arm["arm_id"] / "smoke.json")
         return 1 if report["problems"] else 0
 
     if args.command == "validate":
-        result = validate(generations_path=args.generations if args.require_local else None,
-                          output_dir=output_dir, require_local=args.require_local)
+        result = validate(config_path=config_path, generations_path=args.generations if args.require_local else None,
+                          output_dir=OUTPUT_ROOT, require_local=args.require_local)
         print(json.dumps({k: v for k, v in result.items() if k != "checker_audit"}, indent=2))
         return 1 if result["num_failures"] else 0
 
-    states, skipped = [], []
-    if args.command in {"build", "run"}:
-        states, skipped = build_states(config, gold, annotations, texts, sources)
-        if args.split != "all":
-            states = [s for s in states if gold[s["question_id"]]["split"] == args.split]
-    states_path = output_dir / "states.jsonl"
-
     if args.command == "build":
-        with states_path.open("w", encoding="utf-8") as handle:
-            for state in states:
-                handle.write(json.dumps(state, ensure_ascii=False) + "\n")
+        states, skipped = build_states(config, gold, annotations, texts, sources)
+        states_path, manifest_path = write_states(states, span_set_id, *manifest_args)
         print(json.dumps({"states": len(states), "skipped": skipped[:5], "skipped_count": len(skipped),
-                          "text_sources": dict(Counter(sources.values())), "path": str(states_path)}, indent=2, ensure_ascii=False))
+                          "text_sources": dict(Counter(sources.values())), "path": str(states_path),
+                          "manifest": str(manifest_path)}, indent=2, ensure_ascii=False))
         return 0
 
     checker_results = rule_checker.run_checker(config, gold, annotations, texts)
     if args.command == "check":
-        with (output_dir / "checker.jsonl").open("w", encoding="utf-8") as handle:
-            for item in checker_results:
-                handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+        _write_jsonl(OUTPUT_ROOT / f"checker_{span_set_id}.jsonl", checker_results)
         audit = rule_checker.checker_audit(checker_results, annotations)
-        with (output_dir / "checker_audit.json").open("w", encoding="utf-8") as handle:
+        with (OUTPUT_ROOT / "checker_audit.json").open("w", encoding="utf-8", newline="\n") as handle:
             json.dump(audit, handle, indent=2, ensure_ascii=False)
         print(json.dumps(audit, indent=2, ensure_ascii=False))
         return 0
 
-    responses_path = output_dir / "responses.jsonl"
+    if not args.arm:
+        parser.error(f"{args.command} needs --arm")
+    arm = load_arms()[args.arm]
+    arm_dir = OUTPUT_ROOT / arm["arm_id"]
+    responses_path = arm_dir / "responses.jsonl"
+    states, _ = load_states(span_set_id, *manifest_args)
+
     if args.command == "run":
-        if not args.arm:
-            parser.error("run needs --arm")
-        arm = load_arms()[args.arm]
+        if split != "all":
+            states = [state for state in states if state["role"] == split]
         api_key = read_api_key(arm)
         if args.repeats is not None:
             repeats = args.repeats
         else:
-            role = "dev" if args.split == "dev" else "eval"
+            role = "dev" if split == "dev" else "eval"
             repeats = (arm.get("repeats") or {}).get(role)
             if not repeats:
                 raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
-        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit)
+        arm_dir.mkdir(parents=True, exist_ok=True)
+        provenance = {"battery_id": config["battery_id"], "config_sha256": file_sha256(config_path)}
+        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit, provenance=provenance)
         print(json.dumps(summary, indent=2))
         return 0
 
+    rows = read_response_rows(responses_path) if responses_path.exists() else []
+    kept, excluded = select_scored_rows(rows, expected_request_hashes(states, arm))
+    shortfalls = repeat_shortfalls(aggregate_responses(kept, config), states, arm)
+    if shortfalls and not args.allow_partial:
+        raise SystemExit(f"{len(shortfalls)} spans have a repeat count that differs from the arm setting, "
+                         f"for example {shortfalls[:3]}; rerun or pass --allow-partial")
     signals = load_stored_signals()
-    report, rows = score_battery(config, gold, annotations, responses_path, checker_results, signals, args.replicates, args.seed)
-    with (output_dir / "report.json").open("w", encoding="utf-8") as handle:
+    report, score_table = score_battery(config, gold, annotations, kept, checker_results, signals, args.replicates, args.seed,
+                                        arm=arm, excluded_rows=excluded, partial=bool(shortfalls),
+                                        repeat_shortfall_ids=shortfalls)
+    arm_dir.mkdir(parents=True, exist_ok=True)
+    with (arm_dir / "report.json").open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(report, handle, indent=2, ensure_ascii=False, default=str)
-    with (output_dir / "span_scores.csv").open("w", encoding="utf-8", newline="") as handle:
-        fields = sorted({key for row in rows for key in row})
-        writer = csv.DictWriter(handle, fieldnames=fields)
+    with (arm_dir / "span_scores.csv").open("w", encoding="utf-8", newline="") as handle:
+        fields = sorted({key for row in score_table for key in row})
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
-        writer.writerows(rows)
-    (output_dir / "report.md").write_text(render_markdown(report), encoding="utf-8")
+        writer.writerows(score_table)
+    with (arm_dir / "report.md").open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(render_markdown(report))
     print(render_markdown(report))
     return 0
 

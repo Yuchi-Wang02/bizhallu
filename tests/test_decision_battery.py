@@ -94,16 +94,23 @@ class StateContractTests(unittest.TestCase):
     def test_dynamic_criteria_follow_table_shape(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
         for record in states:
-            rows = len(record["state"]["evidence_rows"])
+            evidence_rows = record["state"]["evidence_rows"]
+            rows = len(evidence_rows)
             questions = record["questions"]
-            self.assertEqual(len(questions["source_row"]["criteria"]), rows + 1)
-            self.assertIn("none", questions["source_row"]["criteria"])
-            self.assertEqual(len(questions["rank_claim"]["criteria"]), rows + 1)
-            self.assertIn("derived", questions["source_column"]["criteria"])
-            self.assertIn("not_a_number", questions["source_column"]["criteria"])
+            self.assertEqual(sorted(questions), sorted(CONFIG["questions"]))
+            self.assertEqual(list(questions["source_row"]["criteria"]),
+                             [row["row_id"] for row in evidence_rows] + ["n0"])
+            self.assertEqual(list(questions["rank_claim"]["criteria"]),
+                             [f"p{i}" for i in range(1, rows + 1)] + ["p0"])
+            numeric = [c for c in evidence_rows[0] if c in battery.NUMERIC_DISPLAY_COLUMNS]
+            self.assertEqual(list(questions["source_column"]["criteria"]),
+                             [f"c{i}" for i in range(1, len(numeric) + 1)] + ["d1", "d2", "d3"])
+            self.assertEqual(questions["source_column"]["criteria"]["c1"], f"Column {numeric[0]}.")
             self.assertEqual(questions["status"]["criteria"].keys(), {"k7", "m2", "x9"})
+            self.assertEqual(questions["value_faithful"]["criteria"].keys(), {"f1", "f2", "f3", "f4"})
             for spec in questions.values():
                 self.assertNotIn("gold", json.dumps(spec).lower())
+            self.assertEqual(record["role"], GOLD[record["question_id"]]["split"])
 
     def test_mismatched_offsets_are_rejected(self):
         row = dict(span(find("q_0064", "WOODEN UNION JACK BUNTING")))
@@ -166,14 +173,14 @@ class CheckerTests(unittest.TestCase):
 
 
 def fake_response(label, model="jev-1.13.0", flip=False):
-    supported = 0.2 if label else 0.9
+    risk = 0.8 if label else 0.1
     return {"model": model, "answers": {
-        "supported": {"type": "noul", "noul": supported},
-        "present": {"type": "noul", "noul": 0.8},
+        "slot_correct": {"type": "noul", "noul": 1 - risk},
         "status": {"type": "choice", "choice": "m2" if label else "k7",
-                   "probabilities": {"k7": 1 - supported, "m2": supported, "x9": 0.0}, "confidence": 0.5},
-        "conclusion": {"type": "noul", "noul": 0.1},
-        "relation": {"type": "choice", "choice": "entity_value" if not flip else "comparison", "probabilities": {}, "confidence": 0.4},
+                   "probabilities": {"k7": 1 - risk, "m2": risk, "x9": 0.0}, "confidence": 0.5},
+        "value_faithful": {"type": "choice", "choice": "f1",
+                           "probabilities": {"f1": 0.7, "f2": 0.2, "f3": 0.1, "f4": 0.0}, "confidence": 0.7},
+        "relation": {"type": "choice", "choice": "t1" if not flip else "t3", "probabilities": {}, "confidence": 0.4},
     }, "usage": {"input_tokens": 900, "output_tokens": 60}}
 
 
@@ -396,36 +403,133 @@ class ScoreTests(unittest.TestCase):
         rows = [{"annotation_id": "a", "status": 200, "response": fake_response(1)},
                 {"annotation_id": "a", "status": 200, "response": fake_response(1, flip=True)},
                 {"annotation_id": "b", "status": 422, "response": {"error": "bad"}}]
-        aggregated = battery.aggregate_responses(rows)
+        aggregated = battery.aggregate_responses(rows, CONFIG)
         self.assertEqual(set(aggregated), {"a"})
-        self.assertAlmostEqual(aggregated["a"]["jev_risk"], 0.8)
+        self.assertAlmostEqual(aggregated["a"]["dm_risk"], 0.8)
+        self.assertAlmostEqual(aggregated["a"]["dm_unfaithful"], 0.2)
+        self.assertAlmostEqual(aggregated["a"]["dm_conflict_or_undetermined"], 0.8)
         self.assertEqual(aggregated["a"]["repeats"], 2)
         self.assertEqual(aggregated["a"]["choice_flip_rate"]["relation_choice"], 0.5)
+        self.assertIn("status_choice", aggregated["a"]["choice_flip_rate"])
+
+    def test_formula_rules(self):
+        answer = {"noul": 0.25, "probabilities": {"m2": 0.5, "x9": 0.1}}
+        self.assertAlmostEqual(battery.evaluate_formula("1 - noul", answer), 0.75)
+        self.assertAlmostEqual(battery.evaluate_formula("probabilities.m2 + probabilities.x9", answer), 0.6)
+        with self.assertRaises(ValueError):
+            battery.evaluate_formula("probabilities.m2 * 2", answer)
+        with self.assertRaises(KeyError):
+            battery.evaluate_formula("probabilities.k7", answer)
+
+    def _rows_for(self, states, arm, labels, model_for=lambda index: "jev-1.13.0"):
+        expected = battery.expected_request_hashes(states, arm)
+        rows = []
+        for index, record in enumerate(states):
+            rows.append({"annotation_id": record["annotation_id"], "question_id": record["question_id"], "repeat": 0,
+                         "cache_key": str(index), "request_sha256": expected[record["annotation_id"]], "status": 200,
+                         "response": fake_response(labels[record["annotation_id"]], model=model_for(index))})
+        return rows
 
     def test_end_to_end_score_flags_model_drift(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
         labels = {row["annotation_id"]: row["binary_label"] for row in ANNOTATIONS}
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "responses.jsonl"
-            with path.open("w", encoding="utf-8") as handle:
-                for index, record in enumerate(states):
-                    model = "jev-1.14.0" if index == 0 else "jev-1.13.0"
-                    row = {"annotation_id": record["annotation_id"], "question_id": record["question_id"], "repeat": 0,
-                           "cache_key": str(index), "request_sha256": str(index), "status": 200, "attempts": 1,
-                           "elapsed_seconds": 0.1, "response": fake_response(labels[record["annotation_id"]], model=model)}
-                    handle.write(json.dumps(row) + "\n")
-            checker_results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
-            signals = battery.load_stored_signals()
-            report, rows = battery.score_battery(CONFIG, GOLD, ANNOTATIONS, path, checker_results, signals, replicates=50, seed=1)
-        self.assertEqual(len(rows), 70)
+        rows = self._rows_for(states, HOSTED_ARM, labels, lambda index: "jev-1.14.0" if index == 0 else "jev-1.13.0")
+        kept, excluded = battery.select_scored_rows(rows, battery.expected_request_hashes(states, HOSTED_ARM))
+        self.assertEqual((len(kept), excluded), (70, 0))
+        checker_results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
+        signals = battery.load_stored_signals()
+        report, scored = battery.score_battery(CONFIG, GOLD, ANNOTATIONS, kept, checker_results, signals,
+                                               replicates=50, seed=1, arm=HOSTED_ARM)
+        self.assertEqual(len(scored), 70)
+        self.assertEqual(report["model_pinned"], "jev-1.13.0")
         self.assertEqual(report["unexpected_model_versions"], ["jev-1.14.0"])
-        self.assertIn("jev_risk", report["evaluation"]["arms"])
+        self.assertIn("dm_risk", report["evaluation"]["arms"])
         self.assertIn("one_minus_min_top2_margin", report["evaluation"]["arms"])
-        self.assertEqual(report["evaluation"]["arms"]["jev_risk"]["test"]["average_precision"], 1.0)
+        self.assertEqual(report["evaluation"]["arms"]["dm_risk"]["test"]["average_precision"], 1.0)
         self.assertEqual(report["paired_intervals"]["cluster_field"], "question_id")
         self.assertIn("self_consistent_wrong_selection", report["mechanisms"])
         markdown = battery.render_markdown(report)
         self.assertIn("not an independent detector", markdown)
+        self.assertIn("jev-1.14.0", markdown)
+
+    def test_rows_from_another_wording_or_arm_are_excluded(self):
+        states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
+        labels = {row["annotation_id"]: row["binary_label"] for row in ANNOTATIONS}
+        current = self._rows_for(states, HOSTED_ARM, labels)
+        other_wording = json.loads(json.dumps(CONFIG))
+        other_wording["questions"]["slot_correct"]["instructions"] += " Revised."
+        old_states, _ = battery.build_states(other_wording, GOLD, ANNOTATIONS, TEXTS, SOURCES)
+        stale = self._rows_for(old_states, HOSTED_ARM, labels)
+        other_arm = self._rows_for(states, LOCAL_ARM, labels)
+        kept, excluded = battery.select_scored_rows(current + stale + other_arm,
+                                                    battery.expected_request_hashes(states, HOSTED_ARM))
+        self.assertEqual((len(kept), excluded), (70, 140))
+
+    def test_repeat_shortfall_is_reported(self):
+        states = [{"annotation_id": "a", "role": "dev"}, {"annotation_id": "b", "role": "test"}]
+        arm = {**HOSTED_ARM, "repeats": {"dev": 5, "eval": 1}}
+        aggregated = {"a": {"repeats": 3}, "b": {"repeats": 1}}
+        self.assertEqual(battery.repeat_shortfalls(aggregated, states, arm), ["a"])
+
+    def test_endpoint_change_triggers_new_calls(self):
+        states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
+        states = states[:1]
+        sent = []
+
+        def sender(url, payload, key):
+            sent.append(url)
+            return 200, full_response(payload["questions"])
+
+        moved = {**LOCAL_ARM, "endpoint": "http://localhost:8791/v1/systemone"}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            for arm in (LOCAL_ARM, LOCAL_ARM, moved):
+                battery.run_battery(states, arm, None, 1, path, sender=sender, sleeper=lambda s: None,
+                                    log=lambda *a: None, provenance={"battery_id": "b", "config_sha256": "c"})
+            rows = battery.read_jsonl(path)
+        self.assertEqual(sent, [LOCAL_ARM["endpoint"], moved["endpoint"]])
+        for field in ("battery_id", "config_sha256", "arm_id", "endpoint", "requested_model", "called_at_utc", "role"):
+            self.assertIn(field, rows[0])
+        self.assertNotEqual(rows[0]["request_sha256"], rows[1]["request_sha256"])
+
+
+class StatesFileTests(unittest.TestCase):
+    """states files and their manifest (plan T1.6 items 4 to 6); synthetic files only."""
+
+    def test_manifest_detects_a_changed_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config_copy = root / "config.json"
+            arms_copy = root / "arms.json"
+            spans = root / "spans_full100_v1.jsonl"
+            generations = root / "generations.jsonl"
+            for source, target in ((battery.CONFIG_PATH, config_copy), (battery.ARMS_CONFIG_PATH, arms_copy)):
+                target.write_bytes(Path(source).read_bytes())
+            spans.write_text("{}\n", encoding="utf-8")
+            generations.write_text("{}\n", encoding="utf-8")
+            states = [{"annotation_id": "x", "role": "dev", "state": {}, "questions": {}}]
+            self.assertEqual(battery.span_set_id_for(spans), "full100_205")
+            battery.write_states(states, "full100_205", config_copy, arms_copy, spans, generations, root=root)
+            loaded, manifest = battery.load_states("full100_205", config_copy, arms_copy, spans, generations, root=root)
+            self.assertEqual(loaded, states)
+            self.assertEqual(manifest["roles"], {"dev": 1})
+            config_copy.write_text(config_copy.read_text(encoding="utf-8").replace("draft_wording", "draft-wording"),
+                                   encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.load_states("full100_205", config_copy, arms_copy, spans, generations, root=root)
+            self.assertIn("config", str(caught.exception))
+
+    def test_unknown_span_file_name_is_refused(self):
+        with self.assertRaises(SystemExit):
+            battery.span_set_id_for("my_spans.jsonl")
+
+    def test_line_endings_do_not_change_hashes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lf = Path(tmp) / "lf.txt"
+            crlf = Path(tmp) / "crlf.txt"
+            lf.write_bytes(b"a\nb\n")
+            crlf.write_bytes(b"a\r\nb\r\n")
+            self.assertEqual(battery.file_sha256(lf), battery.file_sha256(crlf))
 
 
 class ValidateTests(unittest.TestCase):
