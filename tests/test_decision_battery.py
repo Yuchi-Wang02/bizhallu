@@ -27,23 +27,15 @@ LABELS = battery.load_labels([battery.ANNOTATIONS_PATH], "ai_provisional", CONFI
 TEXTS, SOURCES = battery.load_generated_texts(None)
 TOLERANCE = CONFIG["checker_policy"]["currency_tolerance"]
 PCT_TOL = CONFIG["checker_policy"]["percentage_tolerance_points"]
+CHECKER_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "checker_expected.jsonl"
 
 
 def span(annotation_id):
     return next(row for row in ANNOTATIONS if row["annotation_id"] == annotation_id)
 
 
-def spans_for(question_id):
-    return [row for row in ANNOTATIONS if row["question_id"] == question_id]
-
-
-def check(annotation_id):
-    row = span(annotation_id)
-    return checker.check_span(GOLD[row["question_id"]], row, TEXTS[row["question_id"]], TOLERANCE, PCT_TOL)
-
-
-def find(question_id, text, fact_type=None, occurrence=0):
-    hits = [row for row in spans_for(question_id) if row["span_text"] == text and (fact_type is None or row["fact_type"] == fact_type)]
+def find(question_id, text, occurrence=0):
+    hits = [row for row in ANNOTATIONS if row["question_id"] == question_id and row["span_text"] == text]
     return hits[occurrence]["annotation_id"]
 
 
@@ -135,51 +127,189 @@ class StateContractTests(unittest.TestCase):
 
 
 class CheckerTests(unittest.TestCase):
-    def test_wrong_rank_with_correct_pair_is_selection_error(self):
-        result = check(find("q_0064", "WOODEN UNION JACK BUNTING"))
-        self.assertEqual((result["verdict"], result["mechanism"]), ("contradicted", "self_consistent_wrong_selection"))
-        amount = check(find("q_0064", "GBP 4,173.18"))
-        self.assertEqual((amount["verdict"], amount["mechanism"]), ("contradicted", "self_consistent_wrong_selection"))
-        correct = check(find("q_0064", "GBP 14,280.90"))
-        self.assertEqual((correct["verdict"], correct["mechanism"]), ("supported", "cell_copy"))
+    """Checker on real spans: a snapshot fixture of its own output (no labels), plus the audit structure."""
 
-    def test_direction_and_subject_entity_reversed(self):
-        direction = check(find("q_0039", "generated more net revenue"))
-        self.assertEqual((direction["verdict"], direction["mechanism"]), ("contradicted", "direction_reversed"))
-        subject = check(find("q_0039", "France", "country"))
-        self.assertEqual((subject["verdict"], subject["mechanism"]), ("contradicted", "self_consistent_wrong_selection"))
-        difference = check(find("q_0039", "5,586.83 GBP"))
-        self.assertEqual(difference["mechanism"], "derived_value_matches")
+    def test_real_spans_match_the_snapshot_fixture(self):
+        expected = {row["annotation_id"]: row for row in battery.read_jsonl(CHECKER_FIXTURE)}
+        self.assertEqual(len(expected), 205)
+        texts = TEXTS
+        if battery.DEFAULT_GENERATIONS.exists():
+            texts, _ = battery.load_generated_texts(battery.DEFAULT_GENERATIONS, log=lambda m: None)
+        results = checker.run_checker(CONFIG, GOLD, SPANS, texts)
+        self.assertGreaterEqual(len(results), 70)
+        for item in results:
+            want = expected[item["annotation_id"]]
+            got = {key: item[key] for key in ("verdict", "mechanism", "family", "abstain_reason")}
+            self.assertEqual(got, {key: want[key] for key in got}, item["annotation_id"])
 
-    def test_magnitude_and_column_errors(self):
-        self.assertEqual(check(find("q_0059", "145,614.50 GBP"))["mechanism"], "magnitude_digit_error")
-        self.assertEqual(check(find("q_0098", "GBP 101,759.68"))["mechanism"], "magnitude_digit_error")
-        reduction = check(find("q_0093", "£44,600.65", occurrence=0))
-        net = check(find("q_0093", "£44,600.65", occurrence=1))
-        self.assertEqual((reduction["verdict"], reduction["mechanism"]), ("supported", "cell_copy"))
-        self.assertEqual((net["verdict"], net["mechanism"]), ("contradicted", "same_row_wrong_column"))
-
-    def test_percentage_tolerance_and_period(self):
-        within = check(find("q_0054", "-4.14%"))
-        self.assertEqual(within["verdict"], "supported")
-        outside = check(find("q_0059", "29.75%"))
-        self.assertEqual((outside["verdict"], outside["mechanism"]), ("contradicted", "derived_value_mismatch"))
-        month = check(find("q_0059", "November 2011"))
-        self.assertEqual(month["mechanism"], "period_in_question")
-
-    def test_business_conclusion_is_unparsed(self):
-        conclusion = next(row for row in spans_for("q_0063") if row["fact_type"] == "unsupported_business_claim")
-        self.assertEqual(check(conclusion["annotation_id"])["verdict"], "unparsed")
-
-    def test_audit_reports_agreement_not_detection(self):
+    def test_audit_structure(self):
         results = checker.run_checker(CONFIG, GOLD, SPANS, TEXTS)
-        audit = checker.checker_audit(results, battery.binary_labels(LABELS))
+        roles = {span["annotation_id"]: GOLD[span["question_id"]]["split"] for span in SPANS}
+        audit = checker.checker_audit(results, battery.binary_labels(LABELS), roles, battery.public_question_ids())
         self.assertEqual(audit["span_count"], 70)
         self.assertEqual(audit["unlabelled_skipped"], 0)
-        self.assertEqual(audit["parsed_count"], 69)
-        self.assertEqual(audit["agreement_on_parsed"]["point"], 1.0)
+        self.assertEqual(set(audit["breakdown"]), {"all", "dev", "test", "public_demo_answers", "other_answers"})
+        self.assertEqual(audit["breakdown"]["public_demo_answers"]["span_count"], 70)
+        self.assertEqual(audit["breakdown"]["dev"]["span_count"] + audit["breakdown"]["test"]["span_count"], 70)
+        self.assertLessEqual(audit["decided_count"], audit["span_count"])
         self.assertIn("not detection", audit["note"])
-        self.assertLessEqual(audit["coverage"]["upper_95"], 1.0)
+        self.assertIn("in-sample", audit["note"])
+        self.assertEqual(set(audit["abstain_reasons"]) - {None}, set(audit["abstain_reasons"]))
+
+    def test_mechanism_names_are_listed_in_the_config(self):
+        policy = CONFIG["checker_policy"]
+        self.assertLessEqual(checker.CONTRADICTED_MECHANISMS, set(policy["mechanism_to_family"]))
+        self.assertLessEqual(checker.SUPPORTED_MECHANISMS, set(policy["supported_mechanisms"]))
+        with self.assertRaises(ValueError):
+            checker.checker_family({"annotation_id": "x", "verdict": "contradicted", "mechanism": "made_up"}, policy)
+        self.assertEqual(checker.checker_family({"verdict": "abstain"}, policy), "abstain")
+        self.assertIsNone(checker.checker_family({"verdict": "supported", "mechanism": "cell_copy"}, policy))
+
+
+def synthetic_check(question_id, answer, text, occurrence=0):
+    """Checker verdict for `text` (its n-th occurrence) inside a hand-written answer to a gold question."""
+    start = -1
+    for _ in range(occurrence + 1):
+        start = answer.index(text, start + 1)
+    span = {"annotation_id": "synthetic", "span_text": text, "span_start_char": start, "span_end_char": start + len(text)}
+    return checker.check_span(GOLD[question_id], span, answer, TOLERANCE, PCT_TOL)
+
+
+def verdict_of(question_id, answer, text, occurrence=0):
+    result = synthetic_check(question_id, answer, text, occurrence)
+    return result["verdict"], result["mechanism"]
+
+
+class CheckerFixTests(unittest.TestCase):
+    """One hand-written synthetic answer per fix of plan T1.10, over committed gold rows."""
+
+    def test_nearest_mention_binding_and_excluded_country(self):
+        answer = ("The country with the highest net revenue in April 2011, excluding the United Kingdom, "
+                  "is Germany, with GBP 11,963.37.")
+        self.assertEqual(verdict_of("q_0004", answer, "GBP 11,963.37"), ("supported", "cell_copy"))
+        answer = "Germany and France: France had 25,017.64 GBP, while Germany had 30,604.27 GBP."
+        self.assertEqual(verdict_of("q_0039", answer, "30,604.27 GBP"), ("supported", "cell_copy"))
+        answer = "France: -8,453.41 GBP, while Germany had 30,604.27 GBP."
+        self.assertEqual(verdict_of("q_0039", answer, "-8,453.41 GBP"), ("contradicted", "same_row_wrong_column"))
+
+    def test_share_questions_read_top_n(self):
+        answer = ("The top 3 products (PICNIC BASKET WICKER 60 PIECES, PARTY BUNTING, REGENCY CAKESTAND 3 TIER) "
+                  "made GBP 61,525.31, which is 8.50% of merchandise net revenue.")
+        self.assertEqual(verdict_of("q_0086", answer, "8.50%"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0086", answer, "GBP 61,525.31"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0086", "The top product share is 5.47%.", "5.47%")[0], "contradicted")
+        wrong_product = "SPOTTY BUNTING accounts for 0.87% of merchandise net revenue."
+        self.assertEqual(verdict_of("q_0086", wrong_product, "0.87%"), ("contradicted", "self_consistent_wrong_selection"))
+        component = "REGENCY CAKESTAND 3 TIER contributed GBP 9,453.64."
+        self.assertEqual(verdict_of("q_0086", component, "GBP 9,453.64"), ("supported", "cell_copy"))
+        outside = "SPOTTY BUNTING contributed GBP 6,311.68."
+        self.assertEqual(verdict_of("q_0086", outside, "GBP 6,311.68")[0], "contradicted")
+        single = "PARTY BUNTING is the top product with 2.61% of merchandise net revenue."
+        self.assertEqual(verdict_of("q_0077", single, "2.61%"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0077", single, "PARTY BUNTING"), ("supported", "top_selection"))
+
+    def test_country_comparison_subjects(self):
+        bold = "**France** generated more net revenue than Germany in October 2011."
+        self.assertEqual(verdict_of("q_0039", bold, "France"), ("contradicted", "comparison_subject_reversed"))
+        possessive = "France's net revenue was lower than that of Germany."
+        self.assertEqual(verdict_of("q_0039", possessive, "France")[0], "abstain")
+        obj = "Germany generated more net revenue compared to France."
+        self.assertEqual(verdict_of("q_0039", obj, "France"), ("supported", "compared_entity"))
+
+    def test_operand_presented_as_difference(self):
+        wrong = "Germany led with a difference of 30,604.27 GBP compared to France."
+        self.assertEqual(verdict_of("q_0039", wrong, "30,604.27 GBP"), ("contradicted", "operand_as_difference"))
+        right = "Germany generated more net revenue (30,604.27 GBP) than France (25,017.64 GBP)."
+        self.assertEqual(verdict_of("q_0039", right, "30,604.27 GBP"), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0039", right, "25,017.64 GBP"), ("supported", "cell_copy"))
+
+    def test_rank_phrases_are_not_amounts(self):
+        answer = "Japan ranked 2nd in April 2011."
+        self.assertEqual(verdict_of("q_0004", answer, "ranked 2nd"), ("contradicted", "rank_claim_mismatch"))
+        answer = "EIRE's ranking is **1** among the countries."
+        self.assertEqual(verdict_of("q_0004", answer, "ranking is **1**"),
+                         ("contradicted", "self_consistent_wrong_selection"))
+        answer = "EIRE's ranking is second."
+        self.assertEqual(verdict_of("q_0004", answer, "ranking is second"), ("supported", "rank_matches"))
+        answer = "Germany ranked 1st, excluding the United Kingdom."
+        self.assertEqual(verdict_of("q_0004", answer, "ranked 1st"), ("supported", "rank_matches"))
+        self.assertEqual(verdict_of("q_0004", "It ranked 2nd.", "ranked 2nd")[0], "abstain")
+
+    def test_explicit_negative_signs(self):
+        self.assertEqual(verdict_of("q_0039", "Germany earned more, by -5,586.63 GBP.", "-5,586.63 GBP"),
+                         ("contradicted", "derived_sign_mismatch"))
+        self.assertEqual(verdict_of("q_0093", "The final net revenue was GBP -492,367.84.", "GBP -492,367.84"),
+                         ("contradicted", "sign_mismatch"))
+        self.assertEqual(verdict_of("q_0093", "Cancellations reduced gross positive revenue by -£44,600.65.",
+                                    "-£44,600.65"), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0039", "France had -25,017.64 GBP, while Germany led.", "-25,017.64 GBP"),
+                         ("contradicted", "sign_mismatch"))
+        self.assertEqual(checker.parse_number(chr(0x2212) + "4593.94 GBP"), -4593.94)
+
+    def test_return_impact_roles_by_clause(self):
+        net_first = "The net revenue of GBP 492,367.84 came after returns reduced revenue by GBP 44,600.65."
+        self.assertEqual(verdict_of("q_0093", net_first, "GBP 492,367.84"), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0093", net_first, "GBP 44,600.65"), ("supported", "cell_copy"))
+        underscore = "Final net_revenue: GBP 492,367.84."
+        self.assertEqual(verdict_of("q_0093", underscore, "GBP 492,367.84"), ("supported", "cell_copy"))
+        reduced_net = "Returns reduced net revenue by GBP 44,600.65."
+        self.assertEqual(verdict_of("q_0093", reduced_net, "GBP 44,600.65"), ("supported", "cell_copy"))
+        invoices = "There were 1486 invoices in April 2011."
+        self.assertEqual(verdict_of("q_0093", invoices, "1486"), ("supported", "cell_copy"))
+        gross = "Returns reduced gross positive revenue from GBP 536,968.49 to GBP 492,367.84."
+        self.assertEqual(verdict_of("q_0093", gross, "GBP 536,968.49"), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0093", "It was GBP 44,600.65.", "GBP 44,600.65")[0], "abstain")
+
+    def test_claimed_rank_rules(self):
+        self.assertIsNone(checker.claimed_rank("Rank 1 is A, rank 2 is B and rank 3 is C.", 0))
+        self.assertIsNone(checker.claimed_rank("3.2% of revenue came from PARTY BUNTING.", 0))
+        self.assertIsNone(checker.claimed_rank("0. PARTY BUNTING", 0))
+        self.assertEqual(checker.claimed_rank("- **Rank 2**: PARTY BUNTING with GBP 12,452.17", 20), 2)
+        self.assertEqual(checker.claimed_rank("2) PARTY BUNTING", 3), 2)
+        answer = "The top 3 products were led by PICNIC BASKET WICKER 60 PIECES."
+        self.assertNotEqual(synthetic_check("q_0086", answer, "3")["kind"], "rank_marker")
+        paragraph = "Rank 1 is PICNIC BASKET WICKER 60 PIECES, rank 2 is PARTY BUNTING, rank 3 is REGENCY CAKESTAND 3 TIER."
+        for name in ("PICNIC BASKET WICKER 60 PIECES", "PARTY BUNTING", "REGENCY CAKESTAND 3 TIER"):
+            self.assertNotEqual(synthetic_check("q_0086", paragraph, name)["verdict"], "contradicted")
+
+    def test_abstain_carries_a_reason(self):
+        result = synthetic_check("q_0039", "Germany shows strong seasonal demand.", "strong seasonal demand")
+        self.assertEqual((result["verdict"], result["mechanism"], result["abstain_reason"]),
+                         ("abstain", "abstain", "free_text"))
+        basis = synthetic_check("q_0004", "Germany had 12% more revenue than EIRE.", "12%")
+        self.assertEqual((basis["verdict"], basis["abstain_reason"]), ("abstain", "percentage_without_defined_basis"))
+
+
+def lookup(question_id, answer, text, kind):
+    start = answer.index(text)
+    span = {"annotation_id": "synthetic", "span_text": text, "span_start_char": start, "span_end_char": start + len(text)}
+    return checker.evidence_lookup(GOLD[question_id], span, kind, CONFIG)["verdict"]
+
+
+class EvidenceLookupTests(unittest.TestCase):
+    """evidence_lookup on hand-written marked texts (plan T1.10 item 13)."""
+
+    def test_amounts(self):
+        self.assertEqual(lookup("q_0039", "x 30604.27 GBP", "30604.27 GBP", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0039", "x GBP 30,604.27", "GBP 30,604.27", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0093", "x £44,600.650", "£44,600.650", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0039", "x £30,604", "£30,604", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0093", "x reduced by 44,600.65", "44,600.65", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0039", "x 30,640.27 GBP", "30,640.27 GBP", "currency_or_number"), "flagged")
+        self.assertEqual(lookup("q_0039", "x 5,586.63 GBP", "5,586.63 GBP", "currency_or_number"), "flagged")
+
+    def test_names_codes_months_percentages_and_rank_markers(self):
+        self.assertEqual(lookup("q_0086", "x Party Bunting", "Party Bunting", "entity_name"), "not_flagged")
+        self.assertEqual(lookup("q_0086", "x the  PARTY BUNTING", "the  PARTY BUNTING", "entity_name"), "not_flagged")
+        self.assertEqual(lookup("q_0086", "x LOVE BUNTING", "LOVE BUNTING", "entity_name"), "flagged")
+        self.assertEqual(lookup("q_0086", "x 47566", "47566", "code"), "not_flagged")
+        self.assertEqual(lookup("q_0086", "x 99999", "99999", "code"), "flagged")
+        self.assertEqual(lookup("q_0039", "x October 2011", "October 2011", "month"), "not_flagged")
+        self.assertEqual(lookup("q_0039", "x March 2011", "March 2011", "month"), "flagged")
+        self.assertEqual(lookup("q_0086", "x 8.50%", "8.50%", "percentage"), "flagged")
+        self.assertEqual(lookup("q_0086", "x 3 products", "3", "currency_or_number"), "not_flagged")
+        self.assertEqual(lookup("q_0086", "1. PARTY BUNTING", "1.", "rank_marker"), "abstain")
+        self.assertEqual(lookup("q_0039", "x more than", "more", "direction_word"), "abstain")
 
 
 def fake_response(label, model="jev-1.13.0", flip=False):

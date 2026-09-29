@@ -174,6 +174,14 @@ def binary_labels(labels):
     return {annotation_id: item["binary_label"] for annotation_id, item in labels.items()}
 
 
+def public_question_ids(path=DEMO_PATH):
+    """Question ids of the nine public demo answers the checker rules were first written against."""
+    if not Path(path).exists():
+        return frozenset()
+    with Path(path).open("r", encoding="utf-8") as handle:
+        return frozenset(case["question_id"] for case in json.load(handle).get("cases", []))
+
+
 def load_heldout_ids(path=HELDOUT_SLICE_PATH):
     """Question ids of the label-held-out slice; membership comes only from this file."""
     with Path(path).open("r", encoding="utf-8-sig") as handle:
@@ -1506,8 +1514,10 @@ def assemble_rows(config, gold, spans, labels, texts, sources, traces_path, dm_a
     attributes = span_attributes(config, gold, spans)
     signals, signals_source = load_signals(spans, texts, sources, traces_path)
     checker_results = rule_checker.run_checker(config, gold, spans, texts)
+    lookup_results = rule_checker.run_evidence_lookup(
+        config, gold, spans, {aid: item["span_kind"] for aid, item in attributes.items()})
     rows = base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids,
-                     value_labels=value_labels, include_unlabelled=include_unlabelled)
+                     lookup_results=lookup_results, value_labels=value_labels, include_unlabelled=include_unlabelled)
     labelled = [row for row in rows if row["binary_label"] is not None]
     priors = attach_priors(labelled, legacy=legacy)
     for row in rows:
@@ -1722,7 +1732,9 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
     if kinds["month"] != 37 or test_main != 85:
         failures.append(f"span_kind check: month {kinds['month']} (expected 37), test non-month {test_main} (expected 85)")
     checker = rule_checker.run_checker(config, gold, spans, texts)
-    audit = rule_checker.checker_audit(checker, binary_labels(labels)) if checker else None
+    roles = {span["annotation_id"]: role_for(span["question_id"], gold, load_heldout_ids()) for span in spans}
+    audit = (rule_checker.checker_audit(checker, binary_labels(labels), roles, public_question_ids())
+             if checker else None)
     result = {"config_sha256": file_sha256(config_path), "script_sha256": file_sha256(__file__),
               "tier": "local" if require_local else "public",
               "states_built": len(states), "states_skipped": len(skipped), "text_sources": dict(Counter(sources.values())),
@@ -1788,11 +1800,10 @@ def score_command(args, config, config_path, freeze_overrides, log=print):
     if not labels and not (len(selected) == 1 and args.arms != "all"):
         raise SystemExit("score without --labels writes diagnostics for one arm only; pass --arms <arm_id>")
     states_by_set = {}
-    for span_set_id, path in set_files.items():
-        if states_paths(span_set_id)[0].exists():
-            states_by_set[span_set_id], _ = load_states(span_set_id, config_path, ARMS_CONFIG_PATH, path, args.generations)
-        elif selected:
+    for span_set_id, path in set_files.items() if selected else ():
+        if not states_paths(span_set_id)[0].exists():
             raise SystemExit(f"states of {span_set_id} are missing; run build --spans {path.name} first")
+        states_by_set[span_set_id], _ = load_states(span_set_id, config_path, ARMS_CONFIG_PATH, path, args.generations)
     all_states = [state for states in states_by_set.values() for state in states]
     dm_aggregates, kept_by_arm, shortfalls = {}, {}, []
     for arm_id in selected:
@@ -1985,12 +1996,18 @@ def main(argv=None):
     if args.command == "check":
         checker_results = rule_checker.run_checker(config, gold, spans, texts)
         attributes = span_attributes(config, gold, spans)
+        lookup_results = rule_checker.run_evidence_lookup(
+            config, gold, spans, {aid: item["span_kind"] for aid, item in attributes.items()})
         _write_jsonl(OUTPUT_ROOT / f"checker_{span_set_id}.jsonl", checker_results)
         _write_jsonl(OUTPUT_ROOT / f"span_kind_{span_set_id}.jsonl", span_kind_rows(attributes))
+        _write_jsonl(OUTPUT_ROOT / f"evidence_lookup_{span_set_id}.jsonl", lookup_results)
         summary = {"checker_spans": len(checker_results),
+                   "checker_verdicts": dict(Counter(item["verdict"] for item in checker_results)),
+                   "evidence_lookup_verdicts": dict(Counter(item["verdict"] for item in lookup_results)),
                    "span_kinds": dict(sorted(Counter(item["span_kind"] for item in attributes.values()).items()))}
         if labels:
-            audit = rule_checker.checker_audit(checker_results, binary_labels(labels))
+            roles = {span["annotation_id"]: role_for(span["question_id"], gold, heldout_ids) for span in spans}
+            audit = rule_checker.checker_audit(checker_results, binary_labels(labels), roles, public_question_ids())
             audit["label_mapping"] = args.label_mapping
             _dump_json(OUTPUT_ROOT / f"checker_audit_{span_set_id}_{args.label_mapping}.json", audit)
             summary["audit"] = audit
