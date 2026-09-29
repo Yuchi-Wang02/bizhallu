@@ -12,7 +12,7 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import detector_metrics as metrics  # noqa: E402
+import detector_metrics as metrics
 
 APPROXIMATE_BELOW_CLUSTERS = 20
 

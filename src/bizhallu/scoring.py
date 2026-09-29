@@ -12,8 +12,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import detector_metrics as metrics  # noqa: E402
-from bizhallu import cluster_bootstrap as cb  # noqa: E402
+import detector_metrics as metrics
+from bizhallu import cluster_bootstrap as cb
 
 REFERENCE_ARM = "one_minus_min_top2_margin"
 UNCERTAINTY_ARMS = ["one_minus_min_top2_margin", "mean_token_entropy"]

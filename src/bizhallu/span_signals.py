@@ -69,7 +69,7 @@ def overlapping_tokens(token_spans, span_start, span_end):
 
 def _finite(value):
     if isinstance(value, bool):
-        raise ValueError("Boolean is not a detector score")
+        raise ValueError("Boolean is not a detector score")  # noqa: TRY004 - same error type as detector_metrics.finite_score
     result = float(value)
     if not math.isfinite(result):
         raise ValueError("Score must be finite")

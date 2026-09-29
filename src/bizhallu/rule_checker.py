@@ -10,8 +10,13 @@ import re
 from collections import Counter, defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 
-from bizhallu.evidence import NUMERIC_COLUMNS, evidence_rows_for_state, metric_definitions, ordered_rows, scope_notes
-
+from bizhallu.evidence import (
+    NUMERIC_COLUMNS,
+    evidence_rows_for_state,
+    metric_definitions,
+    ordered_rows,
+    scope_notes,
+)
 
 # ---------------------------------------------------- deterministic check ---
 
@@ -117,7 +122,7 @@ def claimed_rank(line, span_offset):
     if match:
         return int(match.group(1))
     values = set()
-    for found in re.finditer(r"rank(?:ed)?\s*#?\s*([1-9])\b|#([1-9])\b|\b(first|second|third|fourth|fifth)\b", line, re.I):
+    for found in re.finditer(r"rank(?:ed)?\s*#?\s*([1-9])\b|#([1-9])\b|\b(first|second|third|fourth|fifth)\b", line, re.IGNORECASE):
         if found.group(1) or found.group(2):
             values.add(int(found.group(1) or found.group(2)))
         else:
@@ -171,7 +176,7 @@ def question_months(record):
 
 
 def comparison_entities(record, rows):
-    match = re.search(r"did (.+?) or (.+?) generate", record["question"], re.I)
+    match = re.search(r"did (.+?) or (.+?) generate", record["question"], re.IGNORECASE)
     if not match:
         return None
     names = [match.group(1).strip(), match.group(2).strip()]
@@ -236,10 +241,10 @@ def check_span(record, span, answer, tolerance, pct_tol):
                       f"rank {rank} named {actual.get(key)}, table rank {rank} is {expected.get(key)}")
 
     # rank phrases such as "ranked 2nd" or "ranking is second": never parsed as amounts
-    rank_word = re.search(r"\brank(?:ed|ing)?\b", text, re.I)
+    rank_word = re.search(r"\brank(?:ed|ing)?\b", text, re.IGNORECASE)
     if rank_word:
         stated = re.search(r"(?<![\d.,])(\d{1,2})(?:st|nd|rd|th)?(?![\d.,%])|\b(first|second|third|fourth|fifth)\b",
-                           text[rank_word.end():], re.I)
+                           text[rank_word.end():], re.IGNORECASE)
         if not stated:
             return abstain("rank_claim", "rank_claim_without_position")
         position = int(stated.group(1)) if stated.group(1) else ORDINALS.index(stated.group(2).lower()) + 1
@@ -287,7 +292,7 @@ def check_span(record, span, answer, tolerance, pct_tol):
                 # an entity named as the subject of a higher/lower claim inherits that claim's truth value;
                 # markdown emphasis is removed before matching
                 after = re.sub(r"^[\s*_`]+", " ", line[off_end:off_end + 60])
-                claim = re.match(r"\s*(?:generated|had|earned|recorded|posted|produced)?\s*(more|higher|greater|less|lower|fewer)\b", after, re.I)
+                claim = re.match(r"\s*(?:generated|had|earned|recorded|posted|produced)?\s*(more|higher|greater|less|lower|fewer)\b", after, re.IGNORECASE)
                 if claim:
                     says_higher = claim.group(1).lower() in {"more", "higher", "greater"}
                     truly_higher = float(row["net_revenue"]) > float(other["net_revenue"])
@@ -296,33 +301,33 @@ def check_span(record, span, answer, tolerance, pct_tol):
                                   "compared_entity" if ok else "comparison_subject_reversed",
                                   f"{row['country']} claimed {'higher' if says_higher else 'lower'} than {other['country']}")
                 before = re.sub(r"[*_`]", "", line[:off_start])
-                if re.search(r"\b(?:than|compared (?:to|with)|versus|vs\.?)\s+(?:the\s+)?$", before, re.I):
+                if re.search(r"\b(?:than|compared (?:to|with)|versus|vs\.?)\s+(?:the\s+)?$", before, re.IGNORECASE):
                     return finish("entity", "supported", "compared_entity", "object of the comparison")
                 return abstain("entity", "no_comparative_for_entity")
         return abstain("entity", "entity_without_rule_for_question_type")
 
     # comparison direction phrases
-    if qtype == "country_comparison_month" and re.search(r"\b(more|less|higher|lower|greater|exceed|outperform)", text, re.I):
+    if qtype == "country_comparison_month" and re.search(r"\b(more|less|higher|lower|greater|exceed|outperform)", text, re.IGNORECASE):
         pair = comparison_entities(record, rows)
         named = entities_in_line(rows, line, "country")
         if pair and all(pair) and len(named) >= 2:
             first, second = rows[named[0]], rows[named[1]]
-            says_first_higher = bool(re.search(r"\b(more|higher|greater|exceed|outperform)", text, re.I))
+            says_first_higher = bool(re.search(r"\b(more|higher|greater|exceed|outperform)", text, re.IGNORECASE))
             truth_first_higher = float(first["net_revenue"]) > float(second["net_revenue"])
             ok = says_first_higher == truth_first_higher
             return finish("direction", "supported" if ok else "contradicted", "direction_matches" if ok else "direction_reversed",
                           f"{first['country']} vs {second['country']}")
         return abstain("direction", "direction_without_two_entities")
 
-    if qtype == "monthly_revenue_change" and re.fullmatch(r"\s*(increase[sd]?|decrease[sd]?|grew|fell|rose|declined|up|down)\s*", text, re.I):
+    if qtype == "monthly_revenue_change" and re.fullmatch(r"\s*(increase[sd]?|decrease[sd]?|grew|fell|rose|declined|up|down)\s*", text, re.IGNORECASE):
         prev, cur = sorted(rows, key=lambda r: str(r["year_month"]))[:2]
         went_up = float(cur["net_revenue"]) > float(prev["net_revenue"])
-        says_up = bool(re.search(r"increase|grew|rose|up", text, re.I))
+        says_up = bool(re.search(r"increase|grew|rose|up", text, re.IGNORECASE))
         ok = went_up == says_up
         return finish("direction", "supported" if ok else "contradicted", "direction_matches" if ok else "direction_reversed")
 
     # percentages
-    if "%" in text or re.search(r"percent", text, re.I):
+    if "%" in text or re.search(r"percent", text, re.IGNORECASE):
         value = parse_number(text)
         if value is None:
             return abstain("percentage", "no_number")
@@ -407,7 +412,7 @@ def check_span(record, span, answer, tolerance, pct_tol):
             role_difference = bool(
                 re.search(r"\b(?:difference|gap|margin)\b(?:\s+in\s+net[ _]revenue)?\s*(?:of|is|was|:)?\W*(?:gbp)?\W*$", head)
                 or re.search(r"\badditional(?:\s+net[ _]revenue)?(?:\s+of)?\W*(?:gbp)?\W*$", head)
-                or re.match(r"\W*(?:GBP)?\W*(?:more|less|higher|lower)\b", tail, re.I))
+                or re.match(r"\W*(?:GBP)?\W*(?:more|less|higher|lower)\b", tail, re.IGNORECASE))
             if role_difference and any(column == "net_revenue" for _, column in matches):
                 return finish("amount", "contradicted", "operand_as_difference",
                               "a country net revenue is presented as the difference")
@@ -467,7 +472,7 @@ def check_span(record, span, answer, tolerance, pct_tol):
             return finish("amount", "contradicted", "magnitude_digit_error")
         return finish("amount", "contradicted", "value_not_in_table")
 
-    if re.search(r"\b(?:first|second|third|fourth|fifth)\b", text, re.I):
+    if re.search(r"\b(?:first|second|third|fourth|fifth)\b", text, re.IGNORECASE):
         return abstain("other", "rank_word_claim")
     return abstain("other", "free_text", "no number, entity, month or direction recognised")
 

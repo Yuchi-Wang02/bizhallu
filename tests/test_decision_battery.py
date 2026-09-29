@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import re
 import sys
 import tempfile
@@ -14,10 +15,9 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from bizhallu import decision_battery as battery  # noqa: E402
-from bizhallu import evidence  # noqa: E402
-from bizhallu import rule_checker as checker  # noqa: E402
-from bizhallu import span_signals  # noqa: E402
+from bizhallu import decision_battery as battery
+from bizhallu import evidence, span_signals
+from bizhallu import rule_checker as checker
 
 CONFIG = battery.load_config()
 GOLD = battery.load_gold()
@@ -424,7 +424,7 @@ class RunnerTests(unittest.TestCase):
 
     def test_key_is_redacted_from_error_bodies(self):
         def echo(url, payload, key):
-            raise http_error(422, body=f"invalid key {key}".encode("utf-8"))
+            raise http_error(422, body=f"invalid key {key}".encode())
         outcome = self.call(echo, key="sk-secret-123")
         self.assertNotIn("sk-secret-123", json.dumps(outcome))
         self.assertIn("[REDACTED]", outcome["body"]["error"])
@@ -847,8 +847,7 @@ class GuardedLoaderTests(unittest.TestCase):
 
     def _write_jsonl(self, path, records):
         with open(path, "w", encoding="utf-8", newline="\n") as handle:
-            for record in records:
-                handle.write(json.dumps(record) + "\n")
+            handle.writelines(json.dumps(record) + "\n" for record in records)
 
     def test_generations_and_traces_drop_heldout_ids(self):
         messages = []
@@ -1560,6 +1559,189 @@ class FreezeCommandTests(unittest.TestCase):
             self.assertEqual(battery.config_text_with_status('{\n  "status": "draft",\n  "x": {"status": "keep"}\n}',
                                                              "frozen"),
                              '{\n  "status": "frozen",\n  "x": {"status": "keep"}\n}')
+
+def canonical_sha256(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+                          .encode("utf-8")).hexdigest()
+
+
+# Pinned by plan T1.11 item 2. A wording change at G3 or T6.3 updates these in the same commit and in DECISIONS.md.
+QUESTIONS_SHA256 = "9865591b83dab3f8ecf225093364dcf3ce42aad5829c75532fbac0b1a01cf4ae"
+STATE_CONTRACT_SHA256 = "55b9195ec6648da117389f63ceec105ffcdd1c53e016e9cc07d8909a9482c483"
+
+
+def gbp(value):
+    return f"GBP {value:,.2f}"
+
+
+class QuestionTypeCoverageTests(unittest.TestCase):
+    """Synthetic answers for all seven question types; expected verdicts come from the evidence tables."""
+
+    def order(self, question_id):
+        record = GOLD[question_id]
+        return checker.ranking(record, checker.ordered_rows(record))
+
+    def test_top_country_month(self):
+        top, second = self.order("q_0004")[:2]
+        answer = (f"Excluding the United Kingdom, {top['country']} had the highest net revenue, "
+                  f"ahead of {second['country']}.")
+        self.assertEqual(verdict_of("q_0004", answer, top["country"]), ("supported", "top_selection"))
+        wrong = f"{second['country']} had the highest net revenue in April 2011."
+        self.assertEqual(verdict_of("q_0004", wrong, second["country"]), ("contradicted", "self_consistent_wrong_selection"))
+        self.assertEqual(verdict_of("q_0004", answer, "United Kingdom"), ("supported", "scope_restatement"))
+
+    def test_top_product_month(self):
+        order = self.order("q_0020")
+        top, other = order[0], order[3]
+        answer = f"The top product is {top['description']} with {gbp(top['net_revenue'])}."
+        self.assertEqual(verdict_of("q_0020", answer, gbp(top["net_revenue"])), ("supported", "cell_copy"))
+        unnamed = f"The top product earned {gbp(other['net_revenue'])}."
+        self.assertEqual(verdict_of("q_0020", unnamed, gbp(other["net_revenue"])), ("contradicted", "cross_row_value"))
+        absent = "The top product earned GBP 77,777.77."
+        self.assertEqual(verdict_of("q_0020", absent, "GBP 77,777.77"), ("contradicted", "value_not_in_table"))
+
+    def test_top3_products_month(self):
+        first, second, third = self.order("q_0063")[:3]
+        answer = (f"1. {first['description']} ({gbp(first['net_revenue'])})\n"
+                  f"2. {third['description']} ({gbp(third['net_revenue'])})\n")
+        self.assertEqual(verdict_of("q_0063", answer, "1."), ("supported", "rank_matches"))
+        self.assertEqual(verdict_of("q_0063", answer, first["description"]), ("supported", "rank_matches"))
+        self.assertEqual(verdict_of("q_0063", answer, gbp(first["net_revenue"])), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0063", answer, "2."), ("contradicted", "self_consistent_wrong_selection"))
+        self.assertEqual(verdict_of("q_0063", answer, third["description"]),
+                         ("contradicted", "self_consistent_wrong_selection"))
+        self.assertIsNotNone(second)
+
+    def test_product_revenue_share_month(self):
+        record = GOLD["q_0077"]
+        top = self.order("q_0077")[0]
+        total = record["evidence"]["metadata"]["total_merchandise_net_revenue"]
+        share = top["net_revenue"] / total * 100
+        inside = f"{top['description']} accounts for {share:.2f}% of {gbp(total)} merchandise net revenue."
+        self.assertEqual(verdict_of("q_0077", inside, f"{share:.2f}%"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0077", inside, gbp(total)), ("supported", "cell_copy"))
+        outside = f"{top['description']} accounts for {share + 1:.2f}% of merchandise net revenue."
+        self.assertEqual(verdict_of("q_0077", outside, f"{share + 1:.2f}%"), ("contradicted", "derived_value_mismatch"))
+
+    def test_country_comparison_month(self):
+        germany, france = (next(row for row in checker.ordered_rows(GOLD["q_0039"]) if row["country"] == name)
+                           for name in ("Germany", "France"))
+        delta = germany["net_revenue"] - france["net_revenue"]
+        answer = f"Germany generated more net revenue than France, by {delta:,.2f} GBP."
+        self.assertEqual(verdict_of("q_0039", answer, "more net revenue"), ("supported", "direction_matches"))
+        self.assertEqual(verdict_of("q_0039", answer, f"{delta:,.2f} GBP"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0039", answer, "Germany"), ("supported", "compared_entity"))
+
+    def test_monthly_revenue_change(self):
+        previous, current = sorted(checker.ordered_rows(GOLD["q_0053"]), key=lambda row: row["year_month"])
+        change = current["net_revenue"] - previous["net_revenue"]
+        percent = change / previous["net_revenue"] * 100
+        answer = f"Net revenue increased by {gbp(change)}, or {percent:.2f}%, from April 2011 to May 2011."
+        self.assertEqual(verdict_of("q_0053", answer, "increased"), ("supported", "direction_matches"))
+        self.assertEqual(verdict_of("q_0053", answer, gbp(change)), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0053", answer, f"{percent:.2f}%"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0053", answer, "April 2011"), ("supported", "period_in_question"))
+        wrong = "Net revenue decreased from April 2011 to May 2011."
+        self.assertEqual(verdict_of("q_0053", wrong, "decreased"), ("contradicted", "direction_reversed"))
+
+    def test_return_impact_month(self):
+        row = checker.ordered_rows(GOLD["q_0093"])[0]
+        reduction = abs(row["cancellation_revenue"])
+        percent = reduction / row["gross_positive_revenue"] * 100
+        answer = (f"Cancellations and returns reduced gross positive revenue by {gbp(reduction)} ({percent:.2f}%), "
+                  f"resulting in a final net revenue of {gbp(row['net_revenue'])}.")
+        self.assertEqual(verdict_of("q_0093", answer, gbp(reduction)), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0093", answer, f"{percent:.2f}%"), ("supported", "derived_value_matches"))
+        self.assertEqual(verdict_of("q_0093", answer, gbp(row["net_revenue"])), ("supported", "cell_copy"))
+
+    def test_all_seven_question_types_are_covered(self):
+        covered = {GOLD[qid]["question_type"] for qid in ("q_0004", "q_0020", "q_0063", "q_0077", "q_0039", "q_0053", "q_0093")}
+        self.assertEqual(covered, {record["question_type"] for record in GOLD.values()})
+
+
+class PinnedConfigTests(unittest.TestCase):
+    def test_questions_and_state_contract_hashes(self):
+        config = battery.load_config(battery.V2_CONFIG_PATH)
+        self.assertEqual(canonical_sha256(config["questions"]), QUESTIONS_SHA256)
+        self.assertEqual(canonical_sha256(config["state_contract"]), STATE_CONTRACT_SHA256)
+
+
+class CliTests(unittest.TestCase):
+    """build, check and run through main() in a temporary output folder; no network."""
+
+    def test_build_check_and_run_without_a_key(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            root = Path(tmp)
+            with mock.patch.object(battery, "OUTPUT_ROOT", root):
+                self.assertEqual(battery.main(["build"]), 0)
+                manifest = json.loads(battery.states_paths("full100_205", root)[1].read_text(encoding="utf-8"))
+                self.assertIn("module:rule_checker.py", manifest["enforced"])
+                self.assertEqual(battery.main(["check", "--labels", str(battery.ANNOTATIONS_PATH),
+                                               "--label-mapping", "ai_provisional"]), 0)
+                for name in ("checker_full100_205.jsonl", "span_kind_full100_205.jsonl",
+                             "evidence_lookup_full100_205.jsonl", "checker_audit_full100_205_ai_provisional.json"):
+                    self.assertTrue((root / name).exists(), name)
+                with mock.patch.dict(os.environ), self.assertRaises(SystemExit) as caught:
+                    if "TYPESAFE_API_KEY" in os.environ:
+                        del os.environ["TYPESAFE_API_KEY"]
+                    battery.main(["run", "--arm", "hosted_jev_1_13_0", "--split", "dev", "--public-demo"])
+                self.assertIn("TYPESAFE_API_KEY", str(caught.exception))
+                self.assertFalse((root / "hosted_jev_1_13_0" / "responses.jsonl").exists())
+
+    def test_damaged_response_file_stops(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            path.write_text('{"a": 1}\nnot json\n{"b": 2}\n', encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.read_response_rows(path, log=lambda m: None)
+            self.assertIn("line 2", str(caught.exception))
+
+
+class ScoringInvarianceTests(unittest.TestCase):
+    def test_thresholds_ignore_test_rows(self):
+        rows = synthetic_role_rows("dev", 30) + synthetic_role_rows("test", 30)
+        columns = ["one_minus_min_top2_margin", PRIMARY]
+        first = battery.scoring.fit_thresholds(rows, columns, CONFIG, "human_v1_slot")
+        scrambled = [{**row, "binary_label": 1 - row["binary_label"], PRIMARY: 1 - row[PRIMARY]}
+                     if row["role"] == "test" else row for row in rows]
+        second = battery.scoring.fit_thresholds(scrambled, columns, CONFIG, "human_v1_slot")
+        self.assertEqual(first["for_test"], second["for_test"])
+
+    def test_repeat_order_does_not_change_scores(self):
+        responses = [{"annotation_id": "a", "status": 200, "response": fake_response(1, flip=bool(i % 2))}
+                     for i in range(5)]
+        responses[2] = {**responses[2], "response": fake_response(0)}
+        forward = battery.aggregate_responses(responses, CONFIG)
+        backward = battery.aggregate_responses(list(reversed(responses)), CONFIG)
+        for name in CONFIG["derived_scores"]:
+            self.assertEqual(battery.scoring.rounded(forward["a"][name], "a", name),
+                             battery.scoring.rounded(backward["a"][name], "a", name))
+
+    def test_report_text_carries_prevalence_intervals_and_auroc(self):
+        rows = synthetic_role_rows("dev", 30) + synthetic_role_rows("test", 30)
+        labels = {row["annotation_id"]: {"binary_label": row["binary_label"], "value": "x", "row": {}} for row in rows}
+        report, _ = battery.build_report(CONFIG, rows, {}, {}, "human_v1_slot", [], labels, "stored", set(), 20, 1)
+        text = battery.scoring.render_report(report)
+        self.assertIn("prevalence", text)
+        self.assertIn("AUROC [95% CI]", text)
+        self.assertRegex(text, r"one_minus_min_top2_margin \| \d\.\d{3} \[\d\.\d{3}, \d\.\d{3}\]")
+        self.assertTrue(text.startswith("PRE-FREEZE OFFLINE ARMS"))
+
+
+class ShareLabelTests(unittest.TestCase):
+    def test_share_numerator_label_value_is_absent_from_every_share_state(self):
+        for record in GOLD.values():
+            if record["question_type"] != "product_revenue_share_month":
+                continue
+            label = record["evidence"]["metadata"]["share_numerator_label"]
+            state, row = synthetic_state(record)
+            constructed = json.dumps([state["metric_definitions"], state["scope_notes"], state["evidence_rows"]])
+            self.assertNotIn(label.lower(), constructed.lower(), record["question_id"])
+            planted = {**state, "scope_notes": [*state["scope_notes"], f"Numerator: {label}."]}
+            problems = battery.check_state_contract(planted, record, row)
+            self.assertTrue(any(problem.startswith("forbidden fragment present") for problem in problems),
+                            record["question_id"])
 
 if __name__ == "__main__":
     unittest.main()

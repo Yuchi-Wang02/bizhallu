@@ -42,9 +42,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import detector_metrics as metrics  # noqa: E402
-from bizhallu import cluster_bootstrap as cb  # noqa: E402
-from bizhallu import evidence, rule_checker, scoring, span_signals  # noqa: E402
+import detector_metrics as metrics
+from bizhallu import cluster_bootstrap as cb
+from bizhallu import evidence, rule_checker, scoring, span_signals
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 V1_CONFIG_PATH = PROJECT_ROOT / "configs" / "jev_battery_v1.json"
@@ -965,7 +965,7 @@ def read_response_rows(path, log=_stderr):
             if index == len(lines) - 1:
                 log(f"{path}: skipped a truncated last line")
                 continue
-            raise
+            raise SystemExit(f"{path}: line {index + 1} is not valid JSON; the response file is damaged") from None
     return rows
 
 
