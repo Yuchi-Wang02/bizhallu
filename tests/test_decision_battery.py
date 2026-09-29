@@ -1,5 +1,6 @@
 import contextlib
 import csv
+import hashlib
 import io
 import json
 import math
@@ -10,6 +11,7 @@ import unittest
 import urllib.error
 from collections import Counter
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from bizhallu import decision_battery as battery  # noqa: E402
@@ -324,7 +326,7 @@ class RunnerTests(unittest.TestCase):
 
     def _states(self, count=2):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
-        return states[:count]
+        return [state for state in states if state["role"] == "dev"][:count]
 
     def test_rerun_resends_only_failed_or_unusable_calls(self):
         states = self._states()
@@ -485,7 +487,7 @@ class ScoreTests(unittest.TestCase):
 
     def test_endpoint_change_triggers_new_calls(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
-        states = states[:1]
+        states = [state for state in states if state["role"] == "dev"][:1]
         sent = []
 
         def sender(url, payload, key):
@@ -744,7 +746,6 @@ class GuardedLoaderTests(unittest.TestCase):
         self.assertEqual(sources["q_9003"], "public_demo_bundle")
 
     def test_heldout_slice_file(self):
-        import hashlib
         with open(battery.HELDOUT_SLICE_PATH, encoding="utf-8") as handle:
             slice_cfg = json.load(handle)
         ids = slice_cfg["heldout_question_ids"]
@@ -925,6 +926,182 @@ class SpanSignalTests(unittest.TestCase):
                 battery.main(["check", "--labels", str(battery.ANNOTATIONS_PATH)])
             with self.assertRaises(SystemExit):
                 battery.main(["score", "--arm", "hosted_jev_1_13_0"])
+
+FREEZE_FILE_FIELDS = ["codebook_sha256", "annotation_schema_sha256", "labels_205_sha256", "preregistration_sha256",
+                      "span_extractor_sha256", "generations_sha256", "token_traces_sha256"]
+
+
+def synthetic_freeze(root):
+    """A freeze record in `root` that matches synthetic inputs; returns (freeze_path, overrides, states_root)."""
+    overrides = {}
+    for field in FREEZE_FILE_FIELDS:
+        path = root / f"{field}.txt"
+        path.write_text(field, encoding="utf-8")
+        overrides[field] = path
+    states_root = root / "states"
+    states_root.mkdir()
+    states_path, manifest_path = battery.states_paths("full100_205", states_root)
+    states = [{"annotation_id": "a", "question_id": "q_0015", "role": "test", "state": {"x": "1"}, "questions": {}},
+              {"annotation_id": "b", "question_id": "q_0004", "role": "dev", "state": {"x": "2"}, "questions": {}}]
+    states_path.write_text("".join(json.dumps(state) + "\n" for state in states), encoding="utf-8")
+    manifest_path.write_text("{}\n", encoding="utf-8")
+    record = battery.current_freeze_values(overrides, states_root=states_root)
+    record.update({"freeze_id": "synthetic", "amendments": [],
+                   "spans_extractor_only_devtest_sha256": None, "span_source_devtest_sha256": None})
+    freeze_path = root / "decision_battery_v2_freeze.json"
+    freeze_path.write_text(json.dumps(record), encoding="utf-8")
+    return freeze_path, overrides, states_root
+
+
+class FreezeGuardTests(unittest.TestCase):
+    """Split and freeze guard (plan T1.8); synthetic freeze records in temporary folders, no network."""
+
+    def test_synthetic_record_passes_for_test_and_heldout(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_path, overrides, states_root = synthetic_freeze(Path(tmp))
+            for role in ("test", "heldout"):
+                record = battery.require_freeze(role, "t", freeze_path, overrides, states_root=states_root)
+                self.assertEqual(record["freeze_id"], "synthetic")
+
+    def test_missing_record_stops(self):
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(SystemExit) as caught:
+            battery.require_freeze("test", "run --split test", Path(tmp) / "decision_battery_v2_freeze.json")
+        self.assertIn("does not exist", str(caught.exception))
+
+    def test_mismatched_field_is_named(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_path, overrides, states_root = synthetic_freeze(Path(tmp))
+            overrides["codebook_sha256"].write_text("changed", encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.require_freeze("test", "t", freeze_path, overrides, states_root=states_root)
+        self.assertIn("codebook_sha256", str(caught.exception))
+        self.assertNotIn("labels_205_sha256", str(caught.exception))
+
+    def test_heldout_does_not_check_the_test_only_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_path, overrides, states_root = synthetic_freeze(Path(tmp))
+            battery.states_paths("full100_205", states_root)[1].write_text('{"changed": 1}\n', encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.require_freeze("test", "t", freeze_path, overrides, states_root=states_root)
+            self.assertIn("states_manifest_full100_205_sha256", str(caught.exception))
+            battery.require_freeze("heldout", "t", freeze_path, overrides, states_root=states_root)
+
+    def test_test_request_set_covers_every_arm(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _, _, states_root = synthetic_freeze(Path(tmp))
+            states = battery.read_jsonl(battery.states_paths("full100_205", states_root)[0])
+            arms = battery.load_arms()
+            lines = sorted(f"{arm_id}|{digest}" for arm_id, arm in arms.items()
+                           for digest in battery.expected_request_hashes(states[:1], arm).values())
+            expected = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+            self.assertEqual(battery.request_set_sha256(arms, states_root), expected)
+            self.assertEqual(len(lines), 2)
+
+    def test_unrecorded_field_is_a_mismatch_but_nullable_fields_are_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_path, overrides, states_root = synthetic_freeze(Path(tmp))
+            record = json.loads(freeze_path.read_text(encoding="utf-8"))
+            record["preregistration_sha256"] = None
+            freeze_path.write_text(json.dumps(record), encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.require_freeze("heldout", "t", freeze_path, overrides, states_root=states_root)
+            self.assertIn("preregistration_sha256 (not recorded)", str(caught.exception))
+            self.assertNotIn("spans_extractor_only_devtest_sha256", str(caught.exception))
+
+    def test_amendments_take_effect_in_order(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            freeze_path, overrides, states_root = synthetic_freeze(root)
+            old = json.loads(freeze_path.read_text(encoding="utf-8"))["codebook_sha256"]
+            overrides["codebook_sha256"].write_text("codebook v1.1", encoding="utf-8")
+            new = battery.file_sha256(overrides["codebook_sha256"])
+            amendment = root / "decision_battery_v2_freeze_amendment_1.json"
+            amendment.write_text(json.dumps({"fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": new}}}),
+                                 encoding="utf-8")
+            record = battery.require_freeze("test", "t", freeze_path, overrides, states_root=states_root)
+            self.assertEqual(record["codebook_sha256"], new)
+            self.assertEqual([item["file"] for item in record["amendments"]], [amendment.name])
+            wrong_old = root / "decision_battery_v2_freeze_amendment_2.json"
+            wrong_old.write_text(json.dumps({"fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": old}}}),
+                                 encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.load_freeze(freeze_path)
+            self.assertIn("old hash of codebook_sha256", str(caught.exception))
+            wrong_old.unlink()
+            (root / "decision_battery_v2_freeze_amendment_3.json").write_text('{"fields": {}}', encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.load_freeze(freeze_path)
+            self.assertIn("without gaps", str(caught.exception))
+
+    def test_loaders_admit_heldout_ids_only_with_a_valid_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_path, overrides, states_root = synthetic_freeze(Path(tmp))
+            generations = Path(tmp) / "generations.jsonl"
+            generations.write_text(json.dumps({"question_id": "q_9001", "generated_text": "held out"}) + "\n"
+                                   + json.dumps({"question_id": "q_9002", "generated_text": "open"}) + "\n",
+                                   encoding="utf-8")
+            heldout = frozenset({"q_9001"})
+            before = battery.load_generations(generations, battery.readable_heldout_ids(heldout, None), log=lambda m: None)
+            self.assertEqual([row["question_id"] for row in before], ["q_9002"])
+            record = battery.require_freeze("heldout", "t", freeze_path, overrides, states_root=states_root)
+            after = battery.load_generations(generations, battery.readable_heldout_ids(heldout, record), log=lambda m: None)
+            self.assertEqual([row["question_id"] for row in after], ["q_9001", "q_9002"])
+
+    def test_run_battery_sends_only_cleared_roles(self):
+        states = [{"annotation_id": "a", "question_id": "q_0015", "role": "test", "state": {}, "questions": {}}]
+        sent = []
+
+        def sender(url, payload, key):
+            sent.append(url)
+            return 200, {"model": "m", "answers": {}}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            with self.assertRaises(SystemExit):
+                battery.run_battery(states, LOCAL_ARM, None, 1, path, sender=sender, sleeper=lambda s: None,
+                                    log=lambda *a: None)
+            self.assertEqual(sent, [])
+            battery.run_battery(states, LOCAL_ARM, None, 1, path, sender=sender, sleeper=lambda s: None,
+                                log=lambda *a: None, cleared_roles=("test",))
+        self.assertEqual(len(sent), 1)
+
+    def test_cli_run_outside_dev_needs_status_and_freeze(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as caught:
+                battery.main(["run", "--arm", "hosted_jev_1_13_0", "--split", "test"])
+            self.assertIn("accepts only --split dev", str(caught.exception))
+            final = json.loads(battery.CONFIG_PATH.read_text(encoding="utf-8"))
+            final["status"] = "final_wording_not_frozen"
+            config_path = Path(tmp) / "decision_battery_v2.json"
+            config_path.write_text(json.dumps(final), encoding="utf-8")
+            with mock.patch.object(battery, "FREEZE_PATH", Path(tmp) / "decision_battery_v2_freeze.json"):
+                for split in ("test", "heldout"):
+                    with self.assertRaises(SystemExit) as caught:
+                        battery.main(["run", "--config", str(config_path), "--arm", "hosted_jev_1_13_0",
+                                      "--split", split])
+                    self.assertIn("freeze record", str(caught.exception))
+                with self.assertRaises(SystemExit) as caught:
+                    battery.main(["check", "--spans", str(Path(tmp) / "spans_heldout_v1.jsonl")])
+                self.assertIn("freeze record", str(caught.exception))
+            with self.assertRaises(SystemExit):
+                battery.main(["run", "--arm", "hosted_jev_1_13_0"])
+            with self.assertRaises(SystemExit):
+                battery.main(["check", "--split", "dev"])
+
+    def test_heldout_questions_get_the_heldout_role(self):
+        qid = next(span["question_id"] for span in SPANS if span["question_id"] in TEXTS)
+        spans = [span for span in SPANS if span["question_id"] == qid]
+        states, _ = battery.build_states(CONFIG, GOLD, spans, TEXTS, SOURCES, heldout_ids=frozenset({qid}))
+        self.assertEqual({state["role"] for state in states}, {"heldout"})
+        states, _ = battery.build_states(CONFIG, GOLD, spans, TEXTS, SOURCES)
+        self.assertEqual({state["role"] for state in states}, {GOLD[qid]["split"]})
+
+    def test_scoring_rejects_other_roles(self):
+        battery.check_response_roles([{"annotation_id": "a", "role": "dev"}, {"annotation_id": "b", "role": "heldout"}])
+        for role in ("train", None):
+            with self.assertRaises(SystemExit) as caught:
+                battery.check_response_roles([{"annotation_id": "x_1", "role": role}])
+            self.assertIn("x_1", str(caught.exception))
 
 if __name__ == "__main__":
     unittest.main()

@@ -501,9 +501,17 @@ def build_questions(config, state):
     return questions
 
 
-def build_states(config, gold, spans, texts, sources, label_rows=None):
-    """One state per span, labelled or not; label rows are used only for the leak scan."""
+def role_for(question_id, gold, heldout_ids):
+    return "heldout" if question_id in heldout_ids else gold[question_id]["split"]
+
+
+def build_states(config, gold, spans, texts, sources, label_rows=None, heldout_ids=None):
+    """One state per span, labelled or not; label rows are used only for the leak scan.
+
+    The role is heldout for a question in the held-out slice and the gold split otherwise.
+    """
     label_rows = label_rows or {}
+    heldout_ids = load_heldout_ids() if heldout_ids is None else heldout_ids
     states, skipped = [], []
     for span in sorted(spans, key=lambda row: row["annotation_id"]):
         qid = span["question_id"]
@@ -521,7 +529,7 @@ def build_states(config, gold, spans, texts, sources, label_rows=None):
             "annotation_id": span["annotation_id"],
             "question_id": qid,
             "question_type": record["question_type"],
-            "role": record["split"],
+            "role": role_for(qid, gold, heldout_ids),
             "text_source": sources[qid],
             "state": state,
             "questions": questions,
@@ -632,6 +640,154 @@ def load_states(span_set_id, config_path, arms_path, spans_path, generations_pat
     if changed:
         raise SystemExit(f"states manifest does not match the current inputs: {changed}; run build again")
     return read_jsonl(states_path), manifest
+
+
+# ----------------------------------------------------------- freeze guard ---
+
+FREEZE_PATH = PROJECT_ROOT / "configs" / "decision_battery_v2_freeze.json"
+_AMENDMENT_NAME = re.compile(r"^decision_battery_v2_freeze_amendment_(\d+)\.json$")
+EVALUATION_ROLES = ("dev", "test", "heldout")
+EVAL_READY_STATUSES = {"final_wording_not_frozen", "frozen"}
+FREEZE_ENFORCED_FIELDS = [
+    "battery_config_sha256", "arms_config_sha256",
+    "evidence_sha256", "rule_checker_sha256", "span_extractor_sha256", "span_signals_sha256",
+    "codebook_sha256", "annotation_schema_sha256", "labels_205_sha256", "heldout_ids_sha256",
+    "preregistration_sha256", "gold_sha256", "generations_sha256", "token_traces_sha256",
+    "spans_full100_sha256", "spans_extractor_only_devtest_sha256", "span_source_devtest_sha256",
+    "states_manifest_full100_205_sha256", "test_request_set_sha256", "amendments",
+]
+# Written as null while the extractor-only spans are not approved (Q9); then not checked.
+FREEZE_NULLABLE_FIELDS = {"spans_extractor_only_devtest_sha256", "span_source_devtest_sha256"}
+# --split heldout does not check these two (appendix C).
+FREEZE_TEST_ONLY_FIELDS = {"states_manifest_full100_205_sha256", "test_request_set_sha256"}
+REQUEST_SET_SPAN_SETS = ("full100_205", "extractor_only_devtest_v1")
+
+
+def default_freeze_inputs():
+    """Default file behind each file-hash field; the freeze record's `inputs` and the run's own paths override."""
+    return {
+        "battery_config_sha256": V2_CONFIG_PATH,
+        "arms_config_sha256": ARMS_CONFIG_PATH,
+        "evidence_sha256": MODULE_DIR / "evidence.py",
+        "rule_checker_sha256": MODULE_DIR / "rule_checker.py",
+        "span_extractor_sha256": MODULE_DIR / "span_extractor.py",
+        "span_signals_sha256": MODULE_DIR / "span_signals.py",
+        "heldout_ids_sha256": HELDOUT_SLICE_PATH,
+        "gold_sha256": GOLD_PATH,
+        "generations_sha256": DEFAULT_GENERATIONS,
+        "token_traces_sha256": DEFAULT_TRACES,
+        "spans_full100_sha256": SPANS_PATH,
+        "spans_extractor_only_devtest_sha256": SPANS_PATH.parent / "spans_extractor_only_devtest_v1.jsonl",
+        "span_source_devtest_sha256": SPANS_PATH.parent / "span_source_devtest_v1.jsonl",
+    }
+
+
+def freeze_input_paths(record_inputs=None, overrides=None, states_root=None):
+    paths = default_freeze_inputs()
+    paths["states_manifest_full100_205_sha256"] = states_paths("full100_205", states_root)[1]
+    for field, relative in (record_inputs or {}).items():
+        paths[field] = PROJECT_ROOT / relative
+    paths.update({field: Path(path) for field, path in (overrides or {}).items() if path is not None})
+    return paths
+
+
+def request_set_sha256(arms, states_root=None):
+    """SHA-256 over sorted `<arm_id>|<request_sha256>` lines for every test-role state of both span sets and every arm."""
+    lines = []
+    for span_set_id in REQUEST_SET_SPAN_SETS:
+        states_path, _ = states_paths(span_set_id, states_root)
+        if not states_path.exists():
+            continue
+        test_states = [state for state in read_jsonl(states_path) if state.get("role") == "test"]
+        for arm in arms.values():
+            lines += [f"{arm['arm_id']}|{digest}" for digest in expected_request_hashes(test_states, arm).values()]
+    return hashlib.sha256("\n".join(sorted(lines)).encode("utf-8")).hexdigest()
+
+
+def load_freeze(freeze_path=FREEZE_PATH):
+    """The freeze record with every amendment applied in number order, or None when no record exists.
+
+    Amendment N lives next to the record as decision_battery_v2_freeze_amendment_N.json with
+    {"fields": {field: {"old_sha256": ..., "new_sha256": ...}}}. Numbers run 1, 2, ... without gaps;
+    each old hash must equal the value in force before it.
+    """
+    freeze_path = Path(freeze_path)
+    if not freeze_path.exists():
+        return None
+    effective = load_config(freeze_path)
+    applied = list(effective.get("amendments") or [])
+    found = sorted((int(match.group(1)), path) for path in freeze_path.parent.iterdir()
+                   if (match := _AMENDMENT_NAME.match(path.name)))
+    for expected, (number, path) in enumerate(found, start=1):
+        if number != expected:
+            raise SystemExit(f"freeze amendments must be numbered 1, 2, ... without gaps; found {path.name}")
+        for field, change in load_config(path).get("fields", {}).items():
+            if field not in FREEZE_ENFORCED_FIELDS or field == "amendments":
+                raise SystemExit(f"{path.name}: {field} cannot be amended")
+            if change.get("old_sha256") != effective.get(field):
+                raise SystemExit(f"{path.name}: old hash of {field} does not equal the version in force")
+            effective[field] = change["new_sha256"]
+        applied.append({"file": path.name, "sha256": file_sha256(path)})
+    effective["amendments"] = applied
+    effective["_freeze_dir"] = str(freeze_path.parent)
+    return effective
+
+
+def current_freeze_values(overrides=None, arms_path=ARMS_CONFIG_PATH, states_root=None, record_inputs=None,
+                          include_request_set=True):
+    """Current hash of every enforced field that has a file behind it, plus the test request set."""
+    paths = freeze_input_paths(record_inputs, overrides, states_root)
+    values = {field: _sha_or_none(path) for field, path in paths.items() if field in FREEZE_ENFORCED_FIELDS}
+    if include_request_set:
+        values["test_request_set_sha256"] = request_set_sha256(load_arms(arms_path), states_root)
+    return values
+
+
+def freeze_mismatches(record, role, overrides=None, arms_path=ARMS_CONFIG_PATH, states_root=None):
+    """Enforced fields whose recorded hash differs from the current inputs, for sending or scoring `role`."""
+    current = current_freeze_values(overrides, arms_path, states_root, record.get("inputs"),
+                                    include_request_set=role == "test")
+    problems = []
+    for field in FREEZE_ENFORCED_FIELDS:
+        if role != "test" and field in FREEZE_TEST_ONLY_FIELDS:
+            continue
+        expected = record.get(field)
+        if field in FREEZE_NULLABLE_FIELDS and expected is None:
+            continue
+        if field == "amendments":
+            directory = Path(record["_freeze_dir"])
+            if any(not (directory / item["file"]).exists() or file_sha256(directory / item["file"]) != item["sha256"]
+                   for item in expected or []):
+                problems.append(field)
+        elif expected is None:
+            problems.append(f"{field} (not recorded)")
+        elif current.get(field) != expected:
+            problems.append(field)
+    return problems
+
+
+def require_freeze(role, what, freeze_path=FREEZE_PATH, overrides=None, arms_path=ARMS_CONFIG_PATH, states_root=None):
+    """Stop unless a freeze record exists and matches the current inputs for `role`; return the record."""
+    record = load_freeze(freeze_path)
+    if record is None:
+        raise SystemExit(f"{what} needs the freeze record {Path(freeze_path).name}, which does not exist")
+    problems = freeze_mismatches(record, role, overrides, arms_path, states_root)
+    if problems:
+        raise SystemExit(f"{what}: the freeze record does not match the current inputs: {', '.join(problems)}")
+    return record
+
+
+def readable_heldout_ids(heldout_ids, freeze_record):
+    """Held-out ids that the loaders drop: all of them until a valid freeze record exists, none after."""
+    return frozenset() if freeze_record is not None else frozenset(heldout_ids)
+
+
+def check_response_roles(rows):
+    """Scoring accepts only response rows whose role is dev, test or heldout."""
+    for row in rows:
+        if row.get("role") not in EVALUATION_ROLES:
+            raise SystemExit(f"response row for {row.get('annotation_id')} has role {row.get('role')!r}; "
+                             f"only {list(EVALUATION_ROLES)} can be scored")
 
 
 # ------------------------------------------------------------- API runner ---
@@ -805,8 +961,15 @@ def read_response_rows(path, log=_stderr):
 
 
 def run_battery(states, arm, api_key, repeats, responses_path, limit=None, policy=None, sender=None,
-                sleeper=time.sleep, log=print, provenance=None):
-    """Send every (span, repeat) that has no usable cached response yet."""
+                sleeper=time.sleep, log=print, provenance=None, cleared_roles=("dev",)):
+    """Send every (span, repeat) that has no usable cached response yet.
+
+    Only states whose role is in `cleared_roles` are sent; test and heldout are cleared only by
+    require_freeze in main, so nothing but dev leaves this function before freeze point A.
+    """
+    blocked = sorted({state.get("role") for state in states[:limit]} - set(cleared_roles), key=str)
+    if blocked:
+        raise SystemExit(f"refusing to send states with role {blocked}; cleared roles are {sorted(cleared_roles)}")
     policy = policy or api_policy()
     endpoint = check_arm_endpoint(arm)
     responses_path = Path(responses_path)
@@ -1030,8 +1193,9 @@ def aggregate_responses(response_rows, config):
     return aggregated
 
 
-def base_rows(spans, labels, gold, attributes, signals, checker_results):
+def base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids=None):
     """One row per labelled span with the offline arms; decision-model scores are merged later."""
+    heldout_ids = load_heldout_ids() if heldout_ids is None else heldout_ids
     checker = {item["annotation_id"]: item for item in checker_results}
     rows = []
     for span in spans:
@@ -1041,7 +1205,7 @@ def base_rows(spans, labels, gold, attributes, signals, checker_results):
             continue
         attribute = attributes[aid]
         row = {"annotation_id": aid, "question_id": span["question_id"],
-               "split": gold[span["question_id"]]["split"], "question_type": attribute["question_type"],
+               "split": role_for(span["question_id"], gold, heldout_ids), "question_type": attribute["question_type"],
                "span_kind": attribute["span_kind"], "restated_from_question": attribute["restated_from_question"],
                "is_month": attribute["span_kind"] == "month", "evidence_cluster": attribute["evidence_cluster"],
                "fact_type": labels[aid].get("fact_type"), "binary_label": label,
@@ -1335,7 +1499,8 @@ def main(argv=None):
     parser.add_argument("--label-mapping", default=None, help="check, score: a key of the config's label_mapping")
     parser.add_argument("--repeats", type=int, default=None)
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--split", choices=["dev", "test", "all"], default=None)
+    parser.add_argument("--split", choices=list(EVALUATION_ROLES), default=None,
+                        help="run (required): the role to send; test and heldout need the freeze record")
     parser.add_argument("--replicates", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=20260904)
     parser.add_argument("--require-local", action="store_true",
@@ -1348,13 +1513,14 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.repeats is not None and (args.repeats < 1 or args.limit is None):
         parser.error("--repeats must be at least 1 and is only allowed together with --limit")
-    if args.command == "build" and args.split is not None:
-        parser.error("build writes every state of the span set; it does not take --split")
+    if args.command == "run" and args.split is None:
+        parser.error("run needs --split dev, test or heldout")
+    if args.command != "run" and args.split is not None:
+        parser.error("--split is only used by run")
     if bool(args.labels) != bool(args.label_mapping):
         parser.error("--labels and --label-mapping go together")
     if args.command == "score" and not args.labels:
         parser.error("score needs --labels and --label-mapping")
-    split = args.split or "all"
 
     if args.command == "export-spans":
         count = export_spans(ANNOTATIONS_PATH, args.spans)
@@ -1363,6 +1529,13 @@ def main(argv=None):
 
     config_path = Path(args.config)
     config = load_config(config_path)
+    freeze_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": ARMS_CONFIG_PATH,
+                        "generations_sha256": args.generations, "token_traces_sha256": args.traces}
+    if args.command == "run" and args.split != "dev":
+        if config.get("status") not in EVAL_READY_STATUSES:
+            raise SystemExit(f"config status is {config.get('status')!r}; run accepts only --split dev "
+                             f"until the status is one of {sorted(EVAL_READY_STATUSES)}")
+        require_freeze(args.split, f"run --split {args.split}", FREEZE_PATH, freeze_overrides)
 
     if args.command == "validate":
         result = validate(config_path=config_path, generations_path=args.generations if args.require_local else None,
@@ -1378,22 +1551,28 @@ def main(argv=None):
         return 1 if report["problems"] else 0
 
     gold = load_gold()
+    span_set_id = span_set_id_for(args.spans)
+    heldout_ids = load_heldout_ids()
+    freeze_record = None
+    if "heldout" in config["analysis_policy"]["span_sets"][span_set_id]["roles"]:
+        freeze_record = require_freeze("heldout", f"{args.command} on {span_set_id}", FREEZE_PATH, freeze_overrides)
     spans = load_spans(args.spans)
+    if freeze_record is None and any(span["question_id"] in heldout_ids for span in spans):
+        freeze_record = require_freeze("heldout", f"{args.command} on held-out spans", FREEZE_PATH, freeze_overrides)
     labels = load_labels(args.labels, args.label_mapping, config) if args.labels else {}
-    texts, sources = load_generated_texts(args.generations)
+    texts, sources = load_generated_texts(args.generations, heldout_ids=readable_heldout_ids(heldout_ids, freeze_record))
     uses_demo = not Path(args.generations).exists() or "public_demo_bundle" in sources.values()
     if uses_demo and args.command in {"run", "score"} and not args.public_demo:
         raise SystemExit(f"generation file not found or incomplete: {args.generations}; "
                          "pass --public-demo to use the nine public demo answers")
     if uses_demo and args.command in {"build", "check"}:
         _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
-    span_set_id = span_set_id_for(args.spans)
     manifest_args = (config_path, ARMS_CONFIG_PATH, args.spans, args.generations)
 
     if args.command == "build":
         scan_rows = {row["annotation_id"]: row for row in load_annotations()} if ANNOTATIONS_PATH.exists() else {}
         scan_rows.update({aid: item["row"] for aid, item in labels.items()})
-        states, skipped = build_states(config, gold, spans, texts, sources, label_rows=scan_rows)
+        states, skipped = build_states(config, gold, spans, texts, sources, label_rows=scan_rows, heldout_ids=heldout_ids)
         states_path, manifest_path = write_states(states, span_set_id, *manifest_args)
         print(json.dumps({"states": len(states), "skipped": skipped[:5], "skipped_count": len(skipped),
                           "text_sources": dict(Counter(sources.values())), "path": str(states_path),
@@ -1427,24 +1606,27 @@ def main(argv=None):
     states, _ = load_states(span_set_id, *manifest_args)
 
     if args.command == "run":
-        if split != "all":
-            states = [state for state in states if state["role"] == split]
+        states = [state for state in states if state["role"] == args.split]
         api_key = read_api_key(arm)
         if args.repeats is not None:
             repeats = args.repeats
         else:
-            role = "dev" if split == "dev" else "eval"
+            role = "dev" if args.split == "dev" else "eval"
             repeats = (arm.get("repeats") or {}).get(role)
             if not repeats:
                 raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
         arm_dir.mkdir(parents=True, exist_ok=True)
         provenance = {"battery_id": config["battery_id"], "config_sha256": file_sha256(config_path)}
-        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit, provenance=provenance)
+        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit, provenance=provenance,
+                              cleared_roles=(args.split,))
         print(json.dumps(summary, indent=2))
         return 0
 
     rows = read_response_rows(responses_path) if responses_path.exists() else []
+    for role in sorted({row.get("role") for row in rows} & {"test", "heldout"}):
+        require_freeze(role, f"score of {role} responses", FREEZE_PATH, freeze_overrides)
     kept, excluded = select_scored_rows(rows, expected_request_hashes(states, arm))
+    check_response_roles(kept)
     shortfalls = repeat_shortfalls(aggregate_responses(kept, config), states, arm)
     if shortfalls and not args.allow_partial:
         raise SystemExit(f"{len(shortfalls)} spans have a repeat count that differs from the arm setting, "
