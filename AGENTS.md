@@ -39,6 +39,15 @@ Use this public positioning:
 - State that the current evaluation scores pre-identified business-fact spans.
   Automatic claim extraction from unseen responses is outside the current scope.
 
+## Working Rules
+
+1. No new `build_*` / `validate_*` script pairs and no new CI gates. New code goes under `src/bizhallu/` with a test in `tests/`.
+2. Labels, review verdicts and lock decisions are data files, never Python literals. `confidence` must be a real judgment, not a constant.
+3. Every reported detector metric carries a cluster bootstrap 95% interval (question clusters; evidence-table clusters where the analysis plan names them, with question clusters as a sensitivity line), AUROC, the prevalence line, the all-positive F1 and a prior baseline. F1 is never the headline.
+4. State which numbers are in-sample.
+5. `max_selected_step_energy_gap` is max token NLL and is not presented as an energy-family result.
+6. The v1 gold and the 205 provisional labels stay frozen for the historical study.
+
 ## Public Artifact Rules
 
 - `docs/` is the GitHub Pages source of truth.
@@ -77,7 +86,6 @@ python src\validate_confirmation_context_manifest.py
 python src\validate_confirmation_question_design.py
 python src\validate_confirmation_dataset_source_audit.py
 python src\validate_confirmation_set_v1_design.py
-python src\jev_evidence_battery.py validate
 ```
 
 When local full100 artifacts are available, also run:
@@ -100,6 +108,9 @@ labels do not change saved enum values. `--case-id B01 --require-complete` requi
 only the selected case to be submitted, never turns other drafts into labels, and
 does not verify semantic accuracy or independent review. No new Qwen run,
 confirmation execution, baseline expansion or plugin is needed for this batch.
+That sentence describes the September 5 presentation batch. The decision-battery
+research line approved by the owner on 2026-09-29 is a separate line of work. It
+generates no new Qwen answers.
 
 The English primary presentation uses `src/presentation_evidence.py` to check
 six explicitly curated ranked statements in q_0064/q_0069. This is not an
@@ -170,21 +181,29 @@ Do not call the current schema an implemented verifier, use its label-derived
 statuses as predictions, expand it beyond Demo v2, or report verifier metrics until
 an independent claim-evidence decision rule and comparison protocol are fixed and
 validated.
+The deterministic rule checker and the decision-model battery under `src/bizhallu/`
+are separate from Claim-Evidence Review Schema v0, whose restrictions above are
+unchanged. Within the decision-battery line, the rule checker and the
+decision-model arms may be scored against the two-rater human labels. Every such
+number states the module SHA-256, the label file hash, and whether it is in-sample
+or label-held-out. Agreement of the rule checker with the AI-assisted provisional
+labels is a label-consistency audit and is never reported as detection ability.
 
-`configs/jev_battery_v1.json` and `src/jev_evidence_battery.py` add a separate
-retrospective battery that poses each of the 205 pre-identified spans as typed
-questions to the non-generative TypeSafe Jev decision model over the same
-evidence table the generator saw. Its state contract excludes gold answers,
-labels, fact types, splits, detector scores and `share_numerator_label`, and
-rebuilds the generator's row order. The bundled deterministic checker recomputes
-the quantities the labels were derived from; its agreement with labels is a
-label-consistency audit, not detection ability, and it must not be reported as
-a detector result. `validate` runs offline on the nine public demo answers; the
-`run` command needs the local generation file and `TYPESAFE_API_KEY` in the
-environment (never in a file) and writes only under the Git-ignored
-`outputs/jev_battery_v1/`. Any Jev result is a separate estimation study: it
-does not change the published historical values, does not touch the sealed
-Confirmation Set v1 manifests, and must report the pinned model version.
+`configs/decision_battery_v2.json`, `configs/decision_battery_arms_v1.json` and
+`src/bizhallu/decision_battery.py` define a separate retrospective battery. It
+poses each pre-identified span as typed questions to a non-generative decision
+model over the same evidence content, row order, column names and cell text the
+generator saw. States exclude gold answers, labels, fact types, splits, detector
+scores and `share_numerator_label`. `configs/jev_battery_v1.json` was authored but
+never executed and stays unchanged. `validate` checks the nine public demo answers
+by default and the full local package with `--require-local`. `run` needs an
+explicit `--split` and refuses test or held-out spans until a freeze record
+exists. The hosted arm reads its key only from the environment and is run by the
+owner. Outputs are written under the Git-ignored `outputs/decision_battery_v2/`.
+Results are retrospective estimates. They do not change the published historical
+values, do not touch the sealed Confirmation Set v1 manifests, and must report the
+pinned model version. The 44 additional training-split answers are a label-held-out
+retrospective extension and are not context-separated.
 
 Use `configs/methodology_protocol_v1.json` and the generated Methodology
 Hardening v1 report as the source of truth for the limitations of the current
@@ -304,6 +323,13 @@ reports/bizhallu_statistics_v2_local_validation.json` for saved-trace replay.
 No model is invoked. Public validation alone cannot attest to private trace values.
 Do not run Qwen, invent labels, score an independent verifier, inspect confirmation
 outcomes, or present retrospective appendix values as new confirmatory results.
+This sentence governs the B1 and B2 statistics appendices. In the decision-battery
+line, generating new Qwen answers remains out of scope; reading the saved token
+traces is allowed. Running the non-generative decision model `local_open_jev_2b`,
+whose base weights are a Qwen3.5-2B checkpoint, is not a Qwen answer-generation
+run. A teacher-forced forward pass of the generator needs the owner's separate
+written approval. Human labels in that line come only from two human raters; no
+model acts as a rater or adjudicator.
 Any future
 result described as confirmatory must use
 fresh or context-separated data, select annotation targets before answer-quality
