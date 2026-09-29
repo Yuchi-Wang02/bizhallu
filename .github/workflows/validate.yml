@@ -102,6 +102,3 @@ jobs:
 
       - name: Validate relation calibration protocol (no private review packet)
         run: python src/relation_review.py validate
-
-      - name: Validate Jev evidence battery contract (offline, no API call)
-        run: python src/jev_evidence_battery.py validate

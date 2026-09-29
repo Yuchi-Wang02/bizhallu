@@ -7,7 +7,7 @@ import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-import jev_evidence_battery as battery  # noqa: E402
+from bizhallu import decision_battery as battery  # noqa: E402
 
 CONFIG = battery.load_config()
 GOLD = battery.load_gold()
