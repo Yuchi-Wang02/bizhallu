@@ -1,5 +1,6 @@
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -8,6 +9,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from bizhallu import decision_battery as battery  # noqa: E402
+from bizhallu import evidence  # noqa: E402
+from bizhallu import rule_checker as checker  # noqa: E402
 
 CONFIG = battery.load_config()
 GOLD = battery.load_gold()
@@ -27,12 +30,30 @@ def spans_for(question_id):
 
 def check(annotation_id):
     row = span(annotation_id)
-    return battery.check_span(GOLD[row["question_id"]], row, TEXTS[row["question_id"]], TOLERANCE, PCT_TOL)
+    return checker.check_span(GOLD[row["question_id"]], row, TEXTS[row["question_id"]], TOLERANCE, PCT_TOL)
 
 
 def find(question_id, text, fact_type=None, occurrence=0):
     hits = [row for row in spans_for(question_id) if row["span_text"] == text and (fact_type is None or row["fact_type"] == fact_type)]
     return hits[occurrence]["annotation_id"]
+
+
+def import_build_prompts():
+    """Import src/build_prompts.py; without pandas, use a placeholder module only for the import."""
+    import types
+    try:
+        import build_prompts
+        return build_prompts
+    except ImportError:
+        pass
+    placeholder = types.ModuleType("pandas")
+    sys.modules["pandas"] = placeholder
+    try:
+        import build_prompts
+    finally:
+        if sys.modules.get("pandas") is placeholder:
+            del sys.modules["pandas"]
+    return build_prompts
 
 
 class StateContractTests(unittest.TestCase):
@@ -58,16 +79,17 @@ class StateContractTests(unittest.TestCase):
             self.assertEqual(state["evidence_rows"][0]["row_id"], "r1")
 
     def test_row_order_matches_generator_prompt(self):
-        try:
-            import build_prompts  # noqa: F401  (needs pandas)
-        except ImportError:
-            self.skipTest("pandas not installed; build_prompts cannot be imported")
+        build_prompts = import_build_prompts()
+        self.assertEqual(evidence.DISPLAY_COLUMNS, build_prompts.DISPLAY_COLUMNS)
         for record in GOLD.values():
             expected, _ = build_prompts.ordered_rows(record)
-            self.assertEqual(battery.ordered_rows(record), expected)
-            self.assertEqual(battery.metric_definitions(record), build_prompts.metric_definitions(record))
+            self.assertEqual(evidence.ordered_rows(record), expected)
+            self.assertEqual(evidence.metric_definitions(record), build_prompts.metric_definitions(record))
             notes = build_prompts.scope_notes(record) or ["No additional scope notes."]
-            self.assertEqual(battery.scope_notes(record), notes)
+            self.assertEqual(evidence.scope_notes(record), notes)
+            for row in expected:
+                for column, value in row.items():
+                    self.assertEqual(evidence.format_value(value, column), build_prompts.format_value(value, column))
 
     def test_dynamic_criteria_follow_table_shape(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
@@ -134,8 +156,8 @@ class CheckerTests(unittest.TestCase):
         self.assertEqual(check(conclusion["annotation_id"])["verdict"], "unparsed")
 
     def test_audit_reports_agreement_not_detection(self):
-        results = battery.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
-        audit = battery.checker_audit(results, ANNOTATIONS)
+        results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
+        audit = checker.checker_audit(results, ANNOTATIONS)
         self.assertEqual(audit["span_count"], 70)
         self.assertEqual(audit["parsed_count"], 69)
         self.assertEqual(audit["agreement_on_parsed"]["point"], 1.0)
@@ -220,9 +242,9 @@ class ScoreTests(unittest.TestCase):
                            "cache_key": str(index), "request_sha256": str(index), "status": 200, "attempts": 1,
                            "elapsed_seconds": 0.1, "response": fake_response(labels[record["annotation_id"]], model=model)}
                     handle.write(json.dumps(row) + "\n")
-            checker = battery.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
+            checker_results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
             signals = battery.load_stored_signals()
-            report, rows = battery.score_battery(CONFIG, GOLD, ANNOTATIONS, path, checker, signals, replicates=50, seed=1)
+            report, rows = battery.score_battery(CONFIG, GOLD, ANNOTATIONS, path, checker_results, signals, replicates=50, seed=1)
         self.assertEqual(len(rows), 70)
         self.assertEqual(report["unexpected_model_versions"], ["jev-1.14.0"])
         self.assertIn("jev_risk", report["evaluation"]["arms"])
@@ -241,6 +263,56 @@ class ValidateTests(unittest.TestCase):
             self.assertEqual(result["num_failures"], 0, result["failures"])
             self.assertEqual(result["states_built"], 70)
             self.assertTrue((Path(tmp) / "validation.json").exists())
+
+
+def render_state_table(rows):
+    """Markdown table from state evidence rows, in the layout of src/build_prompts.markdown_table."""
+    columns = [column for column in rows[0] if column != "row_id"]
+    lines = ["| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]
+    for row in rows:
+        lines.append("| " + " | ".join(row[column] for column in columns) + " |")
+    return "\n".join(lines)
+
+
+class EvidenceCellTests(unittest.TestCase):
+    """State evidence cells are the generator's prompt cells (plan T1.3)."""
+
+    MONEY = re.compile(r"^-?[0-9]+[.][0-9]{2}$")
+
+    def test_every_cell_is_a_prompt_formatted_string(self):
+        for record in GOLD.values():
+            rows = evidence.evidence_rows_for_state(record)
+            for row in rows:
+                for column, value in row.items():
+                    self.assertIsInstance(value, str, (record["question_id"], column))
+                    if column in ("net_revenue_gbp", "gross_positive_revenue_gbp", "cancellation_return_revenue_gbp"):
+                        self.assertRegex(value, self.MONEY)
+
+    def test_public_demo_row_order(self):
+        with open(battery.DEMO_PATH, encoding="utf-8") as handle:
+            demo = json.load(handle)
+        for case in demo["cases"]:
+            record = GOLD[case["question_id"]]
+            keys = list(case["prompt_evidence_rows"][0])
+            projected = [{key: row[key] for key in keys} for row in evidence.ordered_rows(record)]
+            self.assertEqual(projected, case["prompt_evidence_rows"], case["question_id"])
+
+    def test_unknown_question_type_is_rejected(self):
+        record = {"question_id": "q_9999", "question_type": "new_type", "evidence": {"rows": []}}
+        with self.assertRaises(ValueError):
+            evidence.ordered_rows(record)
+
+    def test_tables_match_stored_prompts_byte_for_byte(self):
+        prompts_path = battery.PROJECT_ROOT / "outputs" / "qwen_input_prompts.jsonl"
+        if not prompts_path.exists():
+            self.skipTest("local prompt file not present")
+        compared = 0
+        for prompt in battery.read_jsonl(prompts_path):
+            record = GOLD[prompt["question_id"]]
+            table = render_state_table(evidence.evidence_rows_for_state(record))
+            self.assertEqual(table, prompt["evidence_table_markdown"], prompt["question_id"])
+            compared += 1
+        self.assertEqual(compared, 100)
 
 
 class GuardedLoaderTests(unittest.TestCase):
