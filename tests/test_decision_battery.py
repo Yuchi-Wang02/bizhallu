@@ -243,5 +243,72 @@ class ValidateTests(unittest.TestCase):
             self.assertTrue((Path(tmp) / "validation.json").exists())
 
 
+class GuardedLoaderTests(unittest.TestCase):
+    """Held-out answers and traces are dropped on read (plan T1.2, red line R8)."""
+
+    def _write_jsonl(self, path, records):
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
+            for record in records:
+                handle.write(json.dumps(record) + "\n")
+
+    def test_generations_and_traces_drop_heldout_ids(self):
+        messages = []
+        with tempfile.TemporaryDirectory() as tmp:
+            gen = Path(tmp) / "gen.jsonl"
+            traces = Path(tmp) / "traces.jsonl"
+            self._write_jsonl(gen, [{"question_id": "q_9001", "generated_text": "a"},
+                                    {"question_id": "q_9002", "generated_text": "b"}])
+            self._write_jsonl(traces, [{"question_id": "q_9001", "token_traces": []},
+                                       {"question_id": "q_9002", "token_traces": []}])
+            kept = battery.load_generations(gen, frozenset({"q_9002"}), log=messages.append)
+            self.assertEqual([r["question_id"] for r in kept], ["q_9001"])
+            kept = battery.load_traces(traces, frozenset({"q_9002"}), log=messages.append)
+            self.assertEqual([r["question_id"] for r in kept], ["q_9001"])
+        self.assertTrue(all("dropped 1 held-out" in m for m in messages), messages)
+
+    def test_generated_texts_drop_heldout_ids_from_both_sources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            gen = Path(tmp) / "gen.jsonl"
+            demo = Path(tmp) / "demo.json"
+            self._write_jsonl(gen, [{"question_id": "q_9001", "generated_text": "a"},
+                                    {"question_id": "q_9002", "generated_text": "b"}])
+            demo.write_text(json.dumps({"cases": [{"question_id": "q_9003", "generated_text": "c"},
+                                                  {"question_id": "q_9004", "generated_text": "d"}]}),
+                            encoding="utf-8")
+            texts, sources = battery.load_generated_texts(gen, demo, frozenset({"q_9002", "q_9004"}),
+                                                          log=lambda m: None)
+        self.assertEqual(sorted(texts), ["q_9001", "q_9003"])
+        self.assertEqual(sources["q_9003"], "public_demo_bundle")
+
+    def test_heldout_slice_file(self):
+        import hashlib
+        with open(battery.HELDOUT_SLICE_PATH, encoding="utf-8") as handle:
+            slice_cfg = json.load(handle)
+        ids = slice_cfg["heldout_question_ids"]
+        self.assertEqual(len(ids), 44)
+        self.assertEqual(ids, sorted(ids))
+        digest = hashlib.sha256(json.dumps(ids, separators=(",", ":")).encode("utf-8")).hexdigest()
+        self.assertEqual(digest, slice_cfg["sha256"])
+        self.assertEqual(digest, "26094d674ed7c170f2c92b67aeb3f984cb089b3afc0e613ca6e5f10edd668087")
+        self.assertTrue(set(slice_cfg["exposed_in_review_question_ids"]) <= set(ids))
+        self.assertEqual(len(slice_cfg["exposed_in_review_question_ids"]), 15)
+        self.assertFalse(set(ids) & set(slice_cfg["excluded_pilot_question_ids"]))
+        splits = {qid: GOLD[qid]["split"] for qid in ids}
+        self.assertEqual(set(splits.values()), {"train"})
+
+    def test_local_files_keep_56_and_drop_44(self):
+        if not battery.DEFAULT_GENERATIONS.exists() or not battery.DEFAULT_TRACES.exists():
+            self.skipTest("local generation or trace file not present")
+        messages = []
+        heldout = battery.load_heldout_ids()
+        generations = battery.load_generations(heldout_ids=heldout, log=messages.append)
+        traces = battery.load_traces(heldout_ids=heldout, log=messages.append)
+        self.assertEqual(len(generations), 56)
+        self.assertEqual(len(traces), 56)
+        self.assertFalse({r["question_id"] for r in generations} & heldout)
+        self.assertFalse({r["question_id"] for r in traces} & heldout)
+        self.assertEqual(sum("dropped 44 held-out" in m for m in messages), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

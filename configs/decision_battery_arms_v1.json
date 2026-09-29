@@ -1,0 +1,49 @@
+{
+  "arms_id": "decision_battery_arms_v1",
+  "status": "draft; endpoint and notes of the local arm are filled in at T5.2; model and repeats.dev at T5.4; repeats.eval at T6.4",
+  "rules": [
+    "Both arms use the same request builder and receive the same question set.",
+    "An arm with auth_env set must use https and a host listed in allowed_hosts.",
+    "An arm without auth_env must use a loopback host, reads no key and sends no Authorization header.",
+    "Notes contain version numbers, hashes and repository-relative paths only. No local absolute paths.",
+    "run uses repeats.dev for the dev role and repeats.eval for the test and heldout roles."
+  ],
+  "arms": [
+    {
+      "arm_id": "local_open_jev_2b",
+      "kind": "local",
+      "role": "primary",
+      "endpoint": null,
+      "allowed_hosts": ["127.0.0.1", "localhost", "::1"],
+      "model": null,
+      "auth_env": null,
+      "repeats": {"dev": null, "eval": null},
+      "notes": {
+        "weights": "ZefanCai/Open-Jev-2B (Apache-2.0), LoRA adapter and scalar decision head; base weights are a Qwen3.5-2B checkpoint; this is a non-generative decision model, not a Qwen answer-generation run",
+        "base_model": "Qwen/Qwen3.5-2B at revision 15852e8c16360a2fea060d615a32b45270f8a8fc",
+        "adapter_sha256": "2d23935b1a7380db444abac572c04646918ba794e59002d1588236182a3ca18f",
+        "head_sha256": "3532cd576c58d5ad5bf17c3e9f2df4be8c70e08c07fa6bb7fa673dcd7b401f2a",
+        "input_limit": "4096 tokens per independently scored candidate; longer input is rejected, not truncated",
+        "to_record_at_T5_2": ["server code commit", "PyTorch version", "calibration temperature as shipped"],
+        "to_record_at_T5_4": ["deterministic or not", "model field of the first smoke response"]
+      }
+    },
+    {
+      "arm_id": "hosted_jev_1_13_0",
+      "kind": "hosted",
+      "role": "comparison",
+      "endpoint": "https://api.typesafe.ai/v1/systemone",
+      "allowed_hosts": ["api.typesafe.ai"],
+      "model": "jev-1.13.0",
+      "auth_env": "TYPESAFE_API_KEY",
+      "repeats": {"dev": null, "eval": null},
+      "notes": {
+        "pin": "jev-latest and jev-preview are aliases and must not be used",
+        "limits": "64k tokens per request; state plus longest question 32k",
+        "terms": "outputs must not be used to distil or train a model (Master Customer Agreement 2.3(b))",
+        "who_runs": "every run and smoke command of this arm is executed by the owner in the owner's own terminal",
+        "to_record_at_T5_4": ["deterministic or not"]
+      }
+    }
+  ]
+}

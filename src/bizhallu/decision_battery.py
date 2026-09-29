@@ -46,7 +46,11 @@ ANNOTATIONS_PATH = PROJECT_ROOT / "data" / "annotations" / "span_annotations_ful
 DEMO_PATH = PROJECT_ROOT / "reports" / "bizhallu_demo_v2_data.json"
 SCORES_PATH = PROJECT_ROOT / "results" / "full100_statistics_v2_scores.csv"
 DEFAULT_GENERATIONS = PROJECT_ROOT / "outputs" / "qwen_full100_generations.jsonl"
+DEFAULT_TRACES = PROJECT_ROOT / "outputs" / "qwen_full100_token_traces.jsonl"
 OUTPUT_DIR = PROJECT_ROOT / "outputs" / "jev_battery_v1"
+V2_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_v2.json"
+ARMS_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_arms_v1.json"
+HELDOUT_SLICE_PATH = PROJECT_ROOT / "configs" / "heldout_slice_v1.json"
 
 DISPLAY_COLUMNS = {
     "country": "country",
@@ -95,11 +99,56 @@ def load_annotations(path=ANNOTATIONS_PATH):
     return rows
 
 
-def load_generated_texts(generations_path=None, demo_path=DEMO_PATH):
-    """Generated answers by question id: local generation file first, demo bundle as fallback."""
+def load_heldout_ids(path=HELDOUT_SLICE_PATH):
+    """Question ids of the label-held-out slice; membership comes only from this file."""
+    with Path(path).open("r", encoding="utf-8-sig") as handle:
+        return frozenset(json.load(handle)["heldout_question_ids"])
+
+
+def _read_guarded_jsonl(path, heldout_ids, what, log):
+    """Read JSONL records and drop held-out question ids as the first step after parsing each line."""
+    records, dropped = [], 0
+    with Path(path).open("r", encoding="utf-8-sig") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            if record.get("question_id") in heldout_ids:
+                dropped += 1
+                continue
+            records.append(record)
+    log(f"{what}: dropped {dropped} held-out records, kept {len(records)}")
+    return records
+
+
+def _stderr(message):
+    print(message, file=sys.stderr)
+
+
+def load_generations(path=DEFAULT_GENERATIONS, heldout_ids=None, log=_stderr):
+    """Generation records with the held-out answers removed on read."""
+    if heldout_ids is None:
+        heldout_ids = load_heldout_ids()
+    return _read_guarded_jsonl(path, heldout_ids, "generations", log)
+
+
+def load_traces(path=DEFAULT_TRACES, heldout_ids=None, log=_stderr):
+    """Token-trace records with the held-out answers removed on read."""
+    if heldout_ids is None:
+        heldout_ids = load_heldout_ids()
+    return _read_guarded_jsonl(path, heldout_ids, "token traces", log)
+
+
+def load_generated_texts(generations_path=None, demo_path=DEMO_PATH, heldout_ids=None, log=_stderr):
+    """Generated answers by question id: local generation file first, demo bundle as fallback.
+
+    Held-out answers are dropped on read, from both sources.
+    """
+    if heldout_ids is None:
+        heldout_ids = load_heldout_ids()
     texts, sources = {}, {}
     if generations_path and Path(generations_path).exists():
-        for record in read_jsonl(generations_path):
+        for record in load_generations(generations_path, heldout_ids, log):
             text = record.get("generated_text")
             if isinstance(text, str) and record.get("question_id"):
                 texts[record["question_id"]] = text
@@ -109,6 +158,8 @@ def load_generated_texts(generations_path=None, demo_path=DEMO_PATH):
             demo = json.load(handle)
         for case in demo.get("cases", []):
             qid = case.get("question_id")
+            if qid in heldout_ids:
+                continue
             if qid and qid not in texts and isinstance(case.get("generated_text"), str):
                 texts[qid] = case["generated_text"]
                 sources[qid] = "public_demo_bundle"
