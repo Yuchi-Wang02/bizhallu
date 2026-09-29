@@ -177,46 +177,218 @@ def fake_response(label, model="jev-1.13.0", flip=False):
     }, "usage": {"input_tokens": 900, "output_tokens": 60}}
 
 
+HOSTED_ARM = {"arm_id": "hosted_test", "kind": "hosted", "endpoint": "https://api.typesafe.ai/v1/systemone",
+              "allowed_hosts": ["api.typesafe.ai"], "model": "jev-1.13.0", "auth_env": "TEST_DM_KEY",
+              "repeats": {"dev": 1, "eval": 1}}
+LOCAL_ARM = {"arm_id": "local_test", "kind": "local", "endpoint": "http://127.0.0.1:8791/v1/systemone",
+             "allowed_hosts": ["127.0.0.1", "localhost", "::1"], "model": "open-jev-2b", "auth_env": None,
+             "repeats": {"dev": 1, "eval": 1}}
+
+
+def http_error(code, body=b"{}", headers=None):
+    return urllib.error.HTTPError("https://api.typesafe.ai/v1/systemone", code, "error", headers or {}, io.BytesIO(body))
+
+
+def full_response(questions, yes=0.9, model="jev-1.13.0"):
+    """A usable response: every question answered, probabilities for every option."""
+    answers = {}
+    for key, spec in questions.items():
+        if spec["type"] == "noul":
+            answers[key] = {"type": "noul", "noul": yes}
+        else:
+            options = list(spec.get("criteria") or {"a": ""})
+            share = 1.0 / len(options)
+            answers[key] = {"type": spec["type"], "choice": options[0],
+                            "probabilities": {option: share for option in options}, "confidence": share}
+    return {"model": model, "answers": answers}
+
+
 class RunnerTests(unittest.TestCase):
-    def test_retry_then_success_and_401_abort(self):
+    """Runner hardening of plan T1.5; every test is offline with an injected sender."""
+
+    def setUp(self):
+        self.policy = battery.api_policy()
+        self.sleeps = []
+
+    def call(self, sender, key="k"):
+        return battery.call_with_retry({"state": "x"}, HOSTED_ARM["endpoint"], key, policy=self.policy,
+                                       sender=sender, sleeper=self.sleeps.append)
+
+    def test_success(self):
+        outcome = self.call(lambda url, payload, key: (200, {"answers": {}}))
+        self.assertEqual((outcome["status"], outcome["attempts"], self.sleeps), (200, 1, []))
+
+    def test_401_and_403_stop_the_run(self):
+        for code in (401, 403):
+            def refuse(url, payload, key, code=code):
+                raise http_error(code)
+            with self.assertRaises(SystemExit):
+                self.call(refuse)
+
+    def test_422_is_not_retried(self):
+        def invalid(url, payload, key):
+            raise http_error(422)
+        outcome = self.call(invalid)
+        self.assertEqual((outcome["status"], outcome["attempts"], self.sleeps), (422, 1, []))
+
+    def test_429_then_200_uses_backoff(self):
         calls = []
 
         def flaky(url, payload, key):
-            calls.append(url)
+            calls.append(1)
             if len(calls) == 1:
-                raise urllib.error.HTTPError(url, 429, "slow down", {}, io.BytesIO(b"{}"))
-            return 200, {"model": "jev-1.13.0", "answers": {}}
+                raise http_error(429)
+            return 200, {"answers": {}}
+        outcome = self.call(flaky)
+        self.assertEqual((outcome["status"], outcome["attempts"], self.sleeps), (200, 2, [2]))
 
-        sleeps = []
-        outcome = battery.call_with_retry({"state": "x"}, CONFIG, "key", sender=flaky, sleeper=sleeps.append)
-        self.assertEqual((outcome["status"], outcome["attempts"], sleeps), (200, 2, [2]))
+    def test_retry_after_header_is_respected_and_capped(self):
+        calls = []
 
-        def unauthorized(url, payload, key):
-            raise urllib.error.HTTPError(url, 401, "no", {}, io.BytesIO(b"{}"))
+        def slow(url, payload, key):
+            calls.append(1)
+            if len(calls) == 1:
+                raise http_error(429, headers={"Retry-After": "10"})
+            if len(calls) == 2:
+                raise http_error(429, headers={"Retry-After": "9999"})
+            return 200, {"answers": {}}
+        self.call(slow)
+        self.assertEqual(self.sleeps, [10.0, 300.0])
 
-        with self.assertRaises(SystemExit):
-            battery.call_with_retry({"state": "x"}, CONFIG, "bad", sender=unauthorized, sleeper=sleeps.append)
+    def test_529_exhausted_and_500_retried(self):
+        for code in (529, 500):
+            self.sleeps.clear()
 
-    def test_cache_skips_completed_repeats(self):
+            def busy(url, payload, key, code=code):
+                raise http_error(code)
+            outcome = self.call(busy)
+            self.assertEqual((outcome["status"], outcome["attempts"]), (code, self.policy["max_attempts"]))
+            self.assertEqual(len(self.sleeps), self.policy["max_attempts"] - 1)
+
+    def test_timeout_and_non_json_are_retried_then_recorded(self):
+        for error in (TimeoutError("read timed out"), json.JSONDecodeError("bad", "doc", 0)):
+            self.sleeps.clear()
+
+            def broken(url, payload, key, error=error):
+                raise error
+            outcome = self.call(broken)
+            self.assertIsNone(outcome["status"])
+            self.assertEqual(outcome["attempts"], self.policy["max_attempts"])
+
+    def test_key_is_redacted_from_error_bodies(self):
+        def echo(url, payload, key):
+            raise http_error(422, body=f"invalid key {key}".encode("utf-8"))
+        outcome = self.call(echo, key="sk-secret-123")
+        self.assertNotIn("sk-secret-123", json.dumps(outcome))
+        self.assertIn("[REDACTED]", outcome["body"]["error"])
+
+    def test_local_arm_sends_no_authorization_header(self):
+        request = battery.build_request(LOCAL_ARM["endpoint"], {"a": 1}, None, "ua/1")
+        self.assertNotIn("Authorization", request.headers)
+        self.assertEqual(request.get_header("User-agent"), "ua/1")
+        self.assertIsNone(battery.read_api_key(LOCAL_ARM, environ={}))
+        request = battery.build_request(HOSTED_ARM["endpoint"], {"a": 1}, "k", "ua/1")
+        self.assertEqual(request.get_header("Authorization"), "Bearer k")
+
+    def test_endpoint_rules(self):
+        battery.check_arm_endpoint(HOSTED_ARM)
+        battery.check_arm_endpoint(LOCAL_ARM)
+        for bad in ({**HOSTED_ARM, "endpoint": "http://api.typesafe.ai/v1/systemone"},
+                    {**HOSTED_ARM, "endpoint": "https://example.com/v1/systemone"},
+                    {**LOCAL_ARM, "endpoint": "http://10.0.0.5:8791/v1/systemone"},
+                    {**LOCAL_ARM, "endpoint": None}):
+            with self.assertRaises(SystemExit):
+                battery.check_arm_endpoint(bad)
+
+    def test_key_handling(self):
+        self.assertEqual(battery.read_api_key(HOSTED_ARM, environ={"TEST_DM_KEY": "abc\n"}), "abc")
+        for value in ("", "a b", "a\tb"):
+            with self.assertRaises(SystemExit) as caught:
+                battery.read_api_key(HOSTED_ARM, environ={"TEST_DM_KEY": value})
+            self.assertNotIn("a b", str(caught.exception))
+
+    def _states(self, count=2):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
-        states = states[:2]
+        return states[:count]
+
+    def test_rerun_resends_only_failed_or_unusable_calls(self):
+        states = self._states()
         sent = []
 
-        def sender(url, payload, key):
+        def first_pass(url, payload, key):
             sent.append(payload["state"]["marked_text"])
-            self.assertEqual(payload["model"], CONFIG["api"]["model"])
+            if len(sent) == 1:
+                return 200, {"model": "jev-1.13.0"}
+            if len(sent) == 2:
+                raise http_error(422)
+            return 200, full_response(payload["questions"])
+
+        def second_pass(url, payload, key):
+            sent.append(payload["state"]["marked_text"])
             self.assertNotIn("gold", json.dumps(payload).lower())
-            return 200, fake_response(0)
+            return 200, full_response(payload["questions"])
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "responses.jsonl"
-            first = battery.run_battery(states, CONFIG, "key", 2, path, sender=sender, sleeper=lambda s: None, log=lambda *a: None)
-            second = battery.run_battery(states, CONFIG, "key", 2, path, sender=sender, sleeper=lambda s: None, log=lambda *a: None)
-            self.assertEqual((first["completed"], second["completed"], len(sent)), (4, 0, 4))
-            rows = battery.read_jsonl(path)
-            self.assertEqual(len(rows), 4)
-            self.assertEqual(len({row["cache_key"] for row in rows}), 4)
-            self.assertEqual(len({row["request_sha256"] for row in rows}), 2)
+            first = battery.run_battery(states, HOSTED_ARM, "k", 2, path, policy=self.policy, sender=first_pass,
+                                        sleeper=lambda s: None, log=lambda *a: None)
+            self.assertEqual((first["completed"], first["failed"]), (2, 2))
+            self.assertEqual(first["spans_without_success"], [states[0]["annotation_id"]])
+            second = battery.run_battery(states, HOSTED_ARM, "k", 2, path, policy=self.policy, sender=second_pass,
+                                         sleeper=lambda s: None, log=lambda *a: None)
+            self.assertEqual((second["completed"], second["failed"], second["cached_success_before_run"]), (2, 0, 2))
+            self.assertEqual(len(sent), 6)
+            third = battery.run_battery(states, HOSTED_ARM, "k", 2, path, policy=self.policy, sender=second_pass,
+                                        sleeper=lambda s: None, log=lambda *a: None)
+            self.assertEqual((third["completed"], third["cached_success_before_run"], len(sent)), (0, 4, 6))
+
+    def test_consecutive_failures_stop_the_run(self):
+        states = self._states(3)
+
+        def always_fails(url, payload, key):
+            raise http_error(422)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            with self.assertRaises(SystemExit):
+                battery.run_battery(states, HOSTED_ARM, "k", 2, path, policy=self.policy, sender=always_fails,
+                                    sleeper=lambda s: None, log=lambda *a: None)
+            self.assertEqual(len(battery.read_jsonl(path)), self.policy["consecutive_failure_limit"])
+
+    def test_truncated_last_line_is_skipped(self):
+        messages = []
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            with open(path, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(json.dumps({"cache_key": "a", "status": 200}) + "\n")
+                handle.write('{"cache_key": "b", "sta')
+            rows = battery.read_response_rows(path, log=messages.append)
+        self.assertEqual([row["cache_key"] for row in rows], ["a"])
+        self.assertTrue(messages)
+
+    def test_smoke_reports_orientation_sums_and_determinism(self):
+        v2 = battery.load_config(battery.V2_CONFIG_PATH)
+
+        def answering(url, payload, key):
+            wrong = "9,999.00" in payload["state"]["marked_text"]
+            return 200, full_response(payload["questions"], yes=0.1 if wrong else 0.9)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "local_test" / "smoke.json"
+            report = battery.run_smoke(v2, LOCAL_ARM, None, out, policy=self.policy, sender=answering,
+                                       sleeper=lambda s: None, log=lambda *a: None)
+            self.assertTrue(out.exists())
+        self.assertEqual(report["problems"], [])
+        self.assertTrue(report["deterministic"])
+        self.assertEqual(report["controls"]["control_correct"]["slot_correct_yes"], [0.9, 0.9, 0.9])
+
+        def backwards(url, payload, key):
+            wrong = "9,999.00" in payload["state"]["marked_text"]
+            return 200, full_response(payload["questions"], yes=0.9 if wrong else 0.1)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report = battery.run_smoke(v2, LOCAL_ARM, None, Path(tmp) / "smoke.json", policy=self.policy,
+                                       sender=backwards, sleeper=lambda s: None, log=lambda *a: None)
+        self.assertEqual(len(report["problems"]), 2)
 
 
 class ScoreTests(unittest.TestCase):

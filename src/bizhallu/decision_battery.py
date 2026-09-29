@@ -32,6 +32,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -64,12 +65,12 @@ REFERENCE_ARMS = ["one_minus_min_top2_margin", "mean_token_entropy", "dev_fact_t
 # ---------------------------------------------------------------- loading ---
 
 def read_jsonl(path):
-    with Path(path).open("r", encoding="utf-8") as handle:
+    with Path(path).open("r", encoding="utf-8-sig") as handle:
         return [json.loads(line) for line in handle if line.strip()]
 
 
 def load_config(path=CONFIG_PATH):
-    with Path(path).open("r", encoding="utf-8") as handle:
+    with Path(path).open("r", encoding="utf-8-sig") as handle:
         return json.load(handle)
 
 
@@ -411,74 +412,300 @@ def build_states(config, gold, annotations, texts, sources):
 
 # ------------------------------------------------------------- API runner ---
 
-def request_payload(state_record, config):
-    return {"state": state_record["state"], "model": config["api"]["model"], "questions": state_record["questions"]}
+LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+_POLICY_CACHE = {}
+
+
+def api_policy(path=None):
+    """Retry, stop and transport rules from the v2 config api block."""
+    key = str(path or V2_CONFIG_PATH)
+    if key not in _POLICY_CACHE:
+        _POLICY_CACHE[key] = load_config(key)["api"]
+    return _POLICY_CACHE[key]
+
+
+def load_arms(path=ARMS_CONFIG_PATH):
+    """Decision-model arms by arm_id."""
+    return {arm["arm_id"]: arm for arm in load_config(path)["arms"]}
+
+
+def check_arm_endpoint(arm):
+    """Hosted arms need https on an allowed host; arms without a key must stay on loopback."""
+    endpoint = arm.get("endpoint")
+    if not endpoint:
+        raise SystemExit(f"arm {arm['arm_id']}: endpoint is not set in the arms config")
+    parsed = urllib.parse.urlparse(endpoint)
+    host = parsed.hostname or ""
+    if arm.get("auth_env"):
+        if parsed.scheme != "https" or host not in arm.get("allowed_hosts", []):
+            raise SystemExit(f"arm {arm['arm_id']}: a keyed arm must use https on an allowed host, got {parsed.scheme}://{host}")
+    elif host not in LOOPBACK_HOSTS or host not in arm.get("allowed_hosts", []):
+        raise SystemExit(f"arm {arm['arm_id']}: an arm without a key must use a loopback host, got {host}")
+    return endpoint
+
+
+def read_api_key(arm, environ=None):
+    """Key from the arm's environment variable; None for arms without a key. Never printed."""
+    env_name = arm.get("auth_env")
+    if not env_name:
+        return None
+    environ = os.environ if environ is None else environ
+    key = (environ.get(env_name) or "").strip()
+    if not key:
+        raise SystemExit(f"Set {env_name} in the environment (never in a file).")
+    if any(char.isspace() for char in key):
+        raise SystemExit(f"{env_name} contains whitespace; set it again without spaces or line breaks.")
+    return key
+
+
+def redact(text, api_key):
+    text = str(text)
+    return text.replace(api_key, "[REDACTED]") if api_key else text
+
+
+def request_payload(state_record, model):
+    """One request builder for every arm: the same state and question set, the arm's model id."""
+    return {"state": state_record["state"], "model": model, "questions": state_record["questions"]}
 
 
 def cache_key(payload, repeat):
     return hashlib.sha256((json.dumps(payload, sort_keys=True, ensure_ascii=False) + f"|repeat={repeat}").encode("utf-8")).hexdigest()
 
 
-def post_json(url, payload, api_key, timeout=60):
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Redirects are failures: a 3xx response is raised as HTTPError instead of being followed."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def build_request(url, payload, api_key, user_agent):
+    headers = {"Content-Type": "application/json", "Accept": "application/json", "User-Agent": user_agent}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    request = urllib.request.Request(url, data=data, method="POST", headers={
-        "Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "Accept": "application/json"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    return urllib.request.Request(url, data=data, method="POST", headers=headers)
+
+
+def post_json(url, payload, api_key, user_agent="bizhallu-decision-battery/2", timeout=60):
+    opener = urllib.request.build_opener(_NoRedirect)
+    with opener.open(build_request(url, payload, api_key, user_agent), timeout=timeout) as response:
         return response.status, json.loads(response.read().decode("utf-8"))
 
 
-def call_with_retry(payload, config, api_key, sender=post_json, sleeper=time.sleep):
-    api = config["api"]
-    attempts = api.get("max_attempts", 6)
-    backoff = api.get("backoff_seconds", [2, 4, 8, 16, 32])
+def _retry_wait(policy, attempt, headers=None):
+    backoff = policy["backoff_seconds"]
+    wait = backoff[min(attempt, len(backoff) - 1)]
+    retry_after = (headers or {}).get("Retry-After") if headers is not None else None
+    if retry_after is not None:
+        try:
+            wait = max(wait, min(float(retry_after), float(policy["retry_after_cap_seconds"])))
+        except (TypeError, ValueError):
+            pass
+    return wait
+
+
+def call_with_retry(payload, endpoint, api_key, policy=None, sender=None, sleeper=time.sleep):
+    """Send one request. Stop on 401/403, retry the configured statuses and transport errors."""
+    policy = policy or api_policy()
+    if sender is None:
+        def sender(url, body, key):
+            return post_json(url, body, key, user_agent=policy["user_agent"])
+    attempts = policy["max_attempts"]
     for attempt in range(attempts):
         try:
-            status, body = sender(api["endpoint"], payload, api_key)
+            status, body = sender(endpoint, payload, api_key)
             return {"status": status, "body": body, "attempts": attempt + 1}
         except urllib.error.HTTPError as error:
-            text = error.read().decode("utf-8", "replace") if hasattr(error, "read") else ""
-            if error.code in api.get("retry_statuses", [429, 529]) and attempt < attempts - 1:
-                sleeper(backoff[min(attempt, len(backoff) - 1)])
+            text = redact(error.read().decode("utf-8", "replace") if hasattr(error, "read") and error.fp else "", api_key)
+            if error.code in policy["fatal_statuses"]:
+                raise SystemExit(f"{error.code} from the API: the key or access was refused. Stopping; nothing more will be sent.")
+            if error.code in policy["retry_statuses"] and attempt < attempts - 1:
+                sleeper(_retry_wait(policy, attempt, error.headers))
                 continue
-            if error.code == 401:
-                raise SystemExit("401 from the API: TYPESAFE_API_KEY was rejected. Nothing was written.")
             return {"status": error.code, "body": {"error": text[:2000]}, "attempts": attempt + 1}
-        except urllib.error.URLError as error:
+        except (OSError, ValueError) as error:
             if attempt < attempts - 1:
-                sleeper(backoff[min(attempt, len(backoff) - 1)])
+                sleeper(_retry_wait(policy, attempt))
                 continue
-            return {"status": None, "body": {"error": str(error)}, "attempts": attempt + 1}
+            return {"status": None, "body": {"error": redact(f"{type(error).__name__}: {error}", api_key)[:2000]},
+                    "attempts": attempt + 1}
     return {"status": None, "body": {"error": "exhausted"}, "attempts": attempts}
 
 
-def run_battery(states, config, api_key, repeats, responses_path, limit=None, sender=post_json, sleeper=time.sleep, log=print):
-    cached = set()
+def _is_probability(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and 0.0 <= value <= 1.0
+
+
+def usable_response(row, questions):
+    """A cached response counts only if it is a 200 whose answers cover every question with valid probabilities."""
+    if row.get("status") != 200:
+        return False
+    response = row.get("response")
+    if not isinstance(response, dict) or not isinstance(response.get("answers"), dict):
+        return False
+    answers = response["answers"]
+    for key, spec in questions.items():
+        answer = answers.get(key)
+        if not isinstance(answer, dict):
+            return False
+        if spec["type"] == "noul":
+            if not _is_probability(answer.get("noul")):
+                return False
+        else:
+            probabilities = answer.get("probabilities")
+            if not isinstance(probabilities, dict):
+                return False
+            options = spec.get("criteria") or {}
+            if any(option not in probabilities or not _is_probability(probabilities[option]) for option in options):
+                return False
+    return True
+
+
+def read_response_rows(path, log=_stderr):
+    """Response rows; a truncated last line (interrupted run) is skipped with a message."""
+    rows = []
+    with Path(path).open("r", encoding="utf-8-sig") as handle:
+        lines = [line for line in handle if line.strip()]
+    for index, line in enumerate(lines):
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            if index == len(lines) - 1:
+                log(f"{path}: skipped a truncated last line")
+                continue
+            raise
+    return rows
+
+
+def run_battery(states, arm, api_key, repeats, responses_path, limit=None, policy=None, sender=None,
+                sleeper=time.sleep, log=print):
+    """Send every (span, repeat) that has no usable cached response yet."""
+    policy = policy or api_policy()
+    endpoint = check_arm_endpoint(arm)
+    responses_path = Path(responses_path)
+    usable_keys, failed_rows_on_disk = set(), 0
+    questions_by_id = {state["annotation_id"]: state["questions"] for state in states}
     if responses_path.exists():
-        for row in read_jsonl(responses_path):
-            cached.add(row["cache_key"])
-    done = failed = 0
-    with responses_path.open("a", encoding="utf-8") as handle:
+        for row in read_response_rows(responses_path, log=log):
+            if usable_response(row, questions_by_id.get(row.get("annotation_id"), {})):
+                usable_keys.add(row["cache_key"])
+            else:
+                failed_rows_on_disk += 1
+    cached_before = len(usable_keys)
+    done = failed = consecutive = sent = 0
+    succeeded_spans, attempted_spans = set(), set()
+    with responses_path.open("a", encoding="utf-8", newline="\n") as handle:
         for state_record in states[:limit]:
-            payload = request_payload(state_record, config)
+            payload = request_payload(state_record, arm["model"])
             for repeat in range(repeats):
                 key = cache_key(payload, repeat)
-                if key in cached:
+                if key in usable_keys:
+                    succeeded_spans.add(state_record["annotation_id"])
                     continue
+                attempted_spans.add(state_record["annotation_id"])
                 started = time.time()
-                outcome = call_with_retry(payload, config, api_key, sender=sender, sleeper=sleeper)
+                outcome = call_with_retry(payload, endpoint, api_key, policy=policy, sender=sender, sleeper=sleeper)
                 row = {"annotation_id": state_record["annotation_id"], "question_id": state_record["question_id"],
                        "repeat": repeat, "cache_key": key, "request_sha256": cache_key(payload, -1),
                        "status": outcome["status"], "attempts": outcome["attempts"],
                        "elapsed_seconds": round(time.time() - started, 3), "response": outcome["body"]}
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
                 handle.flush()
-                cached.add(key)
-                if outcome["status"] == 200:
+                sent += 1
+                if usable_response(row, state_record["questions"]):
+                    usable_keys.add(key)
+                    succeeded_spans.add(state_record["annotation_id"])
                     done += 1
+                    consecutive = 0
                 else:
                     failed += 1
+                    consecutive += 1
                     log(f"{state_record['annotation_id']} repeat {repeat}: status {outcome['status']}")
-    return {"completed": done, "failed": failed, "cached_before_run": len(cached) - done - failed}
+                    if consecutive >= policy["consecutive_failure_limit"]:
+                        raise SystemExit(f"{consecutive} consecutive failed calls; stopping. Rows so far are saved in {responses_path}.")
+                if sent % 25 == 0:
+                    log(f"progress: {sent} calls sent, {done} usable, {failed} failed")
+    summary = {"completed": done, "failed": failed, "cached_success_before_run": cached_before,
+               "failed_rows_on_disk": failed_rows_on_disk + failed,
+               "spans_without_success": sorted(attempted_spans - succeeded_spans)}
+    return summary
+
+
+def check_state_structure(state, contract=None):
+    """Structural part of the contract, usable for hand-written control states without a gold record."""
+    contract = contract or load_state_contract()
+    problems = []
+    if sorted(state) != sorted(contract["included_keys"]):
+        return [f"state keys {sorted(state)} differ from contract"]
+    allowed = set(contract["allowed_evidence_columns"])
+    for row in state["evidence_rows"]:
+        if set(row) - allowed:
+            problems.append(f"evidence columns outside the whitelist: {sorted(set(row) - allowed)}")
+        if not all(isinstance(value, str) for value in row.values()):
+            problems.append("evidence cells must be strings")
+    for field in ("metric_definitions", "scope_notes"):
+        if not isinstance(state[field], list) or not all(isinstance(line, str) for line in state[field]):
+            problems.append(f"{field} must be a flat list of strings")
+    if state["marked_answer"].count(MARK_OPEN) != 1 or state["marked_answer"].count(MARK_CLOSE) != 1:
+        problems.append("marker must appear exactly once")
+    return problems
+
+
+def run_smoke(config, arm, api_key, out_path, policy=None, sender=None, sleeper=time.sleep, log=print):
+    """Send each hand-written control state three times; report orientation, probability sums and spread."""
+    endpoint = check_arm_endpoint(arm)
+    controls = config["control_states"]
+    report = {"arm_id": arm["arm_id"], "requested_model": arm["model"], "controls": {}, "problems": []}
+    all_values = []
+    for name in ("control_correct", "control_wrong"):
+        state = controls[name]
+        problems = check_state_structure(state)
+        if problems:
+            raise SystemExit(f"{name}: " + "; ".join(problems))
+        questions = build_questions(config, state)
+        payload = request_payload({"state": state, "questions": questions}, arm["model"])
+        calls = []
+        for _ in range(3):
+            outcome = call_with_retry(payload, endpoint, api_key, policy=policy, sender=sender, sleeper=sleeper)
+            if outcome["status"] != 200 or not usable_response({"status": 200, "response": outcome["body"]}, questions):
+                raise SystemExit(f"{name}: unusable response (status {outcome['status']})")
+            calls.append(outcome["body"])
+        answers = [body["answers"] for body in calls]
+        yes = [answer["slot_correct"]["noul"] for answer in answers]
+        sums = {key: [round(sum(answer[key]["probabilities"].values()), 6) for answer in answers]
+                for key in ("status", "value_faithful") if key in questions}
+        flat = [_flatten_probabilities(answer) for answer in answers]
+        spread = max((max(values) - min(values) for values in zip(*flat)), default=0.0)
+        all_values.append(spread)
+        report["controls"][name] = {"slot_correct_yes": yes, "probability_sums": sums,
+                                    "max_abs_difference_across_3_calls": spread,
+                                    "response_models": [body.get("model") for body in calls]}
+        if name == "control_correct" and not all(value > 0.5 for value in yes):
+            report["problems"].append("control_correct: slot_correct yes-probability is not above 0.5")
+        if name == "control_wrong" and not all(value < 0.5 for value in yes):
+            report["problems"].append("control_wrong: slot_correct yes-probability is not below 0.5")
+        for key, values in sums.items():
+            if any(not 0.99 <= value <= 1.01 for value in values):
+                report["problems"].append(f"{name}: {key} probabilities do not sum to 1")
+    report["deterministic"] = max(all_values) <= 0.000001
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(report, handle, indent=2, ensure_ascii=False)
+    log(json.dumps(report, indent=2, ensure_ascii=False))
+    return report
+
+
+def _flatten_probabilities(answers):
+    values = []
+    for key in sorted(answers):
+        answer = answers[key]
+        if "noul" in answer:
+            values.append(float(answer["noul"]))
+        for option in sorted(answer.get("probabilities", {})):
+            values.append(float(answer["probabilities"][option]))
+    return values
 
 
 # ------------------------------------------------------------------ score ---
@@ -710,7 +937,7 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=["build", "check", "run", "score", "validate"])
+    parser.add_argument("command", choices=["build", "check", "run", "smoke", "score", "validate"])
     parser.add_argument("--generations", default=str(DEFAULT_GENERATIONS), help="local qwen_full100_generations.jsonl")
     parser.add_argument("--output-dir", default=str(OUTPUT_DIR))
     parser.add_argument("--repeats", type=int, default=None)
@@ -721,7 +948,12 @@ def main(argv=None):
     parser.add_argument("--model", default=None, help="override the pinned model id (recorded in the report)")
     parser.add_argument("--require-local", action="store_true",
                         help="validate: require the local generation file and all 205 states")
+    parser.add_argument("--arm", default=None, help="run, smoke: arm_id from the arms config")
+    parser.add_argument("--public-demo", action="store_true",
+                        help="run, score: allow the nine public demo answers instead of the local generation file")
     args = parser.parse_args(argv)
+    if args.repeats is not None and (args.repeats < 1 or args.limit is None):
+        parser.error("--repeats must be at least 1 and is only allowed together with --limit")
 
     config = load_config()
     if args.model:
@@ -731,6 +963,21 @@ def main(argv=None):
     gold = load_gold()
     annotations = load_annotations()
     texts, sources = load_generated_texts(args.generations)
+    uses_demo = not Path(args.generations).exists() or "public_demo_bundle" in sources.values()
+    if uses_demo and args.command in {"run", "score"} and not args.public_demo:
+        raise SystemExit(f"generation file not found or incomplete: {args.generations}; "
+                         "pass --public-demo to use the nine public demo answers")
+    if uses_demo and args.command in {"build", "check"}:
+        _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
+
+    if args.command == "smoke":
+        if not args.arm:
+            parser.error("smoke needs --arm")
+        v2 = load_config(V2_CONFIG_PATH)
+        arm = load_arms()[args.arm]
+        out_path = PROJECT_ROOT / "outputs" / "decision_battery_v2" / arm["arm_id"] / "smoke.json"
+        report = run_smoke(v2, arm, read_api_key(arm), out_path)
+        return 1 if report["problems"] else 0
 
     if args.command == "validate":
         result = validate(generations_path=args.generations if args.require_local else None,
@@ -766,11 +1013,18 @@ def main(argv=None):
 
     responses_path = output_dir / "responses.jsonl"
     if args.command == "run":
-        api_key = os.environ.get("TYPESAFE_API_KEY")
-        if not api_key:
-            raise SystemExit("Set TYPESAFE_API_KEY in the environment (never in a file).")
-        repeats = args.repeats or config["analysis_policy"]["repeats_per_span"]
-        summary = run_battery(states, config, api_key, repeats, responses_path, limit=args.limit)
+        if not args.arm:
+            parser.error("run needs --arm")
+        arm = load_arms()[args.arm]
+        api_key = read_api_key(arm)
+        if args.repeats is not None:
+            repeats = args.repeats
+        else:
+            role = "dev" if args.split == "dev" else "eval"
+            repeats = (arm.get("repeats") or {}).get(role)
+            if not repeats:
+                raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
+        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit)
         print(json.dumps(summary, indent=2))
         return 0
 
