@@ -1,4 +1,4 @@
-"""Jev evidence-binding battery v1 for BizHallu (standard library only).
+"""Decision battery v2 for BizHallu (standard library only).
 
 Poses each pre-identified business-fact span as typed questions to a
 non-generative decision model (TypeSafe Jev) over the same evidence table the
@@ -7,15 +7,18 @@ label-blind evidence checker and with the stored token-time uncertainty signals.
 
 Subcommands (all offline unless stated):
 
-  build     Build one state per span from committed artifacts plus the local
-            generation file; write outputs/jev_battery_v1/states.jsonl.
-  check     Run the deterministic checker over the states and audit it against
-            the provisional labels; write checker.jsonl and checker_audit.json.
-  run       Send states to the Jev API (network; needs TYPESAFE_API_KEY in the
-            environment) with repeats and a response cache.
-  score     Join cached responses with labels and stored signals; write
-            report.json and report.md.
-  validate  Public offline check of the frozen config and state contract.
+  export-spans  Write the six D10 span fields of the 205 annotations to
+                data/annotations/spans_full100_v1.jsonl (labels stay in their own files).
+  build     Build one state per span (labelled or not) from committed artifacts plus
+            the local generation file; write states_<span_set_id>.jsonl and its manifest.
+  check     Run the label-blind checker and the span-kind rules over every span; with
+            --labels and --label-mapping also audit the checker against those labels.
+  run       Send states to a decision-model arm (network for the hosted arm; the key
+            is read from the environment variable named by the arm) with repeats and a cache.
+  smoke     Send the two control states of the config to one arm and check the replies.
+  score     Join cached responses with labels, uncertainty signals (recomputed from the
+            token traces when present) and priors; write report.json and report.md.
+  validate  Offline check of the config, span file, state contract and span kinds.
 
 The API key is read only from the environment and is never written to disk.
 Nothing here reads the sealed Confirmation Set v1 manifests.
@@ -40,7 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import detector_metrics as metrics  # noqa: E402
-from bizhallu import evidence, rule_checker  # noqa: E402
+from bizhallu import evidence, rule_checker, span_signals  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 V1_CONFIG_PATH = PROJECT_ROOT / "configs" / "jev_battery_v1.json"
@@ -50,6 +53,7 @@ ARMS_CONFIG_PATH = PROJECT_ROOT / "configs" / "decision_battery_arms_v1.json"
 HELDOUT_SLICE_PATH = PROJECT_ROOT / "configs" / "heldout_slice_v1.json"
 GOLD_PATH = PROJECT_ROOT / "data" / "processed" / "business_questions_gold.jsonl"
 ANNOTATIONS_PATH = PROJECT_ROOT / "data" / "annotations" / "span_annotations_full100_draft.jsonl"
+SPANS_PATH = PROJECT_ROOT / "data" / "annotations" / "spans_full100_v1.jsonl"
 DEMO_PATH = PROJECT_ROOT / "reports" / "bizhallu_demo_v2_data.json"
 SCORES_PATH = PROJECT_ROOT / "results" / "full100_statistics_v2_scores.csv"
 DEFAULT_GENERATIONS = PROJECT_ROOT / "outputs" / "qwen_full100_generations.jsonl"
@@ -70,7 +74,12 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
 POSITIVE_LABELS = {"hallucinated_key_fact", "unsupported_claim"}
 NEGATIVE_LABELS = {"correct_key_fact"}
 MARK_OPEN, MARK_CLOSE = "【", "】"
-REFERENCE_ARMS = ["one_minus_min_top2_margin", "mean_token_entropy", "dev_fact_type_prior", "all_positive"]
+SPAN_FIELDS = ["annotation_id", "question_id", "source_generation_file", "span_start_char", "span_end_char", "span_text"]
+EXTRACTOR_SPAN_FIELDS = ["span_source", "span_kind", "restated_from_question"]
+TRACE_SIGNALS = ["one_minus_min_top2_margin", "mean_token_entropy"]
+PRIOR_ARMS = {"dev_span_kind_prior": "span_kind", "dev_question_type_prior": "question_type"}
+LEGACY_PRIOR_ARM = "dev_fact_type_prior"
+REFERENCE_ARMS = TRACE_SIGNALS + list(PRIOR_ARMS) + [LEGACY_PRIOR_ARM, "all_positive"]
 
 
 # ---------------------------------------------------------------- loading ---
@@ -99,6 +108,69 @@ def load_annotations(path=ANNOTATIONS_PATH):
         else:
             row["binary_label"] = None
     return rows
+
+
+def load_spans(path=SPANS_PATH):
+    """Span rows with the six D10 fields (plus the extractor fields when present); labels are never read here."""
+    spans, seen = [], set()
+    for row in read_jsonl(path):
+        missing = [field for field in SPAN_FIELDS if field not in row]
+        if missing:
+            raise SystemExit(f"{Path(path).name}: span {row.get('annotation_id')} lacks {missing}")
+        if row["annotation_id"] in seen:
+            raise SystemExit(f"{Path(path).name}: duplicate annotation_id {row['annotation_id']}")
+        seen.add(row["annotation_id"])
+        spans.append({field: row[field] for field in SPAN_FIELDS + EXTRACTOR_SPAN_FIELDS if field in row})
+    return spans
+
+
+def export_spans(annotations_path=ANNOTATIONS_PATH, out_path=SPANS_PATH):
+    """Write the span file: the six D10 fields of every annotation, sorted by annotation_id."""
+    rows = sorted(read_jsonl(annotations_path), key=lambda row: row["annotation_id"])
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8", newline="\n") as handle:
+        for row in rows:
+            handle.write(json.dumps({field: row[field] for field in SPAN_FIELDS}, ensure_ascii=False) + "\n")
+    return len(rows)
+
+
+def label_mapping_names(config):
+    return sorted(name for name, spec in config["label_mapping"].items() if isinstance(spec, dict))
+
+
+def load_labels(paths, mapping_name, config):
+    """Binary labels under one label_mapping of the config, by annotation_id.
+
+    Values listed as excluded, and rows without the mapped field, get binary_label None; any other
+    unlisted value stops the run. Label files are separate from span files and may be repeated.
+    """
+    if mapping_name not in label_mapping_names(config):
+        raise SystemExit(f"unknown label mapping {mapping_name!r}; expected one of {label_mapping_names(config)}")
+    mapping = config["label_mapping"][mapping_name]
+    labels = {}
+    for path in paths:
+        for row in read_jsonl(path):
+            annotation_id = row["annotation_id"]
+            if annotation_id in labels:
+                raise SystemExit(f"annotation_id {annotation_id} has labels in more than one row")
+            value = row.get(mapping["field"])
+            if value in mapping["positive"]:
+                binary = 1
+            elif value in mapping["negative"]:
+                binary = 0
+            elif value is None or value in mapping["excluded"]:
+                binary = None
+            else:
+                raise SystemExit(f"{Path(path).name}: {annotation_id} has {mapping['field']}={value!r}, "
+                                 f"which label mapping {mapping_name} does not list")
+            labels[annotation_id] = {"binary_label": binary, "value": value, "fact_type": row.get("fact_type"),
+                                     "row": row}
+    return labels
+
+
+def binary_labels(labels):
+    return {annotation_id: item["binary_label"] for annotation_id, item in labels.items()}
 
 
 def load_heldout_ids(path=HELDOUT_SLICE_PATH):
@@ -169,6 +241,7 @@ def load_generated_texts(generations_path=None, demo_path=DEMO_PATH, heldout_ids
 
 
 def load_stored_signals(path=SCORES_PATH, arm="saved_trace_precision"):
+    """Uncertainty signals saved by the retrospective statistics run; fallback when traces are absent."""
     signals = {}
     if not Path(path).exists():
         return signals
@@ -176,12 +249,30 @@ def load_stored_signals(path=SCORES_PATH, arm="saved_trace_precision"):
         for row in csv.DictReader(handle):
             if row.get("arm") != arm:
                 continue
-            signals[row["annotation_id"]] = {
-                "evidence_cluster": row.get("evidence_cluster"),
-                "period_component": row.get("period_component"),
-                **{key: float(row[key]) for key in REFERENCE_ARMS if key in row},
-            }
+            signals[row["annotation_id"]] = {key: float(row[key]) for key in TRACE_SIGNALS if key in row}
     return signals
+
+
+def trace_signals(spans, texts, traces_path=DEFAULT_TRACES, heldout_ids=None, log=_stderr):
+    """Uncertainty signals recomputed from saved token traces (read through the guarded loader)."""
+    traces = {record["question_id"]: record["token_traces"]
+              for record in load_traces(traces_path, heldout_ids, log)}
+    signals = {}
+    for span in spans:
+        qid = span["question_id"]
+        if qid not in traces or qid not in texts:
+            continue
+        scores = span_signals.span_token_signals(traces[qid], texts[qid], span["span_start_char"],
+                                                 span["span_end_char"], qid)
+        signals[span["annotation_id"]] = {key: scores[key] for key in TRACE_SIGNALS}
+    return signals
+
+
+def load_signals(spans, texts, sources, traces_path=DEFAULT_TRACES):
+    """Recomputed signals when the trace file and local answers exist, else the stored CSV values."""
+    if traces_path and Path(traces_path).exists() and "local_generations" in sources.values():
+        return trace_signals(spans, texts, traces_path), "recomputed_from_traces"
+    return load_stored_signals(), "stored_csv_saved_trace_precision"
 
 
 # ------------------------------------------------- prompt reconstruction ---
@@ -410,20 +501,20 @@ def build_questions(config, state):
     return questions
 
 
-def build_states(config, gold, annotations, texts, sources):
+def build_states(config, gold, spans, texts, sources, label_rows=None):
+    """One state per span, labelled or not; label rows are used only for the leak scan."""
+    label_rows = label_rows or {}
     states, skipped = [], []
-    for span in sorted(annotations, key=lambda row: row["annotation_id"]):
+    for span in sorted(spans, key=lambda row: row["annotation_id"]):
         qid = span["question_id"]
-        if span["binary_label"] is None:
-            skipped.append({"annotation_id": span["annotation_id"], "reason": "label excluded from binary metrics"})
-            continue
         if qid not in texts:
             skipped.append({"annotation_id": span["annotation_id"], "reason": "generated text unavailable"})
             continue
         record = gold[qid]
         state = build_state(record, span, texts[qid])
         questions = build_questions(config, state)
-        problems = check_state_contract(state, record, span, config, questions=questions)
+        problems = check_state_contract(state, record, span, config, questions=questions,
+                                        label_row=label_rows.get(span["annotation_id"]))
         if problems:
             raise ValueError(f"{span['annotation_id']}: " + "; ".join(problems))
         states.append({
@@ -436,6 +527,30 @@ def build_states(config, gold, annotations, texts, sources):
             "questions": questions,
         })
     return states, skipped
+
+
+def span_attributes(config, gold, spans):
+    """Label-independent attributes per span: span kind, restatement, question type and evidence cluster."""
+    rules = config["span_kind"]
+    clusters = {}
+    attributes = {}
+    for span in spans:
+        record = gold[span["question_id"]]
+        if record["question_id"] not in clusters:
+            clusters[record["question_id"]] = span_signals.evidence_cluster(record)
+        attributes[span["annotation_id"]] = {
+            "span_kind": span_signals.span_kind(span["span_text"], record, rules),
+            "restated_from_question": span_signals.restated_from_question(span["span_text"], record["question"]),
+            "question_type": record["question_type"],
+            "evidence_cluster": clusters[record["question_id"]],
+        }
+    return attributes
+
+
+def span_kind_rows(attributes):
+    return [{"annotation_id": annotation_id, "span_kind": item["span_kind"],
+             "restated_from_question": item["restated_from_question"]}
+            for annotation_id, item in sorted(attributes.items())]
 
 
 # ------------------------------------------------------------ states files ---
@@ -915,29 +1030,62 @@ def aggregate_responses(response_rows, config):
     return aggregated
 
 
-def score_rows(aggregated, annotations, signals, checker_results):
+def base_rows(spans, labels, gold, attributes, signals, checker_results):
+    """One row per labelled span with the offline arms; decision-model scores are merged later."""
     checker = {item["annotation_id"]: item for item in checker_results}
     rows = []
-    for span in annotations:
+    for span in spans:
         aid = span["annotation_id"]
-        if aid not in aggregated or span["binary_label"] is None:
+        label = labels.get(aid, {}).get("binary_label")
+        if label is None:
             continue
-        stored = signals.get(aid, {})
-        row = {"annotation_id": aid, "question_id": span["question_id"], "split": span.get("split"),
-               "fact_type": span["fact_type"], "binary_label": span["binary_label"],
-               "evidence_cluster": stored.get("evidence_cluster"), "is_month": span["fact_type"] == "month",
-               "checker_verdict": checker.get(aid, {}).get("verdict"), "checker_mechanism": checker.get(aid, {}).get("mechanism"),
-               "all_positive": 1.0}
-        row.update({key: stored[key] for key in REFERENCE_ARMS if key in stored})
-        row.update({key: value for key, value in aggregated[aid].items() if isinstance(value, float)})
+        attribute = attributes[aid]
+        row = {"annotation_id": aid, "question_id": span["question_id"],
+               "split": gold[span["question_id"]]["split"], "question_type": attribute["question_type"],
+               "span_kind": attribute["span_kind"], "restated_from_question": attribute["restated_from_question"],
+               "is_month": attribute["span_kind"] == "month", "evidence_cluster": attribute["evidence_cluster"],
+               "fact_type": labels[aid].get("fact_type"), "binary_label": label,
+               "checker_verdict": checker.get(aid, {}).get("verdict"),
+               "checker_mechanism": checker.get(aid, {}).get("mechanism"), "all_positive": 1.0}
+        row.update(signals.get(aid, {}))
         rows.append(row)
     return rows
 
 
-def attach_splits(rows, gold):
-    for row in rows:
-        row["split"] = gold[row["question_id"]]["split"]
-    return rows
+def fit_prior(fit_rows, key):
+    """Positive rate per category of the fit set; unseen categories use the fit set's overall rate."""
+    if not fit_rows:
+        raise ValueError("empty prior fit set")
+    groups = defaultdict(list)
+    for row in fit_rows:
+        groups[row[key]].append(row["binary_label"])
+    return {"key": key, "rates": {name: sum(values) / len(values) for name, values in sorted(groups.items())},
+            "counts": {name: len(values) for name, values in sorted(groups.items())},
+            "fallback": sum(row["binary_label"] for row in fit_rows) / len(fit_rows)}
+
+
+def attach_priors(rows, legacy=False):
+    """dev_span_kind_prior and dev_question_type_prior, fitted on non-month dev rows (analysis_policy.prior_fallback).
+
+    With legacy=True (ai_provisional labels only) dev_fact_type_prior is added, fitted on all dev rows as in
+    the published statistics so the historical 0.768 can be reproduced.
+    """
+    fits = {}
+    fit_rows = [row for row in rows if row["split"] == "dev" and not row["is_month"]]
+    arms = dict(PRIOR_ARMS)
+    if legacy:
+        arms[LEGACY_PRIOR_ARM] = "fact_type"
+    for arm, key in arms.items():
+        fit_set = [row for row in rows if row["split"] == "dev"] if arm == LEGACY_PRIOR_ARM else fit_rows
+        try:
+            prior = fit_prior(fit_set, key)
+        except ValueError:
+            continue
+        fits[arm] = {**prior, "fit_set": "all dev rows" if arm == LEGACY_PRIOR_ARM else "non-month dev rows",
+                     "fit_size": len(fit_set)}
+        for row in rows:
+            row[arm] = prior["rates"].get(row[key], prior["fallback"])
+    return fits
 
 
 def evaluate_arms(rows, arms):
@@ -1022,22 +1170,33 @@ def render_markdown(report):
     lines += ["", f"Requested model: {report['model_pinned']}. Model versions seen: {json.dumps(report['model_versions'])}."]
     if report["unexpected_model_versions"]:
         lines.append(f"Responses from a model other than the requested one: {report['unexpected_model_versions']}.")
-    lines += ["", "Claim boundary: retrospective estimation on AI-assisted provisional labels; historical published values unchanged; "
+    lines += ["", f"Labels: mapping {report.get('label_mapping')}. Uncertainty signals: {report.get('signals_source')}.",
+              "", "Claim boundary: retrospective estimation; historical published values unchanged; "
               "the checker replicates the label rule and is an audit reference, not an independent detector."]
     return "\n".join(lines) + "\n"
 
 
-def score_battery(config, gold, annotations, response_rows, checker_results, signals, replicates, seed,
-                  arm=None, excluded_rows=0, partial=False, repeat_shortfall_ids=()):
+def score_battery(config, gold, spans, labels, response_rows, checker_results, signals, replicates, seed,
+                  arm=None, excluded_rows=0, partial=False, repeat_shortfall_ids=(), label_mapping=None,
+                  signals_source=None):
+    """Decision-model arms beside the offline arms on labelled spans; priors are fitted on all labelled dev spans."""
     aggregated = aggregate_responses(response_rows, config)
-    rows = attach_splits(score_rows(aggregated, annotations, signals, checker_results), gold)
+    attributes = span_attributes(config, gold, spans)
+    base = base_rows(spans, labels, gold, attributes, signals, checker_results)
+    priors = attach_priors(base, legacy=label_mapping == "ai_provisional")
+    rows = []
+    for row in base:
+        if row["annotation_id"] in aggregated:
+            row.update({key: value for key, value in aggregated[row["annotation_id"]].items() if isinstance(value, float)})
+            rows.append(row)
     if not rows:
-        raise SystemExit("No successful responses to score; run the battery first.")
+        raise SystemExit("No successful responses on labelled spans to score; run the battery first.")
     dm_arms = [name for name, spec in config["derived_scores"].items() if spec.get("label_axis") == "slot"]
     arms = dm_arms + [name for name in REFERENCE_ARMS if all(name in row for row in rows)]
     evaluation = evaluate_arms(rows, arms)
     primary = "dm_risk"
-    comparisons = [(primary, other) for other in ("one_minus_min_top2_margin", "dev_fact_type_prior", "all_positive")
+    comparisons = [(primary, other) for other in ("one_minus_min_top2_margin", "dev_span_kind_prior",
+                                                  LEGACY_PRIOR_ARM, "all_positive")
                    if other in evaluation["thresholds"]]
     intervals = (paired_intervals(rows, evaluation["thresholds"], comparisons, replicates, seed)
                  if comparisons and primary in evaluation["thresholds"] else {"status": f"not computed: {primary} unavailable"})
@@ -1059,6 +1218,9 @@ def score_battery(config, gold, annotations, response_rows, checker_results, sig
         "mechanisms": mechanism_table(rows, primary, evaluation["thresholds"].get(primary)),
         "choice_flip_rate_mean": {key: sum(values) / len(values) for key, values in flip.items()},
         "repeats_per_span": Counter(item["repeats"] for item in aggregated.values()),
+        "label_mapping": label_mapping, "signals_source": signals_source,
+        "unlabelled_spans_skipped": sum(1 for span in spans if labels.get(span["annotation_id"], {}).get("binary_label") is None),
+        "priors": {name: {key: value for key, value in fit.items() if key != "key"} for name, fit in priors.items()},
         "claim_boundary": config["claim_boundary"],
     }
     return report, rows
@@ -1104,17 +1266,23 @@ def config_problems(config, arms):
 
 
 def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=None, require_local=False,
-             arms_path=ARMS_CONFIG_PATH):
+             arms_path=ARMS_CONFIG_PATH, spans_path=SPANS_PATH, labels_path=ANNOTATIONS_PATH):
     """Public tier by default (nine demo answers); require_local checks the full local package."""
     config = load_config(config_path)
     failures = config_problems(config, load_arms(arms_path))
     gold = load_gold()
-    annotations = load_annotations()
+    spans = load_spans(spans_path)
+    label_rows = load_annotations(labels_path)
+    exported = [{field: row[field] for field in SPAN_FIELDS} for row in sorted(label_rows, key=lambda r: r["annotation_id"])]
+    if [{field: span[field] for field in SPAN_FIELDS} for span in spans] != exported:
+        failures.append(f"{Path(spans_path).name} differs from the six span fields of {Path(labels_path).name}")
+    labels = load_labels([labels_path], "ai_provisional", config)
     if require_local and not (generations_path and Path(generations_path).exists()):
         failures.append(f"local generation file not found: {generations_path}")
     texts, sources = load_generated_texts(generations_path)
     try:
-        states, skipped = build_states(config, gold, annotations, texts, sources)
+        states, skipped = build_states(config, gold, spans, texts, sources,
+                                       label_rows={aid: item["row"] for aid, item in labels.items()})
     except ValueError as error:
         failures.append(str(error))
         states, skipped = [], []
@@ -1125,11 +1293,18 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
             failures.append(f"text sources are not all local: {dict(Counter(sources.values()))}")
         if len(states) != 205 or skipped:
             failures.append(f"expected 205 states and 0 skipped, got {len(states)} and {len(skipped)}")
-    checker = rule_checker.run_checker(config, gold, annotations, texts)
-    audit = rule_checker.checker_audit(checker, annotations) if checker else None
+    attributes = span_attributes(config, gold, spans)
+    kinds = Counter(item["span_kind"] for item in attributes.values())
+    test_main = sum(1 for span in spans if gold[span["question_id"]]["split"] == "test"
+                    and attributes[span["annotation_id"]]["span_kind"] != "month")
+    if kinds["month"] != 37 or test_main != 85:
+        failures.append(f"span_kind check: month {kinds['month']} (expected 37), test non-month {test_main} (expected 85)")
+    checker = rule_checker.run_checker(config, gold, spans, texts)
+    audit = rule_checker.checker_audit(checker, binary_labels(labels)) if checker else None
     result = {"config_sha256": file_sha256(config_path), "script_sha256": file_sha256(__file__),
               "tier": "local" if require_local else "public",
               "states_built": len(states), "states_skipped": len(skipped), "text_sources": dict(Counter(sources.values())),
+              "span_kinds": dict(sorted(kinds.items())), "test_non_month_spans": test_main,
               "checker_audit": audit, "num_failures": len(failures), "failures": failures,
               "scope": "offline; no API call; the sealed confirmation manifests are never read"}
     output_dir = Path(output_dir)
@@ -1150,9 +1325,14 @@ def _write_jsonl(path, rows):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=["build", "check", "run", "smoke", "score", "validate"])
+    parser.add_argument("command", choices=["export-spans", "build", "check", "run", "smoke", "score", "validate"])
     parser.add_argument("--config", default=str(CONFIG_PATH), help="wording and analysis config")
     parser.add_argument("--generations", default=str(DEFAULT_GENERATIONS), help="local qwen_full100_generations.jsonl")
+    parser.add_argument("--traces", default=str(DEFAULT_TRACES), help="score: local qwen_full100_token_traces.jsonl")
+    parser.add_argument("--spans", default=str(SPANS_PATH), help="span file (six D10 fields); its name fixes the span set")
+    parser.add_argument("--labels", action="append", default=[],
+                        help="check, score: label file, separate from the span file; may be repeated")
+    parser.add_argument("--label-mapping", default=None, help="check, score: a key of the config's label_mapping")
     parser.add_argument("--repeats", type=int, default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--split", choices=["dev", "test", "all"], default=None)
@@ -1170,21 +1350,25 @@ def main(argv=None):
         parser.error("--repeats must be at least 1 and is only allowed together with --limit")
     if args.command == "build" and args.split is not None:
         parser.error("build writes every state of the span set; it does not take --split")
+    if bool(args.labels) != bool(args.label_mapping):
+        parser.error("--labels and --label-mapping go together")
+    if args.command == "score" and not args.labels:
+        parser.error("score needs --labels and --label-mapping")
     split = args.split or "all"
+
+    if args.command == "export-spans":
+        count = export_spans(ANNOTATIONS_PATH, args.spans)
+        print(json.dumps({"spans": count, "path": str(args.spans), "fields": SPAN_FIELDS}, indent=2))
+        return 0
 
     config_path = Path(args.config)
     config = load_config(config_path)
-    gold = load_gold()
-    annotations = load_annotations()
-    texts, sources = load_generated_texts(args.generations)
-    uses_demo = not Path(args.generations).exists() or "public_demo_bundle" in sources.values()
-    if uses_demo and args.command in {"run", "score"} and not args.public_demo:
-        raise SystemExit(f"generation file not found or incomplete: {args.generations}; "
-                         "pass --public-demo to use the nine public demo answers")
-    if uses_demo and args.command in {"build", "check"}:
-        _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
-    span_set_id = span_set_id_for(ANNOTATIONS_PATH)
-    manifest_args = (config_path, ARMS_CONFIG_PATH, ANNOTATIONS_PATH, args.generations)
+
+    if args.command == "validate":
+        result = validate(config_path=config_path, generations_path=args.generations if args.require_local else None,
+                          output_dir=OUTPUT_ROOT, require_local=args.require_local, spans_path=args.spans)
+        print(json.dumps({k: v for k, v in result.items() if k != "checker_audit"}, indent=2))
+        return 1 if result["num_failures"] else 0
 
     if args.command == "smoke":
         if not args.arm:
@@ -1193,27 +1377,46 @@ def main(argv=None):
         report = run_smoke(config, arm, read_api_key(arm), OUTPUT_ROOT / arm["arm_id"] / "smoke.json")
         return 1 if report["problems"] else 0
 
-    if args.command == "validate":
-        result = validate(config_path=config_path, generations_path=args.generations if args.require_local else None,
-                          output_dir=OUTPUT_ROOT, require_local=args.require_local)
-        print(json.dumps({k: v for k, v in result.items() if k != "checker_audit"}, indent=2))
-        return 1 if result["num_failures"] else 0
+    gold = load_gold()
+    spans = load_spans(args.spans)
+    labels = load_labels(args.labels, args.label_mapping, config) if args.labels else {}
+    texts, sources = load_generated_texts(args.generations)
+    uses_demo = not Path(args.generations).exists() or "public_demo_bundle" in sources.values()
+    if uses_demo and args.command in {"run", "score"} and not args.public_demo:
+        raise SystemExit(f"generation file not found or incomplete: {args.generations}; "
+                         "pass --public-demo to use the nine public demo answers")
+    if uses_demo and args.command in {"build", "check"}:
+        _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
+    span_set_id = span_set_id_for(args.spans)
+    manifest_args = (config_path, ARMS_CONFIG_PATH, args.spans, args.generations)
 
     if args.command == "build":
-        states, skipped = build_states(config, gold, annotations, texts, sources)
+        scan_rows = {row["annotation_id"]: row for row in load_annotations()} if ANNOTATIONS_PATH.exists() else {}
+        scan_rows.update({aid: item["row"] for aid, item in labels.items()})
+        states, skipped = build_states(config, gold, spans, texts, sources, label_rows=scan_rows)
         states_path, manifest_path = write_states(states, span_set_id, *manifest_args)
         print(json.dumps({"states": len(states), "skipped": skipped[:5], "skipped_count": len(skipped),
                           "text_sources": dict(Counter(sources.values())), "path": str(states_path),
                           "manifest": str(manifest_path)}, indent=2, ensure_ascii=False))
         return 0
 
-    checker_results = rule_checker.run_checker(config, gold, annotations, texts)
+    checker_results = rule_checker.run_checker(config, gold, spans, texts)
     if args.command == "check":
+        attributes = span_attributes(config, gold, spans)
         _write_jsonl(OUTPUT_ROOT / f"checker_{span_set_id}.jsonl", checker_results)
-        audit = rule_checker.checker_audit(checker_results, annotations)
-        with (OUTPUT_ROOT / "checker_audit.json").open("w", encoding="utf-8", newline="\n") as handle:
-            json.dump(audit, handle, indent=2, ensure_ascii=False)
-        print(json.dumps(audit, indent=2, ensure_ascii=False))
+        _write_jsonl(OUTPUT_ROOT / f"span_kind_{span_set_id}.jsonl", span_kind_rows(attributes))
+        summary = {"checker_spans": len(checker_results),
+                   "span_kinds": dict(sorted(Counter(item["span_kind"] for item in attributes.values()).items()))}
+        if labels:
+            audit = rule_checker.checker_audit(checker_results, binary_labels(labels))
+            audit["label_mapping"] = args.label_mapping
+            with (OUTPUT_ROOT / f"checker_audit_{span_set_id}_{args.label_mapping}.json").open(
+                    "w", encoding="utf-8", newline="\n") as handle:
+                json.dump(audit, handle, indent=2, ensure_ascii=False)
+            summary["audit"] = audit
+        else:
+            summary["audit"] = "not run: no --labels given"
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
         return 0
 
     if not args.arm:
@@ -1246,10 +1449,11 @@ def main(argv=None):
     if shortfalls and not args.allow_partial:
         raise SystemExit(f"{len(shortfalls)} spans have a repeat count that differs from the arm setting, "
                          f"for example {shortfalls[:3]}; rerun or pass --allow-partial")
-    signals = load_stored_signals()
-    report, score_table = score_battery(config, gold, annotations, kept, checker_results, signals, args.replicates, args.seed,
-                                        arm=arm, excluded_rows=excluded, partial=bool(shortfalls),
-                                        repeat_shortfall_ids=shortfalls)
+    signals, signals_source = load_signals(spans, texts, sources, args.traces)
+    report, score_table = score_battery(config, gold, spans, labels, kept, checker_results, signals, args.replicates,
+                                        args.seed, arm=arm, excluded_rows=excluded, partial=bool(shortfalls),
+                                        repeat_shortfall_ids=shortfalls, label_mapping=args.label_mapping,
+                                        signals_source=signals_source)
     arm_dir.mkdir(parents=True, exist_ok=True)
     with (arm_dir / "report.json").open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(report, handle, indent=2, ensure_ascii=False, default=str)

@@ -1,20 +1,27 @@
+import contextlib
+import csv
 import io
 import json
+import math
 import re
 import sys
 import tempfile
 import unittest
 import urllib.error
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from bizhallu import decision_battery as battery  # noqa: E402
 from bizhallu import evidence  # noqa: E402
 from bizhallu import rule_checker as checker  # noqa: E402
+from bizhallu import span_signals  # noqa: E402
 
 CONFIG = battery.load_config()
 GOLD = battery.load_gold()
 ANNOTATIONS = battery.load_annotations()
+SPANS = battery.load_spans()
+LABELS = battery.load_labels([battery.ANNOTATIONS_PATH], "ai_provisional", CONFIG)
 TEXTS, SOURCES = battery.load_generated_texts(None)
 TOLERANCE = CONFIG["checker_policy"]["currency_tolerance"]
 PCT_TOL = CONFIG["checker_policy"]["percentage_tolerance_points"]
@@ -163,9 +170,10 @@ class CheckerTests(unittest.TestCase):
         self.assertEqual(check(conclusion["annotation_id"])["verdict"], "unparsed")
 
     def test_audit_reports_agreement_not_detection(self):
-        results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
-        audit = checker.checker_audit(results, ANNOTATIONS)
+        results = checker.run_checker(CONFIG, GOLD, SPANS, TEXTS)
+        audit = checker.checker_audit(results, battery.binary_labels(LABELS))
         self.assertEqual(audit["span_count"], 70)
+        self.assertEqual(audit["unlabelled_skipped"], 0)
         self.assertEqual(audit["parsed_count"], 69)
         self.assertEqual(audit["agreement_on_parsed"]["point"], 1.0)
         self.assertIn("not detection", audit["note"])
@@ -436,11 +444,15 @@ class ScoreTests(unittest.TestCase):
         rows = self._rows_for(states, HOSTED_ARM, labels, lambda index: "jev-1.14.0" if index == 0 else "jev-1.13.0")
         kept, excluded = battery.select_scored_rows(rows, battery.expected_request_hashes(states, HOSTED_ARM))
         self.assertEqual((len(kept), excluded), (70, 0))
-        checker_results = checker.run_checker(CONFIG, GOLD, ANNOTATIONS, TEXTS)
+        checker_results = checker.run_checker(CONFIG, GOLD, SPANS, TEXTS)
         signals = battery.load_stored_signals()
-        report, scored = battery.score_battery(CONFIG, GOLD, ANNOTATIONS, kept, checker_results, signals,
-                                               replicates=50, seed=1, arm=HOSTED_ARM)
+        report, scored = battery.score_battery(CONFIG, GOLD, SPANS, LABELS, kept, checker_results, signals,
+                                               replicates=50, seed=1, arm=HOSTED_ARM, label_mapping="ai_provisional",
+                                               signals_source="stored")
         self.assertEqual(len(scored), 70)
+        for arm in ("dev_span_kind_prior", "dev_question_type_prior", "dev_fact_type_prior"):
+            self.assertIn(arm, report["evaluation"]["arms"])
+        self.assertEqual(report["priors"]["dev_span_kind_prior"]["fit_size"], 83)
         self.assertEqual(report["model_pinned"], "jev-1.13.0")
         self.assertEqual(report["unexpected_model_versions"], ["jev-1.14.0"])
         self.assertIn("dm_risk", report["evaluation"]["arms"])
@@ -538,6 +550,8 @@ class ValidateTests(unittest.TestCase):
             result = battery.validate(output_dir=Path(tmp))
             self.assertEqual(result["num_failures"], 0, result["failures"])
             self.assertEqual(result["states_built"], 70)
+            self.assertEqual(result["span_kinds"]["month"], 37)
+            self.assertEqual(result["test_non_month_spans"], 85)
             self.assertTrue((Path(tmp) / "validation.json").exists())
 
 
@@ -758,6 +772,159 @@ class GuardedLoaderTests(unittest.TestCase):
         self.assertFalse({r["question_id"] for r in traces} & heldout)
         self.assertEqual(sum("dropped 44 held-out" in m for m in messages), 2)
 
+
+def trace_token(position, text, entropy=0.5, margin=0.5):
+    return {"position": position, "token_text": text, "token_entropy": entropy, "top2_margin": margin}
+
+
+class SpanSignalTests(unittest.TestCase):
+    """Span file, label mappings, trace signals, span kinds and evidence clusters (plan T1.7)."""
+
+    def test_synthetic_trace_signals(self):
+        text = "The total is £1,234."
+        tokens = [trace_token(0, "The", 0.1, 0.9), trace_token(1, " total", 0.2, 0.8), trace_token(2, " is", 0.3, 0.7),
+                  trace_token(3, " £", 0.4, 0.6), trace_token(4, "1", 0.5, 0.2), trace_token(5, ",", 0.6, 0.5),
+                  trace_token(6, "234", 0.7, 0.4), trace_token(7, ".", 0.8, 0.3), trace_token(8, "<|im_end|>", 9.0, 0.0)]
+        start = text.index("£")
+        scores = span_signals.span_token_signals(tokens, text, start, start + len("£1,234"))
+        self.assertEqual(scores["token_positions"], [3, 4, 5, 6])
+        self.assertEqual(scores["mean_token_entropy"], math.fsum([0.4, 0.5, 0.6, 0.7]) / 4)
+        self.assertEqual(scores["one_minus_min_top2_margin"], 1 - 0.2)
+        with self.assertRaises(ValueError):
+            span_signals.span_token_signals(tokens, "The total was £1,234.", 0, 3)
+
+    def test_byte_fallback_pair_aligns(self):
+        replacement, approx = chr(0xFFFD), chr(0x2248)
+        tokens = [trace_token(0, "about "), trace_token(1, " " + replacement), trace_token(2, replacement),
+                  trace_token(3, "5")]
+        text = "about  " + approx + "5"
+        spans, failures = span_signals.build_token_char_spans("q", text, tokens)
+        self.assertEqual(failures, [])
+        self.assertEqual([token["aligned_text"] for token in spans], ["about ", " ", approx, "5"])
+
+    def test_span_kind_rules(self):
+        record = {"evidence": {"rows": [{"stock_code": "85123A", "description": "WHITE HANGING HEART", "country": "France"}]}}
+        rules = CONFIG["span_kind"]
+        cases = {"April 2011": "month", "12.5%": "percentage", "**1.": "rank_marker", "increased": "direction_word",
+                 "85123a": "code", "**White Hanging Heart**": "entity_name", "£1,234.50": "currency_or_number",
+                 "strong seasonal demand": "free_text", "rose 5%": "percentage", "3 more units": "currency_or_number"}
+        for text, kind in cases.items():
+            self.assertEqual(span_signals.span_kind(text, record, rules), kind, text)
+        broken = {**rules, "precedence": ["month"]}
+        with self.assertRaises(ValueError):
+            span_signals.span_kind("strong demand", record, broken)
+
+    def test_restated_from_question(self):
+        question = "Did net revenue in the United  Kingdom exceed £1,234.50 in May 2011?"
+        self.assertTrue(span_signals.restated_from_question("1234.50", question))
+        self.assertTrue(span_signals.restated_from_question("united kingdom", question))
+        self.assertFalse(span_signals.restated_from_question("France", question))
+        self.assertFalse(span_signals.restated_from_question("  ", question))
+
+    def test_span_kind_distribution_matches_plan(self):
+        attributes = battery.span_attributes(CONFIG, GOLD, SPANS)
+        kinds = Counter(item["span_kind"] for item in attributes.values())
+        self.assertEqual(dict(kinds), {"month": 37, "currency_or_number": 85, "entity_name": 35, "rank_marker": 16,
+                                       "percentage": 15, "direction_word": 9, "code": 6, "free_text": 2})
+        test_main = [span for span in SPANS if GOLD[span["question_id"]]["split"] == "test"
+                     and attributes[span["annotation_id"]]["span_kind"] != "month"]
+        self.assertEqual(len(test_main), 85)
+        self.assertEqual(sum(LABELS[span["annotation_id"]]["binary_label"] for span in test_main), 61)
+        rows = battery.span_kind_rows(attributes)
+        self.assertEqual([row["annotation_id"] for row in rows], sorted(attributes))
+        self.assertEqual(set(rows[0]), {"annotation_id", "span_kind", "restated_from_question"})
+
+    def test_evidence_clusters_match_saved_scores(self):
+        attributes = battery.span_attributes(CONFIG, GOLD, SPANS)
+        with open(battery.SCORES_PATH, encoding="utf-8-sig", newline="") as handle:
+            saved = {row["annotation_id"]: row["evidence_cluster"] for row in csv.DictReader(handle)
+                     if row["arm"] == "saved_trace_precision"}
+        self.assertEqual(len(saved), 205)
+        self.assertEqual({aid: item["evidence_cluster"] for aid, item in attributes.items()}, saved)
+        self.assertEqual(len({span["question_id"] for span in SPANS}), 35)
+
+    def test_local_signals_equal_saved_trace_precision(self):
+        if not battery.DEFAULT_GENERATIONS.exists() or not battery.DEFAULT_TRACES.exists():
+            self.skipTest("local generation or trace file not present")
+        texts, sources = battery.load_generated_texts(battery.DEFAULT_GENERATIONS, log=lambda m: None)
+        signals, source = battery.load_signals(SPANS, texts, sources)
+        self.assertEqual(source, "recomputed_from_traces")
+        saved = battery.load_stored_signals()
+        self.assertEqual(set(signals), set(saved))
+        self.assertEqual(len(signals), 205)
+        difference = max(abs(signals[aid][key] - saved[aid][key]) for aid in saved for key in battery.TRACE_SIGNALS)
+        self.assertEqual(difference, 0)
+
+    def test_span_file_is_the_six_fields_of_the_annotations(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "spans_full100_v1.jsonl"
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(battery.main(["export-spans", "--spans", str(out)]), 0)
+            self.assertEqual(out.read_bytes(), battery.SPANS_PATH.read_bytes().replace(b"\r\n", b"\n"))
+        self.assertEqual([set(span) for span in SPANS], [set(battery.SPAN_FIELDS)] * 205)
+
+    def test_span_only_file_builds_states_without_labels(self):
+        states, skipped = battery.build_states(CONFIG, GOLD, SPANS, TEXTS, SOURCES)
+        self.assertEqual(len(states), 70)
+        self.assertTrue(all(item["reason"] == "generated text unavailable" for item in skipped))
+        if battery.DEFAULT_GENERATIONS.exists():
+            texts, sources = battery.load_generated_texts(battery.DEFAULT_GENERATIONS, log=lambda m: None)
+            states, skipped = battery.build_states(CONFIG, GOLD, SPANS, texts, sources)
+            self.assertEqual((len(states), len(skipped)), (205, 0))
+
+    def test_checker_runs_without_labels_and_audit_counts_unlabelled(self):
+        results = checker.run_checker(CONFIG, GOLD, SPANS, TEXTS)
+        self.assertEqual(len(results), 70)
+        partial = {aid: label for aid, label in battery.binary_labels(LABELS).items() if not aid.endswith("1")}
+        audit = checker.checker_audit(results, partial)
+        self.assertEqual(audit["span_count"] + audit["unlabelled_skipped"], 70)
+        self.assertGreater(audit["unlabelled_skipped"], 0)
+
+    def test_label_mappings(self):
+        self.assertEqual(Counter(item["binary_label"] for item in LABELS.values()), Counter({1: 122, 0: 83}))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "human.jsonl"
+            rows = [{"annotation_id": "a", "slot_label": "incorrect", "value_label": "faithful"},
+                    {"annotation_id": "b", "slot_label": "correct"},
+                    {"annotation_id": "c", "slot_label": "cannot_judge"},
+                    {"annotation_id": "d"}]
+            path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            slot = battery.load_labels([path], "human_v1_slot", CONFIG)
+            self.assertEqual(battery.binary_labels(slot), {"a": 1, "b": 0, "c": None, "d": None})
+            value = battery.load_labels([path], "human_v1_value", CONFIG)
+            self.assertEqual(battery.binary_labels(value), {"a": 0, "b": None, "c": None, "d": None})
+            with self.assertRaises(SystemExit):
+                battery.load_labels([path, path], "human_v1_slot", CONFIG)
+            with self.assertRaises(SystemExit):
+                battery.load_labels([path], "value_axis_rule", CONFIG)
+            path.write_text(json.dumps({"annotation_id": "a", "slot_label": "wrong"}) + "\n", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                battery.load_labels([path], "human_v1_slot", CONFIG)
+
+    def test_priors_and_legacy_fact_type_prior(self):
+        attributes = battery.span_attributes(CONFIG, GOLD, SPANS)
+        rows = battery.base_rows(SPANS, LABELS, GOLD, attributes, battery.load_stored_signals(), [])
+        self.assertEqual(len(rows), 205)
+        fits = battery.attach_priors(rows, legacy=True)
+        self.assertEqual(fits["dev_fact_type_prior"]["fit_size"], 102)
+        self.assertEqual(fits["dev_question_type_prior"]["fit_size"], 83)
+        test = [row for row in rows if row["split"] == "test"]
+        prior = battery.metrics.evaluate([r["binary_label"] for r in test], [r["dev_fact_type_prior"] for r in test], 0.5)
+        self.assertEqual(round(prior["auroc"], 3), 0.768)
+        self.assertEqual(round(sum(r["binary_label"] for r in test) / len(test), 3), 0.592)
+        fit = battery.fit_prior([{"kind": "a", "binary_label": 1}, {"kind": "a", "binary_label": 0},
+                                 {"kind": "b", "binary_label": 1}], "kind")
+        self.assertEqual(fit["rates"], {"a": 0.5, "b": 1.0})
+        self.assertAlmostEqual(fit["fallback"], 2 / 3)
+        without_legacy = battery.base_rows(SPANS, LABELS, GOLD, attributes, {}, [])
+        self.assertNotIn("dev_fact_type_prior", battery.attach_priors(without_legacy))
+
+    def test_cli_label_arguments(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                battery.main(["check", "--labels", str(battery.ANNOTATIONS_PATH)])
+            with self.assertRaises(SystemExit):
+                battery.main(["score", "--arm", "hosted_jev_1_13_0"])
 
 if __name__ == "__main__":
     unittest.main()

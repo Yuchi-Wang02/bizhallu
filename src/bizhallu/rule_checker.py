@@ -322,12 +322,13 @@ def check_span(record, span, answer, tolerance, pct_tol):
     return finish("other", "unparsed", "unparsed", "no number, entity, month or direction recognised")
 
 
-def run_checker(config, gold, annotations, texts):
+def run_checker(config, gold, spans, texts):
+    """Checker verdicts for every span whose answer text is available; labels are never read."""
     tolerance = config["checker_policy"]["currency_tolerance"]
     pct_tol = config["checker_policy"]["percentage_tolerance_points"]
     results = []
-    for span in sorted(annotations, key=lambda row: row["annotation_id"]):
-        if span["binary_label"] is None or span["question_id"] not in texts:
+    for span in sorted(spans, key=lambda row: row["annotation_id"]):
+        if span["question_id"] not in texts:
             continue
         results.append(check_span(gold[span["question_id"]], span, texts[span["question_id"]], tolerance, pct_tol))
     return results
@@ -343,19 +344,24 @@ def wilson(successes, total, z=1.959964):
     return {"point": p, "lower_95": max(0.0, centre - half), "upper_95": min(1.0, centre + half)}
 
 
-def checker_audit(results, annotations):
-    """Agreement of the label-blind checker with the provisional labels: an audit, not detection."""
-    labels = {row["annotation_id"]: row for row in annotations}
+def checker_audit(results, labels):
+    """Agreement of the label-blind checker with binary labels: an audit, not detection.
+
+    `labels` maps annotation_id to a binary label; spans without one are skipped and counted.
+    """
+    unlabelled = [item for item in results if labels.get(item["annotation_id"]) is None]
+    results = [item for item in results if labels.get(item["annotation_id"]) is not None]
     table = Counter()
     mechanisms = defaultdict(Counter)
     for item in results:
-        label = labels[item["annotation_id"]]["binary_label"]
+        label = labels[item["annotation_id"]]
         table[(item["verdict"], label)] += 1
         mechanisms[item["mechanism"]][label] += 1
     parsed = [item for item in results if item["verdict"] != "unparsed"]
-    agree = sum(1 for item in parsed if (item["verdict"] == "contradicted") == bool(labels[item["annotation_id"]]["binary_label"]))
+    agree = sum(1 for item in parsed if (item["verdict"] == "contradicted") == bool(labels[item["annotation_id"]]))
     return {
         "span_count": len(results),
+        "unlabelled_skipped": len(unlabelled),
         "parsed_count": len(parsed),
         "coverage": wilson(len(parsed), len(results)),
         "agreement_on_parsed": wilson(agree, len(parsed)) if parsed else None,
