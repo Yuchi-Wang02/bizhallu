@@ -265,6 +265,107 @@ class ValidateTests(unittest.TestCase):
             self.assertTrue((Path(tmp) / "validation.json").exists())
 
 
+V2_CONFIG = battery.load_config(battery.V2_CONFIG_PATH)
+
+
+def synthetic_state(record):
+    answer = "The answer is X."
+    row = {"annotation_id": "synthetic", "span_start_char": 14, "span_end_char": 15, "span_text": "X"}
+    return battery.build_state(record, row, answer), row
+
+
+class ContractRewriteTests(unittest.TestCase):
+    """Contract check of plan T1.4: no false positives on 100 records, real leaks caught."""
+
+    def test_all_gold_records_pass_with_both_question_payloads(self):
+        for qid, record in GOLD.items():
+            state, row = synthetic_state(record)
+            for config in (CONFIG, V2_CONFIG):
+                questions = battery.build_questions(config, state)
+                problems = battery.check_state_contract(state, record, row, questions=questions)
+                self.assertEqual(problems, [], qid)
+
+    def _problems(self, qid, mutate, questions=None):
+        record = GOLD[qid]
+        state, row = synthetic_state(record)
+        state = json.loads(json.dumps(state))
+        mutate(state)
+        return battery.check_state_contract(state, record, row, questions=questions or {})
+
+    def test_rank_column_is_caught(self):
+        def mutate(state):
+            for index, row in enumerate(state["evidence_rows"], start=1):
+                row["rank"] = str(index)
+        self.assertTrue(self._problems("q_0064", mutate))
+
+    def test_neutral_named_rank_column_is_caught(self):
+        def mutate(state):
+            for index, row in enumerate(state["evidence_rows"], start=1):
+                row["c9"] = str(index)
+        self.assertTrue(self._problems("q_0064", mutate))
+
+    def test_gold_answer_dict_is_caught(self):
+        def mutate(state):
+            state["gold_answer"] = GOLD["q_0064"]["gold_answer"]
+        self.assertTrue(self._problems("q_0064", mutate))
+
+    def test_gold_short_answer_in_scope_notes_is_caught(self):
+        def mutate(state):
+            state["scope_notes"].append(GOLD["q_0064"]["gold_short_answer"])
+        problems = self._problems("q_0064", mutate)
+        self.assertTrue(any("forbidden fragment" in p for p in problems), problems)
+
+    def test_annotation_reason_in_definitions_is_caught(self):
+        row = next(r for r in ANNOTATIONS if r["question_id"] == "q_0064" and r.get("reason"))
+        record = GOLD["q_0064"]
+        state, synthetic = synthetic_state(record)
+        state["metric_definitions"].append(row["reason"])
+        problems = battery.check_state_contract(state, record, synthetic, label_row=row)
+        self.assertTrue(any("forbidden fragment" in p for p in problems), problems)
+
+    def test_non_string_cell_is_caught(self):
+        def mutate(state):
+            state["evidence_rows"][0]["net_revenue_gbp"] = 14280.9
+        problems = self._problems("q_0064", mutate)
+        self.assertTrue(any("not a string" in p for p in problems), problems)
+
+    def test_label_in_question_payload_is_caught(self):
+        questions = {"extra": {"type": "noul", "instructions": "Known answer: hallucinated_key_fact."}}
+        problems = self._problems("q_0064", lambda state: None, questions)
+        self.assertTrue(any("forbidden label string" in p for p in problems), problems)
+
+    def test_key_containing_gold_is_caught(self):
+        def mutate(state):
+            state["evidence_rows"][0]["gold_rank"] = "1"
+        problems = self._problems("q_0064", mutate)
+        self.assertTrue(any("forbidden key" in p for p in problems), problems)
+
+    def test_gold_number_not_shown_to_generator_is_caught(self):
+        change = GOLD["q_0053"]["gold_answer"]["absolute_change"]
+        questions = {"extra": {"type": "noul", "instructions": f"Hint: GBP {change:,.2f}."}}
+        problems = self._problems("q_0053", lambda state: None, questions)
+        self.assertTrue(any("gold number" in p for p in problems), problems)
+
+    def test_question_must_equal_gold_question(self):
+        def mutate(state):
+            state["question"] = state["question"] + " Answer: top product."
+        problems = self._problems("q_0064", mutate)
+        self.assertTrue(any("question differs" in p for p in problems), problems)
+
+    def test_share_label_in_question_is_not_a_false_positive(self):
+        record = GOLD["q_0086"]
+        state, row = synthetic_state(record)
+        self.assertIn("the top 3 products", state["question"].lower())
+        self.assertEqual(battery.check_state_contract(state, record, row), [])
+
+    def test_local_package_builds_205_states(self):
+        if not battery.DEFAULT_GENERATIONS.exists():
+            self.skipTest("local generation file not present")
+        texts, sources = battery.load_generated_texts(battery.DEFAULT_GENERATIONS, log=lambda m: None)
+        states, skipped = battery.build_states(CONFIG, GOLD, ANNOTATIONS, texts, sources)
+        self.assertEqual((len(states), len(skipped)), (205, 0))
+
+
 def render_state_table(rows):
     """Markdown table from state evidence rows, in the layout of src/build_prompts.markdown_table."""
     columns = [column for column in rows[0] if column != "row_id"]

@@ -189,33 +189,171 @@ def build_state(record, span, answer_text):
     }
 
 
-def forbidden_fragments(record, span):
-    """Strings that must never appear in a state for this span."""
+_CONTRACT_CACHE = {}
+_THOUSANDS_COMMA = re.compile(r"(?<=\d),(?=\d)")
+_TEMPLATE_VALUES = {
+    "format(float(evidence.metadata.total_merchandise_net_revenue), ',.2f')":
+        lambda record: (None if record["evidence"].get("metadata", {}).get("total_merchandise_net_revenue") is None
+                        else f"{float(record['evidence']['metadata']['total_merchandise_net_revenue']):,.2f}"),
+    "', '.join(evidence.filters.exclude_countries)":
+        lambda record: ", ".join(record["evidence"]["filters"].get("exclude_countries") or []),
+}
+
+
+def load_state_contract(path=None):
+    """State-contract rules from the v2 config: whitelists, templates, forbidden names, numeric scan."""
+    key = str(path or V2_CONFIG_PATH)
+    if key not in _CONTRACT_CACHE:
+        _CONTRACT_CACHE[key] = load_config(key)["state_contract"]
+    return _CONTRACT_CACHE[key]
+
+
+def normalize_for_scan(text):
+    """Lower-case, drop whitespace and thousands separators, for fragment matching."""
+    return _THOUSANDS_COMMA.sub("", re.sub(r"\s+", "", str(text).lower()))
+
+
+def forbidden_fragments(record, span, label_row=None):
+    """Strings that must never appear in the constructed fields of a state for this span.
+
+    Sources follow state_contract.fragment_sources: the gold short answer, the share numerator
+    label, and the reason, notes and gold_reference of the same annotation (gold_reference is
+    serialised once, never split into its values).
+    """
     fragments = [record["gold_short_answer"]]
-    label = record["evidence"].get("metadata", {}).get("share_numerator_label")
-    if label:
-        fragments.append(label)
-    gold_ref = span.get("gold_reference") or {}
+    share_label = record["evidence"].get("metadata", {}).get("share_numerator_label")
+    if share_label:
+        fragments.append(share_label)
+    source = label_row if label_row is not None else span
     for key in ("reason", "notes"):
-        if span.get(key):
-            fragments.append(str(span[key]))
-    if gold_ref:
-        fragments.append(json.dumps(gold_ref, sort_keys=True))
-    return fragments
+        if source.get(key):
+            fragments.append(str(source[key]))
+    if source.get("gold_reference"):
+        fragments.append(json.dumps(source["gold_reference"], sort_keys=True))
+    return [fragment for fragment in fragments if fragment]
 
 
-def check_state_contract(state, record, span, config):
-    contract = config["state_contract"]
+def _string_leaves(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _string_leaves(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _string_leaves(item)
+
+
+def _all_keys(value):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            yield key
+            yield from _all_keys(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _all_keys(item)
+
+
+def _float_leaves(value):
+    if isinstance(value, bool):
+        return
+    if isinstance(value, float):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _float_leaves(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _float_leaves(item)
+
+
+def _template_ok(line, templates, record):
+    if line in templates["fixed"]:
+        return True
+    for pattern in templates["patterns"]:
+        match = re.match(pattern["regex"], line)
+        if match:
+            expected = _TEMPLATE_VALUES[pattern["captured_value_must_equal"]](record)
+            if expected is not None and match.group(1) == expected:
+                return True
+    return False
+
+
+def _scan_number(token):
+    return round(abs(float(token.replace(",", ""))), 2)
+
+
+def numeric_scan_hits(texts, record, scan):
+    """Gold numbers that appear in constructed text although the generator prompt did not show them."""
+    tokenizer = re.compile(scan["tokenizer_regex"])
+    exempt = set()
+    for row in record["evidence"]["rows"]:
+        for value in row.values():
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                exempt.add(round(abs(float(value)), 2))
+    for match in tokenizer.finditer(record["question"]):
+        exempt.add(_scan_number(match.group(0)))
+    total = record["evidence"].get("metadata", {}).get("total_merchandise_net_revenue")
+    if total is not None:
+        exempt.add(round(abs(float(total)), 2))
+    targets = {round(abs(value), 2) for value in _float_leaves(record.get("gold_answer", {}))} - exempt
+    hits = []
+    for text in texts:
+        for match in tokenizer.finditer(text):
+            if _scan_number(match.group(0)) in targets:
+                hits.append(match.group(0))
+    return hits
+
+
+def check_state_contract(state, record, span, config=None, questions=None, contract=None, label_row=None):
+    """Structural whitelist plus leak scans over the fields the battery constructs (plan T1.4).
+
+    `config` is accepted for backward compatibility; the rules come from the v2 state contract.
+    `state["question"]` is only compared with the gold question text, never scanned.
+    """
+    contract = contract or load_state_contract()
+    questions = questions or {}
     problems = []
     if sorted(state) != sorted(contract["included_keys"]):
         problems.append(f"state keys {sorted(state)} differ from contract")
-    serialized = json.dumps(state, ensure_ascii=False)
-    for fragment in forbidden_fragments(record, span):
-        if fragment and fragment in serialized and fragment not in state["answer"]:
+        return problems
+    if state["question"] != record["question"]:
+        problems.append("question differs from the gold record question")
+    allowed = set(contract["allowed_evidence_columns"])
+    for row in state["evidence_rows"]:
+        extra = set(row) - allowed
+        if extra:
+            problems.append(f"evidence columns outside the whitelist: {sorted(extra)}")
+        for column, value in row.items():
+            if not isinstance(value, str):
+                problems.append(f"evidence cell {column} is not a string")
+    for field, templates in (("metric_definitions", contract["metric_definition_templates"]),
+                             ("scope_notes", contract["scope_note_templates"])):
+        lines = state[field]
+        if not isinstance(lines, list) or not all(isinstance(line, str) for line in lines):
+            problems.append(f"{field} must be a flat list of strings")
+            continue
+        for line in lines:
+            if not _template_ok(line, templates, record):
+                problems.append(f"{field} line does not match a template: {line[:60]}")
+    forbidden_keys = [key.lower() for key in contract["forbidden_keys"]]
+    for key in list(_all_keys(state)) + list(_all_keys(questions)):
+        lowered = str(key).lower()
+        for forbidden in forbidden_keys:
+            if forbidden in lowered:
+                problems.append(f"forbidden key name present: {key}")
+    scanned = list(state["metric_definitions"]) + list(state["scope_notes"])
+    scanned += list(_string_leaves(state["evidence_rows"])) + list(_string_leaves(questions))
+    normalized = [normalize_for_scan(text) for text in scanned]
+    for fragment in forbidden_fragments(record, span, label_row):
+        target = normalize_for_scan(fragment)
+        if target and any(target in text for text in normalized):
             problems.append(f"forbidden fragment present: {fragment[:60]}")
-    for key in ("label", "fact_type", "split", "gold", "binary_label"):
-        if f'"{key}"' in serialized:
-            problems.append(f"forbidden key name present: {key}")
+    for label in contract["forbidden_label_strings"]:
+        if any(label in text for text in normalized):
+            problems.append(f"forbidden label string present: {label}")
+    for hit in numeric_scan_hits(scanned, record, contract["numeric_scan"]):
+        problems.append(f"gold number not shown to the generator: {hit}")
     if state["marked_answer"].count(MARK_OPEN) != 1 or state["marked_answer"].count(MARK_CLOSE) != 1:
         problems.append("marker must appear exactly once")
     return problems
@@ -256,7 +394,8 @@ def build_states(config, gold, annotations, texts, sources):
             continue
         record = gold[qid]
         state = build_state(record, span, texts[qid])
-        problems = check_state_contract(state, record, span, config)
+        questions = build_questions(config, state)
+        problems = check_state_contract(state, record, span, config, questions=questions)
         if problems:
             raise ValueError(f"{span['annotation_id']}: " + "; ".join(problems))
         states.append({
@@ -265,7 +404,7 @@ def build_states(config, gold, annotations, texts, sources):
             "question_type": record["question_type"],
             "text_source": sources[qid],
             "state": state,
-            "questions": build_questions(config, state),
+            "questions": questions,
         })
     return states, skipped
 
@@ -524,7 +663,8 @@ def file_sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=None):
+def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=None, require_local=False):
+    """Public tier by default (nine demo answers); require_local checks the full local package."""
     config = load_config(config_path)
     failures = []
     for key in ("supported", "present", "status", "relation", "conclusion", "source_row", "source_column", "rank_claim", "direction_claim"):
@@ -538,15 +678,25 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
         failures.append("model must be pinned, not jev-latest")
     gold = load_gold()
     annotations = load_annotations()
+    if require_local and not (generations_path and Path(generations_path).exists()):
+        failures.append(f"local generation file not found: {generations_path}")
     texts, sources = load_generated_texts(generations_path)
     try:
         states, skipped = build_states(config, gold, annotations, texts, sources)
     except ValueError as error:
         failures.append(str(error))
         states, skipped = [], []
+    if not states:
+        failures.append("no states were built")
+    if require_local:
+        if set(sources.values()) != {"local_generations"}:
+            failures.append(f"text sources are not all local: {dict(Counter(sources.values()))}")
+        if len(states) != 205 or skipped:
+            failures.append(f"expected 205 states and 0 skipped, got {len(states)} and {len(skipped)}")
     checker = rule_checker.run_checker(config, gold, annotations, texts)
     audit = rule_checker.checker_audit(checker, annotations) if checker else None
     result = {"config_sha256": file_sha256(config_path), "script_sha256": file_sha256(__file__),
+              "tier": "local" if require_local else "public",
               "states_built": len(states), "states_skipped": len(skipped), "text_sources": dict(Counter(sources.values())),
               "checker_audit": audit, "num_failures": len(failures), "failures": failures,
               "scope": "offline; no API call; the sealed confirmation manifests are never read"}
@@ -569,6 +719,8 @@ def main(argv=None):
     parser.add_argument("--replicates", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=20260904)
     parser.add_argument("--model", default=None, help="override the pinned model id (recorded in the report)")
+    parser.add_argument("--require-local", action="store_true",
+                        help="validate: require the local generation file and all 205 states")
     args = parser.parse_args(argv)
 
     config = load_config()
@@ -581,13 +733,16 @@ def main(argv=None):
     texts, sources = load_generated_texts(args.generations)
 
     if args.command == "validate":
-        result = validate(generations_path=args.generations, output_dir=output_dir)
+        result = validate(generations_path=args.generations if args.require_local else None,
+                          output_dir=output_dir, require_local=args.require_local)
         print(json.dumps({k: v for k, v in result.items() if k != "checker_audit"}, indent=2))
         return 1 if result["num_failures"] else 0
 
-    states, skipped = build_states(config, gold, annotations, texts, sources)
-    if args.split != "all":
-        states = [s for s in states if gold[s["question_id"]]["split"] == args.split]
+    states, skipped = [], []
+    if args.command in {"build", "run"}:
+        states, skipped = build_states(config, gold, annotations, texts, sources)
+        if args.split != "all":
+            states = [s for s in states if gold[s["question_id"]]["split"] == args.split]
     states_path = output_dir / "states.jsonl"
 
     if args.command == "build":
