@@ -43,7 +43,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import detector_metrics as metrics  # noqa: E402
-from bizhallu import evidence, rule_checker, span_signals  # noqa: E402
+from bizhallu import cluster_bootstrap as cb  # noqa: E402
+from bizhallu import evidence, rule_checker, scoring, span_signals  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 V1_CONFIG_PATH = PROJECT_ROOT / "configs" / "jev_battery_v1.json"
@@ -1170,7 +1171,7 @@ def repeat_shortfalls(aggregated, states, arm):
 
 
 def aggregate_responses(response_rows, config):
-    """Mean probability per span across repeats plus argmax flip rates."""
+    """Mean of every derived score per span across repeats, its range, and argmax flip rates."""
     per_span = defaultdict(list)
     for row in response_rows:
         if row.get("status") == 200:
@@ -1182,9 +1183,14 @@ def aggregate_responses(response_rows, config):
         models = Counter()
         for response in responses:
             models[response.get("model")] += 1
-            for key, value in derived_scores(response, config).items():
+            try:
+                scores = derived_scores(response, config)
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError(f"{annotation_id}: response cannot be scored: {error!r}") from error
+            for key, value in scores.items():
                 (choices if key.endswith("_choice") else numeric)[key].append(value)
         item = {key: sum(values) / len(values) for key, values in numeric.items()}
+        item["ranges"] = {key: max(values) - min(values) for key, values in numeric.items()}
         item["repeats"] = len(responses)
         item["models"] = dict(models)
         item["choice_modes"] = {key: Counter(values).most_common(1)[0][0] for key, values in choices.items()}
@@ -1193,24 +1199,42 @@ def aggregate_responses(response_rows, config):
     return aggregated
 
 
-def base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids=None):
-    """One row per labelled span with the offline arms; decision-model scores are merged later."""
+LABEL_ROW_FIELDS = ["slot_label", "value_label", "mechanism", "matched_row_id", "rater_a_slot_label", "rater_b_slot_label"]
+
+
+def base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids=None, lookup_results=None,
+              value_labels=None, include_unlabelled=False):
+    """One row per span with a binary label (or every span with include_unlabelled) and the offline arms.
+
+    Spans may carry `span_set_id`; spans without it belong to full100_205. Decision-model scores are merged later.
+    """
     heldout_ids = load_heldout_ids() if heldout_ids is None else heldout_ids
     checker = {item["annotation_id"]: item for item in checker_results}
+    lookup = {item["annotation_id"]: item for item in lookup_results or []}
+    value_labels = value_labels or {}
     rows = []
     for span in spans:
         aid = span["annotation_id"]
-        label = labels.get(aid, {}).get("binary_label")
-        if label is None:
+        label = labels.get(aid, {})
+        if label.get("binary_label") is None and not include_unlabelled:
             continue
         attribute = attributes[aid]
-        row = {"annotation_id": aid, "question_id": span["question_id"],
-               "split": role_for(span["question_id"], gold, heldout_ids), "question_type": attribute["question_type"],
-               "span_kind": attribute["span_kind"], "restated_from_question": attribute["restated_from_question"],
-               "is_month": attribute["span_kind"] == "month", "evidence_cluster": attribute["evidence_cluster"],
-               "fact_type": labels[aid].get("fact_type"), "binary_label": label,
-               "checker_verdict": checker.get(aid, {}).get("verdict"),
-               "checker_mechanism": checker.get(aid, {}).get("mechanism"), "all_positive": 1.0}
+        label_row = label.get("row") or {}
+        verdict = checker.get(aid, {}).get("verdict")
+        row = {"annotation_id": aid, "span_set_id": span.get("span_set_id", "full100_205"),
+               "question_id": span["question_id"], "role": role_for(span["question_id"], gold, heldout_ids),
+               "question_type": attribute["question_type"], "span_kind": attribute["span_kind"],
+               "restated_from_question": attribute["restated_from_question"],
+               "evidence_cluster": attribute["evidence_cluster"],
+               "derivation_need": scoring.derivation_need(attribute["span_kind"], attribute["question_type"]),
+               "fact_type": label.get("fact_type"), "binary_label": label.get("binary_label"),
+               "label_value": label.get("value"), "value_binary": value_labels.get(aid),
+               "checker_verdict": verdict, "checker_mechanism": checker.get(aid, {}).get("mechanism"),
+               "all_positive": 1.0}
+        row.update({field: label_row.get(field) for field in LABEL_ROW_FIELDS})
+        row["rule_checker_flag"], row["rule_checker_abstain"] = scoring.binary_flags(verdict, "rule_checker")
+        row["evidence_lookup_flag"], row["evidence_lookup_abstain"] = scoring.binary_flags(
+            lookup.get(aid, {}).get("verdict"), "evidence_lookup")
         row.update(signals.get(aid, {}))
         rows.append(row)
     return rows
@@ -1229,165 +1253,399 @@ def fit_prior(fit_rows, key):
 
 
 def attach_priors(rows, legacy=False):
-    """dev_span_kind_prior and dev_question_type_prior, fitted on non-month dev rows (analysis_policy.prior_fallback).
+    """dev_span_kind_prior and dev_question_type_prior, fitted on the labelled non-month dev spans of full100_205
+    (the for_test fit set, analysis_policy.prior_fallback for unseen categories).
 
-    With legacy=True (ai_provisional labels only) dev_fact_type_prior is added, fitted on all dev rows as in
-    the published statistics so the historical 0.768 can be reproduced.
+    With legacy=True (ai_provisional labels only) dev_fact_type_prior is added, fitted on all dev spans of
+    full100_205 as in the published statistics so the historical 0.768 can be reproduced.
     """
     fits = {}
-    fit_rows = [row for row in rows if row["split"] == "dev" and not row["is_month"]]
+    dev = [row for row in rows if row["span_set_id"] == "full100_205" and row["role"] == "dev"
+           and row["binary_label"] is not None]
+    fit_rows = [row for row in dev if row["span_kind"] != "month"]
     arms = dict(PRIOR_ARMS)
     if legacy:
         arms[LEGACY_PRIOR_ARM] = "fact_type"
     for arm, key in arms.items():
-        fit_set = [row for row in rows if row["split"] == "dev"] if arm == LEGACY_PRIOR_ARM else fit_rows
+        fit_set = dev if arm == LEGACY_PRIOR_ARM else fit_rows
         try:
             prior = fit_prior(fit_set, key)
         except ValueError:
             continue
-        fits[arm] = {**prior, "fit_set": "all dev rows" if arm == LEGACY_PRIOR_ARM else "non-month dev rows",
+        fits[arm] = {**prior, "fit_set": "all dev spans" if arm == LEGACY_PRIOR_ARM else "non-month dev spans",
                      "fit_size": len(fit_set)}
         for row in rows:
             row[arm] = prior["rates"].get(row[key], prior["fallback"])
     return fits
 
 
-def evaluate_arms(rows, arms):
-    dev = [row for row in rows if row["split"] == "dev"]
-    test = [row for row in rows if row["split"] == "test"]
-    test_main = [row for row in test if not row["is_month"]]
-    report = {"counts": {"dev": len(dev), "test": len(test), "test_non_month": len(test_main),
-                         "test_positive": sum(r["binary_label"] for r in test)}, "arms": {}, "thresholds": {}}
-    for arm in arms:
-        usable = [row for row in rows if arm in row and row[arm] is not None]
-        if len(usable) != len(rows):
-            report["arms"][arm] = {"status": "missing for some spans", "available": len(usable)}
+# ----------------------------------------------------------------- report ---
+
+ROLE_STATUS = {
+    "dev": "in-sample: dev fits thresholds and priors and informs calibration and wording",
+    "test": "in-sample with respect to instrument design",
+    "heldout": "label-held-out retrospective extension",
+}
+MODULE_FILES = ["evidence.py", "rule_checker.py", "span_extractor.py", "span_signals.py", "scoring.py",
+                "cluster_bootstrap.py", "decision_battery.py"]
+
+
+def main_set(rows, role):
+    source = "heldout_v1" if role == "heldout" else "full100_205"
+    return [row for row in rows if row["role"] == role and row["span_set_id"] == source and row["span_kind"] != "month"]
+
+
+def continuous_columns(config, dm_arm_ids, legacy):
+    columns = []
+    for arm in config["analysis_policy"]["fixed_arms"]:
+        if arm == "all_positive":
             continue
-        try:
-            threshold = 0.5 if arm == "all_positive" else metrics.dev_threshold([r for r in usable if r["split"] == "dev"], arm)
-        except ValueError as error:
-            report["arms"][arm] = {"status": f"threshold not selectable: {error}"}
+        columns += [scoring.dm_column(arm, arm_id) for arm_id in dm_arm_ids] if arm.startswith("dm_") else [arm]
+    return columns + ([LEGACY_PRIOR_ARM] if legacy else [])
+
+
+def arm_exclusions(config, rows, dm_arm_ids):
+    exclusions = {}
+    for name, spec in config["derived_scores"].items():
+        extra = set(spec.get("extra_excluded", []))
+        if extra:
+            ids = {row["annotation_id"] for row in rows if row.get("slot_label") in extra}
+            for arm_id in dm_arm_ids:
+                exclusions[scoring.dm_column(name, arm_id)] = ids
+    return exclusions
+
+
+def binary_under(mapping, value, excluded_as=None):
+    if value in mapping["positive"]:
+        return 1
+    if value in mapping["negative"]:
+        return 0
+    return excluded_as if value in mapping["excluded"] else None
+
+
+LABEL_SET_MAPPINGS = {
+    "adjudicated": ("human_v1_slot", None),
+    "rater_a before discussion": ("human_v1_slot_rater_a", None),
+    "rater_b before discussion": ("human_v1_slot_rater_b", None),
+    "excluded spans all counted positive": ("human_v1_slot", 1),
+    "excluded spans all counted negative": ("human_v1_slot", 0),
+}
+
+
+def label_set_sensitivity(config, all_rows, dm_arm_ids, replicates, seed):
+    """The primary contrast on each role's main set under the five label sets of the config."""
+    policy = config["analysis_policy"]
+    result = {}
+    for name in policy["label_sets_for_sensitivity"]:
+        mapping_name, excluded_as = LABEL_SET_MAPPINGS[name]
+        mapping = config["label_mapping"][mapping_name]
+        relabelled = []
+        for row in all_rows:
+            value = row.get(mapping["field"])
+            binary = binary_under(mapping, value, excluded_as) if value is not None else None
+            if binary is not None:
+                relabelled.append({**row, "binary_label": binary})
+        result[name] = {}
+        for role in ("test", "heldout"):
+            spec = policy["primary"]["heldout" if role == "heldout" else "test_in_sample"]
+            primary = scoring.dm_column(spec["score"], spec["arm"])
+            subset = main_set(relabelled, role)
+            if spec["arm"] not in dm_arm_ids or not subset or any(row.get(primary) is None for row in subset):
+                result[name][role] = {"status": "primary arm scores or labels not available"}
+                continue
+            boot = cb.ranking_intervals(subset, [primary, scoring.REFERENCE_ARM], spec["cluster_unit"],
+                                        [(primary, scoring.REFERENCE_ARM)], replicates, seed)
+            result[name][role] = {metric: boot["estimates"][f"{primary} minus {scoring.REFERENCE_ARM}|{metric}"]
+                                  for metric in ("average_precision", "auroc")}
+    return result
+
+
+def build_report(config, all_rows, arms, dm_aggregates, label_mapping, label_files, labels, signals_source,
+                 exposed_ids, replicates, seed, frozen=None, span_sources=None, coverage=None,
+                 rater_declarations=None, partial=False, shortfalls=()):
+    """Every table of plan T1.9 and appendix D for the selected arms; returns (report, labelled rows)."""
+    policy = config["analysis_policy"]
+    rows = [row for row in all_rows if row["binary_label"] is not None]
+    dm_arm_ids = sorted(dm_aggregates)
+    legacy = label_mapping == "ai_provisional"
+    human = bool(label_mapping) and label_mapping.startswith("human_")
+    columns = continuous_columns(config, dm_arm_ids, legacy)
+    thresholds = scoring.fit_thresholds(rows, columns, config, label_mapping, span_sources, frozen)
+    exclusions = arm_exclusions(config, rows, dm_arm_ids)
+    report = {"battery_id": config["battery_id"], "arms_scored": dm_arm_ids or "reference",
+              "label_mapping": label_mapping, "label_files": label_files, "signals_source": signals_source,
+              "human_labels": human, "partial": bool(partial), "repeat_shortfalls": list(shortfalls),
+              "thresholds": {**thresholds, **{key: {arm: {**info, "threshold": scoring.json_threshold(info["threshold"])}
+                                                    for arm, info in thresholds[key].items()}
+                                              for key in ("for_test", "for_heldout")}},
+              "roles": {}, "derivation_need": {}, "mechanism_tables": {}}
+    for role in EVALUATION_ROLES:
+        role_rows = [row for row in rows if row["role"] == role]
+        if not role_rows:
             continue
-        report["thresholds"][arm] = threshold
-        report["arms"][arm] = {}
-        for name, subset in (("dev", dev), ("test", test), ("test_non_month", test_main)):
-            if subset:
-                report["arms"][arm][name] = metrics.evaluate([r["binary_label"] for r in subset], [r[arm] for r in subset], threshold)
-    return report
+        spec = policy["primary"]["heldout" if role == "heldout" else "test_in_sample"]
+        primary = scoring.dm_column(spec["score"], spec["arm"])
+        table = scoring.threshold_for(thresholds, role)
 
-
-def paired_intervals(rows, thresholds, comparisons, replicates, seed):
-    test = [row for row in rows if row["split"] == "test" and all(a in row and b in row for a, b in comparisons)]
-    if not test:
-        return {"status": "no test rows"}
-    return metrics.paired_cluster_bootstrap(test, thresholds, comparisons, "question_id", replicates=replicates, seed=seed)
-
-
-def mechanism_table(rows, score="dm_risk", threshold=None):
-    table = {}
-    for mechanism, group in groupby_key(rows, "checker_mechanism").items():
-        positives = [r for r in group if r["binary_label"] == 1]
-        flagged = [r for r in positives if threshold is not None and score in r and r[score] >= threshold]
-        table[mechanism] = {"spans": len(group), "hallucinated": len(positives),
-                            "flagged_hallucinated": len(flagged), "recall": rule_checker.wilson(len(flagged), len(positives)) if positives and threshold is not None else None}
-    return table
-
-
-def groupby_key(rows, key):
-    groups = defaultdict(list)
-    for row in rows:
-        groups[row.get(key)].append(row)
-    return groups
-
-
-def _fmt(value):
-    return "n/a" if value is None else f"{value:.3f}"
-
-
-def render_markdown(report):
-    lines = []
-    if report.get("partial"):
-        lines += ["PARTIAL: some spans have fewer scored repeats than the arm setting; see repeat_shortfalls.", ""]
-    lines += [f"# Decision battery: {report['battery_id']}, arm {report.get('arm_id')}", "",
-              f"Spans scored: dev {report['evaluation']['counts']['dev']}, test {report['evaluation']['counts']['test']} "
-              f"(non-month {report['evaluation']['counts']['test_non_month']}). "
-              f"Response rows from another config, arm or endpoint excluded: {report.get('excluded_rows', 0)}.", "",
-              "| arm | dev threshold | test AP | test AUROC | test F1 | non-month test AP |", "| --- | ---: | ---: | ---: | ---: | ---: |"]
-    for arm, values in report["evaluation"]["arms"].items():
-        if "test" not in values:
-            lines.append(f"| {arm} | n/a | {values.get('status', '')} | | | |")
-            continue
-        t, m = values["test"], values.get("test_non_month", {})
-        lines.append(f"| {arm} | {report['evaluation']['thresholds'][arm]:.4f} | {_fmt(t['average_precision'])} | "
-                     f"{_fmt(t['auroc'])} | {_fmt(t['f1'])} | {_fmt(m.get('average_precision'))} |")
-    lines += ["", "Paired test intervals (question clusters):", ""]
-    for interval in report.get("paired_intervals", {}).get("intervals", []):
-        if interval["metric"] in {"average_precision", "f1"}:
-            lines.append(f"- {interval['signal']} minus {interval['reference']} {interval['metric']}: "
-                         f"{interval['point_difference']:+.4f} [{interval['lower_95']:+.4f}, {interval['upper_95']:+.4f}]")
-    lines += ["", "Mechanism strata (checker, exploratory) and dm_risk recall at the dev threshold:", "",
-              "| mechanism | spans | hallucinated | flagged | recall |", "| --- | ---: | ---: | ---: | --- |"]
-    for mechanism, values in report["mechanisms"].items():
-        recall = values["recall"]
-        text = "n/a" if recall is None else f"{recall['point']:.2f} [{recall['lower_95']:.2f}, {recall['upper_95']:.2f}]"
-        lines.append(f"| {mechanism} | {values['spans']} | {values['hallucinated']} | {values['flagged_hallucinated']} | {text} |")
-    lines += ["", f"Requested model: {report['model_pinned']}. Model versions seen: {json.dumps(report['model_versions'])}."]
-    if report["unexpected_model_versions"]:
-        lines.append(f"Responses from a model other than the requested one: {report['unexpected_model_versions']}.")
-    lines += ["", f"Labels: mapping {report.get('label_mapping')}. Uncertainty signals: {report.get('signals_source')}.",
-              "", "Claim boundary: retrospective estimation; historical published values unchanged; "
-              "the checker replicates the label rule and is an audit reference, not an independent detector."]
-    return "\n".join(lines) + "\n"
-
-
-def score_battery(config, gold, spans, labels, response_rows, checker_results, signals, replicates, seed,
-                  arm=None, excluded_rows=0, partial=False, repeat_shortfall_ids=(), label_mapping=None,
-                  signals_source=None):
-    """Decision-model arms beside the offline arms on labelled spans; priors are fitted on all labelled dev spans."""
-    aggregated = aggregate_responses(response_rows, config)
-    attributes = span_attributes(config, gold, spans)
-    base = base_rows(spans, labels, gold, attributes, signals, checker_results)
-    priors = attach_priors(base, legacy=label_mapping == "ai_provisional")
-    rows = []
-    for row in base:
-        if row["annotation_id"] in aggregated:
-            row.update({key: value for key, value in aggregated[row["annotation_id"]].items() if isinstance(value, float)})
-            rows.append(row)
-    if not rows:
-        raise SystemExit("No successful responses on labelled spans to score; run the battery first.")
-    dm_arms = [name for name, spec in config["derived_scores"].items() if spec.get("label_axis") == "slot"]
-    arms = dm_arms + [name for name in REFERENCE_ARMS if all(name in row for row in rows)]
-    evaluation = evaluate_arms(rows, arms)
-    primary = "dm_risk"
-    comparisons = [(primary, other) for other in ("one_minus_min_top2_margin", "dev_span_kind_prior",
-                                                  LEGACY_PRIOR_ARM, "all_positive")
-                   if other in evaluation["thresholds"]]
-    intervals = (paired_intervals(rows, evaluation["thresholds"], comparisons, replicates, seed)
-                 if comparisons and primary in evaluation["thresholds"] else {"status": f"not computed: {primary} unavailable"})
-    models = Counter()
-    for item in aggregated.values():
-        for model, count in item["models"].items():
-            models[model] += count
-    flip = defaultdict(list)
-    for item in aggregated.values():
-        for key, value in item["choice_flip_rate"].items():
-            flip[key].append(value)
-    requested = (arm or {}).get("model")
-    report = {
-        "battery_id": config["battery_id"], "arm_id": (arm or {}).get("arm_id"),
-        "model_pinned": requested, "model_versions": dict(models),
-        "unexpected_model_versions": sorted(m for m in models if m != requested),
-        "excluded_rows": excluded_rows, "partial": bool(partial), "repeat_shortfalls": list(repeat_shortfall_ids),
-        "evaluation": evaluation, "paired_intervals": intervals,
-        "mechanisms": mechanism_table(rows, primary, evaluation["thresholds"].get(primary)),
-        "choice_flip_rate_mean": {key: sum(values) / len(values) for key, values in flip.items()},
-        "repeats_per_span": Counter(item["repeats"] for item in aggregated.values()),
-        "label_mapping": label_mapping, "signals_source": signals_source,
-        "unlabelled_spans_skipped": sum(1 for span in spans if labels.get(span["annotation_id"], {}).get("binary_label") is None),
-        "priors": {name: {key: value for key, value in fit.items() if key != "key"} for name, fit in priors.items()},
-        "claim_boundary": config["claim_boundary"],
-    }
+        def section(subset, spec=spec, primary=primary, table=table):
+            return scoring.metric_section(subset, columns, table, spec["cluster_unit"], primary,
+                                          spec["sensitivity_cluster_unit"], replicates, seed, exclusions)
+        main = main_set(rows, role)
+        sets = {"main set": section(main), "all spans": section(role_rows)}
+        if role == "heldout":
+            sets["main set, answers not viewed during review"] = section(
+                [row for row in main if row["question_id"] not in exposed_ids])
+            sets["main set without restated spans"] = section([row for row in main if not row["restated_from_question"]])
+        report["roles"][role] = {"sample_status": ROLE_STATUS[role], "primary_score": primary, "sets": sets}
+        # derivation_need.negatives_below_10: strata with fewer than 10 negatives report counts only
+        report["derivation_need"][role] = scoring.derivation_table(role_rows, columns, 10)
+        mechanism_columns = list(policy["mechanism_table"]["columns"])
+        report["mechanism_tables"][role if role != "dev" else "dev (in-sample)"] = scoring.mechanism_table(
+            main, mechanism_columns, table, config, human)
+    value_rows = [{**row, "binary_label": row["value_binary"]} for row in all_rows if row.get("value_binary") is not None]
+    if human and value_rows:
+        value_columns = [scoring.dm_column("dm_unfaithful", arm_id) for arm_id in dm_arm_ids]
+        report["value_axis"] = {role: scoring.metric_section(main_set(value_rows, role), value_columns,
+                                                             scoring.threshold_for(thresholds, role), "evidence_cluster",
+                                                             None, None, replicates, seed)
+                                for role in EVALUATION_ROLES if main_set(value_rows, role)}
+    report["label_set_sensitivity"] = (label_set_sensitivity(config, all_rows, dm_arm_ids, replicates, seed)
+                                       if label_mapping == "human_v1_slot"
+                                       else {"status": f"not applicable with label mapping {label_mapping}"})
+    eval_main = main_set(rows, "test") + main_set(rows, "heldout")
+    if human:
+        primary_arm = policy["primary"]["heldout"]["arm"]
+        primary_column = scoring.dm_column("dm_risk", primary_arm)
+        report["estimands"] = {
+            "E1": {role: scoring.estimand_e1([row for row in rows if row["role"] == role], replicates, seed)
+                   for role in EVALUATION_ROLES if any(row["role"] == role for row in rows)},
+            "E2": scoring.estimand_e2(eval_main, scoring.UNCERTAINTY_ARMS, replicates, seed),
+            "E3": scoring.estimand_e3(eval_main, scoring.UNCERTAINTY_ARMS, thresholds, replicates, seed),
+            "E4": {role: scoring.estimand_e4(main_set(rows, role), primary_column, replicates, seed)
+                   for role in ("test", "heldout")},
+        }
+        report["funnel"] = {role: scoring.funnel(main_set(rows, role), primary_arm, thresholds,
+                                                 policy["funnel"]["minimum_cell"])
+                            for role in ("test", "heldout") if main_set(rows, role)}
+    else:
+        report["estimands"] = {"status": "not computed: E1 to E4 need human slot_label, value_label and mechanism"}
+        report["funnel"] = {"status": "not computed: needs human labels"}
+    report["coverage"] = coverage or {}
+    report["excluded_label_values"] = dict(Counter(item["value"] for item in labels.values()
+                                                   if item["binary_label"] is None))
+    report["dm_arms"] = {}
+    for arm_id, aggregated in dm_aggregates.items():
+        models = Counter()
+        for item in aggregated.values():
+            models.update(item["models"])
+        report["dm_arms"][arm_id] = {"requested_model": arms[arm_id].get("model"), "model_versions": dict(models),
+                                     "unexpected_model_versions": sorted(str(m) for m in models if m != arms[arm_id].get("model")),
+                                     "repeats_per_span": dict(Counter(item["repeats"] for item in aggregated.values())),
+                                     "repeat_spread": scoring.repeat_spread(aggregated, arms[arm_id])}
+    report["module_sha256"] = {name: _sha_or_none(MODULE_DIR / name) for name in MODULE_FILES}
+    report["module_sha256"]["detector_metrics.py"] = _sha_or_none(MODULE_DIR.parent / "detector_metrics.py")
+    report["rater_declarations"] = rater_declarations or "not available"
+    report["claim_boundary"] = config["claim_boundary"]
+    report["interval_count"] = scoring.interval_count(report)
     return report, rows
+
+
+def power_notes(rows, primary_arm_id, replicates, seed):
+    """Dev-only planning numbers (plan T1.9 item 20); written only with dev human labels."""
+    dev = main_set(rows, "dev")
+    if not dev:
+        return None
+    labels = [row["binary_label"] for row in dev]
+    margin = [row[scoring.REFERENCE_ARM] for row in dev]
+    notes = {"dev_main_set_spans": len(dev), "dev_main_set_positive_rate": sum(labels) / len(labels),
+             "perfect_detector_gap_to_margin": {
+                 "average_precision": 1.0 - metrics.average_precision(labels, margin),
+                 "auroc": 1.0 - metrics.auroc(labels, margin)}}
+    primary = scoring.dm_column("dm_risk", primary_arm_id)
+    if all(row.get(primary) is not None for row in dev):
+        boot = cb.ranking_intervals(dev, [primary, scoring.REFERENCE_ARM], "question_id",
+                                    [(primary, scoring.REFERENCE_ARM)], replicates, seed)
+        widths = {}
+        for metric in ("average_precision", "auroc"):
+            estimate = boot["estimates"][f"{primary} minus {scoring.REFERENCE_ARM}|{metric}"]
+            widths[metric] = (None if estimate["lower_95"] is None
+                              else estimate["upper_95"] - estimate["lower_95"])
+        notes["dev_paired_difference_interval_width"] = widths
+    else:
+        notes["dev_paired_difference_interval_width"] = "primary arm dev scores not available"
+    return notes
+
+
+# ----------------------------------------------------------------- freeze ---
+
+def span_set_files(config):
+    """Span file of every span set of the config, by span_set_id (existing or not)."""
+    return {span_set_id: PROJECT_ROOT / spec["file"]
+            for span_set_id, spec in config["analysis_policy"]["span_sets"].items()}
+
+
+def load_span_sources(path=None):
+    """annotation_id -> span_source from span_source_devtest_v1.jsonl, or None when the file does not exist."""
+    path = Path(path or SPANS_PATH.parent / "span_source_devtest_v1.jsonl")
+    if not path.exists():
+        return None
+    return {row["annotation_id"]: row["span_source"] for row in read_jsonl(path)}
+
+
+def response_arm_rows(arm, states, root=None):
+    """(kept rows, excluded count, all rows) of one arm's response file against the given states."""
+    path = Path(root or OUTPUT_ROOT) / arm["arm_id"] / "responses.jsonl"
+    rows = read_response_rows(path) if path.exists() else []
+    kept, excluded = select_scored_rows(rows, expected_request_hashes(states, arm))
+    return kept, excluded, rows
+
+
+def assemble_rows(config, gold, spans, labels, texts, sources, traces_path, dm_aggregates, heldout_ids,
+                  value_labels=None, include_unlabelled=True, legacy=False):
+    """Rows of every span with offline arms, priors and the decision-model columns of every given arm."""
+    attributes = span_attributes(config, gold, spans)
+    signals, signals_source = load_signals(spans, texts, sources, traces_path)
+    checker_results = rule_checker.run_checker(config, gold, spans, texts)
+    rows = base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids,
+                     value_labels=value_labels, include_unlabelled=include_unlabelled)
+    labelled = [row for row in rows if row["binary_label"] is not None]
+    priors = attach_priors(labelled, legacy=legacy)
+    for row in rows:
+        if row["binary_label"] is None:
+            for arm, fit in priors.items():
+                row[arm] = fit["rates"].get(row[fit["key"]], fit["fallback"])
+    score_names = list(config["derived_scores"])
+    for arm_id, aggregated in dm_aggregates.items():
+        scoring.attach_dm_scores(rows, arm_id, aggregated, score_names)
+    return rows, priors, signals_source
+
+
+def _repo_relative(path):
+    path = Path(path).resolve()
+    try:
+        return path.relative_to(PROJECT_ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _git_head():
+    import subprocess
+    try:
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, capture_output=True, text=True,
+                              check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def config_text_with_status(text, status):
+    """The config text with its top-level status value replaced, layout unchanged."""
+    new, count = re.subn(r'^(  "status": )"[^"]*"', lambda match: f'{match.group(1)}"{status}"', text, count=1,
+                         flags=re.MULTILINE)
+    if count != 1:
+        raise SystemExit("the config has no top-level status line")
+    return new
+
+
+def run_freeze(date, config_path, arms_path, label_path, label_mapping, codebook, schema, heldout_slice,
+               preregistration, power_notes_path, generations_path=DEFAULT_GENERATIONS, traces_path=DEFAULT_TRACES,
+               freeze_path=None, states_root=None, overrides=None, validator=None, git_commit=None, log=print):
+    """Freeze point A (plan T1.9 item 18): refuse on any failed precondition, then write the record once."""
+    freeze_path = Path(freeze_path or FREEZE_PATH)
+    states_root = Path(states_root or OUTPUT_ROOT)
+    if freeze_path.exists():
+        raise SystemExit(f"{freeze_path.name} already exists; changes after the freeze go into an amendment")
+    config = load_config(config_path)
+    file_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": arms_path,
+                      "codebook_sha256": codebook, "annotation_schema_sha256": schema, "labels_205_sha256": label_path,
+                      "heldout_ids_sha256": heldout_slice, "preregistration_sha256": preregistration,
+                      "generations_sha256": generations_path, "token_traces_sha256": traces_path, **(overrides or {})}
+    paths = freeze_input_paths(None, file_overrides, states_root)
+    missing = [field for field, path in paths.items()
+               if field not in FREEZE_NULLABLE_FIELDS | {"states_manifest_full100_205_sha256"}
+               and not Path(path).exists()]
+    if not Path(power_notes_path).exists():
+        missing.append("power_notes")
+    if missing:
+        raise SystemExit(f"freeze refused: input files missing for {missing}")
+    validation = validator() if validator else validate(config_path=config_path, output_dir=states_root,
+                                                        generations_path=generations_path, require_local=True,
+                                                        arms_path=arms_path)
+    if validation["num_failures"]:
+        raise SystemExit(f"freeze refused: validate --require-local failed: {validation['failures'][:3]}")
+    arms = load_arms(arms_path)
+    labels = load_labels([label_path], label_mapping, config)
+    set_files = span_set_files(config)
+    set_files["full100_205"] = Path(paths["spans_full100_sha256"])
+    states_by_set = {}
+    for span_set_id in REQUEST_SET_SPAN_SETS:
+        if not set_files[span_set_id].exists():
+            continue
+        states_by_set[span_set_id], _ = load_states(span_set_id, config_path, arms_path, set_files[span_set_id],
+                                                    generations_path, root=states_root)
+    if "full100_205" not in states_by_set:
+        raise SystemExit("freeze refused: the full100_205 states are missing; run build first")
+    all_states = [state for states in states_by_set.values() for state in states]
+    dm_aggregates = {}
+    for arm_id, arm in arms.items():
+        kept, _, rows = response_arm_rows(arm, all_states, states_root)
+        late = sorted({row.get("role") for row in rows} & {"test", "heldout"})
+        if late:
+            raise SystemExit(f"freeze refused: arm {arm_id} already has response rows with role {late}")
+        aggregated = aggregate_responses(kept, config)
+        required = (arm.get("repeats") or {}).get("dev")
+        expected = [state["annotation_id"] for state in all_states if state["role"] == "dev"
+                    and labels.get(state["annotation_id"], {}).get("binary_label") is not None]
+        incomplete = [aid for aid in expected if aid not in aggregated or aggregated[aid]["repeats"] != required]
+        if incomplete:
+            raise SystemExit(f"freeze refused: arm {arm_id} dev coverage is incomplete for {len(incomplete)} spans, "
+                             f"for example {incomplete[:3]}")
+        dm_aggregates[arm_id] = aggregated
+    # every precondition holds: write the frozen status, then rewrite the states manifests
+    config_file = Path(config_path)
+    with config_file.open("r", encoding="utf-8") as handle:
+        text = handle.read()
+    with config_file.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(config_text_with_status(text, "frozen"))
+    config = load_config(config_path)
+    for span_set_id, states in states_by_set.items():
+        before = file_sha256(states_paths(span_set_id, states_root)[0])
+        write_states(states, span_set_id, config_path, arms_path, set_files[span_set_id], generations_path,
+                     root=states_root)
+        if file_sha256(states_paths(span_set_id, states_root)[0]) != before:
+            raise SystemExit(f"states of {span_set_id} changed while rewriting the manifest")
+    values = current_freeze_values(file_overrides, arms_path, states_root)
+    gold = load_gold()
+    heldout_ids = load_heldout_ids(heldout_slice)
+    spans = [{**span, "span_set_id": span_set_id} for span_set_id in states_by_set
+             for span in load_spans(set_files[span_set_id])]
+    texts, sources = load_generated_texts(generations_path, heldout_ids=heldout_ids, log=lambda message: None)
+    rows, _, _ = assemble_rows(config, gold, spans, labels, texts, sources, traces_path, dm_aggregates, heldout_ids)
+    labelled = [row for row in rows if row["binary_label"] is not None]
+    columns = continuous_columns(config, sorted(dm_aggregates), legacy=False)
+    thresholds = scoring.fit_thresholds(labelled, columns, config, label_mapping, load_span_sources())
+    record = {"freeze_id": f"decision_battery_v2_freeze_{date}", "date": date,
+              "git_commit": git_commit if git_commit is not None else _git_head()}
+    for field in FREEZE_ENFORCED_FIELDS:
+        record[field] = [] if field == "amendments" else values.get(field)
+    record["inputs"] = {field: _repo_relative(path) for field, path in freeze_input_paths(None, file_overrides, states_root).items()
+                        if field in FREEZE_ENFORCED_FIELDS and Path(path).exists()}
+    record["informational_sha256"] = {f"module:{path.name}": file_sha256(path) for path in sorted(MODULE_DIR.glob("*.py"))}
+    record["informational_sha256"]["module:detector_metrics.py"] = _sha_or_none(MODULE_DIR.parent / "detector_metrics.py")
+    record["label_mapping"] = label_mapping
+    record["dev_thresholds"] = {"rule": thresholds["rule"], "notes": thresholds["notes"],
+                                **{key: {arm: {"threshold": scoring.json_threshold(info["threshold"]),
+                                               "degenerate": info["degenerate"], "reason": info.get("reason")}
+                                         for arm, info in thresholds[key].items()}
+                                   for key in ("for_test", "for_heldout")}}
+    record["main_set_rule"] = config["analysis_policy"]["main_set_rule"]
+    record["primary"] = config["analysis_policy"]["primary"]
+    record["local_arm_environment"] = {arm_id: arm.get("notes") for arm_id, arm in arms.items() if arm.get("kind") == "local"}
+    record["power_notes"] = load_config(power_notes_path)
+    freeze_path.parent.mkdir(parents=True, exist_ok=True)
+    with freeze_path.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(record, handle, indent=2, ensure_ascii=False)
+    log(f"freeze record written: {freeze_path.name}")
+    return record
 
 
 # --------------------------------------------------------------- validate ---
@@ -1487,29 +1745,150 @@ def _write_jsonl(path, rows):
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def _dump_json(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(value, handle, indent=2, ensure_ascii=False, default=str)
+
+
+def _write_csv(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        fields = sorted({key for row in rows for key in row})
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def score_command(args, config, config_path, freeze_overrides, log=print):
+    """score --arms reference | <arm_id> | all over every span set whose file exists (plan T1.9 items 2 to 20)."""
+    gold = load_gold()
+    heldout_ids = load_heldout_ids()
+    set_files = {span_set_id: path for span_set_id, path in span_set_files(config).items() if path.exists()}
+    freeze_record = None
+    if any("heldout" in config["analysis_policy"]["span_sets"][span_set_id]["roles"] for span_set_id in set_files):
+        freeze_record = require_freeze("heldout", "score of the heldout span set", FREEZE_PATH, freeze_overrides)
+    spans = [{**span, "span_set_id": span_set_id} for span_set_id, path in set_files.items() for span in load_spans(path)]
+    if freeze_record is None and any(span["question_id"] in heldout_ids for span in spans):
+        freeze_record = require_freeze("heldout", "score of held-out spans", FREEZE_PATH, freeze_overrides)
+    labels = load_labels(args.labels, args.label_mapping, config) if args.labels else {}
+    value_labels = None
+    if args.label_mapping and args.label_mapping.startswith("human_v1_slot"):
+        value_labels = binary_labels(load_labels(args.labels, "human_v1_value", config))
+    texts, sources = load_generated_texts(args.generations, heldout_ids=readable_heldout_ids(heldout_ids, freeze_record))
+    if "public_demo_bundle" in sources.values() and not args.public_demo:
+        raise SystemExit("some answers come from the public demo bundle; pass --public-demo to use them")
+    arms = load_arms(ARMS_CONFIG_PATH)
+    if args.arms in ("reference", "all"):
+        selected = [] if args.arms == "reference" else sorted(arms)
+    elif args.arms in arms:
+        selected = [args.arms]
+    else:
+        raise SystemExit(f"unknown --arms value {args.arms!r}; use reference, all or one of {sorted(arms)}")
+    if not labels and not (len(selected) == 1 and args.arms != "all"):
+        raise SystemExit("score without --labels writes diagnostics for one arm only; pass --arms <arm_id>")
+    states_by_set = {}
+    for span_set_id, path in set_files.items():
+        if states_paths(span_set_id)[0].exists():
+            states_by_set[span_set_id], _ = load_states(span_set_id, config_path, ARMS_CONFIG_PATH, path, args.generations)
+        elif selected:
+            raise SystemExit(f"states of {span_set_id} are missing; run build --spans {path.name} first")
+    all_states = [state for states in states_by_set.values() for state in states]
+    dm_aggregates, kept_by_arm, shortfalls = {}, {}, []
+    for arm_id in selected:
+        kept, _, rows = response_arm_rows(arms[arm_id], all_states)
+        for role in sorted({row.get("role") for row in rows} & {"test", "heldout"}):
+            require_freeze(role, f"score of {role} responses of {arm_id}", FREEZE_PATH, freeze_overrides)
+        check_response_roles(kept)
+        aggregated = aggregate_responses(kept, config)
+        shortfalls += [f"{arm_id}:{aid}" for aid in repeat_shortfalls(aggregated, all_states, arms[arm_id])]
+        dm_aggregates[arm_id], kept_by_arm[arm_id] = aggregated, kept
+    if shortfalls and not args.allow_partial:
+        raise SystemExit(f"{len(shortfalls)} spans have a repeat count that differs from the arm setting, "
+                         f"for example {shortfalls[:3]}; rerun or pass --allow-partial")
+    if not labels:
+        arm_id = selected[0]
+        attributes = span_attributes(config, gold, spans)
+        for span_set_id, states in states_by_set.items():
+            ids = {state["annotation_id"] for state in states}
+            tagged = [{**state, "span_kind": attributes[state["annotation_id"]]["span_kind"]} for state in states]
+            result = scoring.diagnostics([row for row in kept_by_arm[arm_id] if row["annotation_id"] in ids], tagged, config)
+            path = OUTPUT_ROOT / arm_id / f"diagnostics_{span_set_id}.md"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("w", encoding="utf-8", newline="\n") as handle:
+                handle.write(scoring.render_diagnostics(result, arm_id, span_set_id))
+            log(f"diagnostics written: {path.name}")
+        return 0
+    rows, priors, signals_source = assemble_rows(config, gold, spans, labels, texts, sources, args.traces, dm_aggregates,
+                                                 heldout_ids, value_labels, legacy=args.label_mapping == "ai_provisional")
+    coverage = {}
+    for arm_id, aggregated in dm_aggregates.items():
+        expected = [state["annotation_id"] for state in all_states
+                    if labels.get(state["annotation_id"], {}).get("binary_label") is not None]
+        missing = sorted(aid for aid in expected if aid not in aggregated)
+        coverage[arm_id] = {"expected": len(expected), "scored": len(expected) - len(missing), "missing": missing}
+    exposed = set(load_config(HELDOUT_SLICE_PATH)["exposed_in_review_question_ids"])
+    label_files = [{"file": _repo_relative(path), "sha256": file_sha256(path)} for path in args.labels]
+    report, labelled = build_report(config, rows, arms, dm_aggregates, args.label_mapping, label_files, labels,
+                                    signals_source, exposed, args.replicates, args.seed, frozen=load_freeze(FREEZE_PATH),
+                                    span_sources=load_span_sources(), coverage=coverage, partial=bool(shortfalls),
+                                    shortfalls=shortfalls)
+    report["priors"] = {name: {key: value for key, value in fit.items() if key != "key"} for name, fit in priors.items()}
+    markdown = scoring.render_report(report)
+    if args.arms == "reference":
+        stem = OUTPUT_ROOT / "report_reference"
+    elif args.arms == "all":
+        stem = OUTPUT_ROOT / "report_all_arms"
+        figure = {role: {name: {arm: {metric: values[metric] for metric in ("average_precision", "auroc")}
+                                for arm, values in section["arms"].items()}
+                         for name, section in entry["sets"].items() if name == "main set"}
+                  for role, entry in report["roles"].items()}
+        _dump_json(OUTPUT_ROOT / "report_all_arms_figure.json", figure)
+    else:
+        stem = OUTPUT_ROOT / args.arms / "report"
+    _dump_json(stem.with_suffix(".json"), report)
+    _write_csv(stem.parent / f"{stem.name}_span_scores.csv", labelled)
+    with stem.with_suffix(".md").open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(markdown)
+    if args.label_mapping.startswith("human_"):
+        notes = power_notes(labelled, config["analysis_policy"]["primary"]["heldout"]["arm"], args.replicates, args.seed)
+        if notes is not None:
+            _dump_json(PROJECT_ROOT / "outputs" / "research_plan" / "results" / "power_notes.json", notes)
+    log(markdown)
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=["export-spans", "build", "check", "run", "smoke", "score", "validate"])
+    parser.add_argument("command", choices=["export-spans", "build", "check", "run", "smoke", "score", "validate", "freeze"])
     parser.add_argument("--config", default=str(CONFIG_PATH), help="wording and analysis config")
     parser.add_argument("--generations", default=str(DEFAULT_GENERATIONS), help="local qwen_full100_generations.jsonl")
     parser.add_argument("--traces", default=str(DEFAULT_TRACES), help="score: local qwen_full100_token_traces.jsonl")
     parser.add_argument("--spans", default=str(SPANS_PATH), help="span file (six D10 fields); its name fixes the span set")
     parser.add_argument("--labels", action="append", default=[],
-                        help="check, score: label file, separate from the span file; may be repeated")
-    parser.add_argument("--label-mapping", default=None, help="check, score: a key of the config's label_mapping")
+                        help="check, score, freeze: label file, separate from the span file; may be repeated")
+    parser.add_argument("--label-mapping", default=None, help="check, score, freeze: a key of the config's label_mapping")
     parser.add_argument("--repeats", type=int, default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--split", choices=list(EVALUATION_ROLES), default=None,
                         help="run (required): the role to send; test and heldout need the freeze record")
-    parser.add_argument("--replicates", type=int, default=5000)
-    parser.add_argument("--seed", type=int, default=20260904)
+    parser.add_argument("--replicates", type=int, default=None, help="score: bootstrap replicates (default from config)")
+    parser.add_argument("--seed", type=int, default=None, help="score: bootstrap seed (default from config)")
     parser.add_argument("--require-local", action="store_true",
                         help="validate: require the local generation file and all 205 states")
-    parser.add_argument("--arm", default=None, help="run, smoke, score: arm_id from the arms config")
+    parser.add_argument("--arm", default=None, help="run, smoke: arm_id from the arms config")
+    parser.add_argument("--arms", default=None, help="score (required): reference, all or one arm_id")
     parser.add_argument("--allow-partial", action="store_true",
                         help="score: report even if some spans have fewer repeats than the arm setting")
     parser.add_argument("--public-demo", action="store_true",
                         help="run, score: allow the nine public demo answers instead of the local generation file")
+    parser.add_argument("--date", default=None, help="freeze: date of the freeze record, YYYY-MM-DD")
+    parser.add_argument("--arms-config", default=None, help="freeze: arms config (default configs/decision_battery_arms_v1.json)")
+    parser.add_argument("--codebook", default=None, help="freeze: codebook file")
+    parser.add_argument("--schema", default=None, help="freeze: annotation schema file")
+    parser.add_argument("--heldout-slice", default=None, help="freeze: held-out slice (default configs/heldout_slice_v1.json)")
+    parser.add_argument("--preregistration", default=None, help="freeze: sealed preregistration file")
+    parser.add_argument("--power-notes", default=None, help="freeze: outputs/research_plan/results/power_notes.json")
     args = parser.parse_args(argv)
     if args.repeats is not None and (args.repeats < 1 or args.limit is None):
         parser.error("--repeats must be at least 1 and is only allowed together with --limit")
@@ -1517,10 +1896,14 @@ def main(argv=None):
         parser.error("run needs --split dev, test or heldout")
     if args.command != "run" and args.split is not None:
         parser.error("--split is only used by run")
+    if args.command == "freeze" and not args.label_mapping:
+        args.label_mapping = "human_v1_slot"
     if bool(args.labels) != bool(args.label_mapping):
         parser.error("--labels and --label-mapping go together")
-    if args.command == "score" and not args.labels:
-        parser.error("score needs --labels and --label-mapping")
+    if args.command == "score" and not args.arms:
+        parser.error("score needs --arms reference, all or an arm_id")
+    if args.command != "score" and args.arms:
+        parser.error("--arms is only used by score; run and smoke take --arm")
 
     if args.command == "export-spans":
         count = export_spans(ANNOTATIONS_PATH, args.spans)
@@ -1529,8 +1912,23 @@ def main(argv=None):
 
     config_path = Path(args.config)
     config = load_config(config_path)
+    bootstrap = config["analysis_policy"]["bootstrap"]
+    args.replicates = args.replicates or bootstrap["replicates"]
+    args.seed = bootstrap["seed"] if args.seed is None else args.seed
     freeze_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": ARMS_CONFIG_PATH,
                         "generations_sha256": args.generations, "token_traces_sha256": args.traces}
+
+    if args.command == "freeze":
+        missing = [flag for flag, value in (("--date", args.date), ("--labels", args.labels), ("--codebook", args.codebook),
+                                            ("--schema", args.schema), ("--preregistration", args.preregistration),
+                                            ("--power-notes", args.power_notes)) if not value]
+        if missing or len(args.labels) != 1:
+            parser.error(f"freeze needs {missing or ['exactly one --labels file']}")
+        run_freeze(args.date, config_path, Path(args.arms_config or ARMS_CONFIG_PATH), Path(args.labels[0]),
+                   args.label_mapping, Path(args.codebook), Path(args.schema), Path(args.heldout_slice or HELDOUT_SLICE_PATH),
+                   Path(args.preregistration), Path(args.power_notes), Path(args.generations), Path(args.traces))
+        return 0
+
     if args.command == "run" and args.split != "dev":
         if config.get("status") not in EVAL_READY_STATUSES:
             raise SystemExit(f"config status is {config.get('status')!r}; run accepts only --split dev "
@@ -1546,9 +1944,16 @@ def main(argv=None):
     if args.command == "smoke":
         if not args.arm:
             parser.error("smoke needs --arm")
-        arm = load_arms()[args.arm]
+        arm = load_arms(ARMS_CONFIG_PATH)[args.arm]
         report = run_smoke(config, arm, read_api_key(arm), OUTPUT_ROOT / arm["arm_id"] / "smoke.json")
         return 1 if report["problems"] else 0
+
+    uses_demo = not Path(args.generations).exists()
+    if uses_demo and args.command in {"run", "score"} and not args.public_demo:
+        raise SystemExit(f"generation file not found: {args.generations}; "
+                         "pass --public-demo to use the nine public demo answers")
+    if args.command == "score":
+        return score_command(args, config, config_path, freeze_overrides)
 
     gold = load_gold()
     span_set_id = span_set_id_for(args.spans)
@@ -1561,10 +1966,8 @@ def main(argv=None):
         freeze_record = require_freeze("heldout", f"{args.command} on held-out spans", FREEZE_PATH, freeze_overrides)
     labels = load_labels(args.labels, args.label_mapping, config) if args.labels else {}
     texts, sources = load_generated_texts(args.generations, heldout_ids=readable_heldout_ids(heldout_ids, freeze_record))
-    uses_demo = not Path(args.generations).exists() or "public_demo_bundle" in sources.values()
-    if uses_demo and args.command in {"run", "score"} and not args.public_demo:
-        raise SystemExit(f"generation file not found or incomplete: {args.generations}; "
-                         "pass --public-demo to use the nine public demo answers")
+    if "public_demo_bundle" in sources.values() and args.command == "run" and not args.public_demo:
+        raise SystemExit("some answers come from the public demo bundle; pass --public-demo to use them")
     if uses_demo and args.command in {"build", "check"}:
         _stderr(f"using public demo bundle: {dict(Counter(sources.values()))}")
     manifest_args = (config_path, ARMS_CONFIG_PATH, args.spans, args.generations)
@@ -1579,8 +1982,8 @@ def main(argv=None):
                           "manifest": str(manifest_path)}, indent=2, ensure_ascii=False))
         return 0
 
-    checker_results = rule_checker.run_checker(config, gold, spans, texts)
     if args.command == "check":
+        checker_results = rule_checker.run_checker(config, gold, spans, texts)
         attributes = span_attributes(config, gold, spans)
         _write_jsonl(OUTPUT_ROOT / f"checker_{span_set_id}.jsonl", checker_results)
         _write_jsonl(OUTPUT_ROOT / f"span_kind_{span_set_id}.jsonl", span_kind_rows(attributes))
@@ -1589,9 +1992,7 @@ def main(argv=None):
         if labels:
             audit = rule_checker.checker_audit(checker_results, binary_labels(labels))
             audit["label_mapping"] = args.label_mapping
-            with (OUTPUT_ROOT / f"checker_audit_{span_set_id}_{args.label_mapping}.json").open(
-                    "w", encoding="utf-8", newline="\n") as handle:
-                json.dump(audit, handle, indent=2, ensure_ascii=False)
+            _dump_json(OUTPUT_ROOT / f"checker_audit_{span_set_id}_{args.label_mapping}.json", audit)
             summary["audit"] = audit
         else:
             summary["audit"] = "not run: no --labels given"
@@ -1599,54 +2000,24 @@ def main(argv=None):
         return 0
 
     if not args.arm:
-        parser.error(f"{args.command} needs --arm")
-    arm = load_arms()[args.arm]
+        parser.error("run needs --arm")
+    arm = load_arms(ARMS_CONFIG_PATH)[args.arm]
     arm_dir = OUTPUT_ROOT / arm["arm_id"]
-    responses_path = arm_dir / "responses.jsonl"
     states, _ = load_states(span_set_id, *manifest_args)
-
-    if args.command == "run":
-        states = [state for state in states if state["role"] == args.split]
-        api_key = read_api_key(arm)
-        if args.repeats is not None:
-            repeats = args.repeats
-        else:
-            role = "dev" if args.split == "dev" else "eval"
-            repeats = (arm.get("repeats") or {}).get(role)
-            if not repeats:
-                raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
-        arm_dir.mkdir(parents=True, exist_ok=True)
-        provenance = {"battery_id": config["battery_id"], "config_sha256": file_sha256(config_path)}
-        summary = run_battery(states, arm, api_key, repeats, responses_path, limit=args.limit, provenance=provenance,
-                              cleared_roles=(args.split,))
-        print(json.dumps(summary, indent=2))
-        return 0
-
-    rows = read_response_rows(responses_path) if responses_path.exists() else []
-    for role in sorted({row.get("role") for row in rows} & {"test", "heldout"}):
-        require_freeze(role, f"score of {role} responses", FREEZE_PATH, freeze_overrides)
-    kept, excluded = select_scored_rows(rows, expected_request_hashes(states, arm))
-    check_response_roles(kept)
-    shortfalls = repeat_shortfalls(aggregate_responses(kept, config), states, arm)
-    if shortfalls and not args.allow_partial:
-        raise SystemExit(f"{len(shortfalls)} spans have a repeat count that differs from the arm setting, "
-                         f"for example {shortfalls[:3]}; rerun or pass --allow-partial")
-    signals, signals_source = load_signals(spans, texts, sources, args.traces)
-    report, score_table = score_battery(config, gold, spans, labels, kept, checker_results, signals, args.replicates,
-                                        args.seed, arm=arm, excluded_rows=excluded, partial=bool(shortfalls),
-                                        repeat_shortfall_ids=shortfalls, label_mapping=args.label_mapping,
-                                        signals_source=signals_source)
+    states = [state for state in states if state["role"] == args.split]
+    api_key = read_api_key(arm)
+    if args.repeats is not None:
+        repeats = args.repeats
+    else:
+        role = "dev" if args.split == "dev" else "eval"
+        repeats = (arm.get("repeats") or {}).get(role)
+        if not repeats:
+            raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
     arm_dir.mkdir(parents=True, exist_ok=True)
-    with (arm_dir / "report.json").open("w", encoding="utf-8", newline="\n") as handle:
-        json.dump(report, handle, indent=2, ensure_ascii=False, default=str)
-    with (arm_dir / "span_scores.csv").open("w", encoding="utf-8", newline="") as handle:
-        fields = sorted({key for row in score_table for key in row})
-        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(score_table)
-    with (arm_dir / "report.md").open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(render_markdown(report))
-    print(render_markdown(report))
+    provenance = {"battery_id": config["battery_id"], "config_sha256": file_sha256(config_path)}
+    summary = run_battery(states, arm, api_key, repeats, arm_dir / "responses.jsonl", limit=args.limit,
+                          provenance=provenance, cleared_roles=(args.split,))
+    print(json.dumps(summary, indent=2))
     return 0
 
 

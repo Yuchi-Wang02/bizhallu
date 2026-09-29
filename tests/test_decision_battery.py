@@ -443,28 +443,32 @@ class ScoreTests(unittest.TestCase):
     def test_end_to_end_score_flags_model_drift(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
         labels = {row["annotation_id"]: row["binary_label"] for row in ANNOTATIONS}
-        rows = self._rows_for(states, HOSTED_ARM, labels, lambda index: "jev-1.14.0" if index == 0 else "jev-1.13.0")
-        kept, excluded = battery.select_scored_rows(rows, battery.expected_request_hashes(states, HOSTED_ARM))
+        arm = {**LOCAL_ARM, "arm_id": "local_open_jev_2b", "model": "jev-1.13.0"}
+        rows = self._rows_for(states, arm, labels, lambda index: "jev-1.14.0" if index == 0 else "jev-1.13.0")
+        kept, excluded = battery.select_scored_rows(rows, battery.expected_request_hashes(states, arm))
         self.assertEqual((len(kept), excluded), (70, 0))
-        checker_results = checker.run_checker(CONFIG, GOLD, SPANS, TEXTS)
-        signals = battery.load_stored_signals()
-        report, scored = battery.score_battery(CONFIG, GOLD, SPANS, LABELS, kept, checker_results, signals,
-                                               replicates=50, seed=1, arm=HOSTED_ARM, label_mapping="ai_provisional",
-                                               signals_source="stored")
+        aggregated = battery.aggregate_responses(kept, CONFIG)
+        spans = [span for span in SPANS if span["question_id"] in TEXTS]
+        score_rows, _, _ = battery.assemble_rows(CONFIG, GOLD, spans, LABELS, TEXTS, SOURCES, None,
+                                                      {"local_open_jev_2b": aggregated}, frozenset(), legacy=True)
+        report, scored = battery.build_report(CONFIG, score_rows, {"local_open_jev_2b": arm},
+                                              {"local_open_jev_2b": aggregated}, "ai_provisional", [], LABELS,
+                                              "stored", set(), 50, 1)
         self.assertEqual(len(scored), 70)
-        for arm in ("dev_span_kind_prior", "dev_question_type_prior", "dev_fact_type_prior"):
-            self.assertIn(arm, report["evaluation"]["arms"])
-        self.assertEqual(report["priors"]["dev_span_kind_prior"]["fit_size"], 83)
-        self.assertEqual(report["model_pinned"], "jev-1.13.0")
-        self.assertEqual(report["unexpected_model_versions"], ["jev-1.14.0"])
-        self.assertIn("dm_risk", report["evaluation"]["arms"])
-        self.assertIn("one_minus_min_top2_margin", report["evaluation"]["arms"])
-        self.assertEqual(report["evaluation"]["arms"]["dm_risk"]["test"]["average_precision"], 1.0)
-        self.assertEqual(report["paired_intervals"]["cluster_field"], "question_id")
-        self.assertIn("self_consistent_wrong_selection", report["mechanisms"])
-        markdown = battery.render_markdown(report)
-        self.assertIn("not an independent detector", markdown)
+        test_all = report["roles"]["test"]["sets"]["all spans"]
+        for name in ("dev_span_kind_prior", "dev_question_type_prior", "dev_fact_type_prior", "one_minus_min_top2_margin"):
+            self.assertIn(name, test_all["arms"])
+        self.assertEqual(test_all["arms"]["dm_risk@local_open_jev_2b"]["average_precision"]["point"], 1.0)
+        self.assertIn("lower_95", test_all["primary_contrast"]["average_precision"])
+        self.assertEqual(test_all["primary_contrast"]["cluster"], "question_id")
+        self.assertEqual(test_all["primary_contrast_sensitivity"]["cluster"], "evidence_cluster")
+        self.assertEqual(report["dm_arms"]["local_open_jev_2b"]["unexpected_model_versions"], ["jev-1.14.0"])
+        self.assertIn("self_consistent_wrong_selection", report["mechanism_tables"]["test"]["rows"])
+        self.assertGreater(report["interval_count"], 0)
+        markdown = battery.scoring.render_report(report)
+        self.assertIn("label-consistency audit", markdown)
         self.assertIn("jev-1.14.0", markdown)
+        self.assertNotIn("PRE-FREEZE", markdown)
 
     def test_rows_from_another_wording_or_arm_are_excluded(self):
         states, _ = battery.build_states(CONFIG, GOLD, ANNOTATIONS, TEXTS, SOURCES)
@@ -909,7 +913,7 @@ class SpanSignalTests(unittest.TestCase):
         fits = battery.attach_priors(rows, legacy=True)
         self.assertEqual(fits["dev_fact_type_prior"]["fit_size"], 102)
         self.assertEqual(fits["dev_question_type_prior"]["fit_size"], 83)
-        test = [row for row in rows if row["split"] == "test"]
+        test = [row for row in rows if row["role"] == "test"]
         prior = battery.metrics.evaluate([r["binary_label"] for r in test], [r["dev_fact_type_prior"] for r in test], 0.5)
         self.assertEqual(round(prior["auroc"], 3), 0.768)
         self.assertEqual(round(sum(r["binary_label"] for r in test) / len(test), 3), 0.592)
@@ -925,7 +929,9 @@ class SpanSignalTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 battery.main(["check", "--labels", str(battery.ANNOTATIONS_PATH)])
             with self.assertRaises(SystemExit):
-                battery.main(["score", "--arm", "hosted_jev_1_13_0"])
+                battery.main(["score", "--labels", str(battery.ANNOTATIONS_PATH), "--label-mapping", "ai_provisional"])
+            with self.assertRaises(SystemExit):
+                battery.main(["score", "--arms", "reference", "--public-demo"])
 
 FREEZE_FILE_FIELDS = ["codebook_sha256", "annotation_schema_sha256", "labels_205_sha256", "preregistration_sha256",
                       "span_extractor_sha256", "generations_sha256", "token_traces_sha256"]
@@ -1102,6 +1108,328 @@ class FreezeGuardTests(unittest.TestCase):
             with self.assertRaises(SystemExit) as caught:
                 battery.check_response_roles([{"annotation_id": "x_1", "role": role}])
             self.assertIn("x_1", str(caught.exception))
+
+PRIMARY = "dm_risk@local_open_jev_2b"
+
+
+def synthetic_row(index, role, label, span_set="full100_205", **extra):
+    """One labelled row with every continuous column; higher scores go with label 1 but overlap."""
+    base = 0.6 if label else 0.4
+    jitter = ((index * 37) % 11) / 20
+    row = {"annotation_id": f"s_{role}_{index:03d}", "span_set_id": span_set, "question_id": f"q_9{index % 12:03d}",
+           "role": role, "span_kind": "currency_or_number", "question_type": "top_product_month",
+           "restated_from_question": index % 5 == 0, "evidence_cluster": f"c{index % 9}",
+           "derivation_need": "top_k", "binary_label": label, "value_binary": None, "all_positive": 1.0,
+           "rule_checker_flag": label if index % 4 else 0, "rule_checker_abstain": 0 if index % 4 else 1,
+           "evidence_lookup_flag": None, "evidence_lookup_abstain": None, "checker_mechanism": "cell_copy",
+           "slot_label": "incorrect" if label else "correct", "value_label": "faithful",
+           "mechanism": ("M1" if index % 2 else "M2") if label else None, "matched_row_id": "r1"}
+    for offset, column in enumerate(["one_minus_min_top2_margin", "mean_token_entropy", "dev_span_kind_prior",
+                                     "dev_question_type_prior", PRIMARY, "dm_conflict@local_open_jev_2b",
+                                     "dm_conflict_or_undetermined@local_open_jev_2b"]):
+        row[column] = round(min(1.0, max(0.0, base + jitter - 0.25 + offset * 0.01)), 6)
+    row["slot_yes@local_open_jev_2b"] = round(1 - row[PRIMARY], 6)
+    row.update(extra)
+    return row
+
+
+def synthetic_role_rows(role, count, span_set="full100_205"):
+    return [synthetic_row(index, role, int(index % 3 != 0), span_set) for index in range(count)]
+
+
+class ScoringTests(unittest.TestCase):
+    """Scoring, reports and freeze (plan T1.9); synthetic data unless stated."""
+
+    def test_threshold_rule(self):
+        fit = [{"binary_label": 0, "a": value} for value in (0.1, 0.2, 0.3, 0.4, 0.5)]
+        fit += [{"binary_label": 1, "a": value} for value in (0.6, 0.7, 0.8, 0.9, 0.95)]
+        chosen = battery.scoring.budget_threshold(fit, "a", 0.2)
+        self.assertEqual((chosen["threshold"], chosen["degenerate"]), (0.5, False))
+        none_meets = [{"binary_label": 0, "a": 0.9}, {"binary_label": 0, "a": 0.9}, {"binary_label": 1, "a": 0.1}]
+        result = battery.scoring.budget_threshold(none_meets, "a", 0.2)
+        self.assertEqual(result["threshold"], math.inf)
+        self.assertTrue(result["degenerate"])
+        lowest = battery.scoring.budget_threshold([{"binary_label": 1, "a": 0.3}, {"binary_label": 1, "a": 0.7}], "a", 0.2)
+        self.assertEqual((lowest["threshold"], lowest["degenerate"]), (0.3, True))
+        rows = synthetic_role_rows("dev", 30)
+        thresholds = battery.scoring.fit_thresholds(rows, ["one_minus_min_top2_margin"], CONFIG, "human_v1_slot")
+        self.assertEqual(thresholds["for_test"]["all_positive"]["threshold"], 1.0)
+        self.assertTrue(thresholds["source"].startswith("PRE-FREEZE"))
+        self.assertIn("for_test fit set", thresholds["notes"][0])
+        frozen = {"dev_thresholds": {"rule": "r", "for_test": {"a": {"threshold": None, "degenerate": True}},
+                                     "for_heldout": {"a": {"threshold": 0.4, "degenerate": False}}}}
+        read = battery.scoring.fit_thresholds(rows, ["a"], CONFIG, "human_v1_slot", frozen=frozen)
+        self.assertEqual((read["source"], read["for_test"]["a"]["threshold"]), ("freeze record", math.inf))
+
+    def test_new_bootstrap_matches_detector_metrics_point_difference(self):
+        attributes = battery.span_attributes(CONFIG, GOLD, SPANS)
+        rows = battery.base_rows(SPANS, LABELS, GOLD, attributes, battery.load_stored_signals(), [])
+        test = [{**row, "split": "test"} for row in rows if row["role"] == "test"]
+        self.assertEqual(len(test), 103)
+        pair = ("one_minus_min_top2_margin", "mean_token_entropy")
+        old = battery.metrics.paired_cluster_bootstrap(test, {pair[0]: 0.3, pair[1]: 0.005}, [pair], "question_id",
+                                                       replicates=20, seed=3)
+        old_ap = next(item for item in old["intervals"] if item["metric"] == "average_precision")
+        new = battery.cb.ranking_intervals(test, list(pair), "question_id", [pair], replicates=20, seed=3)
+        self.assertEqual(new["estimates"][f"{pair[0]} minus {pair[1]}|average_precision"]["point"], old_ap["point_difference"])
+        self.assertEqual(new["cluster_count"], old["cluster_count"])
+
+    def test_every_risk_score_rises_for_a_wrong_answer(self):
+        wrong = {"answers": {"slot_correct": {"type": "noul", "noul": 0.1},
+                             "status": {"type": "choice", "probabilities": {"k7": 0.1, "m2": 0.7, "x9": 0.2}},
+                             "value_faithful": {"type": "choice", "probabilities": {"f1": 0.1, "f2": 0.8, "f3": 0.05, "f4": 0.05}}}}
+        right = {"answers": {"slot_correct": {"type": "noul", "noul": 0.9},
+                             "status": {"type": "choice", "probabilities": {"k7": 0.9, "m2": 0.05, "x9": 0.05}},
+                             "value_faithful": {"type": "choice", "probabilities": {"f1": 0.9, "f2": 0.05, "f3": 0.05, "f4": 0.0}}}}
+        high, low = battery.derived_scores(wrong, CONFIG), battery.derived_scores(right, CONFIG)
+        for name in CONFIG["derived_scores"]:
+            self.assertGreater(high[name], low[name], name)
+
+    def test_invalid_scores_name_the_span(self):
+        with self.assertRaises(ValueError) as caught:
+            battery.scoring.rounded(float("nan"), "ann_x", "dm_risk")
+        self.assertIn("ann_x", str(caught.exception))
+        with self.assertRaises(ValueError):
+            battery.scoring.rounded(1.5, "ann_x", "dm_risk")
+        self.assertEqual(battery.scoring.rounded(0.12345678, "ann_x", "dm_risk"), 0.123457)
+        bad = [{"annotation_id": "ann_y", "status": 200, "response": {"answers": {}}}]
+        with self.assertRaises(ValueError) as caught:
+            battery.aggregate_responses(bad, CONFIG)
+        self.assertIn("ann_y", str(caught.exception))
+
+    def test_estimand_e1_by_hand(self):
+        rows = [
+            {"question_id": "q1", "evidence_cluster": "c1", "binary_label": 1, "slot_label": "incorrect",
+             "value_label": "faithful", "span_kind": "currency_or_number", "mechanism": "M1", "matched_row_id": "r1"},
+            {"question_id": "q1", "evidence_cluster": "c1", "binary_label": 1, "slot_label": "incorrect",
+             "value_label": "unfaithful", "span_kind": "currency_or_number", "mechanism": "M2", "matched_row_id": ""},
+            {"question_id": "q2", "evidence_cluster": "c2", "binary_label": 1, "slot_label": "unsupported",
+             "value_label": None, "span_kind": "percentage", "mechanism": "M5", "matched_row_id": ""},
+            {"question_id": "q3", "evidence_cluster": "c3", "binary_label": 1, "slot_label": "incorrect",
+             "value_label": "faithful", "span_kind": "entity_name", "mechanism": "M1", "matched_row_id": "r2"},
+            {"question_id": "q3", "evidence_cluster": "c3", "binary_label": 0, "slot_label": "correct",
+             "value_label": "faithful", "span_kind": "currency_or_number", "mechanism": None, "matched_row_id": "r2"},
+        ]
+        result = battery.scoring.estimand_e1(rows, 20, 1)
+        self.assertEqual((result["numerator_spans"], result["wrong_spans"]), (1, 4))
+        self.assertEqual(result["estimates"]["share_of_all_wrong"]["point"], 1 / 4)
+        self.assertEqual(result["estimates"]["share_of_numeric_wrong"]["point"], 1 / 3)
+        self.assertEqual(result["other_span_kinds"]["entity_name"], {"numerator_spans": 1, "wrong_spans_of_kind": 1})
+        self.assertEqual(result["answer_level"]["share"], 1 / 3)
+        self.assertEqual(result["error_events"], {"numerator": 1, "all_wrong": 4})
+
+    def test_estimands_e2_e3_e4_by_hand(self):
+        def row(role, label, mechanism, score, flag, cluster):
+            return {"annotation_id": f"{role}{cluster}{score}", "role": role, "binary_label": label,
+                    "mechanism": mechanism, "one_minus_min_top2_margin": score, "rule_checker_flag": flag,
+                    "rule_checker_abstain": 0, "evidence_cluster": cluster, "question_id": f"q{cluster}"}
+        rows = [row("test", 1, "M1", 0.9, 1, "a"), row("test", 0, None, 0.5, 0, "b"), row("test", 0, None, 0.95, 0, "c"),
+                row("test", 1, "M2", 0.6, 0, "d"), row("test", 1, "M1", 0.2, 0, "e"),
+                row("heldout", 1, "M1", 0.8, 1, "f"), row("heldout", 0, None, 0.1, 0, "g")]
+        m1 = [r for r in rows if r["mechanism"] == "M1"]
+        pooled = battery.scoring.pooled_auroc(rows, lambda r: r["mechanism"] == "M1", lambda r: r["binary_label"] == 0,
+                                              "one_minus_min_top2_margin")
+        self.assertAlmostEqual(pooled, 2 / 5)
+        e2 = battery.scoring.estimand_e2(rows, ["one_minus_min_top2_margin"], 20, 1)
+        self.assertAlmostEqual(e2["pooled"]["estimates"]["one_minus_min_top2_margin|contrast"]["point"], 2 / 5 - 1 / 2)
+        self.assertAlmostEqual(e2["heldout"]["estimates"]["one_minus_min_top2_margin|m1"]["point"], 1.0)
+        thresholds = {"for_test": {"one_minus_min_top2_margin": {"threshold": 0.5, "degenerate": False}},
+                      "for_heldout": {"one_minus_min_top2_margin": {"threshold": 0.9, "degenerate": False}}}
+        e3 = battery.scoring.estimand_e3(rows, ["one_minus_min_top2_margin"], thresholds, 20, 1)
+        self.assertEqual(e3["m1_spans"], len(m1))
+        self.assertAlmostEqual(e3["pooled"]["estimates"]["rule_checker"]["point"], 2 / 3)
+        self.assertAlmostEqual(e3["pooled"]["estimates"]["one_minus_min_top2_margin"]["point"], 1 / 3)
+        self.assertAlmostEqual(e3["pooled"]["estimates"]["rule_checker minus one_minus_min_top2_margin"]["point"], 1 / 3)
+        abstained = [{"annotation_id": str(i), "role": "test", "question_id": f"q{i % 4}", "evidence_cluster": "c",
+                      "rule_checker_abstain": 1, "binary_label": i % 2, PRIMARY: 0.9 if i % 2 else 0.1}
+                     for i in range(12)]
+        e4 = battery.scoring.estimand_e4(abstained, PRIMARY, 20, 1)
+        self.assertEqual((e4["spans"], e4["auroc"]["point"]), (12, 1.0))
+        self.assertEqual(battery.scoring.estimand_e4(abstained[:9], PRIMARY, 20, 1)["note"], "counts only")
+
+    def test_funnel_by_hand(self):
+        thresholds = {"for_test": {PRIMARY: {"threshold": 0.5, "degenerate": False}}, "for_heldout": {}}
+        rows = [{"role": "test", "binary_label": 1, "rule_checker_flag": 1, "rule_checker_abstain": 0},
+                {"role": "test", "binary_label": 0, "rule_checker_flag": 1, "rule_checker_abstain": 0},
+                {"role": "test", "binary_label": 1, "rule_checker_flag": 0, "rule_checker_abstain": 1,
+                 "slot_yes@local_open_jev_2b": 0.2, PRIMARY: 0.8},
+                {"role": "test", "binary_label": 1, "rule_checker_flag": 0, "rule_checker_abstain": 1,
+                 "slot_yes@local_open_jev_2b": 0.5, PRIMARY: 0.5}]
+        result = battery.scoring.funnel(rows, "local_open_jev_2b", thresholds, minimum=10)
+        self.assertEqual(result["layer_1"], {"spans": 2, "share": 0.5, "errors": 1})
+        self.assertEqual(result["layer_2"], {"spans": 1, "share": 0.25, "errors": 0})
+        self.assertEqual(result["layer_3"], {"spans": 1, "share": 0.25})
+
+    def test_heldout_report_has_intervals_for_both_versions(self):
+        rows = synthetic_role_rows("dev", 36) + synthetic_role_rows("test", 36)
+        rows += synthetic_role_rows("heldout", 48, span_set="heldout_v1")
+        rows.append({**synthetic_row(99, "heldout", None, "heldout_v1"), "binary_label": None, "slot_label": "not_a_claim"})
+        labels = {row["annotation_id"]: {"binary_label": row["binary_label"],
+                                         "value": row["slot_label"], "row": {}} for row in rows}
+        exposed = {"q_9000", "q_9001", "q_9002"}
+        dev_thresholds = {"rule": "r", "for_test": {}, "for_heldout": {}}
+        for key in ("for_test", "for_heldout"):
+            for column in battery.continuous_columns(CONFIG, ["local_open_jev_2b"], False):
+                dev_thresholds[key][column] = {"threshold": 0.5, "degenerate": False}
+        arms = {"local_open_jev_2b": {**LOCAL_ARM, "arm_id": "local_open_jev_2b", "model": "m"}}
+        aggregated = {"local_open_jev_2b": {row["annotation_id"]: {"repeats": 1, "models": {"m": 1}} for row in rows}}
+        report, _ = battery.build_report(CONFIG, rows, arms, aggregated, "human_v1_slot", [], labels, "stored", exposed,
+                                         50, 1, frozen={"dev_thresholds": dev_thresholds})
+        heldout = report["roles"]["heldout"]["sets"]
+        for name in ("main set", "main set, answers not viewed during review"):
+            primary = heldout[name]["primary_contrast"]
+            for metric in ("average_precision", "auroc"):
+                self.assertIsNotNone(heldout[name]["arms"][PRIMARY][metric]["lower_95"], name)
+                self.assertIsNotNone(primary[metric]["lower_95"], name)
+        self.assertLess(heldout["main set, answers not viewed during review"]["counts"]["spans"],
+                        heldout["main set"]["counts"]["spans"])
+        self.assertEqual(heldout["main set"]["primary_contrast"]["cluster"], "evidence_cluster")
+        self.assertEqual(report["excluded_label_values"], {"not_a_claim": 1})
+        self.assertEqual(report["thresholds"]["source"], "freeze record")
+        self.assertIn("E1", report["estimands"])
+        markdown = battery.scoring.render_report(report)
+        self.assertIn(battery.scoring.HISTORICAL_REFERENCE_LINE, markdown)
+        self.assertIn("rater", markdown)
+        self.assertNotIn("significant", markdown.lower())
+
+    def test_score_reference_and_the_test_response_guard(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            root = Path(tmp)
+            with mock.patch.object(battery, "OUTPUT_ROOT", root), \
+                    mock.patch.object(battery, "FREEZE_PATH", root / "decision_battery_v2_freeze.json"):
+                labels = ["--labels", str(battery.ANNOTATIONS_PATH), "--label-mapping", "ai_provisional"]
+                self.assertEqual(battery.main(["score", "--arms", "reference", "--public-demo", "--replicates", "20"]
+                                              + labels), 0)
+                report = json.loads((root / "report_reference.json").read_text(encoding="utf-8"))
+                self.assertEqual(set(report["roles"]), {"dev", "test"})
+                self.assertIn("one_minus_min_top2_margin", report["roles"]["test"]["sets"]["main set"]["arms"])
+                self.assertEqual(battery.main(["build"]), 0)
+                arm_dir = root / "hosted_jev_1_13_0"
+                arm_dir.mkdir()
+                (arm_dir / "responses.jsonl").write_text(json.dumps({"annotation_id": "x", "role": "test", "status": 200})
+                                                         + "\n", encoding="utf-8")
+                with self.assertRaises(SystemExit) as caught:
+                    battery.main(["score", "--arms", "hosted_jev_1_13_0", "--public-demo"] + labels)
+                self.assertIn("freeze record", str(caught.exception))
+
+    def test_diagnostics_without_labels(self):
+        states, _ = battery.build_states(CONFIG, GOLD, SPANS, TEXTS, SOURCES)
+        states = [{**state, "span_kind": "month"} for state in states[:2]]
+        rows = [{"annotation_id": state["annotation_id"], "status": 200, "response": full_response(state["questions"], yes, "m")}
+                for state, yes in zip(states, (0.5, 0.9))]
+        result = battery.scoring.diagnostics(rows, states, CONFIG)
+        month = result["by_span_kind"]["month"]
+        self.assertEqual(month["spans"], 2)
+        self.assertEqual(month["questions"]["slot_correct"]["responses"], 2)
+        self.assertEqual(month["questions"]["slot_correct"]["yes_between_0_45_and_0_55_share"], 0.5)
+        self.assertEqual(month["questions"]["status"]["abstain_argmax_share"], 0.0)
+        self.assertEqual(month["questions"]["status"]["abstain_option"], "x9")
+        self.assertEqual(result["models"], {"m": 2})
+        self.assertIn("relation", month["descriptive_option_counts"])
+        text = battery.scoring.render_diagnostics(result, "local_test", "full100_205")
+        self.assertIn("span_kind month", text)
+
+    def test_power_notes(self):
+        rows = synthetic_role_rows("dev", 30)
+        notes = battery.power_notes(rows, "local_open_jev_2b", 30, 1)
+        self.assertEqual(notes["dev_main_set_spans"], 30)
+        self.assertAlmostEqual(notes["dev_main_set_positive_rate"], 20 / 30)
+        self.assertGreaterEqual(notes["perfect_detector_gap_to_margin"]["auroc"], 0)
+        self.assertGreaterEqual(notes["dev_paired_difference_interval_width"]["auroc"], 0)
+        self.assertIsNone(battery.power_notes(synthetic_role_rows("test", 5), "local_open_jev_2b", 5, 1))
+
+
+class FreezeCommandTests(unittest.TestCase):
+    """freeze in a temporary folder, then a test run through both checks (plan T1.9 item 18)."""
+
+    def test_build_dev_responses_freeze_then_test_run(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            states_root = root / "out"
+            config_path = root / "decision_battery_v2.json"
+            config_path.write_bytes(battery.CONFIG_PATH.read_bytes())
+            arm = {**LOCAL_ARM, "arm_id": "local_open_jev_2b", "model": "open-jev-2b", "repeats": {"dev": 1, "eval": 1}}
+            arms_path = root / "arms.json"
+            arms_path.write_text(json.dumps({"arms": [arm]}), encoding="utf-8")
+            generations, traces = root / "generations.jsonl", root / "traces.jsonl"
+            generations.write_text("{}\n", encoding="utf-8")
+            traces.write_text("{}\n", encoding="utf-8")
+            extra = {}
+            for name in ("codebook", "schema", "preregistration", "span_extractor"):
+                extra[name] = root / f"{name}.txt"
+                extra[name].write_text(name, encoding="utf-8")
+            power = root / "power_notes.json"
+            power.write_text('{"dev_main_set_positive_rate": 0.5}', encoding="utf-8")
+            texts, sources = battery.load_generated_texts(generations, log=lambda m: None)
+            states, _ = battery.build_states(CONFIG, GOLD, SPANS, texts, sources)
+            battery.write_states(states, "full100_205", config_path, arms_path, battery.SPANS_PATH, generations,
+                                 root=states_root)
+            dev = [state for state in states if state["role"] == "dev"]
+            labels_path = root / "labels.jsonl"
+            mapping = {1: "incorrect", 0: "correct"}
+            with labels_path.open("w", encoding="utf-8", newline="\n") as handle:
+                for state in dev:
+                    label = LABELS[state["annotation_id"]]["binary_label"]
+                    handle.write(json.dumps({"annotation_id": state["annotation_id"], "slot_label": mapping[label]}) + "\n")
+            expected = battery.expected_request_hashes(dev, arm)
+            responses = states_root / arm["arm_id"] / "responses.jsonl"
+            responses.parent.mkdir(parents=True)
+            with responses.open("w", encoding="utf-8", newline="\n") as handle:
+                for index, state in enumerate(dev):
+                    label = LABELS[state["annotation_id"]]["binary_label"]
+                    handle.write(json.dumps({"annotation_id": state["annotation_id"], "role": "dev", "status": 200,
+                                             "cache_key": str(index), "request_sha256": expected[state["annotation_id"]],
+                                             "response": fake_response(label)}) + "\n")
+            freeze_path = root / "decision_battery_v2_freeze.json"
+            overrides = {"span_extractor_sha256": extra["span_extractor"]}
+            record = battery.run_freeze("2026-09-29", config_path, arms_path, labels_path, "human_v1_slot",
+                                        extra["codebook"], extra["schema"], battery.HELDOUT_SLICE_PATH,
+                                        extra["preregistration"], power, generations, traces, freeze_path=freeze_path,
+                                        states_root=states_root, overrides=overrides,
+                                        validator=lambda: {"num_failures": 0, "failures": []}, git_commit="abc",
+                                        log=lambda m: None)
+            self.assertTrue(set(battery.FREEZE_ENFORCED_FIELDS) <= set(record))
+            self.assertEqual(json.loads(config_path.read_text(encoding="utf-8"))["status"], "frozen")
+            self.assertEqual(record["battery_config_sha256"], battery.file_sha256(config_path))
+            self.assertIsNone(record["spans_extractor_only_devtest_sha256"])
+            self.assertIn("dm_risk@local_open_jev_2b", record["dev_thresholds"]["for_test"])
+            self.assertEqual(record["power_notes"], {"dev_main_set_positive_rate": 0.5})
+            with self.assertRaises(SystemExit):
+                battery.run_freeze("2026-09-29", config_path, arms_path, labels_path, "human_v1_slot",
+                                   extra["codebook"], extra["schema"], battery.HELDOUT_SLICE_PATH,
+                                   extra["preregistration"], power, generations, traces, freeze_path=freeze_path,
+                                   states_root=states_root, overrides=overrides,
+                                   validator=lambda: {"num_failures": 0, "failures": []})
+            run_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": arms_path,
+                             "generations_sha256": generations, "token_traces_sha256": traces}
+            battery.require_freeze("test", "run --split test", freeze_path, run_overrides, arms_path, states_root)
+            loaded, _ = battery.load_states("full100_205", config_path, arms_path, battery.SPANS_PATH, generations,
+                                            root=states_root)
+            test_states = [state for state in loaded if state["role"] == "test"]
+            sent = []
+
+            def sender(url, payload, key):
+                sent.append(payload["model"])
+                return 200, full_response(payload["questions"])
+
+            battery.run_battery(test_states[:2], arm, None, 1, responses, sender=sender, sleeper=lambda s: None,
+                                log=lambda *a: None, cleared_roles=("test",))
+            self.assertEqual(sent, ["open-jev-2b", "open-jev-2b"])
+
+    def test_freeze_refuses_missing_inputs_and_failed_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            missing = root / "missing.txt"
+            with self.assertRaises(SystemExit) as caught:
+                battery.run_freeze("d", battery.CONFIG_PATH, battery.ARMS_CONFIG_PATH, missing, "human_v1_slot",
+                                   missing, missing, battery.HELDOUT_SLICE_PATH, missing, missing,
+                                   freeze_path=root / "f.json", states_root=root, validator=lambda: {"num_failures": 0})
+            self.assertIn("codebook_sha256", str(caught.exception))
+            self.assertIn("power_notes", str(caught.exception))
+            self.assertEqual(battery.config_text_with_status('{\n  "status": "draft",\n  "x": {"status": "keep"}\n}',
+                                                             "frozen"),
+                             '{\n  "status": "frozen",\n  "x": {"status": "keep"}\n}')
 
 if __name__ == "__main__":
     unittest.main()
