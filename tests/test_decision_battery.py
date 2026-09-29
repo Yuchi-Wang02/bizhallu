@@ -39,6 +39,37 @@ def find(question_id, text, occurrence=0):
     return hits[occurrence]["annotation_id"]
 
 
+def _no_network(*args, **kwargs):
+    raise AssertionError("a test tried to send a request")
+
+
+def isolated_cli(root, config_status=None):
+    """Context for tests that call main(): temporary outputs and freeze path, no key, no network,
+    and no held-out span file even after one exists in the repository."""
+    stack = contextlib.ExitStack()
+    root = Path(root)
+    stack.enter_context(mock.patch.object(battery, "OUTPUT_ROOT", root / "out"))
+    stack.enter_context(mock.patch.object(battery, "FREEZE_PATH", root / "decision_battery_v2_freeze.json"))
+    stack.enter_context(mock.patch.object(battery, "post_json", _no_network))
+    original_sets = battery.span_set_files
+    stack.enter_context(mock.patch.object(
+        battery, "span_set_files",
+        lambda config: {key: value for key, value in original_sets(config).items() if key != "heldout_v1"}))
+    stack.enter_context(mock.patch.dict(os.environ))
+    if "TYPESAFE_API_KEY" in os.environ:
+        del os.environ["TYPESAFE_API_KEY"]
+    return stack
+
+
+def config_copy(root, status):
+    """A copy of the v2 config with an explicit status, for CLI tests."""
+    config = json.loads(battery.CONFIG_PATH.read_text(encoding="utf-8"))
+    config["status"] = status
+    target = Path(root) / f"config_{status}.json"
+    target.write_text(json.dumps(config), encoding="utf-8")
+    return target
+
+
 def import_build_prompts():
     """Import src/build_prompts.py; without pandas, use a placeholder module only for the import."""
     import types
@@ -1054,7 +1085,7 @@ class SpanSignalTests(unittest.TestCase):
         self.assertNotIn("dev_fact_type_prior", battery.attach_priors(without_legacy))
 
     def test_cli_label_arguments(self):
-        with contextlib.redirect_stderr(io.StringIO()):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()), isolated_cli(tmp):
             with self.assertRaises(SystemExit):
                 battery.main(["check", "--labels", str(battery.ANNOTATIONS_PATH)])
             with self.assertRaises(SystemExit):
@@ -1201,27 +1232,27 @@ class FreezeGuardTests(unittest.TestCase):
         self.assertEqual(len(sent), 1)
 
     def test_cli_run_outside_dev_needs_status_and_freeze(self):
-        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()), isolated_cli(tmp):
+            draft = config_copy(tmp, "draft_wording_not_frozen_not_run")
+            final = config_copy(tmp, "final_wording_not_frozen")
+            frozen = config_copy(tmp, "frozen")
             with self.assertRaises(SystemExit) as caught:
-                battery.main(["run", "--arm", "hosted_jev_1_13_0", "--split", "test"])
+                battery.main(["run", "--config", str(draft), "--arm", "hosted_jev_1_13_0", "--split", "test"])
             self.assertIn("accepts only --split dev", str(caught.exception))
-            final = json.loads(battery.CONFIG_PATH.read_text(encoding="utf-8"))
-            final["status"] = "final_wording_not_frozen"
-            config_path = Path(tmp) / "decision_battery_v2.json"
-            config_path.write_text(json.dumps(final), encoding="utf-8")
-            with mock.patch.object(battery, "FREEZE_PATH", Path(tmp) / "decision_battery_v2_freeze.json"):
+            for config_path in (final, frozen):
                 for split in ("test", "heldout"):
                     with self.assertRaises(SystemExit) as caught:
                         battery.main(["run", "--config", str(config_path), "--arm", "hosted_jev_1_13_0",
                                       "--split", split])
                     self.assertIn("freeze record", str(caught.exception))
-                with self.assertRaises(SystemExit) as caught:
-                    battery.main(["check", "--spans", str(Path(tmp) / "spans_heldout_v1.jsonl")])
-                self.assertIn("freeze record", str(caught.exception))
+            with self.assertRaises(SystemExit) as caught:
+                battery.main(["check", "--spans", str(Path(tmp) / "spans_heldout_v1.jsonl")])
+            self.assertIn("freeze record", str(caught.exception))
             with self.assertRaises(SystemExit):
                 battery.main(["run", "--arm", "hosted_jev_1_13_0"])
             with self.assertRaises(SystemExit):
                 battery.main(["check", "--split", "dev"])
+            self.assertFalse((Path(tmp) / "out").exists())
 
     def test_heldout_questions_get_the_heldout_role(self):
         qid = next(span["question_id"] for span in SPANS if span["question_id"] in TEXTS)
@@ -1424,9 +1455,8 @@ class ScoringTests(unittest.TestCase):
     def test_score_reference_and_the_test_response_guard(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()), \
                 contextlib.redirect_stderr(io.StringIO()):
-            root = Path(tmp)
-            with mock.patch.object(battery, "OUTPUT_ROOT", root), \
-                    mock.patch.object(battery, "FREEZE_PATH", root / "decision_battery_v2_freeze.json"):
+            root = Path(tmp) / "out"
+            with isolated_cli(tmp):
                 labels = ["--labels", str(battery.ANNOTATIONS_PATH), "--label-mapping", "ai_provisional"]
                 self.assertEqual(battery.main(["score", "--arms", "reference", "--public-demo", "--replicates", "20"]
                                               + labels), 0)
@@ -1672,8 +1702,8 @@ class CliTests(unittest.TestCase):
     def test_build_check_and_run_without_a_key(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()), \
                 contextlib.redirect_stderr(io.StringIO()):
-            root = Path(tmp)
-            with mock.patch.object(battery, "OUTPUT_ROOT", root):
+            root = Path(tmp) / "out"
+            with isolated_cli(tmp):
                 self.assertEqual(battery.main(["build"]), 0)
                 manifest = json.loads(battery.states_paths("full100_205", root)[1].read_text(encoding="utf-8"))
                 self.assertIn("module:rule_checker.py", manifest["enforced"])
@@ -1682,9 +1712,7 @@ class CliTests(unittest.TestCase):
                 for name in ("checker_full100_205.jsonl", "span_kind_full100_205.jsonl",
                              "evidence_lookup_full100_205.jsonl", "checker_audit_full100_205_ai_provisional.json"):
                     self.assertTrue((root / name).exists(), name)
-                with mock.patch.dict(os.environ), self.assertRaises(SystemExit) as caught:
-                    if "TYPESAFE_API_KEY" in os.environ:
-                        del os.environ["TYPESAFE_API_KEY"]
+                with self.assertRaises(SystemExit) as caught:
                     battery.main(["run", "--arm", "hosted_jev_1_13_0", "--split", "dev", "--public-demo"])
                 self.assertIn("TYPESAFE_API_KEY", str(caught.exception))
                 self.assertFalse((root / "hosted_jev_1_13_0" / "responses.jsonl").exists())
