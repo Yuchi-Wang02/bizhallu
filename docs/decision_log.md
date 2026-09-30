@@ -52,3 +52,10 @@ literature-search summary. Later changes are appended below.
 | Date | Decision | Reason |
 | --- | --- | --- |
 | 2026-09-29 | Preregistration v1 approved and sealed. It holds the primary hypotheses and their decision conditions; the calculation rules sit in the battery config. It stays private until the analysis gate, and its SHA-256 is recorded in the freeze record at freeze point A. | Fixing the hypotheses before any decision-model result keeps the later reading of results honest. |
+
+## Gate G1 (2026-09-29)
+
+| Date | Decision | Reason |
+| --- | --- | --- |
+| 2026-09-29 | Gate G1 passed: the stage-1 code, the fixes from the G1 code review and the new task card T2.4 (checker v1.1, finished before any human label is returned) are approved, and the branch may be pushed with the pull request kept as a draft. | Owner approval after reading the G1 review; a clean-clone run of every CI step passed. |
+
