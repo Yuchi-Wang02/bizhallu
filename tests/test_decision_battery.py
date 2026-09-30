@@ -154,7 +154,8 @@ class StateContractTests(unittest.TestCase):
         row = span(find("q_0064", "WOODEN UNION JACK BUNTING"))
         state = battery.build_state(GOLD["q_0064"], row, TEXTS["q_0064"])
         state["scope_notes"] = state["scope_notes"] + [GOLD["q_0064"]["gold_short_answer"]]
-        self.assertTrue(battery.check_state_contract(state, GOLD["q_0064"], row, CONFIG))
+        problems = battery.check_state_contract(state, GOLD["q_0064"], row, CONFIG)
+        self.assertTrue(any(problem.startswith("forbidden fragment present") for problem in problems), problems)
 
 
 class CheckerTests(unittest.TestCase):
@@ -607,7 +608,7 @@ class ScoreTests(unittest.TestCase):
         arm = {**LOCAL_ARM, "arm_id": "local_open_jev_2b", "model": "jev-1.13.0"}
         rows = self._rows_for(states, arm, labels, lambda index: "jev-1.14.0" if index == 0 else "jev-1.13.0")
         kept, excluded = battery.select_scored_rows(rows, battery.expected_request_hashes(states, arm))
-        self.assertEqual((len(kept), excluded), (70, 0))
+        self.assertEqual((len(kept), excluded), (70, {}))
         aggregated = battery.aggregate_responses(kept, CONFIG)
         spans = [span for span in SPANS if span["question_id"] in TEXTS]
         score_rows, _, _ = battery.assemble_rows(CONFIG, GOLD, spans, LABELS, TEXTS, SOURCES, None,
@@ -624,7 +625,7 @@ class ScoreTests(unittest.TestCase):
         self.assertEqual(test_all["primary_contrast"]["cluster"], "question_id")
         self.assertEqual(test_all["primary_contrast_sensitivity"]["cluster"], "evidence_cluster")
         self.assertEqual(report["dm_arms"]["local_open_jev_2b"]["unexpected_model_versions"], ["jev-1.14.0"])
-        self.assertIn("self_consistent_wrong_selection", report["mechanism_tables"]["test"]["rows"])
+        self.assertIn("M1", report["mechanism_tables"]["test"]["rows"])
         self.assertGreater(report["interval_count"], 0)
         markdown = battery.scoring.render_report(report)
         self.assertIn("label-consistency audit", markdown)
@@ -642,7 +643,7 @@ class ScoreTests(unittest.TestCase):
         other_arm = self._rows_for(states, LOCAL_ARM, labels)
         kept, excluded = battery.select_scored_rows(current + stale + other_arm,
                                                     battery.expected_request_hashes(states, HOSTED_ARM))
-        self.assertEqual((len(kept), excluded), (70, 140))
+        self.assertEqual((len(kept), excluded), (70, {"other_request": 140}))
 
     def test_repeat_shortfall_is_reported(self):
         states = [{"annotation_id": "a", "role": "dev"}, {"annotation_id": "b", "role": "test"}]
@@ -734,13 +735,13 @@ def synthetic_state(record):
 class ContractRewriteTests(unittest.TestCase):
     """Contract check of plan T1.4: no false positives on 100 records, real leaks caught."""
 
-    def test_all_gold_records_pass_with_both_question_payloads(self):
+    def test_all_gold_records_pass_with_the_v2_question_payload(self):
+        # the v1 wording was never run and its option format is no longer built
         for qid, record in GOLD.items():
             state, row = synthetic_state(record)
-            for config in (CONFIG, V2_CONFIG):
-                questions = battery.build_questions(config, state)
-                problems = battery.check_state_contract(state, record, row, questions=questions)
-                self.assertEqual(problems, [], qid)
+            questions = battery.build_questions(V2_CONFIG, state)
+            problems = battery.check_state_contract(state, record, row, questions=questions)
+            self.assertEqual(problems, [], qid)
 
     def _problems(self, qid, mutate, questions=None):
         record = GOLD[qid]
@@ -1050,14 +1051,20 @@ class SpanSignalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "human.jsonl"
             rows = [{"annotation_id": "a", "slot_label": "incorrect", "value_label": "faithful"},
-                    {"annotation_id": "b", "slot_label": "correct"},
-                    {"annotation_id": "c", "slot_label": "cannot_judge"},
-                    {"annotation_id": "d"}]
+                    {"annotation_id": "b", "slot_label": "correct", "value_label": "unfaithful"},
+                    {"annotation_id": "c", "slot_label": "cannot_judge", "value_label": "cannot_judge"},
+                    {"annotation_id": "d", "slot_label": "not_a_claim"}]
             path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
             slot = battery.load_labels([path], "human_v1_slot", CONFIG)
             self.assertEqual(battery.binary_labels(slot), {"a": 1, "b": 0, "c": None, "d": None})
             value = battery.load_labels([path], "human_v1_value", CONFIG)
-            self.assertEqual(battery.binary_labels(value), {"a": 0, "b": None, "c": None, "d": None})
+            self.assertEqual(battery.binary_labels(value), {"a": 0, "b": 1, "c": None, "d": None})
+            path.write_text(json.dumps({"annotation_id": "e", "value_label": "faithful"}) + "\n", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                battery.load_labels([path], "human_v1_slot", CONFIG)
+            path.write_text(json.dumps({"annotation_id": "e", "slot_label": "correct"}) + "\n", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                battery.load_labels([path], "human_v1_value", CONFIG)
             with self.assertRaises(SystemExit):
                 battery.load_labels([path, path], "human_v1_slot", CONFIG)
             with self.assertRaises(SystemExit):
@@ -1071,8 +1078,9 @@ class SpanSignalTests(unittest.TestCase):
         rows = battery.base_rows(SPANS, LABELS, GOLD, attributes, battery.load_stored_signals(), [])
         self.assertEqual(len(rows), 205)
         fits = battery.attach_priors(rows, legacy=True)
-        self.assertEqual(fits["dev_fact_type_prior"]["fit_size"], 102)
-        self.assertEqual(fits["dev_question_type_prior"]["fit_size"], 83)
+        self.assertEqual(fits["dev_fact_type_prior"]["for_test"]["fit_size"], 102)
+        self.assertEqual(fits["dev_question_type_prior"]["for_test"]["fit_size"], 83)
+        self.assertEqual(fits["dev_question_type_prior"]["for_heldout"]["fit_size"], 83)
         test = [row for row in rows if row["role"] == "test"]
         prior = battery.metrics.evaluate([r["binary_label"] for r in test], [r["dev_fact_type_prior"] for r in test], 0.5)
         self.assertEqual(round(prior["auroc"], 3), 0.768)
@@ -1182,17 +1190,29 @@ class FreezeGuardTests(unittest.TestCase):
             overrides["codebook_sha256"].write_text("codebook v1.1", encoding="utf-8")
             new = battery.file_sha256(overrides["codebook_sha256"])
             amendment = root / "decision_battery_v2_freeze_amendment_1.json"
-            amendment.write_text(json.dumps({"fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": new}}}),
+            amendment.write_text(json.dumps({"previous_sha256": battery.file_sha256(freeze_path),
+                                             "fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": new}}}),
                                  encoding="utf-8")
             record = battery.require_freeze("test", "t", freeze_path, overrides, states_root=states_root)
             self.assertEqual(record["codebook_sha256"], new)
             self.assertEqual([item["file"] for item in record["amendments"]], [amendment.name])
             wrong_old = root / "decision_battery_v2_freeze_amendment_2.json"
-            wrong_old.write_text(json.dumps({"fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": old}}}),
+            wrong_old.write_text(json.dumps({"previous_sha256": battery.file_sha256(amendment),
+                                             "fields": {"codebook_sha256": {"old_sha256": old, "new_sha256": old}}}),
                                  encoding="utf-8")
             with self.assertRaises(SystemExit) as caught:
                 battery.load_freeze(freeze_path)
             self.assertIn("old hash of codebook_sha256", str(caught.exception))
+            second = json.loads(wrong_old.read_text(encoding="utf-8"))
+            second["fields"] = {}
+            wrong_old.write_text(json.dumps(second), encoding="utf-8")
+            battery.load_freeze(freeze_path)
+            rewritten = json.loads(amendment.read_text(encoding="utf-8"))
+            rewritten["reason"] = "edited after amendment 2 was written"
+            amendment.write_text(json.dumps(rewritten), encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.load_freeze(freeze_path)
+            self.assertIn("previous_sha256 does not match amendment 1", str(caught.exception))
             wrong_old.unlink()
             (root / "decision_battery_v2_freeze_amendment_3.json").write_text('{"fields": {}}', encoding="utf-8")
             with self.assertRaises(SystemExit) as caught:
@@ -1539,7 +1559,8 @@ class FreezeCommandTests(unittest.TestCase):
                     label = LABELS[state["annotation_id"]]["binary_label"]
                     handle.write(json.dumps({"annotation_id": state["annotation_id"], "role": "dev", "status": 200,
                                              "cache_key": str(index), "request_sha256": expected[state["annotation_id"]],
-                                             "response": fake_response(label)}) + "\n")
+                                             "response": full_response(state["questions"], 0.2 if label else 0.9)})
+                                 + "\n")
             freeze_path = root / "decision_battery_v2_freeze.json"
             overrides = {"span_extractor_sha256": extra["span_extractor"]}
             record = battery.run_freeze("2026-09-29", config_path, arms_path, labels_path, "human_v1_slot",
@@ -1547,7 +1568,7 @@ class FreezeCommandTests(unittest.TestCase):
                                         extra["preregistration"], power, generations, traces, freeze_path=freeze_path,
                                         states_root=states_root, overrides=overrides,
                                         validator=lambda: {"num_failures": 0, "failures": []}, git_commit="abc",
-                                        log=lambda m: None)
+                                        log=lambda m: None, require_extractor_spans=False)
             self.assertTrue(set(battery.FREEZE_ENFORCED_FIELDS) <= set(record))
             self.assertEqual(json.loads(config_path.read_text(encoding="utf-8"))["status"], "frozen")
             self.assertEqual(record["battery_config_sha256"], battery.file_sha256(config_path))
@@ -1559,7 +1580,7 @@ class FreezeCommandTests(unittest.TestCase):
                                    extra["codebook"], extra["schema"], battery.HELDOUT_SLICE_PATH,
                                    extra["preregistration"], power, generations, traces, freeze_path=freeze_path,
                                    states_root=states_root, overrides=overrides,
-                                   validator=lambda: {"num_failures": 0, "failures": []})
+                                   validator=lambda: {"num_failures": 0, "failures": []}, require_extractor_spans=False)
             run_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": arms_path,
                              "generations_sha256": generations, "token_traces_sha256": traces}
             battery.require_freeze("test", "run --split test", freeze_path, run_overrides, arms_path, states_root)
@@ -1595,7 +1616,8 @@ def canonical_sha256(value):
                           .encode("utf-8")).hexdigest()
 
 
-# Pinned by plan T1.11 item 2. A wording change at G3 or T6.3 updates these in the same commit and in DECISIONS.md.
+# Pinned by plan T1.11 item 2: SHA-256 of json.dumps(block, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+# in UTF-8. A wording change at G3 or T6.3 updates these in the same commit and in DECISIONS.md.
 QUESTIONS_SHA256 = "9865591b83dab3f8ecf225093364dcf3ce42aad5829c75532fbac0b1a01cf4ae"
 STATE_CONTRACT_SHA256 = "55b9195ec6648da117389f63ceec105ffcdd1c53e016e9cc07d8909a9482c483"
 
@@ -1770,6 +1792,180 @@ class ShareLabelTests(unittest.TestCase):
             problems = battery.check_state_contract(planted, record, row)
             self.assertTrue(any(problem.startswith("forbidden fragment present") for problem in problems),
                             record["question_id"])
+
+class G1FixTests(unittest.TestCase):
+    """Defects found by the G1 review, each with a synthetic case."""
+
+    def test_heldout_traces_are_read_after_freeze(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            text = "Total GBP 5."
+            traces = Path(tmp) / "traces.jsonl"
+            tokens = [trace_token(0, "Total", 0.1, 0.9), trace_token(1, " GBP", 0.2, 0.8), trace_token(2, " 5", 0.3, 0.4),
+                      trace_token(3, ".", 0.4, 0.9)]
+            traces.write_text(json.dumps({"question_id": "q_9001", "token_traces": tokens}) + "\n", encoding="utf-8")
+            span = {"annotation_id": "h1", "question_id": "q_9001", "span_start_char": 6, "span_end_char": 11,
+                    "span_text": "GBP 5"}
+            held = frozenset({"q_9001"})
+            sources = {"q_9001": "local_generations"}
+            before, _ = battery.load_signals([span], {"q_9001": text}, sources, traces,
+                                             battery.readable_heldout_ids(held, None))
+            after, _ = battery.load_signals([span], {"q_9001": text}, sources, traces,
+                                            battery.readable_heldout_ids(held, {"freeze_id": "synthetic"}))
+            self.assertEqual(before, {})
+            self.assertEqual(after["h1"]["one_minus_min_top2_margin"], 1 - 0.4)
+            with self.assertRaises(ValueError):
+                battery.trace_signals([{**span, "span_text": "GBP 9"}], {"q_9001": text}, traces, frozenset())
+
+    def test_unusable_and_duplicate_rows_are_not_scored(self):
+        states, _ = battery.build_states(CONFIG, GOLD, SPANS, TEXTS, SOURCES)
+        state = next(item for item in states if item["role"] == "dev")
+        expected = battery.expected_request_hashes([state], LOCAL_ARM)
+        base = {"annotation_id": state["annotation_id"], "request_sha256": expected[state["annotation_id"]], "status": 200}
+        rows = [{**base, "cache_key": "k0", "response": {"answers": {}}},
+                {**base, "cache_key": "k0", "response": full_response(state["questions"], 0.9)},
+                {**base, "cache_key": "k0", "response": full_response(state["questions"], 0.1)},
+                {**base, "cache_key": "k1", "response": "not a dict"}]
+        kept, dropped = battery.select_scored_rows(rows, expected, {state["annotation_id"]: state["questions"]})
+        self.assertEqual([row["response"]["answers"]["slot_correct"]["noul"] for row in kept], [0.9])
+        self.assertEqual(dropped, {"unusable": 2, "duplicate": 1})
+        aggregated = battery.aggregate_responses(kept, CONFIG)
+        arm = {**LOCAL_ARM, "repeats": {"dev": 2, "eval": 1}}
+        self.assertEqual(battery.repeat_shortfalls(aggregated, [state], arm), [state["annotation_id"]])
+
+    def test_interrupted_line_is_moved_aside_before_appending(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "responses.jsonl"
+            path.write_bytes(b'{"a": 1}\n{"b": 2, "trunc')
+            removed = battery.repair_partial_tail(path, log=lambda m: None)
+            self.assertEqual(removed, len(b'{"b": 2, "trunc'))
+            self.assertEqual(path.read_bytes(), b'{"a": 1}\n')
+            self.assertTrue((Path(tmp) / "responses.jsonl.partial").exists())
+            self.assertEqual(battery.repair_partial_tail(path, log=lambda m: None), 0)
+
+    def test_freeze_writes_nothing_when_a_late_step_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = Path(tmp) / "config.json"
+            config_path.write_text(json.dumps({"status": "draft"}, indent=4), encoding="utf-8")
+            before = config_path.read_bytes()
+            with self.assertRaises(SystemExit):
+                battery.config_text_with_status(config_path.read_text(encoding="utf-8"), "frozen")
+            self.assertEqual(config_path.read_bytes(), before)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            power = root / "power_notes.json"
+            power.write_text("{not json", encoding="utf-8")
+            extra = {}
+            for name in ("codebook", "schema", "preregistration", "labels", "span_extractor", "generations", "traces"):
+                extra[name] = root / f"{name}.txt"
+                extra[name].write_text("{}", encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                battery.run_freeze("d", battery.CONFIG_PATH, battery.ARMS_CONFIG_PATH, extra["labels"], "human_v1_slot",
+                                   extra["codebook"], extra["schema"], battery.HELDOUT_SLICE_PATH, extra["preregistration"],
+                                   power, extra["generations"], extra["traces"], freeze_path=root / "f.json",
+                                   states_root=root, overrides={"span_extractor_sha256": extra["span_extractor"]},
+                                   validator=lambda: {"num_failures": 0}, require_extractor_spans=False)
+            self.assertIn("not valid JSON", str(caught.exception))
+            for mapping in ("ai_provisional", "human_v1_value"):
+                with self.assertRaises(SystemExit):
+                    battery.run_freeze("d", battery.CONFIG_PATH, battery.ARMS_CONFIG_PATH, extra["labels"], mapping,
+                                       extra["codebook"], extra["schema"], battery.HELDOUT_SLICE_PATH,
+                                       extra["preregistration"], power, freeze_path=root / "f.json", states_root=root)
+            with self.assertRaises(SystemExit) as caught:
+                battery.run_freeze("d", battery.CONFIG_PATH, battery.ARMS_CONFIG_PATH, extra["labels"], "human_v1_slot",
+                                   extra["codebook"], extra["schema"], extra["codebook"], extra["preregistration"], power,
+                                   freeze_path=root / "f.json", states_root=root)
+            self.assertIn("held-out slice", str(caught.exception))
+
+    def test_heldout_slice_hash_is_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data = json.loads(battery.HELDOUT_SLICE_PATH.read_text(encoding="utf-8"))
+            data["heldout_question_ids"] = data["heldout_question_ids"][:-1]
+            path = Path(tmp) / "slice.json"
+            path.write_text(json.dumps(data), encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                battery.load_heldout_ids(path)
+
+    def test_validate_and_span_file_names(self):
+        with self.assertRaises(SystemExit):
+            battery.validate(spans_path=Path("spans_heldout_v1.jsonl"))
+        with self.assertRaises(SystemExit):
+            battery.span_set_id_for(battery.ANNOTATIONS_PATH)
+
+    def test_value_mapping_cannot_drive_the_main_tables(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()), isolated_cli(tmp), \
+                self.assertRaises(SystemExit):
+            battery.main(["score", "--arms", "reference", "--public-demo", "--labels", str(battery.ANNOTATIONS_PATH),
+                          "--label-mapping", "human_v1_value"])
+
+    def test_transport(self):
+        opener_handlers = []
+        original = battery.urllib.request.build_opener
+
+        def spy(*handlers):
+            opener_handlers.extend(handlers)
+            raise OSError("stop before any connection")
+
+        with mock.patch.object(battery.urllib.request, "build_opener", spy), self.assertRaises(OSError):
+            battery.post_json("http://127.0.0.1:1/x", {}, None)
+        self.assertTrue(any(isinstance(handler, battery.urllib.request.ProxyHandler) and handler.proxies == {}
+                            for handler in opener_handlers))
+        self.assertIs(battery.urllib.request.build_opener, original)
+        calls = []
+
+        def flaky(url, payload, key):
+            calls.append(1)
+            if len(calls) == 1:
+                raise battery.http.client.IncompleteRead(b"")
+            return 200, {"answers": {}}
+
+        policy = {**battery.api_policy(), "backoff_seconds": [0]}
+        outcome = battery.call_with_retry({}, "http://127.0.0.1:1/x", None, policy=policy, sender=flaky,
+                                          sleeper=lambda s: None)
+        self.assertEqual((outcome["status"], len(calls)), (200, 2))
+
+    def test_scores_just_above_one_are_clipped(self):
+        self.assertEqual(battery.scoring.rounded(1.00000004, "a", "x"), 1.0)
+        self.assertEqual(battery.scoring.rounded(-0.000001, "a", "x"), 0.0)
+        with self.assertRaises(ValueError):
+            battery.scoring.rounded(1.2, "a", "x")
+
+    def test_thresholds_and_estimands_report_what_they_leave_out(self):
+        rows = synthetic_role_rows("dev", 30)
+        legacy = battery.scoring.fit_thresholds([{**row, "fact_type": "x"} for row in rows],
+                                                ["dev_span_kind_prior", "one_minus_min_top2_margin"],
+                                                CONFIG, "ai_provisional")
+        self.assertIn("degenerate", legacy["for_test"]["dev_span_kind_prior"])
+        missing = [{**row, "one_minus_min_top2_margin": None} if index % 2 else row for index, row in enumerate(rows)]
+        legacy = battery.scoring.fit_thresholds(missing, ["one_minus_min_top2_margin"], CONFIG, "ai_provisional")
+        self.assertEqual(legacy["for_test"]["one_minus_min_top2_margin"]["fit_size"], 15)
+        test_rows = [{**row, "role": "test"} for row in synthetic_role_rows("test", 20)]
+        held = [{**row, "role": "heldout", "one_minus_min_top2_margin": None} for row in synthetic_role_rows("heldout", 20)]
+        e2 = battery.scoring.estimand_e2(test_rows + held, ["one_minus_min_top2_margin"], 20, 1)
+        self.assertIn("one_minus_min_top2_margin", e2["heldout"]["arms_left_out"])
+        self.assertIn("one_minus_min_top2_margin|contrast", e2["test"]["estimates"])
+        thresholds = {"for_test": {"one_minus_min_top2_margin": {"threshold": math.inf, "degenerate": True}},
+                      "for_heldout": {}}
+        e3 = battery.scoring.estimand_e3(test_rows, ["one_minus_min_top2_margin"], thresholds, 20, 1)
+        self.assertIn("one_minus_min_top2_margin", e3["test"]["arms_left_out"])
+        self.assertIn("status", battery.scoring.funnel(test_rows, "other_arm", thresholds))
+
+    def test_checker_families_group_the_exploratory_table(self):
+        rows = [{**row, "checker_family": "M4" if index % 2 else "M1"} for index, row in
+                enumerate(synthetic_role_rows("test", 60))]
+        table = battery.scoring.mechanism_table(rows, ["one_minus_min_top2_margin"], {}, CONFIG, human=False)
+        self.assertEqual(set(table["rows"]), {"M1", "M4"})
+
+class LocalTierTests(unittest.TestCase):
+    def test_validate_require_local(self):
+        if not battery.DEFAULT_GENERATIONS.exists():
+            self.skipTest("local generation file not present")
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(io.StringIO()):
+            result = battery.validate(output_dir=Path(tmp), generations_path=battery.DEFAULT_GENERATIONS,
+                                      require_local=True)
+        self.assertEqual(result["num_failures"], 0, result["failures"])
+        self.assertEqual((result["states_built"], result["states_skipped"]), (205, 0))
+        self.assertEqual(result["text_sources"], {"local_generations": 56})
+        self.assertEqual(result["checker_audit"]["span_count"], 205)
 
 if __name__ == "__main__":
     unittest.main()

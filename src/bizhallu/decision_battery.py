@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import http.client
 import json
 import math
 import os
@@ -65,7 +66,6 @@ SPAN_SET_FILES = {
     "spans_full100_v1.jsonl": "full100_205",
     "spans_extractor_only_devtest_v1.jsonl": "extractor_only_devtest_v1",
     "spans_heldout_v1.jsonl": "heldout_v1",
-    "span_annotations_full100_draft.jsonl": "full100_205",
 }
 NUMERIC_DISPLAY_COLUMNS = ["net_revenue_gbp", "gross_positive_revenue_gbp", "cancellation_return_revenue_gbp", "invoice_count"]
 CONFIG_STATUSES = {"draft_wording_not_frozen_not_run", "final_wording_not_frozen", "frozen"}
@@ -143,12 +143,14 @@ def label_mapping_names(config):
 def load_labels(paths, mapping_name, config):
     """Binary labels under one label_mapping of the config, by annotation_id.
 
-    Values listed as excluded, and rows without the mapped field, get binary_label None; any other
-    unlisted value stops the run. Label files are separate from span files and may be repeated.
+    Values listed as excluded get binary_label None; any other unlisted value stops the run. A human label
+    file must fill the mapped field (value_label may stay empty only where slot_label is not_a_claim); the AI
+    file may leave it empty. Label files are separate from span files and may be repeated.
     """
     if mapping_name not in label_mapping_names(config):
         raise SystemExit(f"unknown label mapping {mapping_name!r}; expected one of {label_mapping_names(config)}")
     mapping = config["label_mapping"][mapping_name]
+    human = mapping_name.startswith("human_")
     labels = {}
     for path in paths:
         for row in read_jsonl(path):
@@ -156,6 +158,9 @@ def load_labels(paths, mapping_name, config):
             if annotation_id in labels:
                 raise SystemExit(f"annotation_id {annotation_id} has labels in more than one row")
             value = row.get(mapping["field"])
+            if value is None and human and not (mapping["axis"] == "value" and row.get("slot_label") == "not_a_claim"):
+                raise SystemExit(f"{Path(path).name}: {annotation_id} has no {mapping['field']}; "
+                                 "a human label file fills it for every span")
             if value in mapping["positive"]:
                 binary = 1
             elif value in mapping["negative"]:
@@ -183,9 +188,14 @@ def public_question_ids(path=DEMO_PATH):
 
 
 def load_heldout_ids(path=HELDOUT_SLICE_PATH):
-    """Question ids of the label-held-out slice; membership comes only from this file."""
+    """Question ids of the label-held-out slice; membership comes only from this file, checked against its sha256."""
     with Path(path).open("r", encoding="utf-8-sig") as handle:
-        return frozenset(json.load(handle)["heldout_question_ids"])
+        data = json.load(handle)
+    ids = data["heldout_question_ids"]
+    digest = hashlib.sha256(json.dumps(ids, separators=(",", ":")).encode("utf-8")).hexdigest()
+    if digest != data.get("sha256"):
+        raise SystemExit(f"{Path(path).name}: the id list does not match its sha256")
+    return frozenset(ids)
 
 
 def _read_guarded_jsonl(path, heldout_ids, what, log):
@@ -263,7 +273,10 @@ def load_stored_signals(path=SCORES_PATH, arm="saved_trace_precision"):
 
 
 def trace_signals(spans, texts, traces_path=DEFAULT_TRACES, heldout_ids=None, log=_stderr):
-    """Uncertainty signals recomputed from saved token traces (read through the guarded loader)."""
+    """Uncertainty signals recomputed from saved token traces (read through the guarded loader).
+
+    `heldout_ids` are the ids to drop on read: all held-out ids before freeze point A, none after it.
+    """
     traces = {record["question_id"]: record["token_traces"]
               for record in load_traces(traces_path, heldout_ids, log)}
     signals = {}
@@ -271,16 +284,21 @@ def trace_signals(spans, texts, traces_path=DEFAULT_TRACES, heldout_ids=None, lo
         qid = span["question_id"]
         if qid not in traces or qid not in texts:
             continue
+        if texts[qid][span["span_start_char"]:span["span_end_char"]] != span["span_text"]:
+            raise ValueError(f"Span offsets do not match generated text for {span['annotation_id']}")
         scores = span_signals.span_token_signals(traces[qid], texts[qid], span["span_start_char"],
                                                  span["span_end_char"], qid)
         signals[span["annotation_id"]] = {key: scores[key] for key in TRACE_SIGNALS}
     return signals
 
 
-def load_signals(spans, texts, sources, traces_path=DEFAULT_TRACES):
-    """Recomputed signals when the trace file and local answers exist, else the stored CSV values."""
+def load_signals(spans, texts, sources, traces_path=DEFAULT_TRACES, readable_ids=None):
+    """Recomputed signals when the trace file and local answers exist, else the stored CSV values.
+
+    `readable_ids` is the drop set of the guarded loader (readable_heldout_ids); None drops every held-out id.
+    """
     if traces_path and Path(traces_path).exists() and "local_generations" in sources.values():
-        return trace_signals(spans, texts, traces_path), "recomputed_from_traces"
+        return trace_signals(spans, texts, traces_path, heldout_ids=readable_ids), "recomputed_from_traces"
     return load_stored_signals(), "stored_csv_saved_trace_precision"
 
 
@@ -423,7 +441,7 @@ def check_state_contract(state, record, span, config=None, questions=None, contr
     `config` is accepted for backward compatibility; the rules come from the v2 state contract.
     `state["question"]` is only compared with the gold question text, never scanned.
     """
-    contract = contract or load_state_contract()
+    contract = contract or (config["state_contract"] if config and "state_contract" in config else load_state_contract())
     questions = questions or {}
     problems = []
     if sorted(state) != sorted(contract["included_keys"]):
@@ -603,6 +621,7 @@ def manifest_inputs(config_path, arms_path, spans_path, generations_path):
         "config": _sha_or_none(config_path),
         "arms_config": _sha_or_none(arms_path),
         "gold": _sha_or_none(GOLD_PATH),
+        "heldout_slice": _sha_or_none(HELDOUT_SLICE_PATH),
         "spans": _sha_or_none(spans_path),
         "generations": _sha_or_none(generations_path),
     }
@@ -717,8 +736,9 @@ def load_freeze(freeze_path=FREEZE_PATH):
     """The freeze record with every amendment applied in number order, or None when no record exists.
 
     Amendment N lives next to the record as decision_battery_v2_freeze_amendment_N.json with
-    {"fields": {field: {"old_sha256": ..., "new_sha256": ...}}}. Numbers run 1, 2, ... without gaps;
-    each old hash must equal the value in force before it.
+    {"previous_sha256": ..., "fields": {field: {"old_sha256": ..., "new_sha256": ...}}}. Numbers run 1, 2, ...
+    without gaps; previous_sha256 is the file hash of amendment N-1 (of the freeze record for N = 1), so no
+    amendment can be rewritten in place; each old hash must equal the value in force before it.
     """
     freeze_path = Path(freeze_path)
     if not freeze_path.exists():
@@ -727,10 +747,16 @@ def load_freeze(freeze_path=FREEZE_PATH):
     applied = list(effective.get("amendments") or [])
     found = sorted((int(match.group(1)), path) for path in freeze_path.parent.iterdir()
                    if (match := _AMENDMENT_NAME.match(path.name)))
+    previous = file_sha256(freeze_path)
     for expected, (number, path) in enumerate(found, start=1):
         if number != expected:
             raise SystemExit(f"freeze amendments must be numbered 1, 2, ... without gaps; found {path.name}")
-        for field, change in load_config(path).get("fields", {}).items():
+        amendment = load_config(path)
+        if amendment.get("previous_sha256") != previous:
+            anchor = "the freeze record" if expected == 1 else f"amendment {expected - 1}"
+            raise SystemExit(f"{path.name}: previous_sha256 does not match {anchor}")
+        previous = file_sha256(path)
+        for field, change in amendment.get("fields", {}).items():
             if field not in FREEZE_ENFORCED_FIELDS or field == "amendments":
                 raise SystemExit(f"{path.name}: {field} cannot be amended")
             if change.get("old_sha256") != effective.get(field):
@@ -879,7 +905,7 @@ def build_request(url, payload, api_key, user_agent):
 
 
 def post_json(url, payload, api_key, user_agent="bizhallu-decision-battery/2", timeout=60):
-    opener = urllib.request.build_opener(_NoRedirect)
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect)
     with opener.open(build_request(url, payload, api_key, user_agent), timeout=timeout) as response:
         return response.status, json.loads(response.read().decode("utf-8"))
 
@@ -915,7 +941,7 @@ def call_with_retry(payload, endpoint, api_key, policy=None, sender=None, sleepe
                 sleeper(_retry_wait(policy, attempt, error.headers))
                 continue
             return {"status": error.code, "body": {"error": text[:2000]}, "attempts": attempt + 1}
-        except (OSError, ValueError) as error:
+        except (OSError, ValueError, http.client.HTTPException) as error:
             if attempt < attempts - 1:
                 sleeper(_retry_wait(policy, attempt))
                 continue
@@ -969,6 +995,23 @@ def read_response_rows(path, log=_stderr):
     return rows
 
 
+def repair_partial_tail(path, log=_stderr):
+    """Move an unterminated last line (an interrupted write) to <name>.partial so appends start on a new line."""
+    path = Path(path)
+    if not path.exists() or path.stat().st_size == 0:
+        return 0
+    data = path.read_bytes()
+    if data.endswith(b"\n"):
+        return 0
+    cut = data.rfind(b"\n") + 1
+    with path.with_name(path.name + ".partial").open("ab") as side:
+        side.write(data[cut:] + b"\n")
+    with path.open("r+b") as handle:
+        handle.truncate(cut)
+    log(f"{path}: moved an unterminated last line to {path.name}.partial")
+    return len(data) - cut
+
+
 def run_battery(states, arm, api_key, repeats, responses_path, limit=None, policy=None, sender=None,
                 sleeper=time.sleep, log=print, provenance=None, cleared_roles=("dev",)):
     """Send every (span, repeat) that has no usable cached response yet.
@@ -984,6 +1027,7 @@ def run_battery(states, arm, api_key, repeats, responses_path, limit=None, polic
     responses_path = Path(responses_path)
     usable_keys, failed_rows_on_disk = set(), 0
     questions_by_id = {state["annotation_id"]: state["questions"] for state in states}
+    repair_partial_tail(responses_path, log=log)
     if responses_path.exists():
         for row in read_response_rows(responses_path, log=log):
             if usable_response(row, questions_by_id.get(row.get("annotation_id"), {})):
@@ -1153,17 +1197,26 @@ def expected_request_hashes(states, arm):
             for state in states}
 
 
-def select_scored_rows(response_rows, expected):
-    """Keep only 200 rows produced by the current config, arm and endpoint; count the rest."""
-    kept, excluded = [], 0
+def select_scored_rows(response_rows, expected, questions=None):
+    """Rows that the current config, arm and endpoint produced, that the runner accepts as usable (when the
+    questions are given) and that are the first usable row of their cache key; the rest are counted by reason.
+    Non-200 rows are failed calls and are neither kept nor counted here."""
+    kept, seen, dropped = [], set(), Counter()
     for row in response_rows:
         if row.get("status") != 200:
             continue
-        if expected.get(row.get("annotation_id")) == row.get("request_sha256"):
-            kept.append(row)
-        else:
-            excluded += 1
-    return kept, excluded
+        if expected.get(row.get("annotation_id")) != row.get("request_sha256"):
+            dropped["other_request"] += 1
+            continue
+        if questions is not None and not usable_response(row, questions.get(row.get("annotation_id"), {})):
+            dropped["unusable"] += 1
+            continue
+        if row.get("cache_key") in seen:
+            dropped["duplicate"] += 1
+            continue
+        seen.add(row.get("cache_key"))
+        kept.append(row)
+    return kept, dict(dropped)
 
 
 def repeat_shortfalls(aggregated, states, arm):
@@ -1236,8 +1289,10 @@ def base_rows(spans, labels, gold, attributes, signals, checker_results, heldout
                "evidence_cluster": attribute["evidence_cluster"],
                "derivation_need": scoring.derivation_need(attribute["span_kind"], attribute["question_type"]),
                "fact_type": label.get("fact_type"), "binary_label": label.get("binary_label"),
-               "label_value": label.get("value"), "value_binary": value_labels.get(aid),
+               "label_value": label.get("value"), "slot_value": label.get("value"), "has_label_row": aid in labels,
+               "value_binary": value_labels.get(aid),
                "checker_verdict": verdict, "checker_mechanism": checker.get(aid, {}).get("mechanism"),
+               "checker_family": checker.get(aid, {}).get("family"),
                "all_positive": 1.0}
         row.update({field: label_row.get(field) for field in LABEL_ROW_FIELDS})
         row["rule_checker_flag"], row["rule_checker_abstain"] = scoring.binary_flags(verdict, "rule_checker")
@@ -1260,29 +1315,33 @@ def fit_prior(fit_rows, key):
             "fallback": sum(row["binary_label"] for row in fit_rows) / len(fit_rows)}
 
 
-def attach_priors(rows, legacy=False):
-    """dev_span_kind_prior and dev_question_type_prior, fitted on the labelled non-month dev spans of full100_205
-    (the for_test fit set, analysis_policy.prior_fallback for unseen categories).
+def attach_priors(rows, legacy=False, span_sources=None):
+    """dev_span_kind_prior and dev_question_type_prior (analysis_policy.prior_fallback for unseen categories).
 
-    With legacy=True (ai_provisional labels only) dev_fact_type_prior is added, fitted on all dev spans of
-    full100_205 as in the published statistics so the historical 0.768 can be reproduced.
+    Fitted on the labelled rows among `rows` and written to every row. Held-out rows use priors fitted on the
+    for_heldout fit set, all other rows on the for_test fit set (the labelled non-month dev spans of
+    full100_205). With legacy=True (ai_provisional labels only) dev_fact_type_prior is added, fitted on all dev
+    spans of full100_205 as in the published statistics so the historical 0.768 can be reproduced.
+    Returns {arm: {"for_test": fit, "for_heldout": fit}}.
     """
-    fits = {}
-    dev = [row for row in rows if row["span_set_id"] == "full100_205" and row["role"] == "dev"
-           and row["binary_label"] is not None]
-    fit_rows = [row for row in dev if row["span_kind"] != "month"]
+    labelled = [row for row in rows if row["binary_label"] is not None]
+    sets, _ = scoring.fit_sets(labelled, span_sources)
+    dev = [row for row in labelled if row["span_set_id"] == "full100_205" and row["role"] == "dev"]
     arms = dict(PRIOR_ARMS)
     if legacy:
         arms[LEGACY_PRIOR_ARM] = "fact_type"
+    fits = {}
     for arm, key in arms.items():
-        fit_set = dev if arm == LEGACY_PRIOR_ARM else fit_rows
+        fit_sets_for_arm = ({"for_test": dev, "for_heldout": dev} if arm == LEGACY_PRIOR_ARM
+                            else {"for_test": sets["for_test"], "for_heldout": sets["for_heldout"]})
         try:
-            prior = fit_prior(fit_set, key)
+            fitted = {name: fit_prior(fit_set, key) for name, fit_set in fit_sets_for_arm.items()}
         except ValueError:
             continue
-        fits[arm] = {**prior, "fit_set": "all dev spans" if arm == LEGACY_PRIOR_ARM else "non-month dev spans",
-                     "fit_size": len(fit_set)}
+        fits[arm] = {name: {**prior, "fit_set": ("all dev spans" if arm == LEGACY_PRIOR_ARM else name),
+                            "fit_size": len(fit_sets_for_arm[name])} for name, prior in fitted.items()}
         for row in rows:
+            prior = fitted["for_heldout" if row["role"] == "heldout" else "for_test"]
             row[arm] = prior["rates"].get(row[key], prior["fallback"])
     return fits
 
@@ -1317,7 +1376,7 @@ def arm_exclusions(config, rows, dm_arm_ids):
     for name, spec in config["derived_scores"].items():
         extra = set(spec.get("extra_excluded", []))
         if extra:
-            ids = {row["annotation_id"] for row in rows if row.get("slot_label") in extra}
+            ids = {row["annotation_id"] for row in rows if row.get("slot_value") in extra}
             for arm_id in dm_arm_ids:
                 exclusions[scoring.dm_column(name, arm_id)] = ids
     return exclusions
@@ -1358,13 +1417,17 @@ def label_set_sensitivity(config, all_rows, dm_arm_ids, replicates, seed):
             spec = policy["primary"]["heldout" if role == "heldout" else "test_in_sample"]
             primary = scoring.dm_column(spec["score"], spec["arm"])
             subset = main_set(relabelled, role)
-            if spec["arm"] not in dm_arm_ids or not subset or any(row.get(primary) is None for row in subset):
-                result[name][role] = {"status": "primary arm scores or labels not available"}
+            if spec["arm"] not in dm_arm_ids or not subset or any(
+                    row.get(primary) is None or row.get(scoring.REFERENCE_ARM) is None for row in subset):
+                result[name][role] = {"status": f"not computed: {primary}, {scoring.REFERENCE_ARM} or labels "
+                                                "missing for some spans"}
                 continue
             boot = cb.ranking_intervals(subset, [primary, scoring.REFERENCE_ARM], spec["cluster_unit"],
                                         [(primary, scoring.REFERENCE_ARM)], replicates, seed)
-            result[name][role] = {metric: boot["estimates"][f"{primary} minus {scoring.REFERENCE_ARM}|{metric}"]
-                                  for metric in ("average_precision", "auroc")}
+            result[name][role] = {"cluster": spec["cluster_unit"], "cluster_count": boot["cluster_count"],
+                                  "approximate": boot["approximate"],
+                                  **{metric: boot["estimates"][f"{primary} minus {scoring.REFERENCE_ARM}|{metric}"]
+                                     for metric in ("average_precision", "auroc")}}
     return result
 
 
@@ -1376,10 +1439,10 @@ def build_report(config, all_rows, arms, dm_aggregates, label_mapping, label_fil
     rows = [row for row in all_rows if row["binary_label"] is not None]
     dm_arm_ids = sorted(dm_aggregates)
     legacy = label_mapping == "ai_provisional"
-    human = bool(label_mapping) and label_mapping.startswith("human_")
+    human = bool(label_mapping) and label_mapping.startswith("human_v1_slot")
     columns = continuous_columns(config, dm_arm_ids, legacy)
-    thresholds = scoring.fit_thresholds(rows, columns, config, label_mapping, span_sources, frozen)
     exclusions = arm_exclusions(config, rows, dm_arm_ids)
+    thresholds = scoring.fit_thresholds(rows, columns, config, label_mapping, span_sources, frozen, exclusions)
     report = {"battery_id": config["battery_id"], "arms_scored": dm_arm_ids or "reference",
               "label_mapping": label_mapping, "label_files": label_files, "signals_source": signals_source,
               "human_labels": human, "partial": bool(partial), "repeat_shortfalls": list(shortfalls),
@@ -1441,6 +1504,11 @@ def build_report(config, all_rows, arms, dm_aggregates, label_mapping, label_fil
     report["coverage"] = coverage or {}
     report["excluded_label_values"] = dict(Counter(item["value"] for item in labels.values()
                                                    if item["binary_label"] is None))
+    report["spans_without_label_row"] = {}
+    for role in EVALUATION_ROLES:
+        ids = sorted(row["annotation_id"] for row in all_rows if row["role"] == role and not row.get("has_label_row", True))
+        if ids:
+            report["spans_without_label_row"][role] = {"count": len(ids), "ids": ids}
     report["dm_arms"] = {}
     for arm_id, aggregated in dm_aggregates.items():
         models = Counter()
@@ -1501,29 +1569,28 @@ def load_span_sources(path=None):
 
 
 def response_arm_rows(arm, states, root=None):
-    """(kept rows, excluded count, all rows) of one arm's response file against the given states."""
+    """(kept rows, dropped counts by reason, all rows) of one arm's response file against the given states."""
     path = Path(root or OUTPUT_ROOT) / arm["arm_id"] / "responses.jsonl"
     rows = read_response_rows(path) if path.exists() else []
-    kept, excluded = select_scored_rows(rows, expected_request_hashes(states, arm))
-    return kept, excluded, rows
+    questions = {state["annotation_id"]: state["questions"] for state in states}
+    kept, dropped = select_scored_rows(rows, expected_request_hashes(states, arm), questions)
+    return kept, dropped, rows
 
 
 def assemble_rows(config, gold, spans, labels, texts, sources, traces_path, dm_aggregates, heldout_ids,
-                  value_labels=None, include_unlabelled=True, legacy=False):
-    """Rows of every span with offline arms, priors and the decision-model columns of every given arm."""
+                  value_labels=None, include_unlabelled=True, legacy=False, readable_ids=None):
+    """Rows of every span with offline arms, priors and the decision-model columns of every given arm.
+
+    `heldout_ids` decides roles; `readable_ids` is the loaders' drop set (None: drop every held-out id).
+    """
     attributes = span_attributes(config, gold, spans)
-    signals, signals_source = load_signals(spans, texts, sources, traces_path)
+    signals, signals_source = load_signals(spans, texts, sources, traces_path, readable_ids)
     checker_results = rule_checker.run_checker(config, gold, spans, texts)
     lookup_results = rule_checker.run_evidence_lookup(
         config, gold, spans, {aid: item["span_kind"] for aid, item in attributes.items()})
     rows = base_rows(spans, labels, gold, attributes, signals, checker_results, heldout_ids,
                      lookup_results=lookup_results, value_labels=value_labels, include_unlabelled=include_unlabelled)
-    labelled = [row for row in rows if row["binary_label"] is not None]
-    priors = attach_priors(labelled, legacy=legacy)
-    for row in rows:
-        if row["binary_label"] is None:
-            for arm, fit in priors.items():
-                row[arm] = fit["rates"].get(row[fit["key"]], fit["fallback"])
+    priors = attach_priors(rows, legacy=legacy, span_sources=load_span_sources())
     score_names = list(config["derived_scores"])
     for arm_id, aggregated in dm_aggregates.items():
         scoring.attach_dm_scores(rows, arm_id, aggregated, score_names)
@@ -1556,27 +1623,48 @@ def config_text_with_status(text, status):
     return new
 
 
+def _atomic_write_text(path, text):
+    path = Path(path)
+    temporary = path.with_name(path.name + ".tmp")
+    with temporary.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(text)
+    os.replace(temporary, path)
+
+
 def run_freeze(date, config_path, arms_path, label_path, label_mapping, codebook, schema, heldout_slice,
                preregistration, power_notes_path, generations_path=DEFAULT_GENERATIONS, traces_path=DEFAULT_TRACES,
-               freeze_path=None, states_root=None, overrides=None, validator=None, git_commit=None, log=print):
-    """Freeze point A (plan T1.9 item 18): refuse on any failed precondition, then write the record once."""
+               freeze_path=None, states_root=None, overrides=None, validator=None, git_commit=None, log=print,
+               require_extractor_spans=True):
+    """Freeze point A (plan T1.9 item 18).
+
+    Every check that can fail runs before anything is written. The writes (frozen status, states manifests,
+    record) are undone if any of them fails. The extractor span files are required because the owner approved
+    them (Q9); require_extractor_spans=False exists for tests.
+    """
     freeze_path = Path(freeze_path or FREEZE_PATH)
     states_root = Path(states_root or OUTPUT_ROOT)
     if freeze_path.exists():
         raise SystemExit(f"{freeze_path.name} already exists; changes after the freeze go into an amendment")
+    if label_mapping != "human_v1_slot":
+        raise SystemExit("freeze fits thresholds on the adjudicated human slot labels only (human_v1_slot)")
+    if Path(heldout_slice).resolve() != HELDOUT_SLICE_PATH.resolve():
+        raise SystemExit(f"freeze refused: the held-out slice must be {HELDOUT_SLICE_PATH.name}, the file the loaders read")
     config = load_config(config_path)
     file_overrides = {"battery_config_sha256": config_path, "arms_config_sha256": arms_path,
                       "codebook_sha256": codebook, "annotation_schema_sha256": schema, "labels_205_sha256": label_path,
                       "heldout_ids_sha256": heldout_slice, "preregistration_sha256": preregistration,
                       "generations_sha256": generations_path, "token_traces_sha256": traces_path, **(overrides or {})}
     paths = freeze_input_paths(None, file_overrides, states_root)
-    missing = [field for field, path in paths.items()
-               if field not in FREEZE_NULLABLE_FIELDS | {"states_manifest_full100_205_sha256"}
-               and not Path(path).exists()]
+    optional = {"states_manifest_full100_205_sha256"} | (set() if require_extractor_spans else FREEZE_NULLABLE_FIELDS)
+    missing = [field for field, path in paths.items() if field not in optional and not Path(path).exists()]
     if not Path(power_notes_path).exists():
         missing.append("power_notes")
     if missing:
         raise SystemExit(f"freeze refused: input files missing for {missing}")
+    try:
+        power_notes_record = load_config(power_notes_path)
+    except ValueError as error:
+        raise SystemExit(f"freeze refused: {Path(power_notes_path).name} is not valid JSON: {error}") from None
     validation = validator() if validator else validate(config_path=config_path, output_dir=states_root,
                                                         generations_path=generations_path, require_local=True,
                                                         arms_path=arms_path)
@@ -1586,6 +1674,7 @@ def run_freeze(date, config_path, arms_path, label_path, label_mapping, codebook
     labels = load_labels([label_path], label_mapping, config)
     set_files = span_set_files(config)
     set_files["full100_205"] = Path(paths["spans_full100_sha256"])
+    set_files["extractor_only_devtest_v1"] = Path(paths["spans_extractor_only_devtest_sha256"])
     states_by_set = {}
     for span_set_id in REQUEST_SET_SPAN_SETS:
         if not set_files[span_set_id].exists():
@@ -1610,50 +1699,63 @@ def run_freeze(date, config_path, arms_path, label_path, label_mapping, codebook
             raise SystemExit(f"freeze refused: arm {arm_id} dev coverage is incomplete for {len(incomplete)} spans, "
                              f"for example {incomplete[:3]}")
         dm_aggregates[arm_id] = aggregated
-    # every precondition holds: write the frozen status, then rewrite the states manifests
     config_file = Path(config_path)
-    with config_file.open("r", encoding="utf-8") as handle:
-        text = handle.read()
-    with config_file.open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(config_text_with_status(text, "frozen"))
-    config = load_config(config_path)
-    for span_set_id, states in states_by_set.items():
-        before = file_sha256(states_paths(span_set_id, states_root)[0])
-        write_states(states, span_set_id, config_path, arms_path, set_files[span_set_id], generations_path,
-                     root=states_root)
-        if file_sha256(states_paths(span_set_id, states_root)[0]) != before:
-            raise SystemExit(f"states of {span_set_id} changed while rewriting the manifest")
-    values = current_freeze_values(file_overrides, arms_path, states_root)
+    with config_file.open("r", encoding="utf-8", newline="") as handle:
+        original_text = handle.read()
+    frozen_text = config_text_with_status(original_text, "frozen")
+    frozen_config = json.loads(frozen_text)
+    # thresholds read only the analysis policy, which the status line does not change
     gold = load_gold()
-    heldout_ids = load_heldout_ids(heldout_slice)
+    heldout_ids = load_heldout_ids()
     spans = [{**span, "span_set_id": span_set_id} for span_set_id in states_by_set
              for span in load_spans(set_files[span_set_id])]
     texts, sources = load_generated_texts(generations_path, heldout_ids=heldout_ids, log=lambda message: None)
-    rows, _, _ = assemble_rows(config, gold, spans, labels, texts, sources, traces_path, dm_aggregates, heldout_ids)
+    rows, _, _ = assemble_rows(frozen_config, gold, spans, labels, texts, sources, traces_path, dm_aggregates,
+                               heldout_ids)
     labelled = [row for row in rows if row["binary_label"] is not None]
-    columns = continuous_columns(config, sorted(dm_aggregates), legacy=False)
-    thresholds = scoring.fit_thresholds(labelled, columns, config, label_mapping, load_span_sources())
-    record = {"freeze_id": f"decision_battery_v2_freeze_{date}", "date": date,
-              "git_commit": git_commit if git_commit is not None else _git_head()}
-    for field in FREEZE_ENFORCED_FIELDS:
-        record[field] = [] if field == "amendments" else values.get(field)
-    record["inputs"] = {field: _repo_relative(path) for field, path in freeze_input_paths(None, file_overrides, states_root).items()
-                        if field in FREEZE_ENFORCED_FIELDS and Path(path).exists()}
-    record["informational_sha256"] = {f"module:{path.name}": file_sha256(path) for path in sorted(MODULE_DIR.glob("*.py"))}
-    record["informational_sha256"]["module:detector_metrics.py"] = _sha_or_none(MODULE_DIR.parent / "detector_metrics.py")
-    record["label_mapping"] = label_mapping
-    record["dev_thresholds"] = {"rule": thresholds["rule"], "notes": thresholds["notes"],
-                                **{key: {arm: {"threshold": scoring.json_threshold(info["threshold"]),
-                                               "degenerate": info["degenerate"], "reason": info.get("reason")}
-                                         for arm, info in thresholds[key].items()}
-                                   for key in ("for_test", "for_heldout")}}
-    record["main_set_rule"] = config["analysis_policy"]["main_set_rule"]
-    record["primary"] = config["analysis_policy"]["primary"]
-    record["local_arm_environment"] = {arm_id: arm.get("notes") for arm_id, arm in arms.items() if arm.get("kind") == "local"}
-    record["power_notes"] = load_config(power_notes_path)
-    freeze_path.parent.mkdir(parents=True, exist_ok=True)
-    with freeze_path.open("w", encoding="utf-8", newline="\n") as handle:
-        json.dump(record, handle, indent=2, ensure_ascii=False)
+    columns = continuous_columns(frozen_config, sorted(dm_aggregates), legacy=False)
+    thresholds = scoring.fit_thresholds(labelled, columns, frozen_config, label_mapping, load_span_sources(),
+                                        exclusions=arm_exclusions(frozen_config, labelled, sorted(dm_aggregates)))
+    backups = {config_file: config_file.read_bytes()}
+    for span_set_id in states_by_set:
+        for state_file in states_paths(span_set_id, states_root):
+            backups[state_file] = state_file.read_bytes()
+    try:
+        _atomic_write_text(config_file, frozen_text)
+        for span_set_id, states in states_by_set.items():
+            before = file_sha256(states_paths(span_set_id, states_root)[0])
+            write_states(states, span_set_id, config_path, arms_path, set_files[span_set_id], generations_path,
+                         root=states_root)
+            if file_sha256(states_paths(span_set_id, states_root)[0]) != before:
+                raise SystemExit(f"states of {span_set_id} changed while rewriting the manifest")
+        values = current_freeze_values(file_overrides, arms_path, states_root)
+        record = {"freeze_id": f"decision_battery_v2_freeze_{date}", "date": date,
+                  "git_commit": git_commit if git_commit is not None else _git_head()}
+        for field in FREEZE_ENFORCED_FIELDS:
+            record[field] = [] if field == "amendments" else values.get(field)
+        record["inputs"] = {field: _repo_relative(path)
+                            for field, path in freeze_input_paths(None, file_overrides, states_root).items()
+                            if field in FREEZE_ENFORCED_FIELDS and Path(path).exists()}
+        record["informational_sha256"] = {f"module:{path.name}": file_sha256(path)
+                                          for path in sorted(MODULE_DIR.glob("*.py"))}
+        record["informational_sha256"]["module:detector_metrics.py"] = _sha_or_none(MODULE_DIR.parent / "detector_metrics.py")
+        record["label_mapping"] = label_mapping
+        record["dev_thresholds"] = {"rule": thresholds["rule"], "notes": thresholds["notes"],
+                                    **{key: {arm: {"threshold": scoring.json_threshold(info["threshold"]),
+                                                   "degenerate": info["degenerate"], "reason": info.get("reason")}
+                                             for arm, info in thresholds[key].items()}
+                                       for key in ("for_test", "for_heldout")}}
+        record["main_set_rule"] = frozen_config["analysis_policy"]["main_set_rule"]
+        record["primary"] = frozen_config["analysis_policy"]["primary"]
+        record["local_arm_environment"] = {arm_id: arm.get("notes") for arm_id, arm in arms.items()
+                                           if arm.get("kind") == "local"}
+        record["power_notes"] = power_notes_record
+        freeze_path.parent.mkdir(parents=True, exist_ok=True)
+        _atomic_write_text(freeze_path, json.dumps(record, indent=2, ensure_ascii=False))
+    except BaseException:
+        for backup_path, data in backups.items():
+            Path(backup_path).write_bytes(data)
+        raise
     log(f"freeze record written: {freeze_path.name}")
     return record
 
@@ -1703,7 +1805,11 @@ def validate(config_path=CONFIG_PATH, output_dir=OUTPUT_DIR, generations_path=No
     config = load_config(config_path)
     failures = config_problems(config, load_arms(arms_path))
     gold = load_gold()
+    if "heldout" in config["analysis_policy"]["span_sets"][span_set_id_for(spans_path)]["roles"]:
+        raise SystemExit("validate covers the dev and test span sets only")
     spans = load_spans(spans_path)
+    if any(span["question_id"] in load_heldout_ids() for span in spans):
+        raise SystemExit(f"{Path(spans_path).name} holds held-out questions; validate covers dev and test only")
     label_rows = load_annotations(labels_path)
     exported = [{field: row[field] for field in SPAN_FIELDS} for row in sorted(label_rows, key=lambda r: r["annotation_id"])]
     if [{field: span[field] for field in SPAN_FIELDS} for span in spans] != exported:
@@ -1805,9 +1911,9 @@ def score_command(args, config, config_path, freeze_overrides, log=print):
             raise SystemExit(f"states of {span_set_id} are missing; run build --spans {path.name} first")
         states_by_set[span_set_id], _ = load_states(span_set_id, config_path, ARMS_CONFIG_PATH, path, args.generations)
     all_states = [state for states in states_by_set.values() for state in states]
-    dm_aggregates, kept_by_arm, shortfalls = {}, {}, []
+    dm_aggregates, kept_by_arm, shortfalls, dropped_by_arm = {}, {}, [], {}
     for arm_id in selected:
-        kept, _, rows = response_arm_rows(arms[arm_id], all_states)
+        kept, dropped_by_arm[arm_id], rows = response_arm_rows(arms[arm_id], all_states)
         for role in sorted({row.get("role") for row in rows} & {"test", "heldout"}):
             require_freeze(role, f"score of {role} responses of {arm_id}", FREEZE_PATH, freeze_overrides)
         check_response_roles(kept)
@@ -1831,20 +1937,23 @@ def score_command(args, config, config_path, freeze_overrides, log=print):
             log(f"diagnostics written: {path.name}")
         return 0
     rows, priors, signals_source = assemble_rows(config, gold, spans, labels, texts, sources, args.traces, dm_aggregates,
-                                                 heldout_ids, value_labels, legacy=args.label_mapping == "ai_provisional")
+                                                 heldout_ids, value_labels, legacy=args.label_mapping == "ai_provisional",
+                                                 readable_ids=readable_heldout_ids(heldout_ids, freeze_record))
     coverage = {}
     for arm_id, aggregated in dm_aggregates.items():
         expected = [state["annotation_id"] for state in all_states
                     if labels.get(state["annotation_id"], {}).get("binary_label") is not None]
         missing = sorted(aid for aid in expected if aid not in aggregated)
-        coverage[arm_id] = {"expected": len(expected), "scored": len(expected) - len(missing), "missing": missing}
+        coverage[arm_id] = {"expected": len(expected), "scored": len(expected) - len(missing), "missing": missing,
+                            "response_rows_not_scored": dropped_by_arm[arm_id]}
     exposed = set(load_config(HELDOUT_SLICE_PATH)["exposed_in_review_question_ids"])
     label_files = [{"file": _repo_relative(path), "sha256": file_sha256(path)} for path in args.labels]
     report, labelled = build_report(config, rows, arms, dm_aggregates, args.label_mapping, label_files, labels,
                                     signals_source, exposed, args.replicates, args.seed, frozen=load_freeze(FREEZE_PATH),
                                     span_sources=load_span_sources(), coverage=coverage, partial=bool(shortfalls),
                                     shortfalls=shortfalls)
-    report["priors"] = {name: {key: value for key, value in fit.items() if key != "key"} for name, fit in priors.items()}
+    report["priors"] = {name: {fit_set: {key: value for key, value in fit.items() if key != "key"}
+                               for fit_set, fit in fits.items()} for name, fits in priors.items()}
     markdown = scoring.render_report(report)
     if args.arms == "reference":
         stem = OUTPUT_ROOT / "report_reference"
@@ -1923,6 +2032,9 @@ def main(argv=None):
 
     config_path = Path(args.config)
     config = load_config(config_path)
+    if args.label_mapping and args.label_mapping in label_mapping_names(config) and \
+            config["label_mapping"][args.label_mapping]["axis"] != "slot":
+        parser.error("--label-mapping must name a slot-axis mapping; value labels are read through value_axis_rule")
     bootstrap = config["analysis_policy"]["bootstrap"]
     args.replicates = args.replicates or bootstrap["replicates"]
     args.seed = bootstrap["seed"] if args.seed is None else args.seed
@@ -1956,7 +2068,8 @@ def main(argv=None):
         if not args.arm:
             parser.error("smoke needs --arm")
         arm = load_arms(ARMS_CONFIG_PATH)[args.arm]
-        report = run_smoke(config, arm, read_api_key(arm), OUTPUT_ROOT / arm["arm_id"] / "smoke.json")
+        report = run_smoke(config, arm, read_api_key(arm), OUTPUT_ROOT / arm["arm_id"] / "smoke.json",
+                           policy=config["api"])
         return 1 if report["problems"] else 0
 
     uses_demo = not Path(args.generations).exists()
@@ -1984,6 +2097,8 @@ def main(argv=None):
     manifest_args = (config_path, ARMS_CONFIG_PATH, args.spans, args.generations)
 
     if args.command == "build":
+        if FREEZE_PATH.exists() and span_set_id in REQUEST_SET_SPAN_SETS:
+            raise SystemExit(f"{span_set_id} was frozen at freeze point A; its states are not rebuilt")
         scan_rows = {row["annotation_id"]: row for row in load_annotations()} if ANNOTATIONS_PATH.exists() else {}
         scan_rows.update({aid: item["row"] for aid, item in labels.items()})
         states, skipped = build_states(config, gold, spans, texts, sources, label_rows=scan_rows, heldout_ids=heldout_ids)
@@ -2032,7 +2147,7 @@ def main(argv=None):
             raise SystemExit(f"arm {arm['arm_id']}: repeats.{role} is not set in the arms config")
     arm_dir.mkdir(parents=True, exist_ok=True)
     provenance = {"battery_id": config["battery_id"], "config_sha256": file_sha256(config_path)}
-    summary = run_battery(states, arm, api_key, repeats, arm_dir / "responses.jsonl", limit=args.limit,
+    summary = run_battery(states, arm, api_key, repeats, arm_dir / "responses.jsonl", limit=args.limit, policy=config["api"],
                           provenance=provenance, cleared_roles=(args.split,))
     print(json.dumps(summary, indent=2))
     return 0

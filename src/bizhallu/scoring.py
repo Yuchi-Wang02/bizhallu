@@ -24,6 +24,8 @@ TWO_VALUE_TYPES = {"country_comparison_month", "monthly_revenue_change"}
 ABSTAIN_OPTIONS = {"status": "x9", "value_faithful": "f4"}
 DESCRIPTIVE_QUESTIONS = ["relation", "rank_claim", "direction_claim", "source_row", "source_column"]
 SCORE_DECIMALS = 6
+# run_smoke accepts probability sums within 0.01 of 1, so a sum of two options may exceed 1 by that much
+PROBABILITY_TOLERANCE = 0.01
 HISTORICAL_REFERENCE_LINE = ("Historical reference (AI provisional labels, 103 test spans): prevalence 61/103 = 0.592, "
                              "all-positive F1 0.744, fact-type prior AUROC 0.768.")
 HUMAN_LABEL_DISCLOSURE = ("The 205 AI provisional labels and the detector scores are in the public repository. "
@@ -42,12 +44,15 @@ def derivation_need(span_kind, question_type):
 
 
 def rounded(value, annotation_id, name):
-    """Aggregated means are rounded to 6 decimals before any threshold comparison; bad values stop the run."""
+    """Aggregated means are rounded to 6 decimals before any threshold comparison; bad values stop the run.
+
+    Values within PROBABILITY_TOLERANCE outside [0, 1] are clipped to the bound.
+    """
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         raise ValueError(f"{annotation_id}: {name} is not a finite number: {value!r}")
-    if not 0.0 <= value <= 1.0:
+    if not -PROBABILITY_TOLERANCE <= value <= 1.0 + PROBABILITY_TOLERANCE:
         raise ValueError(f"{annotation_id}: {name} is outside [0, 1]: {value!r}")
-    return round(float(value), SCORE_DECIMALS)
+    return round(min(1.0, max(0.0, float(value))), SCORE_DECIMALS)
 
 
 # ------------------------------------------------------------------ rows ---
@@ -100,9 +105,18 @@ def budget_threshold(fit_rows, arm, budget):
 
 
 def legacy_threshold(dev_rows, arm):
-    rows = [{**row, "split": "dev"} for row in dev_rows]
-    return {"threshold": metrics.dev_threshold(rows, arm), "degenerate": False, "reason": None,
-            "fit_size": len(rows)}
+    """Dev maximum F1 (src/detector_metrics.dev_threshold) with the degenerate marks of the budget rule."""
+    rows = [{**row, "split": "dev"} for row in dev_rows if row.get(arm) is not None]
+    threshold = metrics.dev_threshold(rows, arm)
+    values = sorted({row[arm] for row in rows})
+    flagged_share = sum(1 for row in rows if row[arm] >= threshold) / len(rows)
+    reason = None
+    if threshold == values[0]:
+        reason = "threshold equals the lowest fit-set score"
+    elif flagged_share >= 0.95:
+        reason = "threshold flags at least 95 percent of the fit set"
+    return {"threshold": threshold, "degenerate": reason is not None, "reason": reason, "fit_size": len(rows),
+            "fit_flagged_share": flagged_share}
 
 
 def fit_sets(rows, span_sources=None):
@@ -112,9 +126,9 @@ def fit_sets(rows, span_sources=None):
     for_test = [row for row in rows if row["span_set_id"] == "full100_205" and usable(row)]
     extractor = [row for row in rows if row["span_set_id"] == "extractor_only_devtest_v1" and usable(row)]
     notes = []
-    if span_sources is None or not extractor:
-        notes.append("for_heldout uses the for_test fit set: the extractor-only dev spans or span_source_devtest_v1.jsonl "
-                     "are not available")
+    if span_sources is None:
+        notes.append("for_heldout uses the for_test fit set: span_source_devtest_v1.jsonl or the extractor-only "
+                     "span file does not exist")
         return {"for_test": for_test, "for_heldout": for_test}, notes
     both = [row for row in for_test if span_sources.get(row["annotation_id"]) == "both"]
     for_heldout = both + extractor
@@ -124,8 +138,13 @@ def fit_sets(rows, span_sources=None):
     return {"for_test": for_test, "for_heldout": for_heldout}, notes
 
 
-def fit_thresholds(rows, arms, config, mapping, span_sources=None, frozen=None):
-    """Thresholds per fit set and arm. ai_provisional uses the legacy dev max-F1 rule only."""
+def fit_thresholds(rows, arms, config, mapping, span_sources=None, frozen=None, exclusions=None):
+    """Thresholds per fit set and arm. ai_provisional uses the legacy dev max-F1 rule only.
+
+    `exclusions` maps an arm to annotation ids its config entry excludes (extra_excluded); they are left out
+    of that arm's fit set.
+    """
+    exclusions = exclusions or {}
     policy = config["analysis_policy"]
     fixed = {"threshold": 1.0, "degenerate": False, "reason": "fixed: flags every span"}
     if mapping == "ai_provisional":
@@ -134,9 +153,10 @@ def fit_thresholds(rows, arms, config, mapping, span_sources=None, frozen=None):
         table = {}
         for arm in arms:
             try:
-                table[arm] = legacy_threshold(dev, arm)
-            except ValueError as error:
-                table[arm] = {"threshold": math.inf, "degenerate": True, "reason": str(error)}
+                table[arm] = legacy_threshold([row for row in dev if row["annotation_id"] not in exclusions.get(arm, ())],
+                                              arm)
+            except (ValueError, KeyError, IndexError, ZeroDivisionError) as error:
+                table[arm] = {"threshold": math.inf, "degenerate": True, "reason": f"not selectable: {error!r}"}
         table["all_positive"] = fixed
         return {"rule": policy["threshold_rule"]["legacy"], "source": "legacy dev maximum F1, fitted at scoring time",
                 "for_test": table, "for_heldout": table, "notes": ["ai_provisional labels: legacy rule only"]}
@@ -150,7 +170,9 @@ def fit_thresholds(rows, arms, config, mapping, span_sources=None, frozen=None):
     result = {"rule": policy["threshold_rule"]["rule"], "source": "PRE-FREEZE OFFLINE ARMS: fitted on dev at scoring time",
               "notes": notes}
     for key, fit in sets.items():
-        table = {arm: budget_threshold([row for row in fit if row.get(arm) is not None], arm, budget) for arm in arms}
+        table = {arm: budget_threshold([row for row in fit if row.get(arm) is not None
+                                        and row["annotation_id"] not in exclusions.get(arm, ())], arm, budget)
+                 for arm in arms}
         table["all_positive"] = fixed
         result[key] = table
     return result
@@ -293,7 +315,8 @@ def mechanism_table(rows, columns, thresholds, config, human):
         groups["M1 entity_name"] = [row for row in m1 if row["span_kind"] == "entity_name"]
         groups["M1 other span kinds"] = [row for row in m1 if row["span_kind"] != "entity_name"]
     else:
-        groups = mechanism_groups(wrong, "checker_mechanism")
+        groups = {("supported by the checker" if name is None else name): group
+                  for name, group in mechanism_groups(wrong, "checker_family").items()}
         columns = [column for column in columns if column != "rule_checker"]
     for name, group in sorted(groups.items(), key=lambda item: str(item[0])):
         entry = {"wrong_spans": len(group)}
@@ -374,7 +397,7 @@ def estimand_e1(rows, replicates, seed):
     wrong = [row for row in rows if row["binary_label"] == 1]
 
     def numerator(row, kind="currency_or_number"):
-        return int(row["binary_label"] == 1 and row.get("slot_label") == "incorrect"
+        return int(row["binary_label"] == 1 and row.get("slot_value", row.get("slot_label")) == "incorrect"
                    and row.get("value_label") == "faithful" and row["span_kind"] == kind)
     statistics = {
         "share_of_all_wrong": cb.ratio(numerator, lambda row: row["binary_label"]),
@@ -389,6 +412,7 @@ def estimand_e1(rows, replicates, seed):
         "numerator_spans": len(numerator_rows), "wrong_spans": len(wrong),
         "estimates": boot["estimates"] if boot else None,
         "cluster_count": boot["cluster_count"] if boot else 0,
+        "approximate": boot["approximate"] if boot else None,
         "other_span_kinds": {kind: {"numerator_spans": sum(numerator(row, kind) for row in rows),
                                     "wrong_spans_of_kind": sum(1 for row in wrong if row["span_kind"] == kind)}
                              for kind in ("entity_name", "code", "month", "rank_marker")},
@@ -446,20 +470,23 @@ def estimand_e2(rows, arms, replicates, seed):
     result = {}
     for scope, subset in [("pooled", rows)] + [(role, [row for row in rows if row["role"] == role])
                                               for role in sorted({row["role"] for row in rows})]:
-        statistics = {}
+        statistics, missing = {}, {}
         for arm in arms:
-            if any(row.get(arm) is None for row in subset):
+            absent = sum(1 for row in subset if row.get(arm) is None)
+            if absent:
+                missing[arm] = f"missing for {absent} of {len(subset)} spans"
                 continue
             statistics[f"{arm}|m1"] = pooled_auroc_of(m1, correct, arm)
             statistics[f"{arm}|other"] = pooled_auroc_of(other_wrong, correct, arm)
             statistics[f"{arm}|contrast"] = ("difference", f"{arm}|m1", f"{arm}|other")
         if not subset or not statistics:
-            result[scope] = {"status": "no spans or no arms"}
+            result[scope] = {"status": "no spans or no arms", "arms_left_out": missing}
             continue
         boot = cb.bootstrap(subset, statistics, "evidence_cluster", replicates, seed, stratum="role")
         result[scope] = {"counts": {"m1": sum(map(m1, subset)), "other_wrong": sum(map(other_wrong, subset)),
                                     "correct": sum(map(correct, subset))},
-                         "cluster_count": boot["cluster_count"], "estimates": boot["estimates"]}
+                         "cluster_count": boot["cluster_count"], "approximate": boot["approximate"],
+                         "estimates": boot["estimates"], "arms_left_out": missing}
     return result
 
 
@@ -477,16 +504,25 @@ def estimand_e3(rows, arms, thresholds, replicates, seed):
             info = threshold_for(thresholds, row["role"]).get(arm)
             return int(info is not None and row[arm] >= info["threshold"])
         return value
-    statistics = {"rule_checker": cb.ratio(lambda row: row["rule_checker_flag"], lambda row: 1)}
-    for arm in arms:
-        if all(row.get(arm) is not None for row in m1_rows):
-            statistics[arm] = cb.ratio(flagged(arm), lambda row: 1)
-            statistics[f"rule_checker minus {arm}"] = ("difference", "rule_checker", arm)
     result = {"m1_spans": len(m1_rows)}
     for scope, subset in [("pooled", m1_rows)] + [(role, [row for row in m1_rows if row["role"] == role])
                                                  for role in sorted({row["role"] for row in m1_rows})]:
+        statistics = {"rule_checker": cb.ratio(lambda row: row["rule_checker_flag"], lambda row: 1)}
+        left_out = {}
+        for arm in arms:
+            absent = sum(1 for row in subset if row.get(arm) is None)
+            degenerate = sorted({row["role"] for row in subset
+                                 if (threshold_for(thresholds, row["role"]).get(arm) or {"degenerate": True})["degenerate"]})
+            if absent:
+                left_out[arm] = f"missing for {absent} of {len(subset)} spans"
+            elif degenerate:
+                left_out[arm] = f"degenerate or missing threshold for role {degenerate}: counts only"
+            else:
+                statistics[arm] = cb.ratio(flagged(arm), lambda row: 1)
+                statistics[f"rule_checker minus {arm}"] = ("difference", "rule_checker", arm)
         boot = cb.bootstrap(subset, statistics, role_cluster, replicates, seed, stratum="role")
-        result[scope] = {"spans": len(subset), "cluster_count": boot["cluster_count"], "estimates": boot["estimates"]}
+        result[scope] = {"spans": len(subset), "cluster_count": boot["cluster_count"], "approximate": boot["approximate"],
+                         "estimates": boot["estimates"], "arms_left_out": left_out}
     return result
 
 
@@ -498,12 +534,21 @@ def estimand_e4(rows, primary, replicates, seed, minimum=10):
         entry["note"] = "counts only"
         return entry
     boot = cb.bootstrap(subset, {"auroc": cb.auroc_of(primary)}, role_cluster, replicates, seed)
-    entry.update({"cluster_count": boot["cluster_count"], "auroc": boot["estimates"]["auroc"]})
+    entry.update({"cluster_count": boot["cluster_count"], "approximate": boot["approximate"],
+                  "auroc": boot["estimates"]["auroc"]})
     return entry
 
 
 def funnel(rows, primary_arm_id, thresholds, minimum=10):
     yes_column, risk_column = dm_column("slot_yes", primary_arm_id), dm_column("dm_risk", primary_arm_id)
+    if not rows:
+        return {"status": "no spans"}
+    if all(row.get(yes_column) is None for row in rows):
+        return {"status": f"not computed: {primary_arm_id} has no scores for these spans"}
+    unusable = sorted({row["role"] for row in rows
+                       if (threshold_for(thresholds, row["role"]).get(risk_column) or {"degenerate": True})["degenerate"]})
+    if unusable:
+        return {"status": f"not computed: the {risk_column} threshold is degenerate or missing for role {unusable}"}
     layers = {"layer_1": [], "layer_2": [], "layer_3": []}
     for row in rows:
         if row.get("rule_checker_flag") is not None and not row["rule_checker_abstain"]:
@@ -543,9 +588,10 @@ def repeat_spread(aggregated, arm):
 
 
 def interval_count(value):
+    """Intervals in the report; primary_contrast repeats an entry of contrasts and is not counted again."""
     if isinstance(value, dict):
         own = int("lower_95" in value and value.get("lower_95") is not None)
-        return own + sum(interval_count(item) for item in value.values())
+        return own + sum(interval_count(item) for key, item in value.items() if key != "primary_contrast")
     if isinstance(value, list):
         return sum(interval_count(item) for item in value)
     return 0
@@ -664,15 +710,23 @@ def render_report(report):
     if isinstance(sensitivity, dict) and "status" not in sensitivity:
         for label_set, roles in sensitivity.items():
             for role, contrast in roles.items():
-                lines.append(f"- {label_set}, {role}: AP difference {_interval(contrast.get('average_precision'))}; "
+                if "status" in contrast:
+                    lines.append(f"- {label_set}, {role}: {contrast['status']}")
+                    continue
+                note = ", approximate: fewer than 20 clusters" if contrast.get("approximate") else ""
+                lines.append(f"- {label_set}, {role} ({contrast.get('cluster_count')} clusters{note}): AP difference "
+                             f"{_interval(contrast.get('average_precision'))}; "
                              f"AUROC difference {_interval(contrast.get('auroc'))}")
     else:
         lines.append(f"- {sensitivity.get('status') if isinstance(sensitivity, dict) else sensitivity}")
     lines += ["", "## Coverage", ""]
     for arm_id, coverage in report["coverage"].items():
         lines.append(f"- {arm_id}: {coverage['scored']} of {coverage['expected']} labelled spans scored; "
-                     f"missing {coverage['missing'][:10]}{' ...' if len(coverage['missing']) > 10 else ''}")
+                     f"missing {coverage['missing'][:10]}{' ...' if len(coverage['missing']) > 10 else ''}; "
+                     f"response rows not scored, by reason: {coverage.get('response_rows_not_scored', {})}")
     lines.append(f"- Label values excluded from binary metrics: {report['excluded_label_values']}")
+    for role, entry in report.get("spans_without_label_row", {}).items():
+        lines.append(f"- {role}: {entry['count']} spans have no label row, for example {entry['ids'][:5]}")
     lines += ["", "## Decision-model arms", ""]
     for arm_id, info in report["dm_arms"].items():
         lines.append(f"- {arm_id}: requested model {info['requested_model']}; model versions seen {info['model_versions']}; "
@@ -684,9 +738,18 @@ def render_report(report):
     lines += ["", "## Mechanism tables", ""]
     for role, table in report["mechanism_tables"].items():
         lines.append(f"### {role} ({table['heading']})")
+        for note in table.get("notes", []):
+            lines.append(f"- Note: {note}")
+        if "unresolved_mechanism_spans" in table:
+            lines.append(f"- Wrong spans with an unresolved mechanism (kept in the binary metrics): "
+                         f"{table['unresolved_mechanism_spans']}")
         for name, row in table["rows"].items():
             cells = "; ".join(f"{column} {_render_cell(value)}" for column, value in row.items() if column != "wrong_spans")
             lines.append(f"- {name}: {row['wrong_spans']} wrong spans. {cells}")
+        for column, value in table.get("false_flag_row", {}).items():
+            shown = value.get("status") or f"{_fmt(value['overall'])} overall; by span_kind " + ", ".join(
+                f"{kind} {_fmt(share)}" for kind, share in value["by_span_kind"].items())
+            lines.append(f"- False-flag share among correct spans, {column}: {shown}")
         lines.append("")
     lines += ["## Secondary estimands (estimates and intervals only)", ""]
     _flatten_estimates("", report["estimands"], lines)
@@ -738,7 +801,8 @@ def _render_section(title, section):
     for arm, values in section["arms"].items():
         at = values.get("at_threshold", {})
         if at.get("degenerate"):
-            tail = f"| DEGENERATE {_fmt(at.get('threshold'), 4)} | {at.get('flagged')} | counts only | | |"
+            shown = "+inf" if at.get("threshold") is None else _fmt(at.get("threshold"), 4)
+            tail = f"| DEGENERATE {shown} | {at.get('flagged')} | counts only | | |"
         else:
             tail = (f"| {_fmt(at.get('threshold'), 4)} | {at.get('flagged', 'n/a')} | {_fmt(at.get('precision'))} | "
                     f"{_fmt(at.get('recall'))} | {_fmt(at.get('f1'))} |")
@@ -752,6 +816,9 @@ def _render_section(title, section):
     for arm, values in section.get("binary_arms", {}).items():
         lines.append(f"- {arm}: coverage {_interval(values['coverage'])}, precision {_interval(values['precision'])}, "
                      f"recall {_interval(values['recall'])}; abstain {values['abstain']} (counted as not flagged)")
+    for name, values in section.get("contrasts", {}).items():
+        lines.append(f"- Paired difference {name}: AP {_interval(values['average_precision'])}; "
+                     f"AUROC {_interval(values['auroc'])}")
     primary = section.get("primary_contrast", {})
     if "status" in primary:
         lines.append(f"- Primary contrast {primary['contrast']}: {primary['status']}")
@@ -760,8 +827,9 @@ def _render_section(title, section):
                      f"{_interval(primary['average_precision'])}; AUROC difference {_interval(primary['auroc'])}")
         sensitivity = section.get("primary_contrast_sensitivity")
         if sensitivity:
+            note = ", approximate: fewer than 20 clusters" if sensitivity.get("approximate") else ""
             lines.append(f"- Same contrast, sensitivity cluster unit {sensitivity['cluster']} "
-                         f"({sensitivity['cluster_count']} clusters): AP difference "
+                         f"({sensitivity['cluster_count']} clusters{note}): AP difference "
                          f"{_interval(sensitivity['average_precision'])}; AUROC difference {_interval(sensitivity['auroc'])}")
     lines.append("")
     return lines
