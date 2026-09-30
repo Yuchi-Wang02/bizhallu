@@ -171,8 +171,13 @@ def requested_ranks(record):
     return set()
 
 
+MONTH_PATTERN = r"(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4}"
+OTHER_MONTH_FORM = (r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?,?\s+\d{4}\b"
+                    r"|\b\d{4}-\d{2}\b|\b\d{1,2}/\d{4}\b")
+
+
 def question_months(record):
-    return {m.lower() for m in re.findall(r"(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4}", record["question"])}
+    return {m.lower() for m in re.findall(MONTH_PATTERN, record["question"], re.IGNORECASE)}
 
 
 def comparison_entities(record, rows):
@@ -222,9 +227,11 @@ def check_span(record, span, answer, tolerance, pct_tol):
         return finish(kind, "supported", mechanism, detail)
 
     # months
-    if re.fullmatch(r"(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4}", text.strip()):
-        ok = text.strip().lower() in question_months(record)
+    if re.fullmatch(MONTH_PATTERN, " ".join(text.split()), re.IGNORECASE):
+        ok = " ".join(text.split()).lower() in question_months(record)
         return finish("month", "supported" if ok else "contradicted", "period_in_question" if ok else "period_not_in_question")
+    if re.search(OTHER_MONTH_FORM, text, re.IGNORECASE):
+        return abstain("month", "month_in_other_format")
 
     # rank markers such as "1." or "rank 3"
     if re.fullmatch(r"\s*(?:\*\*)?[1-9][.)]\s*|\s*rank(?:ed)?\s*#?[1-9]\s*|\s*#[1-9]\s*", text) and qtype in {"top3_products_month", "product_revenue_share_month"}:
@@ -240,11 +247,17 @@ def check_span(record, span, answer, tolerance, pct_tol):
                       "rank_matches" if ok else "self_consistent_wrong_selection",
                       f"rank {rank} named {actual.get(key)}, table rank {rank} is {expected.get(key)}")
 
-    # rank phrases such as "ranked 2nd" or "ranking is second": never parsed as amounts
+    # a bare list marker in any other question type is never matched to a currency cell
+    if re.fullmatch(r"\s*(?:\*\*)?[1-9][.)]\s*|\s*#[1-9]\s*", text):
+        return abstain("rank_marker", "rank_marker_outside_ranked_question")
+
+    # rank phrases such as "ranked 2nd" or "ranking is second": never parsed as amounts; the position must
+    # follow the rank word directly ("ranked in the top 3" states no position)
     rank_word = re.search(r"\brank(?:ed|ing)?\b", text, re.IGNORECASE)
     if rank_word:
-        stated = re.search(r"(?<![\d.,])(\d{1,2})(?:st|nd|rd|th)?(?![\d.,%])|\b(first|second|third|fourth|fifth)\b",
-                           text[rank_word.end():], re.IGNORECASE)
+        stated = re.match(r"\s*(?:is\s+|at\s+|as\s+)?(?:number\s+|no\.\s*)?[#:*\s]*"
+                          r"(?:(\d{1,2})(?:st|nd|rd|th)?(?![\d.,%])|(first|second|third|fourth|fifth)\b)",
+                          text[rank_word.end():], re.IGNORECASE)
         if not stated:
             return abstain("rank_claim", "rank_claim_without_position")
         position = int(stated.group(1)) if stated.group(1) else ORDINALS.index(stated.group(2).lower()) + 1
@@ -265,7 +278,10 @@ def check_span(record, span, answer, tolerance, pct_tol):
         if qtype in {"top_country_month", "top_product_month"}:
             expected = ranking(record, rows)[0]
             in_scope_note = normalize(text) in {normalize(n) for n in record["evidence"]["filters"].get("exclude_countries", [])}
-            if in_scope_note and off_start < len(line) and "exclud" in line.lower():
+            # the excluded country is a restatement only inside the excluding phrase itself
+            restated = any(found.start() <= off_start and off_end <= found.end() for found in re.finditer(
+                rf"exclud\w*\s+(?:the\s+)?{re.escape(text.strip(' *'))}", line, re.IGNORECASE))
+            if in_scope_note and restated:
                 return finish("entity", "supported", "scope_restatement")
             ok = row is expected
             return finish("entity", "supported" if ok else "contradicted", "top_selection" if ok else "self_consistent_wrong_selection",
@@ -307,7 +323,8 @@ def check_span(record, span, answer, tolerance, pct_tol):
         return abstain("entity", "entity_without_rule_for_question_type")
 
     # comparison direction phrases
-    if qtype == "country_comparison_month" and re.search(r"\b(more|less|higher|lower|greater|exceed|outperform)", text, re.IGNORECASE):
+    if (qtype == "country_comparison_month" and not re.search(r"\d", text)
+            and re.search(r"\b(more|less|higher|lower|greater|exceed|outperform)", text, re.IGNORECASE)):
         pair = comparison_entities(record, rows)
         named = entities_in_line(rows, line, "country")
         if pair and all(pair) and len(named) >= 2:
@@ -412,7 +429,7 @@ def check_span(record, span, answer, tolerance, pct_tol):
             role_difference = bool(
                 re.search(r"\b(?:difference|gap|margin)\b(?:\s+in\s+net[ _]revenue)?\s*(?:of|is|was|:)?\W*(?:gbp)?\W*$", head)
                 or re.search(r"\badditional(?:\s+net[ _]revenue)?(?:\s+of)?\W*(?:gbp)?\W*$", head)
-                or re.match(r"\W*(?:GBP)?\W*(?:more|less|higher|lower)\b", tail, re.IGNORECASE))
+                or re.match(r"[\s*_]*(?:GBP|£)?[\s*_]*(?:more|less|higher|lower)\b", tail, re.IGNORECASE))
             if role_difference and any(column == "net_revenue" for _, column in matches):
                 return finish("amount", "contradicted", "operand_as_difference",
                               "a country net revenue is presented as the difference")
@@ -506,14 +523,22 @@ def run_checker(config, gold, spans, texts):
 
 # --------------------------------------------------------- evidence lookup ---
 
+MALFORMED = "malformed"
+
+
 def _lookup_number(text):
-    """First number of the text with currency marks, three-digit group commas and the sign removed."""
+    """First whole number of the text with currency marks, three-digit group commas and the sign removed.
+
+    Returns (Decimal, decimals shown), (MALFORMED, 0) when a comma is left that does not separate a group of
+    exactly three digits, or (None, 0) when the text holds no number.
+    """
     cleaned = re.sub(r"GBP|£", " ", str(text), flags=re.IGNORECASE)
-    cleaned = re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", cleaned)
-    match = re.search(r"\d+(?:\.\d+)?", cleaned)
+    match = re.search(r"\d[\d,]*(?:\.\d+)?", cleaned)
     if not match:
         return None, 0
-    token = match.group(0)
+    token = re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", match.group(0).rstrip(","))
+    if "," in token:
+        return MALFORMED, 0
     return Decimal(token), len(token.split(".")[1]) if "." in token else 0
 
 
@@ -550,16 +575,18 @@ def evidence_lookup(record, span, span_kind, config):
         value, decimals = _lookup_number(text)
         if value is None:
             return {**result, "verdict": "abstain", "detail": "no number in the marked text"}
+        if value == MALFORMED:
+            return {**result, "verdict": "flagged", "detail": "the number has a misplaced comma and equals no cell"}
         references = []
         for cell in cells:
             number, _ = _lookup_number(cell) if re.fullmatch(r"-?[\d.,]+", cell) else (None, 0)
-            if number is not None:
+            if number not in (None, MALFORMED):
                 references.append(number)
         tokenizer = re.compile(config["state_contract"]["numeric_scan"]["tokenizer_regex"])
         for line in free_text:
             for token in tokenizer.finditer(line):
                 number, _ = _lookup_number(token.group(0))
-                if number is not None:
+                if number not in (None, MALFORMED):
                     references.append(number)
         found = any(_number_matches(value, decimals, reference) for reference in references)
     elif span_kind == "month":

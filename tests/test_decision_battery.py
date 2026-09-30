@@ -1967,5 +1967,47 @@ class LocalTierTests(unittest.TestCase):
         self.assertEqual(result["text_sources"], {"local_generations": 56})
         self.assertEqual(result["checker_audit"]["span_count"], 205)
 
+class CheckerSpecFixTests(unittest.TestCase):
+    """Checker and evidence_lookup fixes taken at G1 (review items C3, C4, C8, C11, C14, C15, C16)."""
+
+    def test_list_marker_outside_ranked_questions_abstains(self):
+        answer = "Countries:\n1. Germany: GBP 11,963.37\n2. EIRE: GBP 7,570.50"
+        result = synthetic_check("q_0004", answer, "1.")
+        self.assertEqual((result["verdict"], result["abstain_reason"]), ("abstain", "rank_marker_outside_ranked_question"))
+        self.assertEqual(synthetic_check("q_0004", answer, "2.")["verdict"], "abstain")
+
+    def test_direction_branch_leaves_numbers_to_the_amount_rules(self):
+        answer = "Germany generated 9,999.99 GBP more net revenue than France."
+        self.assertNotEqual(verdict_of("q_0039", answer, "9,999.99 GBP more"), ("supported", "direction_matches"))
+        self.assertEqual(verdict_of("q_0039", answer, "9,999.99 GBP more")[0], "contradicted")
+
+    def test_operand_followed_by_a_comma_is_not_a_difference(self):
+        answer = "Germany generated 30,604.27 GBP, more than France's 25,017.64 GBP, a difference of 5,586.63 GBP."
+        self.assertEqual(verdict_of("q_0039", answer, "30,604.27 GBP"), ("supported", "cell_copy"))
+        self.assertEqual(verdict_of("q_0039", answer, "5,586.63 GBP"), ("supported", "derived_value_matches"))
+
+    def test_misplaced_commas_are_not_found_in_the_evidence(self):
+        self.assertEqual(lookup("q_0077", "x GBP 1,23,456.00", "GBP 1,23,456.00", "currency_or_number"), "flagged")
+        self.assertEqual(lookup("q_0009", "x GBP 51,63.74", "GBP 51,63.74", "currency_or_number"), "flagged")
+        self.assertEqual(lookup("q_0039", "x 30,604.27 GBP", "30,604.27 GBP", "currency_or_number"), "not_flagged")
+
+    def test_month_forms(self):
+        self.assertEqual(verdict_of("q_0004", "In april 2011 Germany led.", "april 2011"),
+                         ("supported", "period_in_question"))
+        for text in ("Apr 2011", "2011-04", "April, 2011"):
+            result = synthetic_check("q_0004", f"In {text} Germany led.", text)
+            self.assertEqual((result["verdict"], result["abstain_reason"]), ("abstain", "month_in_other_format"), text)
+
+    def test_excluded_country_outside_the_excluding_phrase_is_a_selection(self):
+        answer = "The United Kingdom had the highest net revenue in April 2011, excluding returns."
+        self.assertEqual(verdict_of("q_0004", answer, "United Kingdom")[0], "contradicted")
+        restated = "Excluding the United Kingdom, Germany had the highest net revenue."
+        self.assertEqual(verdict_of("q_0004", restated, "United Kingdom"), ("supported", "scope_restatement"))
+
+    def test_rank_phrase_needs_a_position(self):
+        result = synthetic_check("q_0064", "PARTY BUNTING ranked in the top 3 products.", "ranked in the top 3")
+        self.assertEqual((result["verdict"], result["abstain_reason"]), ("abstain", "rank_claim_without_position"))
+        self.assertEqual(synthetic_check("q_0004", "EIRE ranked #2.", "ranked #2")["verdict"], "supported")
+
 if __name__ == "__main__":
     unittest.main()
