@@ -28,6 +28,22 @@ Current config files:
 - `confirmation_precision_review_v1.json`
 - `confirmation_precision_scope_amendment_v1.json`
 - `confirmation_set_v1_protocol.json`
+- `jev_battery_v1.json` (typed-question wording of the first battery draft; authored
+  but never executed, kept unchanged)
+- `decision_battery_v2.json` (question wording, state contract, label mappings,
+  span-kind rules, checker policy and analysis policy of the decision battery)
+- `decision_battery_arms_v1.json` (decision-model arms: endpoint, pinned model,
+  repeats and environment notes)
+- `heldout_slice_v1.json` (question ids of the label-held-out slice and their
+  SHA-256)
+
+`decision_battery_v2.json`, `decision_battery_arms_v1.json` and
+`heldout_slice_v1.json` are read by `src/bizhallu/decision_battery.py`. The
+battery's freeze record, `decision_battery_v2_freeze.json`, is written once by
+its `freeze` subcommand and never by hand; later corrections go into numbered
+`decision_battery_v2_freeze_amendment_N.json` files. A change to the question
+wording or the state contract also updates the hashes pinned in
+`tests/test_decision_battery.py`.
 
 `detector_baseline_suite.json` defines the score fields used by the
 split-safe evaluator. Thresholds are selected on dev spans and reused on test

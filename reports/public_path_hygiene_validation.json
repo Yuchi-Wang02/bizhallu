@@ -1,6 +1,6 @@
 {
   "status": "public_path_hygiene_ready",
-  "checked_file_count": 125,
+  "checked_file_count": 129,
   "checked_files": [
     "configs/business_metric_contract_v1_1.json",
     "configs/confirmation_context_feasibility_v1.json",
@@ -11,8 +11,12 @@
     "configs/confirmation_precision_scope_amendment_v1.json",
     "configs/confirmation_question_design_v1.json",
     "configs/confirmation_set_v1_protocol.json",
+    "configs/decision_battery_arms_v1.json",
+    "configs/decision_battery_v2.json",
     "configs/detector_baseline_suite.json",
     "configs/full100_questions.json",
+    "configs/heldout_slice_v1.json",
+    "configs/jev_battery_v1.json",
     "configs/methodology_protocol_v1.json",
     "configs/pilot20_questions.json",
     "configs/q0048_dev_sensitivity_v1.json",
